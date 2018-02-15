@@ -44,3 +44,27 @@ suite "Testing addition implementation":
 
     z += a
     check: cast[uint16](z) == 164
+
+suite "Testing substraction implementation":
+  test "In-place substraction gives expected result":
+
+    var a = initMpUint(20182018, uint32)
+    let b = initMpUint(20172017, uint32)
+
+    a -= b
+
+    check: cast[uint64](a) == 20182018'u64 - 20172017'u64
+
+  test "Substraction gives expected result":
+
+    let a = initMpUint(20182018, uint32)
+    let b = initMpUint(20172017, uint32)
+
+    check: cast[uint64](a-b) == 20182018'u64 - 20172017'u64
+
+  test "Full overflow is handled like native unsigned types":
+    # uint16 overflows after 65535
+    let a = initMpUint(100, uint8)
+    let b = initMpUint(101, uint8)
+
+    check: cast[uint16](a-b) == high(uint16)
