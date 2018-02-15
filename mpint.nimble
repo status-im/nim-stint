@@ -9,7 +9,7 @@ srcDir        = "src"
 
 requires "nim >= 0.17.2"
 
-proc test(name: string, lang: string = "cpp") =
+proc test(name: string, lang: string = "c") =
   if not dirExists "build":
     mkDir "build"
   if not dirExists "nimcache":
