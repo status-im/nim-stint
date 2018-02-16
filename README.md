@@ -1,5 +1,6 @@
 # Mpint (Multi-precision integers)
 
+[![Build Status (Travis)](https://img.shields.io/travis/status-im/mpint/master.svg?label=Linux%20/%20macOS "Linux/macOS build status (Travis)")](https://travis-ci.org/status-im/mpint)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![Stability: experimental](https://img.shields.io/badge/stability-experimental-orange.svg)
 
