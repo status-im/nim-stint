@@ -2,7 +2,8 @@
 # Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
 
 import  ./private/utils,
-        uint_type
+        uint_type,
+        uint_comparison
 
 proc `+=`*[T: MpUint](x: var T, y: T) {.noSideEffect.}=
   ## In-place addition for multi-precision unsigned int

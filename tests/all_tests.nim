@@ -3,4 +3,5 @@
 
 import  test_endianness,
         test_addsub,
-        test_mul
+        test_mul,
+        test_comparison

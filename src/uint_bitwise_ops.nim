@@ -25,7 +25,7 @@ proc `xor`*(x, y: MpUint): MpUint {.noInit, noSideEffect, inline.}=
   result.lo = x.lo xor y.lo
   result.hi = x.hi xor y.hi
 
-proc `shl`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}
+proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}
   # Forward declaration
 
 proc `shl`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=

@@ -4,9 +4,11 @@
 import  ./uint_type,
         ./uint_init,
         ./uint_bitwise_ops,
-        ./uint_binary_ops
+        ./uint_binary_ops,
+        ./uint_comparison
 
 export  uint_type,
         uint_init,
         uint_bitwise_ops,
-        uint_binary_ops
+        uint_binary_ops,
+        uint_comparison
