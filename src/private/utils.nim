@@ -1,7 +1,9 @@
 # Copyright (c) 2018 Status Research & Development GmbH
 # Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
 
-import ../uint_type
+import  ../uint_type,
+        macros
+
 
 proc bit_length*[T: BaseUint](n: T): int {.noSideEffect.}=
   ## Calculates how many bits are necessary to represent the number
@@ -51,3 +53,8 @@ proc asDoubleUint*[T: BaseUint](n: T): auto {.noSideEffect, inline.} =
   )
 
   n.asUint.Double
+
+macro getSubType*(T: typedesc): untyped =
+  ## Returns the subtype of a generic type
+  ## MpUint[uint32] --> uint32
+  getTypeInst(T)[1][1]
