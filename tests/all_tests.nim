@@ -2,4 +2,5 @@
 # Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).$
 
 import  test_endianness,
-        test_addsub
+        test_addsub,
+        test_mul
