@@ -40,14 +40,11 @@ proc `shl`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
 
   type Sub = getSubType T
 
-  if y > halfSize:
-    result.hi = x.lo shl (y - halfSize)
-    result.lo = 0.Sub
-  elif y < halfSize:
+  if y < halfSize:
     result.hi = (x.hi shl y) or (x.lo shr (halfSize - y))
     result.lo = x.lo shl y
   else:
-    result.hi = x.lo
+    result.hi = x.lo shl (y - halfSize)
     result.lo = 0.Sub
 
 proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
@@ -62,12 +59,9 @@ proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
 
   type Sub = getSubType T
 
-  if y > halfSize:
-    result.hi = x.hi shr (y - halfSize)
-    result.lo = 0.Sub
-  elif y < halfSize:
+  if y < halfSize:
     result.lo = (x.lo shr y) or (x.hi shl (halfSize - y))
     result.hi = x.hi shr y
   else:
-    result.lo = x.hi
-    result.hi = 0.Sub
+    result.hi = x.hi shr (y - halfSize)
+    result.lo = 0.Sub
