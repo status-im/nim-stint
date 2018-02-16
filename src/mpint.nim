@@ -3,8 +3,10 @@
 
 import  ./uint_type,
         ./uint_init,
+        ./uint_bitwise_ops,
         ./uint_binary_ops
 
 export  uint_type,
         uint_init,
+        uint_bitwise_ops,
         uint_binary_ops
