@@ -67,6 +67,8 @@ proc `*`*[T: MpUint](a, b: T): T {.noSideEffect, noInit.}=
 
 template karatsubaImpl[T: MpUint](x, y: T): MpUint[T] =
   # https://en.wikipedia.org/wiki/Karatsuba_algorithm
+
+  const halfShl = T.sizeof div 2
   let
     z0 = karatsuba(x.lo, y.lo)
     tmp = karatsuba(x.hi, y.lo)
@@ -75,7 +77,7 @@ template karatsubaImpl[T: MpUint](x, y: T): MpUint[T] =
   z1 += karatsuba(x.hi, y.lo)
   let z2 = (z1 < tmp).T + karatsuba(x.hi, y.hi)
 
-  result.lo = z1.lo shl 32 + z0
+  result.lo = z1.lo shl halfShl + z0
   result.hi = z2 + z1.hi
 
 proc karatsuba[T: BaseUint](a, b: T): MpUint[T] {.noSideEffect, noInit, inline.}=
