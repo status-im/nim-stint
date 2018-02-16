@@ -106,3 +106,48 @@ proc naiveMul[T: BaseUint](x, y: T): MpUint[T] {.noSideEffect, noInit, inline.}=
     # Case: at least uint128 * uint128 --> uint256
     naiveMulImpl(x, y)
 
+
+proc divmod*[T: BaseUint](x, y: T): tuple[quot, rem: T] {.noSideEffect.}=
+  ## Division for multi-precision unsigned uint
+  ## Returns quotient + reminder in a (quot, rem) tuple
+  #
+  # Implementation through binary shift division
+  const zero = T()
+
+  when x.lo is MpUInt:
+    const one = T(lo: getSubType(T)(1))
+    const mpOne = one
+  else:
+    const one: getSubType(T) = 1
+    const mpOne = T(lo: getSubType(T)(1))
+
+  if y == zero:
+    raise newException(DivByZeroError, "You attempted to divide by zero")
+  elif y == mpOne:
+    result.quot = x
+    return
+
+  var
+    shift = x.bit_length - y.bit_length
+    d = y shl shift
+
+  result.rem  = x
+
+  while shift >= 0:
+    result.quot = result.quot shl 1
+    if result.rem >= d:
+      result.rem -= d
+      result.quot.lo = result.quot.lo or one
+
+    d = d shr 1
+    dec(shift)
+
+  # Performance note:
+  # The performance of this implementation is extremely dependant on shl and shr.
+  #
+  # Probably the most efficient algorithm that can benefit from MpUInt data structure is
+  # the recursive fast division by Burnikel and Ziegler (http://www.mpi-sb.mpg.de/~ziegler/TechRep.ps.gz):
+  #  - Python implementation: https://bugs.python.org/file11060/fast_div.py and discussion https://bugs.python.org/issue3451
+  #  - C++ implementation: https://github.com/linbox-team/givaro/blob/master/src/kernel/recint/rudiv.h
+  #  - The Handbook of Elliptic and Hyperelliptic Cryptography Algorithm 10.35 on page 188 has a more explicit version of the div2NxN algorithm. This algorithm is directly recursive and avoids the mutual recursion of the original paper's calls between div2NxN and div3Nx2N.
+  #  - Comparison of fast division algorithms fro large integers: http://bioinfo.ict.ac.cn/~dbu/AlgorithmCourses/Lectures/Hasselstrom2003.pdf

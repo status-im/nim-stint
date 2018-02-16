@@ -34,7 +34,7 @@ proc `shl`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
   if y == 0:
     return x
 
-  let # cannot be const, compile-time sizeof only works for simple types
+  let
     size = T.sizeof * 8
     halfSize = size div 2
 
@@ -53,7 +53,7 @@ proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
   if y == 0:
     return x
 
-  let # cannot be const, compile-time sizeof only works for simple types
+  let
     size = T.sizeof * 8
     halfSize = size div 2
 
@@ -97,7 +97,7 @@ proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
 #   result.hi = (x.lo shl S) and not M2
 #   result.lo = (x.lo shl S) and M2
 #   result.hi = result.hi or ((
-#     x.hi shl S or (x.lo shr (size - S) and M1)
+#     x.hi shl S or (x.lo shr (halfSize - S) and M1)
 #   ) and M2)
 
 # proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
@@ -119,5 +119,5 @@ proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
 #   result.lo = (x.hi shr S) and not M2
 #   result.hi = (x.hi shr S) and M2
 #   result.lo = result.lo or ((
-#     x.lo shr S or (x.lo shl (size - S) and M1)
+#     x.lo shr S or (x.hi shl (halfSize - S) and M1)
 #   ) and M2)
