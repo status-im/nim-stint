@@ -77,7 +77,7 @@ template naiveMulImpl[T: MpUint](x, y: T): MpUint[T] =
   #     and introduce branching
   #   - More total operations means more register moves
 
-  let # TODO: should be a const - https://github.com/nim-lang/Nim/pull/5664
+  let  # cannot be const, compile-time sizeof only works for simple types
     size = (T.sizeof * 8)
     halfSize = size div 2
   let
@@ -100,7 +100,7 @@ proc naiveMul[T: BaseUint](x, y: T): MpUint[T] {.noSideEffect, noInit, inline.}=
 
   elif T.sizeof == 8: # uint64 or MpUint[uint32]
     # We cannot double uint64 to uint128
-    naiveMulImpl(cast[MpUint[uint32]](a), cast[MpUint[uint32]](b))
+    naiveMulImpl(x.toMpUint, y.toMpUint)
   else:
     # Case: at least uint128 * uint128 --> uint256
-    naiveMulImpl(a, b)
+    naiveMulImpl(x, y)

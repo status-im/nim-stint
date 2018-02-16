@@ -58,3 +58,17 @@ macro getSubType*(T: typedesc): untyped =
   ## Returns the subtype of a generic type
   ## MpUint[uint32] --> uint32
   getTypeInst(T)[1][1]
+
+
+proc toMpUint*[T: SomeInteger](n: T): auto {.noSideEffect, inline.} =
+  ## Cast an integer to the corresponding size MpUint
+  # Sometimes direct casting doesn't work and we must cast through a pointer
+
+  when T is uint64:
+    return (cast[ptr [MpUint[uint32]]](unsafeAddr n))[]
+  elif T is uint32:
+    return (cast[ptr [MpUint[uint16]]](unsafeAddr n))[]
+  elif T is uint16:
+    return (cast[ptr [MpUint[uint8]]](unsfddr n))[]
+  else:
+    raise newException(ValueError, "You can only cast uint16, uint32 or uint64 to multiprecision integers")

@@ -34,7 +34,7 @@ proc `shl`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
   if y == 0:
     return x
 
-  let # TODO: should be a const - https://github.com/nim-lang/Nim/pull/5664
+  let # cannot be const, compile-time sizeof only works for simple types
     size = (T.sizeof * 8)
     halfSize = size div 2
 
@@ -53,7 +53,7 @@ proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
   if y == 0:
     return x
 
-  let # TODO: should be a const - https://github.com/nim-lang/Nim/pull/5664
+  let # cannot be const, compile-time sizeof only works for simple types
     size = (T.sizeof * 8)
     halfSize = size div 2
 
@@ -65,3 +65,56 @@ proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
   else:
     result.hi = x.hi shr (y - halfSize)
     result.lo = 0.Sub
+
+
+
+# ########################################################################
+# TODO Benchmarks (especially on ARM)
+# Alternative shift implementations without branching
+#
+# Quick testing on MpUint[uint32] on x86_64 with Clang shows that it is somewhat slower
+# Fast shifting is key to fast division and modulo operations
+
+# proc `shl`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
+#   ## Compute the `shift left` operation of x and y
+#   type Sub = getSubType T
+#
+#   let # cannot be const, compile-time sizeof only works for simple types
+#     size = Sub(T.sizeof * 8)
+#     halfSize = size div 2
+#
+#   var S = y.Sub and (size-1) # y mod size
+#
+#   let
+#     M1 = Sub( ((((S + size-1) or S) and halfSize) div halfSize) - 1)
+#     M2 = Sub( (S div halfSize) - 1)
+#
+#   S = S and (halfSize-1) # y mod halfsize
+#
+#   result.hi = (x.lo shl S) and not M2
+#   result.lo = (x.lo shl S) and M2
+#   result.hi = result.hi or ((
+#     x.hi shl S or (x.lo shr (size - S) and M1)
+#   ) and M2)
+
+# proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
+#   ## Compute the `shift right` operation of x and y
+#   type Sub = getSubType T
+#
+#   let # cannot be const, compile-time sizeof only works for simple types
+#     size = Sub(T.sizeof * 8)
+#     halfSize = size div 2
+#
+#   var S = y.Sub and (size-1) # y mod size
+#
+#   let
+#     M1 = Sub( ((((S + size-1) or S) and halfSize) div halfSize) - 1)
+#     M2 = Sub( (S div halfSize) - 1)
+#
+#   S = S and (halfSize-1) # y mod halfsize
+#
+#   result.lo = (x.hi shr S) and not M2
+#   result.hi = (x.hi shr S) and M2
+#   result.lo = result.lo or ((
+#     x.lo shr S or (x.lo shl (size - S) and M1)
+#   ) and M2)
