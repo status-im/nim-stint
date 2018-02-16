@@ -11,10 +11,10 @@ macro getSubType*(T: typedesc): untyped =
 
 proc bit_length*[T: SomeUnsignedInt](n: T): int {.noSideEffect.}=
   ## Calculates how many bits are necessary to represent the number
-  result = 1
-  var y: T = n shr 1
-  while y != 0.T:
-    y = y shr 1
+
+  var n = n
+  while n != 0.T:
+    n = n shr 1
     inc(result)
 
 proc bit_length*[T: Natural](n: T): int {.noSideEffect.}=
@@ -22,20 +22,21 @@ proc bit_length*[T: Natural](n: T): int {.noSideEffect.}=
   #
   # For some reason using "SomeUnsignedInt or Natural" directly makes Nim compiler
   # throw a type mismatch
-  result = 1
-  var y: T = n shr 1
-  while y != 0.T:
-    y = y shr 1
+
+  var n = n
+  while n != 0.T:
+    n = n shr 1
     inc(result)
 
 proc bit_length*[T: MpUint](n: T): int {.noSideEffect.}=
   ## Calculates how many bits are necessary to represent the number
-  const zero = T()
-  result = 1
-  var y: T = n shr 1
-  while y != zero:
-    y = y shr 1 # TODO: shr is slow!
-    inc(result)
+
+  const maxHalfRepr = n.lo.type.sizeof * 8 - 1
+
+  if n.hi.bit_length == 0:
+    n.lo.bit_length
+  else:
+    n.hi.bit_length + maxHalfRepr
 
 proc asUint*[T: MpUInt](n: T): auto {.noSideEffect, inline.}=
   ## Casts a multiprecision integer to an uint of the same size
