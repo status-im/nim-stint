@@ -74,6 +74,9 @@ proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
 #
 # Quick testing on MpUint[uint32] on x86_64 with Clang shows that it is somewhat slower
 # Fast shifting is key to fast division and modulo operations
+#
+# Note: Using branchless shift will help preventing timing attacks / be more robust cryptography-wise
+# Note2: It's a mess to maintain/read/update
 
 # proc `shl`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
 #   ## Compute the `shift left` operation of x and y
