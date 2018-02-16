@@ -77,7 +77,9 @@ template naiveMulImpl[T: MpUint](x, y: T): MpUint[T] =
   #     and introduce branching
   #   - More total operations means more register moves
 
-  const halfShl = T.sizeof div 2
+  let # TODO: should be a const - https://github.com/nim-lang/Nim/pull/5664
+    size = (T.sizeof * 8)
+    halfSize = size div 2
   let
     z0 = naiveMul(x.lo, y.lo)
     tmp = naiveMul(x.hi, y.lo)
@@ -86,7 +88,7 @@ template naiveMulImpl[T: MpUint](x, y: T): MpUint[T] =
   z1 += naiveMul(x.hi, y.lo)
   let z2 = (z1 < tmp).T + naiveMul(x.hi, y.hi)
 
-  result.lo = z1.lo shl halfShl + z0
+  result.lo = z1.lo shl halfSize + z0
   result.hi = z2 + z1.hi
 
 proc naiveMul[T: BaseUint](x, y: T): MpUint[T] {.noSideEffect, noInit, inline.}=
