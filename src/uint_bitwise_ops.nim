@@ -35,10 +35,10 @@ proc `shl`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
     return x
 
   let # cannot be const, compile-time sizeof only works for simple types
-    size = (T.sizeof * 8)
+    size = T.sizeof * 8
     halfSize = size div 2
 
-  type Sub = getSubType T
+  type Sub = type x.lo
 
   if y < halfSize:
     result.hi = (x.hi shl y) or (x.lo shr (halfSize - y))
@@ -54,10 +54,10 @@ proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
     return x
 
   let # cannot be const, compile-time sizeof only works for simple types
-    size = (T.sizeof * 8)
+    size = T.sizeof * 8
     halfSize = size div 2
 
-  type Sub = getSubType T
+  type Sub = type x.lo
 
   if y < halfSize:
     result.lo = (x.lo shr y) or (x.hi shl (halfSize - y))
@@ -80,7 +80,7 @@ proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
 
 # proc `shl`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
 #   ## Compute the `shift left` operation of x and y
-#   type Sub = getSubType T
+#   type Sub = type x.lo
 #
 #   let # cannot be const, compile-time sizeof only works for simple types
 #     size = Sub(T.sizeof * 8)
@@ -102,7 +102,7 @@ proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
 
 # proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
 #   ## Compute the `shift right` operation of x and y
-#   type Sub = getSubType T
+#   type Sub = type x.lo
 #
 #   let # cannot be const, compile-time sizeof only works for simple types
 #     size = Sub(T.sizeof * 8)

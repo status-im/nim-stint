@@ -14,3 +14,13 @@ type
 
   UInt128* = MpUint[uint64]
   UInt256* = MpUint[UInt128]
+
+
+template convBool(typ: typedesc): untyped =
+  converter boolMpUint*(b: bool): MpUint[typ] {.noSideEffect, inline.}=
+    result.lo = b.typ
+
+convBool(uint8)
+convBool(uint16)
+convBool(uint32)
+convBool(uint64)

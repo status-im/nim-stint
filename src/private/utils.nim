@@ -4,6 +4,11 @@
 import  ../uint_type,
         macros
 
+macro getSubType*(T: typedesc): untyped =
+  ## Returns the subtype of a generic type
+  ## MpUint[uint32] --> uint32
+  getTypeInst(T)[1][1]
+
 
 proc bit_length*[T: BaseUint](n: T): int {.noSideEffect.}=
   ## Calculates how many bits are necessary to represent the number
@@ -53,11 +58,6 @@ proc asDoubleUint*[T: BaseUint](n: T): auto {.noSideEffect, inline.} =
   )
 
   n.asUint.Double
-
-macro getSubType*(T: typedesc): untyped =
-  ## Returns the subtype of a generic type
-  ## MpUint[uint32] --> uint32
-  getTypeInst(T)[1][1]
 
 
 proc toMpUint*[T: SomeInteger](n: T): auto {.noSideEffect, inline.} =

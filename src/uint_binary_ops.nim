@@ -10,11 +10,11 @@ proc `+=`*[T: MpUint](x: var T, y: T) {.noSideEffect.}=
   #
   # Optimized assembly should contain adc instruction (add with carry)
   # Clang on MacOS does with the -d:release switch and MpUint[uint32] (uint64)
-  type Base = type x.lo
+  type MpBase = type x.lo
   let tmp = x.lo
 
   x.lo += y.lo
-  x.hi += (x.lo < tmp).Base + y.hi
+  x.hi += MpBase(x.lo < tmp) + y.hi
 
 proc `+`*[T: MpUint](x, y: T): T {.noSideEffect, noInit, inline.}=
   # Addition for multi-precision unsigned int
@@ -26,11 +26,11 @@ proc `-=`*[T: MpUint](x: var T, y: T) {.noSideEffect.}=
   #
   # Optimized assembly should contain sbb instruction (substract with borrow)
   # Clang on MacOS does with the -d:release switch and MpUint[uint32] (uint64)
-  type MPBase = type x.lo
+  type MpBase = type x.lo
   let tmp = x.lo
 
   x.lo -= y.lo
-  x.hi -= (x.lo > tmp).MPBase + y.hi
+  x.hi -= MpBase(x.lo > tmp) + y.hi
 
 proc `-`*[T: MpUint](x, y: T): T {.noSideEffect, noInit, inline.}=
   # Substraction for multi-precision unsigned int
@@ -79,7 +79,7 @@ template naiveMulImpl[T: MpUint](x, y: T): MpUint[T] =
   #   - More total operations means more register moves
 
   let  # cannot be const, compile-time sizeof only works for simple types
-    size = (T.sizeof * 8)
+    size = T.sizeof * 8
     halfSize = size div 2
   let
     z0 = naiveMul(x.lo, y.lo)
@@ -105,3 +105,4 @@ proc naiveMul[T: BaseUint](x, y: T): MpUint[T] {.noSideEffect, noInit, inline.}=
   else:
     # Case: at least uint128 * uint128 --> uint256
     naiveMulImpl(x, y)
+
