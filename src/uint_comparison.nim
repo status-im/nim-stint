@@ -11,3 +11,9 @@ proc `<=`*[T: MpUint](x, y: T): bool {.noSideEffect, noInit, inline.}=
   if x == y:
     return true
   x < y
+
+proc isZero[T: SomeUnsignedInt](n: T): bool {.noSideEffect,inline.} =
+  n == 0.T
+
+proc isZero*(n: MpUint): bool {.noSideEffect,inline.} =
+  n.lo.isZero and n.hi.isZero

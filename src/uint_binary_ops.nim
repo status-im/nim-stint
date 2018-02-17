@@ -114,16 +114,11 @@ proc divmod*[T: BaseUint](x, y: T): tuple[quot, rem: T] {.noSideEffect.}=
 
   when x.lo is MpUInt:
     const one = T(lo: getSubType(T)(1))
-    const mpOne = one
   else:
     const one: getSubType(T) = 1
-    const mpOne = T(lo: getSubType(T)(1))
 
-  if y == zero:
+  if unlikely(y.isZero):
     raise newException(DivByZeroError, "You attempted to divide by zero")
-  elif y == mpOne:
-    result.quot = x
-    return
 
   var
     shift = x.bit_length - y.bit_length

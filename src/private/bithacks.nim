@@ -44,6 +44,9 @@ proc bit_length*[T: MpUint](n: T): int {.noSideEffect.}=
 
   const maxHalfRepr = n.lo.type.sizeof * 8 - 1
 
+  # Changing the following to an if expression somehow transform the whole ASM to 5 branches
+  # instead of the 4 expected (with the inline ASM from bit_length_impl)
+  # Also there does not seems to be a way to generate a conditional mov
   if n.hi.bit_length == 0:
     n.lo.bit_length
   else:
