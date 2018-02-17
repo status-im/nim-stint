@@ -1,8 +1,7 @@
 # Copyright (c) 2018 Status Research & Development GmbH
 # Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
 
-import  ./private/utils,
-        uint_type
+import  uint_type
 
 
 proc `not`*(x: MpUint): MpUint {.noInit, noSideEffect, inline.}=
@@ -31,8 +30,7 @@ proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}
 proc `shl`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
   ## Compute the `shift left` operation of x and y
   let
-    size = T.sizeof * 8
-    halfSize = size shr 1
+    halfSize = T.sizeof * 4
 
   type Sub = type x.lo
 
@@ -44,8 +42,7 @@ proc `shl`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
 proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
   ## Compute the `shift right` operation of x and y
   let
-    size = T.sizeof * 8
-    halfSize = size shr 1
+    halfSize = T.sizeof * 4
 
   type Sub = type x.lo
 

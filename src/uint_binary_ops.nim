@@ -1,7 +1,7 @@
 # Copyright (c) 2018 Status Research & Development GmbH
 # Distributed under the MIT License (license terms are at http://opensource.org/licenses/MIT).
 
-import  ./private/utils,
+import  ./private/[bithacks, casting],
         uint_type,
         uint_comparison
 
@@ -78,10 +78,8 @@ template naiveMulImpl[T: MpUint](x, y: T): MpUint[T] =
   #     and introduce branching
   #   - More total operations means more register moves
 
-  let  # cannot be const, compile-time sizeof only works for simple types
-    size = T.sizeof * 8
-    halfSize = size shr 1
   let
+    halfSize = T.sizeof * 4
     z0 = naiveMul(x.lo, y.lo)
     tmp = naiveMul(x.hi, y.lo)
 
@@ -134,7 +132,7 @@ proc divmod*[T: BaseUint](x, y: T): tuple[quot, rem: T] {.noSideEffect.}=
   result.rem  = x
 
   while shift >= 0:
-    result.quot = result.quot shl 1
+    result.quot += result.quot
     if result.rem >= d:
       result.rem -= d
       result.quot.lo = result.quot.lo or one
