@@ -30,94 +30,26 @@ proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}
 
 proc `shl`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
   ## Compute the `shift left` operation of x and y
-
-  if y == 0:
-    return x
-
   let
     size = T.sizeof * 8
-    halfSize = size div 2
+    halfSize = size shr 1
 
   type Sub = type x.lo
 
-  if y < halfSize:
-    result.hi = (x.hi shl y) or (x.lo shr (halfSize - y))
-    result.lo = x.lo shl y
-  else:
-    result.hi = x.lo shl (y - halfSize)
-    result.lo = 0.Sub
+  result.hi = (x.hi shl y) or (x.lo shl (y - halfSize))
+  result.lo = if y < halfSize: x.lo shl y
+              else: 0.Sub
+
 
 proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
   ## Compute the `shift right` operation of x and y
-
-  if y == 0:
-    return x
-
   let
     size = T.sizeof * 8
-    halfSize = size div 2
+    halfSize = size shr 1
 
   type Sub = type x.lo
 
-  if y < halfSize:
-    result.lo = (x.lo shr y) or (x.hi shl (halfSize - y))
-    result.hi = x.hi shr y
-  else:
-    result.hi = x.hi shr (y - halfSize)
-    result.lo = 0.Sub
+  result.lo = (x.lo shr y) or (x.hi shl (y - halfSize)) # the shl is not a mistake
+  result.hi = if y < halfSize: x.hi shr y
+              else: 0.Sub
 
-
-
-# ########################################################################
-# TODO Benchmarks (especially on ARM)
-# Alternative shift implementations without branching
-#
-# Quick testing on MpUint[uint32] on x86_64 with Clang shows that it is somewhat slower
-# Fast shifting is key to fast division and modulo operations
-#
-# Note: Using branchless shift will help preventing timing attacks / be more robust cryptography-wise
-# Note2: It's a mess to maintain/read/update
-
-# proc `shl`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
-#   ## Compute the `shift left` operation of x and y
-#   type Sub = type x.lo
-#
-#   let # cannot be const, compile-time sizeof only works for simple types
-#     size = Sub(T.sizeof * 8)
-#     halfSize = size div 2
-#
-#   var S = y.Sub and (size-1) # y mod size
-#
-#   let
-#     M1 = Sub( ((((S + size-1) or S) and halfSize) div halfSize) - 1)
-#     M2 = Sub( (S div halfSize) - 1)
-#
-#   S = S and (halfSize-1) # y mod halfsize
-#
-#   result.hi = (x.lo shl S) and not M2
-#   result.lo = (x.lo shl S) and M2
-#   result.hi = result.hi or ((
-#     x.hi shl S or (x.lo shr (halfSize - S) and M1)
-#   ) and M2)
-
-# proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
-#   ## Compute the `shift right` operation of x and y
-#   type Sub = type x.lo
-#
-#   let # cannot be const, compile-time sizeof only works for simple types
-#     size = Sub(T.sizeof * 8)
-#     halfSize = size div 2
-#
-#   var S = y.Sub and (size-1) # y mod size
-#
-#   let
-#     M1 = Sub( ((((S + size-1) or S) and halfSize) div halfSize) - 1)
-#     M2 = Sub( (S div halfSize) - 1)
-#
-#   S = S and (halfSize-1) # y mod halfsize
-#
-#   result.lo = (x.hi shr S) and not M2
-#   result.hi = (x.hi shr S) and M2
-#   result.lo = result.lo or ((
-#     x.lo shr S or (x.hi shl (halfSize - S) and M1)
-#   ) and M2)

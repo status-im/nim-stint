@@ -80,7 +80,7 @@ template naiveMulImpl[T: MpUint](x, y: T): MpUint[T] =
 
   let  # cannot be const, compile-time sizeof only works for simple types
     size = T.sizeof * 8
-    halfSize = size div 2
+    halfSize = size shr 1
   let
     z0 = naiveMul(x.lo, y.lo)
     tmp = naiveMul(x.hi, y.lo)
