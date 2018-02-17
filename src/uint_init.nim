@@ -3,22 +3,22 @@
 
 import  typetraits
 
-import  private/bithacks,
-        uint_type
+import  ./private/bithacks,
+        ./uint_type
 
 proc initMpUint*[T: BaseUint; U: BaseUInt](n: T, base_type: typedesc[U]): MpUint[U] {.noSideEffect.} =
-  let len = n.bit_length
-  const size = sizeof(U) * 8
-
   when not (T is type result):
+    let len = n.bit_length
+    const size = sizeof(U) * 8
     if len >= 2 * size:
       # Todo print n
       raise newException(ValueError, "Input cannot be stored in a multi-precision integer of base " & $T.name &
                                         "\nIt requires at least " & $len & " bits of precision")
     elif len < size:
       result.lo = n.U # TODO: converter for MpInts
-    else:
-      raise newException(ValueError, "Unsupported at the moment: are you trying to build MpUint[uint32] from an uint64?")
+    else: # Both have the same size and memory representation
+      assert len == size
+      n.toMpUint
   else:
     n
 
