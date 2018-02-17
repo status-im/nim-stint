@@ -29,24 +29,26 @@ proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}
 
 proc `shl`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
   ## Compute the `shift left` operation of x and y
+  # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
   let
     halfSize = T.sizeof * 4
 
-  type Sub = type x.lo
+  type SubT = type x.lo
 
   result.hi = (x.hi shl y) or (x.lo shl (y - halfSize))
   result.lo = if y < halfSize: x.lo shl y
-              else: 0.Sub
+              else: 0.SubT
 
 
 proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
   ## Compute the `shift right` operation of x and y
+  # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
   let
     halfSize = T.sizeof * 4
 
-  type Sub = type x.lo
+  type SubT = type x.lo
 
   result.lo = (x.lo shr y) or (x.hi shl (y - halfSize)) # the shl is not a mistake
   result.hi = if y < halfSize: x.hi shr y
-              else: 0.Sub
+              else: 0.SubT
 

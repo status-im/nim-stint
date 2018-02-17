@@ -25,3 +25,14 @@ suite "Testing multiplication implementation":
     let c = initMpUint(1_000, uint32)
 
     check: cast[uint64](a*b*c) == 1_000_000_000_000_000_000_000'u64 # need 70-bits
+
+
+suite "Testing division and modulo implementation":
+  test "Divmod returns the correct result":
+
+    let a = initMpUint(100, uint32)
+    let b = initMpUint(13, uint32)
+    let qr = a.divmod(b)
+
+    check: cast[uint64](qr.quot) == 7'u64
+    check: cast[uint64](qr.rem)  == 9'u64

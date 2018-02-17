@@ -10,11 +10,11 @@ proc `+=`*[T: MpUint](x: var T, y: T) {.noSideEffect.}=
   #
   # Optimized assembly should contain adc instruction (add with carry)
   # Clang on MacOS does with the -d:release switch and MpUint[uint32] (uint64)
-  type MpBase = type x.lo
+  type SubT = type x.lo
   let tmp = x.lo
 
   x.lo += y.lo
-  x.hi += MpBase(x.lo < tmp) + y.hi
+  x.hi += SubT(x.lo < tmp) + y.hi
 
 proc `+`*[T: MpUint](x, y: T): T {.noSideEffect, noInit, inline.}=
   # Addition for multi-precision unsigned int
@@ -26,11 +26,11 @@ proc `-=`*[T: MpUint](x: var T, y: T) {.noSideEffect.}=
   #
   # Optimized assembly should contain sbb instruction (substract with borrow)
   # Clang on MacOS does with the -d:release switch and MpUint[uint32] (uint64)
-  type MpBase = type x.lo
+  type SubT = type x.lo
   let tmp = x.lo
 
   x.lo -= y.lo
-  x.hi -= MpBase(x.lo > tmp) + y.hi
+  x.hi -= SubT(x.lo > tmp) + y.hi
 
 proc `-`*[T: MpUint](x, y: T): T {.noSideEffect, noInit, inline.}=
   # Substraction for multi-precision unsigned int
@@ -149,3 +149,11 @@ proc divmod*[T: BaseUint](x, y: T): tuple[quot, rem: T] {.noSideEffect.}=
   #  - C++ implementation: https://github.com/linbox-team/givaro/blob/master/src/kernel/recint/rudiv.h
   #  - The Handbook of Elliptic and Hyperelliptic Cryptography Algorithm 10.35 on page 188 has a more explicit version of the div2NxN algorithm. This algorithm is directly recursive and avoids the mutual recursion of the original paper's calls between div2NxN and div3Nx2N.
   #  - Comparison of fast division algorithms fro large integers: http://bioinfo.ict.ac.cn/~dbu/AlgorithmCourses/Lectures/Hasselstrom2003.pdf
+
+proc `div`*[T: BaseUint](x, y: T): T {.inline, noSideEffect.} =
+  ## Division operation for multi-precision unsigned uint
+  divmod(x,y).quot
+
+proc `mod`*[T: BaseUint](x, y: T): T {.inline, noSideEffect.} =
+  ## Division operation for multi-precision unsigned uint
+  divmod(x,y).rem
