@@ -2,7 +2,7 @@ packageName   = "mpint"
 version       = "0.0.1"
 author        = "Status Research & Development GmbH"
 description   = "Efficient multiprecision int in Nim"
-license       = "MIT"
+license       = "Apache License 2.0"
 srcDir        = "src"
 
 ### Dependencies
