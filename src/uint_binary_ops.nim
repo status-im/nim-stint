@@ -87,8 +87,10 @@ template naiveMulImpl[T: MpUint](x, y: T): MpUint[T] =
   z1 += naiveMul(x.hi, y.lo)
   let z2 = (z1 < tmp).T + naiveMul(x.hi, y.hi)
 
-  result.lo = z1.lo shl halfSize + z0
-  result.hi = z2 + z1.hi
+  let tmp2  = z1.lo shl halfSize
+  result.lo = tmp2
+  result.lo += z0
+  result.hi = (result.lo < tmp2).T + z2 + z1.hi
 
 proc naiveMul[T: BaseUint](x, y: T): MpUint[T] {.noSideEffect, noInit, inline.}=
   ## Naive multiplication algorithm with extended precision
