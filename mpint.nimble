@@ -2,12 +2,12 @@ packageName   = "mpint"
 version       = "0.0.1"
 author        = "Status Research & Development GmbH"
 description   = "Efficient multiprecision int in Nim"
-license       = "Apache License 2.0"
+license       = "Apache License 2.0 or MIT"
 srcDir        = "src"
 
 ### Dependencies
 
-requires "nim >= 0.17.2"
+requires "nim >= 0.18"
 
 proc test(name: string, lang: string = "c") =
   if not dirExists "build":
