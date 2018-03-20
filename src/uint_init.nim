@@ -37,25 +37,3 @@ proc initMpUint*(n: SomeUnsignedInt, bits: static[int]): MpUint[bits] {.noSideEf
     result.lo = (type result.lo)(n)
   else:
     result = n.toMpUint
-
-  ## TODO: The current initMpUint prevents the following:
-  ## let a = 10
-  ## let b = initMpUint[16](a)
-  ##
-  ## It should use bit_length to get the number of bits needed instead
-
-# proc u128*[T: BaseUInt](n: T): UInt128 {.noSideEffect, inline.}=
-#   initMpUint(n, uint64)
-
-# proc u256*[T: BaseUInt](n: T): UInt256 {.noSideEffect, inline.}=
-#   initMpUint(n, UInt256)
-
-
-when isMainModule:
-
-  let a = 10'u16
-
-  let b = a.toMpUint
-
-  echo b.repr
-  echo b

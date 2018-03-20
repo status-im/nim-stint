@@ -23,6 +23,7 @@ when isMainModule:
   echo "a+a: " & $(a+a)
 
   let z = a * a
-  echo z
-  echo $z.type.name
+  echo "a * a: " & $z # How did the result value change?
+  echo "a * a type: " & $z.type.name
 
+  echo "Is memory corrupted: " & $(z != toMpUint(100'u32))
