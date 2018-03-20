@@ -8,24 +8,36 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 type
-  MpUint*{.packed.}[BaseUint] = object
+  # TODO: The following is a hacky workaround
+  # due to:
+  #   - https://github.com/nim-lang/Nim/issues/7230
+  #   - https://github.com/nim-lang/Nim/issues/7378
+  #   - https://github.com/nim-lang/Nim/issues/7379
+
+  BitsHolder[bits: static[int]] = object
+
+type
+  MpUintImpl[bh] = object
+    # TODO: when gcc/clang defines it use the builtin uint128
     when system.cpuEndian == littleEndian:
-      lo*, hi*: BaseUint
+      when bh is BitsHolder[128]: lo*, hi*: uint64
+      elif bh is BitsHolder[64]: lo*, hi*: uint32
+      elif bh is BitsHolder[32]: lo*, hi*: uint16
+      elif bh is BitsHolder[16]: lo*, hi*: uint8
+
+      # The following cannot be implemented recursively yet
+      elif bh is BitsHolder[256]: lo*, hi*: MpUintImpl[BitsHolder[128]]
+      # else:
+      #   Not implemented
     else:
-      hi*, lo*: BaseUint
+      when bh is BitsHolder[128]: hi*, lo*: uint64
+      elif bh is BitsHolder[64]: hi*, lo*: uint32
+      elif bh is BitsHolder[32]: hi*, lo*: uint16
+      elif bh is BitsHolder[16]: hi*, lo*: uint8
 
-  BaseUint* = SomeUnsignedInt or MpUint
+      # The following cannot be implemented recursively yet
+      elif bh is BitsHolder[256]: hi*, lo*: MpUintImpl[BitsHolder[128]]
+      # else:
+      #   Not implemented
 
-
-  UInt128* = MpUint[uint64]
-  UInt256* = MpUint[UInt128]
-
-
-template convBool(typ: typedesc): untyped =
-  converter boolMpUint*(b: bool): MpUint[typ] {.noSideEffect, inline.}=
-    result.lo = b.typ
-
-convBool(uint8)
-convBool(uint16)
-convBool(uint32)
-convBool(uint64)
+  MpUint*[bits: static[int]] = MpUintImpl[BitsHolder[bits]]

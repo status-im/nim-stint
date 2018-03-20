@@ -6,23 +6,3 @@
 #  * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
-
-import  ./binary_ops/addsub_impl,
-        ./binary_ops/mul_impl
-
-export addsub_impl, mul_impl
-
-when isMainModule:
-
-  import typetraits
-  import ./uint_init
-
-  let a = toMpUint(10'u32)
-
-  echo "a: " & $a
-  echo "a+a: " & $(a+a)
-
-  let z = a * a
-  echo z
-  echo $z.type.name
-
