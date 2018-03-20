@@ -26,4 +26,7 @@ when isMainModule:
   echo "a * a: " & $z # How did the result value change?
   echo "a * a type: " & $z.type.name
 
+  # Compile without release: memory corruption
+  # In release: no corruption
+  # Comment out the "naiveMul" in mul_impl: no corruption
   echo "Is memory corrupted: " & $(z != toMpUint(100'u32))
