@@ -1,21 +1,10 @@
-# Mpint
-# Copyright 2018 Status Research & Development GmbH
-# Licensed under either of
-#
-#  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
-#  * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
-#
-# at your option. This file may not be copied, modified, or distributed except according to those terms.
-
-import  ./binary_ops/addsub_impl,
-        ./binary_ops/mul_impl
-
-export addsub_impl, mul_impl
+import  ./mem_corrupt_bug_add,
+        ./mem_corrupt_bug_mul
 
 when isMainModule:
 
   import typetraits
-  import ./uint_init
+  import ./mem_corrupt_bug_convert
 
   let a = toMpUint(10'u32)
 
@@ -41,7 +30,7 @@ when isMainModule:
 # naiveMul cast16:(lo: 0, hi: 0)
 # +: (lo: 0, hi: 0)
 # Within `*` result: (lo: 100, hi: 0)
-# Within `*` result: MpUint[32]
-# a * a: (lo: 100, hi: 1066)
+# Within `*` result type: MpUint[32]
+# a * a: (lo: 100, hi: 3924)
 # a * a type: MpUint[32]
 # Is memory corrupted: true
