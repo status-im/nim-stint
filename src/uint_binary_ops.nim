@@ -30,3 +30,18 @@ when isMainModule:
   # In release: no corruption
   # Comment out the "naiveMul" in mul_impl: no corruption
   echo "Is memory corrupted: " & $(z != toMpUint(100'u32))
+
+# Output on my machine
+#
+# a: (lo: 10, hi: 0)
+# +: (lo: 20, hi: 0)
+# a+a: (lo: 20, hi: 0)
+# naiveMul cast16:(lo: 100, hi: 0)
+# naiveMul cast16:(lo: 0, hi: 0)
+# naiveMul cast16:(lo: 0, hi: 0)
+# +: (lo: 0, hi: 0)
+# Within `*` result: (lo: 100, hi: 0)
+# Within `*` result: MpUint[32]
+# a * a: (lo: 100, hi: 1066)
+# a * a type: MpUint[32]
+# Is memory corrupted: true
