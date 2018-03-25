@@ -7,11 +7,11 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./private/[bithacks, conversion],
-        uint_type,
-        uint_comparison
+import  ./bithacks, ./conversion,
+        ./uint_type,
+        ./uint_comparison
 
-proc `+=`*[T: MpUint](x: var T, y: T) {.noSideEffect, inline.}=
+proc `+=`*(x: var MpUintImpl, y: MpUintImpl) {.noSideEffect, inline.}=
   ## In-place addition for multi-precision unsigned int
   #
   # Optimized assembly should contain adc instruction (add with carry)
@@ -22,12 +22,12 @@ proc `+=`*[T: MpUint](x: var T, y: T) {.noSideEffect, inline.}=
   x.lo += y.lo
   x.hi += SubTy(x.lo < tmp) + y.hi
 
-proc `+`*[T: MpUint](x, y: T): T {.noSideEffect, noInit, inline.}=
+proc `+`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit, inline.}=
   # Addition for multi-precision unsigned int
   result = x
   result += y
 
-proc `-=`*[T: MpUint](x: var T, y: T) {.noSideEffect, inline.}=
+proc `-=`*(x: var MpUintImpl, y: MpUintImpl) {.noSideEffect, inline.}=
   ## In-place substraction for multi-precision unsigned int
   #
   # Optimized assembly should contain sbb instruction (substract with borrow)
@@ -38,38 +38,12 @@ proc `-=`*[T: MpUint](x: var T, y: T) {.noSideEffect, inline.}=
   x.lo -= y.lo
   x.hi -= SubTy(x.lo > tmp) + y.hi
 
-proc `-`*[T: MpUint](x, y: T): T {.noSideEffect, noInit, inline.}=
+proc `-`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit, inline.}=
   # Substraction for multi-precision unsigned int
   result = x
   result -= y
 
-proc naiveMul[T: BaseUint](x, y: T): MpUint[T] {.noSideEffect, noInit, inline.}
-  # Forward declaration
-
-proc `*`*[T: MpUint](x, y: T): T {.noSideEffect, noInit.}=
-  ## Multiplication for multi-precision unsigned uint
-  #
-  # For our representation, it is similar to school grade multiplication
-  # Consider hi and lo as if they were digits
-  #
-  #     12
-  # X   15
-  # ------
-  #     10   lo*lo -> z0
-  #     5    hi*lo -> z1
-  #     2    lo*hi -> z1
-  #    10    hi*hi -- z2
-  # ------
-  #    180
-  #
-  # If T is a type
-  # For T * T --> T we don't need to compute z2 as it always overflow
-  # For T * T --> 2T (uint64 * uint64 --> uint128) we use extra precision multiplication
-
-  result = naiveMul(x.lo, y.lo)
-  result.hi += (naiveMul(x.hi, y.lo) + naiveMul(x.lo, y.hi)).lo
-
-template naiveMulImpl[T: MpUint](x, y: T): MpUint[T] =
+template naiveMulImpl[T: MpUintImpl](x, y: T): MpUintImpl[T] =
   # See details at
   # https://en.wikipedia.org/wiki/Karatsuba_algorithm
   # https://locklessinc.com/articles/256bit_arithmetic/
@@ -98,7 +72,7 @@ template naiveMulImpl[T: MpUint](x, y: T): MpUint[T] =
   result.lo += z0
   result.hi = (result.lo < tmp2).T + z2 + z1.hi
 
-proc naiveMul[T: BaseUint](x, y: T): MpUint[T] {.noSideEffect, noInit, inline.}=
+proc naiveMul[T: BaseUint](x, y: T): MpUintImpl[T] {.noSideEffect, noInit, inline.}=
   ## Naive multiplication algorithm with extended precision
 
   when T.sizeof in {1, 2, 4}:
@@ -113,7 +87,30 @@ proc naiveMul[T: BaseUint](x, y: T): MpUint[T] {.noSideEffect, noInit, inline.}=
     naiveMulImpl(x, y)
 
 
-proc divmod*[T](x, y: MpUint[T]): tuple[quot, rem: MpUint[T]] {.noSideEffect.}=
+proc `*`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit.}=
+  ## Multiplication for multi-precision unsigned uint
+  #
+  # For our representation, it is similar to school grade multiplication
+  # Consider hi and lo as if they were digits
+  #
+  #     12
+  # X   15
+  # ------
+  #     10   lo*lo -> z0
+  #     5    hi*lo -> z1
+  #     2    lo*hi -> z1
+  #    10    hi*hi -- z2
+  # ------
+  #    180
+  #
+  # If T is a type
+  # For T * T --> T we don't need to compute z2 as it always overflow
+  # For T * T --> 2T (uint64 * uint64 --> uint128) we use extra precision multiplication
+
+  result = naiveMul(x.lo, y.lo)
+  result.hi += (naiveMul(x.hi, y.lo) + naiveMul(x.lo, y.hi)).lo
+
+proc divmod*[T](x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] {.noSideEffect.}=
   ## Division for multi-precision unsigned uint
   ## Returns quotient + reminder in a (quot, rem) tuple
   #
@@ -146,10 +143,10 @@ proc divmod*[T](x, y: MpUint[T]): tuple[quot, rem: MpUint[T]] {.noSideEffect.}=
   #  - The Handbook of Elliptic and Hyperelliptic Cryptography Algorithm 10.35 on page 188 has a more explicit version of the div2NxN algorithm. This algorithm is directly recursive and avoids the mutual recursion of the original paper's calls between div2NxN and div3Nx2N.
   #  - Comparison of fast division algorithms fro large integers: http://bioinfo.ict.ac.cn/~dbu/AlgorithmCourses/Lectures/Hasselstrom2003.pdf
 
-proc `div`*[T: BaseUint](x, y: T): T {.inline, noSideEffect.} =
+proc `div`*(x, y: MpUintImpl): MpUintImpl {.inline, noSideEffect.} =
   ## Division operation for multi-precision unsigned uint
   divmod(x,y).quot
 
-proc `mod`*[T: BaseUint](x, y: T): T {.inline, noSideEffect.} =
+proc `mod`*(x, y: MpUintImpl): MpUintImpl {.inline, noSideEffect.} =
   ## Division operation for multi-precision unsigned uint
   divmod(x,y).rem

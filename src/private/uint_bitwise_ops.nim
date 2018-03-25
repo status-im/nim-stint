@@ -7,33 +7,30 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  uint_type
+import  ./uint_type
 
 
-proc `not`*(x: MpUint): MpUint {.noInit, noSideEffect, inline.}=
+proc `not`*(x: MpUintImpl): MpUintImpl {.noInit, noSideEffect, inline.}=
   ## Bitwise complement of unsigned integer x
   result.lo = not x.lo
   result.hi = not x.hi
 
-proc `or`*(x, y: MpUint): MpUint {.noInit, noSideEffect, inline.}=
+proc `or`*(x, y: MpUintImpl): MpUintImpl {.noInit, noSideEffect, inline.}=
   ## `Bitwise or` of numbers x and y
   result.lo = x.lo or y.lo
   result.hi = x.hi or y.hi
 
-proc `and`*(x, y: MpUint): MpUint {.noInit, noSideEffect, inline.}=
+proc `and`*(x, y: MpUintImpl): MpUintImpl {.noInit, noSideEffect, inline.}=
   ## `Bitwise and` of numbers x and y
   result.lo = x.lo and y.lo
   result.hi = x.hi and y.hi
 
-proc `xor`*(x, y: MpUint): MpUint {.noInit, noSideEffect, inline.}=
+proc `xor`*(x, y: MpUintImpl): MpUintImpl {.noInit, noSideEffect, inline.}=
   ## `Bitwise xor` of numbers x and y
   result.lo = x.lo xor y.lo
   result.hi = x.hi xor y.hi
 
-proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}
-  # Forward declaration
-
-proc `shl`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
+proc `shl`*[T: MpUintImpl](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
   ## Compute the `shift left` operation of x and y
   # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
   let
@@ -46,7 +43,7 @@ proc `shl`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
               else: 0.SubTy
 
 
-proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
+proc `shr`*[T: MpUintImpl](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
   ## Compute the `shift right` operation of x and y
   # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
   let

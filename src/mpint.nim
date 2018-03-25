@@ -7,14 +7,6 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_type,
-        ./uint_init,
-        ./uint_bitwise_ops,
-        ./uint_binary_ops,
-        ./uint_comparison
+import  ./uint_public, ./uint_init
 
-export  uint_type,
-        uint_init,
-        uint_bitwise_ops,
-        uint_binary_ops,
-        uint_comparison
+export  uint_public, uint_init

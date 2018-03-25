@@ -9,27 +9,32 @@
 
 import  typetraits
 
-import  ./private/[bithacks, conversion],
-        ./uint_type
+import  ./private/bithacks, ./private/conversion,
+        ./private/uint_type
 
-proc initMpUint*[T: BaseUint; U: BaseUInt](n: T, base_type: typedesc[U]): MpUint[U] {.noSideEffect.} =
-  when not (T is type result):
+import typetraits
+
+proc initMpUint*(n: SomeUnsignedInt, bits: static[int]): MpUint[bits] {.noSideEffect.} =
+
+  when result.isMpUintImpl: # SomeUnsignedInt doesn't work here ...
+    type SubTy = subtype(result)
+
     let len = n.bit_length
-    const size = sizeof(U) * 8
-    if len >= 2 * size:
+    if len > bits:
       # Todo print n
-      raise newException(ValueError, "Input cannot be stored in a multi-precision integer of base " & $T.name &
-                                        "\nIt requires at least " & $len & " bits of precision")
-    elif len < size:
-      result.lo = n.U # TODO: converter for MpInts
+      raise newException(ValueError, "Input cannot be stored in a multi-precision " & $bits & "-bit integer." &
+                                    "\nIt requires at least " & $len & " bits of precision")
+    elif len < bits div 2:
+      var result_impl = cast[ptr getMpUintImpl(bits)](addr result)
+
+      result_impl.lo = SubTy(n) # TODO: converter for MpInts
     else: # Both have the same size and memory representation
-      assert len == size
-      n.toMpUint
+      result = (type result)(n.toMpUintImpl)
   else:
-    n
+    result = (type result)(n)
 
-proc u128*[T: BaseUInt](n: T): UInt128 {.noSideEffect, inline.}=
-  initMpUint(n, uint64)
+proc u128*(n: SomeUnsignedInt): MpUint[128] {.noSideEffect, inline, noInit.}=
+  initMpUint[128](n)
 
-proc u256*[T: BaseUInt](n: T): UInt256 {.noSideEffect, inline.}=
-  initMpUint(n, UInt256)
+proc u256*(n: SomeUnsignedInt): MpUint[256] {.noSideEffect, inline, noInit.}=
+  initMpUint[256](n)

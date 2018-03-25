@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ../uint_type
+import  ./uint_type
 
 # Compiler defined const: https://github.com/nim-lang/Nim/wiki/Consts-defined-by-the-compiler
 const withBuiltins = defined(gcc) or defined(clang)
@@ -45,7 +45,7 @@ proc bit_length*(n: Natural): int {.noSideEffect, inline.}=
   ## Calculates how many bits are necessary to represent the number
   bit_length_impl(n, result)
 
-proc bit_length*[T: MpUint](n: T): int {.noSideEffect.}=
+proc bit_length*(n: MpUintImpl): int {.noSideEffect.}=
   ## Calculates how many bits are necessary to represent the number
 
   const maxHalfRepr = n.lo.type.sizeof * 8 - 1

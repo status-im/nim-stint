@@ -19,5 +19,13 @@ proc test(name: string, lang: string = "c") =
   switch("out", ("./build/" & name))
   setCommand lang, "tests/" & name & ".nim"
 
-task test, "Run all tests":
+task test_debug, "Run all tests - test implementation (MpUint[64] = 2x uint32":
+  switch("define", "mpint_test")
   test "all_tests"
+
+task test_prod, "Run all tests - prod implementation (MpUint[64] = uint64":
+  test "all_tests"
+
+test test, Run all tests - test and production implementation:
+  exec "nimble test_debug"
+  exec "nimble test_prod"
