@@ -39,11 +39,11 @@ proc `shl`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
   let
     halfSize = T.sizeof * 4
 
-  type SubT = type x.lo
+  type SubTy = type x.lo
 
   result.hi = (x.hi shl y) or (x.lo shl (y - halfSize))
   result.lo = if y < halfSize: x.lo shl y
-              else: 0.SubT
+              else: 0.SubTy
 
 
 proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
@@ -52,9 +52,9 @@ proc `shr`*[T: MpUint](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
   let
     halfSize = T.sizeof * 4
 
-  type SubT = type x.lo
+  type SubTy = type x.lo
 
   result.lo = (x.lo shr y) or (x.hi shl (y - halfSize)) # the shl is not a mistake
   result.hi = if y < halfSize: x.hi shr y
-              else: 0.SubT
+              else: 0.SubTy
 

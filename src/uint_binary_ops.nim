@@ -7,36 +7,36 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./private/[bithacks, casting],
+import  ./private/[bithacks, conversion],
         uint_type,
         uint_comparison
 
-proc `+=`*[T: MpUint](x: var T, y: T) {.noSideEffect.}=
+proc `+=`*[T: MpUint](x: var T, y: T) {.noSideEffect, inline.}=
   ## In-place addition for multi-precision unsigned int
   #
   # Optimized assembly should contain adc instruction (add with carry)
   # Clang on MacOS does with the -d:release switch and MpUint[uint32] (uint64)
-  type SubT = type x.lo
+  type SubTy = type x.lo
   let tmp = x.lo
 
   x.lo += y.lo
-  x.hi += SubT(x.lo < tmp) + y.hi
+  x.hi += SubTy(x.lo < tmp) + y.hi
 
 proc `+`*[T: MpUint](x, y: T): T {.noSideEffect, noInit, inline.}=
   # Addition for multi-precision unsigned int
   result = x
   result += y
 
-proc `-=`*[T: MpUint](x: var T, y: T) {.noSideEffect.}=
+proc `-=`*[T: MpUint](x: var T, y: T) {.noSideEffect, inline.}=
   ## In-place substraction for multi-precision unsigned int
   #
   # Optimized assembly should contain sbb instruction (substract with borrow)
   # Clang on MacOS does with the -d:release switch and MpUint[uint32] (uint64)
-  type SubT = type x.lo
+  type SubTy = type x.lo
   let tmp = x.lo
 
   x.lo -= y.lo
-  x.hi -= SubT(x.lo > tmp) + y.hi
+  x.hi -= SubTy(x.lo > tmp) + y.hi
 
 proc `-`*[T: MpUint](x, y: T): T {.noSideEffect, noInit, inline.}=
   # Substraction for multi-precision unsigned int
@@ -113,18 +113,11 @@ proc naiveMul[T: BaseUint](x, y: T): MpUint[T] {.noSideEffect, noInit, inline.}=
     naiveMulImpl(x, y)
 
 
-proc divmod*[T: BaseUint](x, y: T): tuple[quot, rem: T] {.noSideEffect.}=
+proc divmod*[T](x, y: MpUint[T]): tuple[quot, rem: MpUint[T]] {.noSideEffect.}=
   ## Division for multi-precision unsigned uint
   ## Returns quotient + reminder in a (quot, rem) tuple
   #
   # Implementation through binary shift division
-  const zero = T()
-
-  when x.lo is MpUInt:
-    const one = T(lo: getSubType(T)(1))
-  else:
-    const one: getSubType(T) = 1
-
   if unlikely(y.isZero):
     raise newException(DivByZeroError, "You attempted to divide by zero")
 
@@ -138,7 +131,7 @@ proc divmod*[T: BaseUint](x, y: T): tuple[quot, rem: T] {.noSideEffect.}=
     result.quot += result.quot
     if result.rem >= d:
       result.rem -= d
-      result.quot.lo = result.quot.lo or one
+      result.quot.lo = result.quot.lo or one(T)
 
     d = d shr 1
     dec(shift)

@@ -10,10 +10,24 @@
 import  ../uint_type,
         macros
 
-macro getSubType*(T: typedesc): untyped =
-  ## Returns the subtype of a generic type
-  ## MpUint[uint32] --> uint32
-  getTypeInst(T)[1][1]
+template convBool(typ: typedesc): untyped =
+  # needed for carry conversion
+  converter boolMpUint*(b: bool): MpUint[typ] {.noSideEffect, inline.}=
+    result.lo = b.typ
+
+convBool(uint8)
+convBool(uint16)
+convBool(uint32)
+convBool(uint64)
+
+proc zero*(typ: typedesc[BaseUint]): typ {.compileTime.} =
+  typ()
+
+proc one*[T: BaseUint](typ: typedesc[T]): T {.noSideEffect, inline.}=
+  when T is SomeUnsignedInt:
+    T(1)
+  else:
+    result.lo = 1
 
 proc asUint*[T: MpUInt](n: T): auto {.noSideEffect, inline.}=
   ## Casts a multiprecision integer to an uint of the same size
@@ -54,6 +68,6 @@ proc toMpUint*[T: SomeInteger](n: T): auto {.noSideEffect, inline.} =
   elif T is uint32:
     return (cast[ptr [MpUint[uint16]]](unsafeAddr n))[]
   elif T is uint16:
-    return (cast[ptr [MpUint[uint8]]](unsfddr n))[]
+    return (cast[ptr [MpUint[uint8]]](unsafeddr n))[]
   else:
     raise newException(ValueError, "You can only cast uint16, uint32 or uint64 to multiprecision integers")

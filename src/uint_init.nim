@@ -9,7 +9,7 @@
 
 import  typetraits
 
-import  ./private/[bithacks, casting],
+import  ./private/[bithacks, conversion],
         ./uint_type
 
 proc initMpUint*[T: BaseUint; U: BaseUInt](n: T, base_type: typedesc[U]): MpUint[U] {.noSideEffect.} =
