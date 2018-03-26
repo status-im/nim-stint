@@ -16,8 +16,8 @@ import typetraits
 
 proc initMpUint*(n: SomeUnsignedInt, bits: static[int]): MpUint[bits] {.noSideEffect.} =
 
-  when result.isMpUintImpl: # SomeUnsignedInt doesn't work here ...
-    type SubTy = subtype(result)
+  when result.data is MpuintImpl:
+    type SubTy = type result.data.lo
 
     let len = n.bit_length
     if len > bits:
@@ -25,9 +25,17 @@ proc initMpUint*(n: SomeUnsignedInt, bits: static[int]): MpUint[bits] {.noSideEf
       raise newException(ValueError, "Input cannot be stored in a multi-precision " & $bits & "-bit integer." &
                                     "\nIt requires at least " & $len & " bits of precision")
     elif len < bits div 2:
-      result.data.lo = SubTy(n) # TODO: converter for MpInts
+      result.data.lo = SubTy(n)
     else: # Both have the same size and memory representation
-      result.data = n.toMpUintImpl
+      when bits == 16:
+        # TODO: If n is int it's not properly converted at the input
+        result.data = toMpUintImpl n.uint16
+      elif bits == 32:
+        result.data = toMpUintImpl n.uint32
+      elif bits == 64:
+        result.data = toMpUintImpl n.uint64
+      else:
+        {.fatal, "unreachable".}
   else:
     result.data = (type result.data)(n)
 

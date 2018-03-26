@@ -60,7 +60,7 @@ proc asDoubleUint*(n: BaseUint): auto {.noSideEffect, inline.} =
   n.toUint.Double
 
 
-proc toMpUintImpl*(n: SomeUnsignedInt): auto {.noSideEffect, inline.} =
+proc toMpUintImpl*(n: uint16|uint32|uint64): auto {.noSideEffect, inline.} =
   ## Cast an integer to the corresponding size MpUintImpl
   # Sometimes direct casting doesn't work and we must cast through a pointer
 
@@ -69,6 +69,4 @@ proc toMpUintImpl*(n: SomeUnsignedInt): auto {.noSideEffect, inline.} =
   elif n is uint32:
     return (cast[ptr [MpUintImpl[uint16]]](unsafeAddr n))[]
   elif n is uint16:
-    return (cast[ptr [MpUintImpl[uint8]]](unsafeddr n))[]
-  else:
-    raise newException(ValueError, "You can only cast uint16, uint32 or uint64 to multiprecision integers")
+    return (cast[ptr [MpUintImpl[uint8]]](unsafeAddr n))[]

@@ -67,20 +67,3 @@ type
   MpUint*[bits: static[int]] = object
     data*: getMpUintImpl(bits)
     # wrapped in object to avoid recursive calls
-
-macro isMpUintImpl*(x: MpUint): untyped =
-
-  # echo x.getTypeImpl.treerepr for MpUint[16]
-  # ObjectTy
-  #   Empty
-  #   Empty
-  #   RecList
-  #     IdentDefs
-  #       Sym "data"
-  #       Sym "uint16"
-  #       Empty
-
-  let ImplTy = x.getTypeImpl[2][0][1]
-
-  let result_NimNode = eqIdent(ImplTy, "MpUintImpl")
-  result = quote do: `result_NimNode`
