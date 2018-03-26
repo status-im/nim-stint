@@ -18,8 +18,8 @@ proc toSubtype*[T: MpUintImpl](b: bool, typ: typedesc[T]): T {.noSideEffect, inl
   type SubTy = type result.lo
   result.lo = toSubtype(b, SubTy)
 
-proc zero*(typ: typedesc[BaseUint]): typ {.compileTime.} =
-  typ()
+proc zero*[T: BaseUint](typ: typedesc[T]): T {.noSideEffect, inline.}=
+  T()
 
 proc one*[T: BaseUint](typ: typedesc[T]): T {.noSideEffect, inline.}=
   when T is SomeUnsignedInt:
