@@ -30,7 +30,7 @@ proc `xor`*(x, y: MpUintImpl): MpUintImpl {.noInit, noSideEffect, inline.}=
   result.lo = x.lo xor y.lo
   result.hi = x.hi xor y.hi
 
-proc `shl`*[T: MpUintImpl](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
+proc `shl`*[T: MpUintImpl](x: T, y: SomeInteger): T {.noInit, inline, noSideEffect.}=
   ## Compute the `shift left` operation of x and y
   # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
   let
@@ -43,7 +43,7 @@ proc `shl`*[T: MpUintImpl](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
               else: 0.SubTy
 
 
-proc `shr`*[T: MpUintImpl](x: T, y: SomeInteger): T {.noInit, noSideEffect.}=
+proc `shr`*[T: MpUintImpl](x: T, y: SomeInteger): T {.noInit, inline, noSideEffect.}=
   ## Compute the `shift right` operation of x and y
   # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
   let
