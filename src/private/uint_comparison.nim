@@ -24,20 +24,28 @@ macro cast_optim(x: typed): untyped =
   # size(node[1]) * multiplier is the size in byte
 
   # For optimization we cast to the biggest possible uint
-  if eqIdent(node, "uint64"):
-    multiplier = multiplier div 8
+  let size = if eqIdent(node, "uint64"): multiplier * 64
+             elif eqIdent(node, "uint32"): multiplier * 32
+             elif eqIdent(node, "uint16"): multiplier * 16
+             else: multiplier * 8
+
+  if size > 64:
     result = quote do:
-      cast[array[multiplier, uint64]](x)
-  elif eqIdent(node, "uint32"):
-    # Why would someone do a MpuintImpl[MpUintImpl[uint32]]?
-    assert multiplier == 1
+      cast[array[`size` div 64, uint64]](`x`)
+  elif size == 64:
     result = quote do:
-      cast[uint32](x)
-  elif eqIdent(node, "uint16"):
-    # Why would someone do a MpuintImpl[MpUintImpl[uint16]]?
-    assert multiplier == 1
+      cast[uint64](`x`)
+  elif size == 32:
     result = quote do:
-      cast[uint16](x)
+      cast[uint32](`x`)
+  elif size == 16:
+    result = quote do:
+      cast[uint16](`x`)
+  elif size == 8:
+    result = quote do:
+      cast[uint8](`x`)
+  else:
+    error "Unreachable path reached"
 
 proc isZero*(n: SomeUnsignedInt): bool {.noSideEffect,inline.} =
   n == 0
