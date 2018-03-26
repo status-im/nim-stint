@@ -10,15 +10,13 @@
 import  ./uint_type,
         macros
 
-template convBool(typ: typedesc): untyped =
-  # needed for carry conversion
-  converter boolMpUint*(b: bool): MpUintImpl[typ] {.noSideEffect, inline.}=
-    result.lo = b.typ
 
-convBool(uint8)
-convBool(uint16)
-convBool(uint32)
-convBool(uint64)
+proc toSubtype*[T: SomeInteger](b: bool, typ: typedesc[T]): T {.noSideEffect, inline.}=
+  b.T
+
+proc toSubtype*[T: MpUintImpl](b: bool, typ: typedesc[T]): T {.noSideEffect, inline.}=
+  type SubTy = type result.lo
+  result.lo = toSubtype(b, SubTy)
 
 proc zero*(typ: typedesc[BaseUint]): typ {.compileTime.} =
   typ()

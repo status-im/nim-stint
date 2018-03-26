@@ -14,15 +14,15 @@ import  ./private/bithacks, ./private/conversion,
 
 import typetraits
 
-proc initMpUint*(n: SomeUnsignedInt, bits: static[int]): MpUint[bits] {.noSideEffect.} =
-
+proc initMpUint*(n: SomeInteger, bits: static[int]): MpUint[bits] {.noSideEffect.} =
+  assert n >= 0
   when result.data is MpuintImpl:
     type SubTy = type result.data.lo
 
     let len = n.bit_length
     if len > bits:
-      # Todo print n
-      raise newException(ValueError, "Input cannot be stored in a multi-precision " & $bits & "-bit integer." &
+      raise newException(ValueError, "Input " & $n & " cannot be stored in a multi-precision " &
+                                    $bits & "-bit integer." &
                                     "\nIt requires at least " & $len & " bits of precision")
     elif len < bits div 2:
       result.data.lo = SubTy(n)
@@ -35,12 +35,6 @@ proc initMpUint*(n: SomeUnsignedInt, bits: static[int]): MpUint[bits] {.noSideEf
       elif bits == 64:
         result.data = toMpUintImpl n.uint64
       else:
-        {.fatal, "unreachable".}
+        raise newException(ValueError, "Fatal")
   else:
     result.data = (type result.data)(n)
-
-proc u128*(n: SomeUnsignedInt): MpUint[128] {.noSideEffect, inline, noInit.}=
-  initMpUint[128](n)
-
-proc u256*(n: SomeUnsignedInt): MpUint[256] {.noSideEffect, inline, noInit.}=
-  initMpUint[256](n)

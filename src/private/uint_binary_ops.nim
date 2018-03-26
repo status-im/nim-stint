@@ -21,7 +21,7 @@ proc `+=`*(x: var MpUintImpl, y: MpUintImpl) {.noSideEffect, inline.}=
   let tmp = x.lo
 
   x.lo += y.lo
-  x.hi += SubTy(x.lo < tmp) + y.hi
+  x.hi += (x.lo < tmp).toSubtype(SubTy) + y.hi
 
 proc `+`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit, inline.}=
   # Addition for multi-precision unsigned int
@@ -37,14 +37,33 @@ proc `-=`*(x: var MpUintImpl, y: MpUintImpl) {.noSideEffect, inline.}=
   let tmp = x.lo
 
   x.lo -= y.lo
-  x.hi -= SubTy(x.lo > tmp) + y.hi
+  x.hi -= (x.lo > tmp).toSubtype(SubTy) + y.hi
 
 proc `-`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit, inline.}=
   # Substraction for multi-precision unsigned int
   result = x
   result -= y
 
-template naiveMulImpl[T: MpUintImpl](x, y: T): MpUintImpl[T] =
+
+proc naiveMulImpl[T: MpUintImpl](x, y: T): MpUintImpl[T] {.noSideEffect, noInit, inline.}
+  # Forward declaration
+
+proc naiveMul[T: BaseUint](x, y: T): MpUintImpl[T] {.noSideEffect, noInit, inline.}=
+  ## Naive multiplication algorithm with extended precision
+
+  when T.sizeof in {1, 2, 4}:
+    # Use types twice bigger to do the multiplication
+    cast[type result](x.asDoubleUint * y.asDoubleUint)
+
+  elif T.sizeof == 8: # uint64 or MpUint[uint32]
+    # We cannot double uint64 to uint128
+    naiveMulImpl(x.toMpUintImpl, y.toMpUintImpl)
+  else:
+    # Case: at least uint128 * uint128 --> uint256
+    naiveMulImpl(x, y)
+
+
+proc naiveMulImpl[T: MpUintImpl](x, y: T): MpUintImpl[T] {.noSideEffect, noInit, inline.}=
   # See details at
   # https://en.wikipedia.org/wiki/Karatsuba_algorithm
   # https://locklessinc.com/articles/256bit_arithmetic/
@@ -66,27 +85,12 @@ template naiveMulImpl[T: MpUintImpl](x, y: T): MpUintImpl[T] =
 
   var z1 = tmp
   z1 += naiveMul(x.hi, y.lo)
-  let z2 = (z1 < tmp).T + naiveMul(x.hi, y.hi)
+  let z2 = (z1 < tmp).toSubtype(T) + naiveMul(x.hi, y.hi)
 
   let tmp2  = z1.lo shl halfSize
   result.lo = tmp2
   result.lo += z0
-  result.hi = (result.lo < tmp2).T + z2 + z1.hi
-
-proc naiveMul[T: BaseUint](x, y: T): MpUintImpl[T] {.noSideEffect, noInit, inline.}=
-  ## Naive multiplication algorithm with extended precision
-
-  when T.sizeof in {1, 2, 4}:
-    # Use types twice bigger to do the multiplication
-    cast[type result](x.asDoubleUint * y.asDoubleUint)
-
-  elif T.sizeof == 8: # uint64 or MpUint[uint32]
-    # We cannot double uint64 to uint128
-    naiveMulImpl(x.toMpUint, y.toMpUint)
-  else:
-    # Case: at least uint128 * uint128 --> uint256
-    naiveMulImpl(x, y)
-
+  result.hi = (result.lo < tmp2).toSubtype(T) + z2 + z1.hi
 
 proc `*`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit.}=
   ## Multiplication for multi-precision unsigned uint

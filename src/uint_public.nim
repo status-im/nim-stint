@@ -14,6 +14,13 @@ type
   UInt128* = MpUint[128]
   UInt256* = MpUint[256]
 
+template make_conv(conv_name: untyped, size: int): untyped =
+  proc `convname`*(n: SomeInteger): MpUint[size] {.noSideEffect, inline, noInit.}=
+    n.initMpUint(size)
+
+make_conv(u128, 128)
+make_conv(u256, 256)
+
 template make_unary(op, ResultTy): untyped =
   proc `op`*(x: MpUint): ResultTy {.noInit, inline, noSideEffect.} =
     when resultTy is MpUint:
