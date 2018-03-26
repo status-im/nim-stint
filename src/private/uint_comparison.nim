@@ -43,7 +43,7 @@ proc isZero*(n: SomeUnsignedInt): bool {.noSideEffect,inline.} =
   n == 0
 
 proc isZero*(n: MpUintImpl): bool {.noSideEffect,inline.} =
-  n.lo.isZero and n.hi.isZero
+  n == (type n)()
 
 proc `<`*(x, y: MpUintImpl): bool {.noSideEffect, noInit, inline.}=
   (x.hi < y.hi) or ((x.hi == y.hi) and x.lo < y.lo)
@@ -51,7 +51,7 @@ proc `<`*(x, y: MpUintImpl): bool {.noSideEffect, noInit, inline.}=
 proc `==`*(x, y: MpuintImpl): bool {.noSideEffect, noInit, inline.}=
   # Equal comparison for multi-precision integers
 
-  # We cast to array of bytes because the default comparison is slow
+  # We cast to array of uint64 because the default comparison is slow
   result = cast_optim(x) == cast_optim(y)
 
 proc `<=`*(x, y: MpUintImpl): bool {.noSideEffect, noInit, inline.}=
