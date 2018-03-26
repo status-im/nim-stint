@@ -7,6 +7,6 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_public, ./uint_init
-
-export  uint_public, uint_init
+proc divmod*(x, y: SomeInteger): tuple[quot, rem: SomeInteger] {.noSideEffect, inline.}=
+  # hopefully the compiler fuse that in a single op
+  (x div y, x mod y)

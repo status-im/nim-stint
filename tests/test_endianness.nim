@@ -11,7 +11,7 @@ import ../src/mpint, unittest
 
 suite "Testing byte representation":
   test "Byte representation conforms to the platform endianness":
-    let a = initMpUint(20182018, uint32)
+    let a = 20182018.initMpUint(64)
     let b = 20182018'u64
 
     type AsBytes = array[8, byte]

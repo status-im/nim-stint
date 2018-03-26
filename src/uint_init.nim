@@ -9,27 +9,38 @@
 
 import  typetraits
 
-import  ./private/[bithacks, casting],
-        ./uint_type
+import  ./private/bithacks, ./private/conversion,
+        ./private/uint_type
 
-proc initMpUint*[T: BaseUint; U: BaseUInt](n: T, base_type: typedesc[U]): MpUint[U] {.noSideEffect.} =
-  when not (T is type result):
+import typetraits
+
+proc initMpUint*(n: SomeUnsignedInt, bits: static[int]): MpUint[bits] {.noSideEffect.} =
+
+  when result.data is MpuintImpl:
+    type SubTy = type result.data.lo
+
     let len = n.bit_length
-    const size = sizeof(U) * 8
-    if len >= 2 * size:
+    if len > bits:
       # Todo print n
-      raise newException(ValueError, "Input cannot be stored in a multi-precision integer of base " & $T.name &
-                                        "\nIt requires at least " & $len & " bits of precision")
-    elif len < size:
-      result.lo = n.U # TODO: converter for MpInts
+      raise newException(ValueError, "Input cannot be stored in a multi-precision " & $bits & "-bit integer." &
+                                    "\nIt requires at least " & $len & " bits of precision")
+    elif len < bits div 2:
+      result.data.lo = SubTy(n)
     else: # Both have the same size and memory representation
-      assert len == size
-      n.toMpUint
+      when bits == 16:
+        # TODO: If n is int it's not properly converted at the input
+        result.data = toMpUintImpl n.uint16
+      elif bits == 32:
+        result.data = toMpUintImpl n.uint32
+      elif bits == 64:
+        result.data = toMpUintImpl n.uint64
+      else:
+        {.fatal, "unreachable".}
   else:
-    n
+    result.data = (type result.data)(n)
 
-proc u128*[T: BaseUInt](n: T): UInt128 {.noSideEffect, inline.}=
-  initMpUint(n, uint64)
+proc u128*(n: SomeUnsignedInt): MpUint[128] {.noSideEffect, inline, noInit.}=
+  initMpUint[128](n)
 
-proc u256*[T: BaseUInt](n: T): UInt256 {.noSideEffect, inline.}=
-  initMpUint(n, UInt256)
+proc u256*(n: SomeUnsignedInt): MpUint[256] {.noSideEffect, inline, noInit.}=
+  initMpUint[256](n)

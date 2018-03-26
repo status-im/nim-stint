@@ -9,17 +9,16 @@
 
 import  ./uint_type
 
-proc `<`*[T: MpUint](x, y: T): bool {.noSideEffect, noInit, inline.}=
+proc `<`*(x, y: MpUintImpl): bool {.noSideEffect, noInit, inline.}=
   (x.hi < y.hi) or ((x.hi == y.hi) and x.lo < y.lo)
 
-proc `<=`*[T: MpUint](x, y: T): bool {.noSideEffect, noInit, inline.}=
+proc `<=`*(x, y: MpUintImpl): bool {.noSideEffect, noInit, inline.}=
   # Lower or equal comparison for multi-precision integers
-  if x == y:
-    return true
-  x < y
+  result = if x == y: true
+           else: x < y
 
 proc isZero[T: SomeUnsignedInt](n: T): bool {.noSideEffect,inline.} =
   n == 0.T
 
-proc isZero*(n: MpUint): bool {.noSideEffect,inline.} =
+proc isZero*(n: MpUintImpl): bool {.noSideEffect,inline.} =
   n.lo.isZero and n.hi.isZero
