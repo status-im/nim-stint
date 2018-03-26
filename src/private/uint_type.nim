@@ -64,33 +64,23 @@ type
       hi*, lo*: BaseUint
   # ### Private ### #
 
-  MpUint*[bits: static[int]] = distinct getMpUintImpl(bits)
-    # distinct to avoid recursive calls
-    # and differentiate between uint64, MpUint[64] and MpUintImpl[uint32]
-
-
-macro undistinct*(x: typed): untyped =
-  ## Remove "distinct" from the type
-
-  assert x.getTypeImpl.kind == nnkDistinctTy
-  result = x.getTypeImpl[0]
+  MpUint*[bits: static[int]] = object
+    data*: getMpUintImpl(bits)
+    # wrapped in object to avoid recursive calls
 
 macro isMpUintImpl*(x: MpUint): untyped =
 
-  let undistinct = x.getType[1]
+  # echo x.getTypeImpl.treerepr for MpUint[16]
+  # ObjectTy
+  #   Empty
+  #   Empty
+  #   RecList
+  #     IdentDefs
+  #       Sym "data"
+  #       Sym "uint16"
+  #       Empty
 
-  result = quote do:
-    `undistinct` is MpUintImpl
+  let ImplTy = x.getTypeImpl[2][0][1]
 
-macro subtype*(x: MpUint): untyped =
-  # Get the subtype of a MpUint
-  # MpUint[128]
-  # DistinctTy
-  #   BracketExpr
-  #     Sym "MpUintImpl"
-  #     Sym "uint64"
-
-  echo x.getTypeImpl.treerepr
-  assert x.getTypeImpl.kind == nnkDistinctTy
-  let SubTy = x.getTypeImpl[0][1]
-  result = getType(SubTy)
+  let result_NimNode = eqIdent(ImplTy, "MpUintImpl")
+  result = quote do: `result_NimNode`

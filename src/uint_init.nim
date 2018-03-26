@@ -25,13 +25,11 @@ proc initMpUint*(n: SomeUnsignedInt, bits: static[int]): MpUint[bits] {.noSideEf
       raise newException(ValueError, "Input cannot be stored in a multi-precision " & $bits & "-bit integer." &
                                     "\nIt requires at least " & $len & " bits of precision")
     elif len < bits div 2:
-      var result_impl = cast[ptr getMpUintImpl(bits)](addr result)
-
-      result_impl.lo = SubTy(n) # TODO: converter for MpInts
+      result.data.lo = SubTy(n) # TODO: converter for MpInts
     else: # Both have the same size and memory representation
-      result = (type result)(n.toMpUintImpl)
+      result.data = n.toMpUintImpl
   else:
-    result = (type result)(n)
+    result.data = (type result.data)(n)
 
 proc u128*(n: SomeUnsignedInt): MpUint[128] {.noSideEffect, inline, noInit.}=
   initMpUint[128](n)

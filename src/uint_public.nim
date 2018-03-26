@@ -14,26 +14,26 @@ type
   UInt128* = MpUint[128]
   UInt256* = MpUint[256]
 
-template make_unary(op, resultTy, importlib: untyped): untyped =
-  proc op*(x: MpUint): resultTy {.noInit, inline, noSideEffect.} =
-    when undistinct(x) is MpUintImpl:
-      importlib.op(x)
+template make_unary(op, ResultTy, importlib: untyped): untyped =
+  proc `op`*(x: MpUint): ResultTy {.noInit, inline, noSideEffect.} =
+    when resultTy is MpUint:
+      result.data = op(x.data)
     else:
-      system.op(x)
+      op(x.data)
+  export op
 
-template make_binary(op, resultTy, importlib: untyped): untyped =
-  proc op*(x, y: MpUint): resultTy {.noInit, inline, noSideEffect.} =
-    when undistinct(x) is MpUintImpl:
-      importlib.op(x, y)
+template make_binary(op, ResultTy, importlib: untyped): untyped =
+  proc `op`*(x, y: MpUint): ResultTy {.noInit, inline, noSideEffect.} =
+    when ResultTy is MpUint:
+      result.data = op(x.data, y.data)
     else:
-      system.op(x, y)
+      op(x.data, y.data)
+  export `op`
 
 template make_binary_inplace(op, importlib: untyped): untyped =
-  proc op*(x: var MpUint, y: MpUint) {.inline, noSideEffect.} =
-    when undistinct(x) is MpUintImpl:
-      importlib.op(x,y)
-    else:
-      system.op(x,y)
+  proc `op`*(x: var MpUint, y: MpUint) {.inline, noSideEffect.} =
+    op(x.data, y.data)
+  export op
 
 import ./private/uint_binary_ops as binops
 
@@ -44,7 +44,7 @@ make_binary_inplace(`-=`, binops)
 make_binary(`*`, MpUint, binops)
 make_binary(`div`, MpUint, binops)
 make_binary(`mod`, MpUint, binops)
-make_binary(`divmod`, MpUint, binops)
+# make_binary(`divmod`, MpUint, binops)
 
 import ./private/uint_comparison as cmp
 
@@ -60,10 +60,3 @@ make_binary(`and`, MpUint, bitops)
 make_binary(`xor`, MpUint, bitops)
 make_binary(`shr`, MpUint, bitops)
 make_binary(`shl`, MpUint, bitops)
-
-
-
-when isMainModule:
-
-  var a: Uint256
-  echo a.repr
