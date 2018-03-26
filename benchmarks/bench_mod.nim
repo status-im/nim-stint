@@ -20,8 +20,7 @@ start = cpuTime()
 block:
   var foo = 123.initMpUint(64)
   for i in 0 ..< 10_000_000:
-    let i2 = i.initMpUint(64)
-    foo += i2 * i2 mod 456.initMpUint(64)
+    foo += i.initMpUint(64) * i.initMpUint(64) mod 456.initMpUint(64)
     foo = foo mod 789.initMpUint(64)
 
 stop = cpuTime()
@@ -42,8 +41,7 @@ when defined(bench_ttmath):
   block:
     var foo = 123.tt_u256
     for i in 0 ..< 10_000_000:
-      let i2 = i.tt_u256
-      foo += i2 * i2 mod 456.tt_u256
+      foo += i.tt_u256 * i.tt_u256 mod 456.tt_u256
       foo = foo mod 789.tt_u256
 
   stop = cpuTime()
