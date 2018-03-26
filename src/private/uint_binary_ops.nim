@@ -78,8 +78,8 @@ proc naiveMulImpl[T: MpUintImpl](x, y: T): MpUintImpl[T] {.noSideEffect, noInit,
   #     and introduce branching
   #   - More total operations means more register moves
 
+  const halfSize = x.size_mpuintimpl div 2
   let
-    halfSize = T.sizeof * 4
     z0 = naiveMul(x.lo, y.lo)
     tmp = naiveMul(x.hi, y.lo)
 

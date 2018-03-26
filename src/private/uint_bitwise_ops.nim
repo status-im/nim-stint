@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_type
+import  ./uint_type, size_mpuintimpl
 
 
 proc `not`*(x: MpUintImpl): MpUintImpl {.noInit, noSideEffect, inline.}=
@@ -33,8 +33,7 @@ proc `xor`*(x, y: MpUintImpl): MpUintImpl {.noInit, noSideEffect, inline.}=
 proc `shl`*[T: MpUintImpl](x: T, y: SomeInteger): T {.noInit, inline, noSideEffect.}=
   ## Compute the `shift left` operation of x and y
   # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
-  let
-    halfSize = T.sizeof * 4
+  const halfSize = size_mpuintimpl(x) div 2
 
   type SubTy = type x.lo
 
@@ -46,8 +45,7 @@ proc `shl`*[T: MpUintImpl](x: T, y: SomeInteger): T {.noInit, inline, noSideEffe
 proc `shr`*[T: MpUintImpl](x: T, y: SomeInteger): T {.noInit, inline, noSideEffect.}=
   ## Compute the `shift right` operation of x and y
   # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
-  let
-    halfSize = T.sizeof * 4
+  const halfSize = size_mpuintimpl(x) div 2
 
   type SubTy = type x.lo
 

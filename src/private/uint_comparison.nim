@@ -7,27 +7,10 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_type, macros
+import  ./uint_type, ./size_mpuintimpl, macros
 
 macro cast_optim(x: typed): untyped =
-  # Size of doesn't always work at compile-time, pending PR https://github.com/nim-lang/Nim/pull/5664
-
-  var multiplier = 1
-  var node = x.getTypeInst
-
-  while node.kind == nnkBracketExpr:
-    assert eqIdent(node[0], "MpuintImpl")
-    multiplier *= 2
-    node = node[1]
-
-  # node[1] has the type
-  # size(node[1]) * multiplier is the size in byte
-
-  # For optimization we cast to the biggest possible uint
-  let size = if eqIdent(node, "uint64"): multiplier * 64
-             elif eqIdent(node, "uint32"): multiplier * 32
-             elif eqIdent(node, "uint16"): multiplier * 16
-             else: multiplier * 8
+  let size = size_mpuintimpl(x)
 
   if size > 64:
     result = quote do:
