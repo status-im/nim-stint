@@ -21,8 +21,8 @@ suite "Testing addition implementation":
 
   test "Addition gives expected result":
 
-    let a = 20182018.initMpUint(32)
-    let b = 20172017.initMpUint(32)
+    let a = 20182018.initMpUint(64)
+    let b = 20172017.initMpUint(64)
 
     check: cast[uint64](a+b) == 20182018'u64 + 20172017'u64
 
@@ -63,8 +63,8 @@ suite "Testing substraction implementation":
 
   test "Substraction gives expected result":
 
-    let a = 20182018.initMpUint(32)
-    let b = 20172017.initMpUint(32)
+    let a = 20182018.initMpUint(64)
+    let b = 20172017.initMpUint(64)
 
     check: cast[uint64](a-b) == 20182018'u64 - 20172017'u64
 

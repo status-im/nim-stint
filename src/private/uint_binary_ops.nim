@@ -9,7 +9,8 @@
 
 import  ./bithacks, ./conversion,
         ./uint_type,
-        ./uint_comparison
+        ./uint_comparison,
+        ./uint_bitwise_ops
 
 proc `+=`*(x: var MpUintImpl, y: MpUintImpl) {.noSideEffect, inline.}=
   ## In-place addition for multi-precision unsigned int
@@ -110,13 +111,15 @@ proc `*`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit.}=
   result = naiveMul(x.lo, y.lo)
   result.hi += (naiveMul(x.hi, y.lo) + naiveMul(x.lo, y.hi)).lo
 
-proc divmod*[T](x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] {.noSideEffect.}=
+proc divmod*(x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] {.noSideEffect.}=
   ## Division for multi-precision unsigned uint
   ## Returns quotient + reminder in a (quot, rem) tuple
   #
   # Implementation through binary shift division
   if unlikely(y.isZero):
     raise newException(DivByZeroError, "You attempted to divide by zero")
+
+  type SubTy = type x.lo
 
   var
     shift = x.bit_length - y.bit_length
@@ -128,7 +131,7 @@ proc divmod*[T](x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] {.noSideEffect.}
     result.quot += result.quot
     if result.rem >= d:
       result.rem -= d
-      result.quot.lo = result.quot.lo or one(T)
+      result.quot.lo = result.quot.lo or one(SubTy)
 
     d = d shr 1
     dec(shift)

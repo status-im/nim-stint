@@ -14,7 +14,7 @@ type
   UInt128* = MpUint[128]
   UInt256* = MpUint[256]
 
-template make_unary(op, ResultTy, importlib: untyped): untyped =
+template make_unary(op, ResultTy): untyped =
   proc `op`*(x: MpUint): ResultTy {.noInit, inline, noSideEffect.} =
     when resultTy is MpUint:
       result.data = op(x.data)
@@ -22,7 +22,7 @@ template make_unary(op, ResultTy, importlib: untyped): untyped =
       op(x.data)
   export op
 
-template make_binary(op, ResultTy, importlib: untyped): untyped =
+template make_binary(op, ResultTy): untyped =
   proc `op`*(x, y: MpUint): ResultTy {.noInit, inline, noSideEffect.} =
     when ResultTy is MpUint:
       result.data = op(x.data, y.data)
@@ -30,33 +30,37 @@ template make_binary(op, ResultTy, importlib: untyped): untyped =
       op(x.data, y.data)
   export `op`
 
-template make_binary_inplace(op, importlib: untyped): untyped =
+template make_binary_inplace(op): untyped =
   proc `op`*(x: var MpUint, y: MpUint) {.inline, noSideEffect.} =
     op(x.data, y.data)
   export op
 
-import ./private/uint_binary_ops as binops
+import ./private/uint_binary_ops
+import ./private/primitive_divmod
 
-make_binary(`+`, MpUint, binops)
-make_binary_inplace(`+=`, binops)
-make_binary(`-`, MpUint, binops)
-make_binary_inplace(`-=`, binops)
-make_binary(`*`, MpUint, binops)
-make_binary(`div`, MpUint, binops)
-make_binary(`mod`, MpUint, binops)
-# make_binary(`divmod`, MpUint, binops)
+make_binary(`+`, MpUint)
+make_binary_inplace(`+=`)
+make_binary(`-`, MpUint)
+make_binary_inplace(`-=`)
+make_binary(`*`, MpUint)
+make_binary(`div`, MpUint)
+make_binary(`mod`, MpUint)
+proc divmod*(x, y: MpUint): tuple[quot, rem: MpUint] {.noInit, inline, noSideEffect.} =
+  (result.quot.data, result.rem.data) = divmod(x.data, y.data)
 
-import ./private/uint_comparison as cmp
+import ./private/uint_comparison
 
-make_binary(`<`, bool, cmp)
-make_binary(`<=`, bool, cmp)
-proc isZero*(x: MpUint): bool {.inline, noSideEffect.} = cmp.isZero x
+make_binary(`<`, bool)
+make_binary(`<=`, bool)
+proc isZero*(x: MpUint): bool {.inline, noSideEffect.} = isZero x
 
-import ./private/uint_bitwise_ops as bitops
+import ./private/uint_bitwise_ops
 
-make_unary(`not`, MpUint, bitops)
-make_binary(`or`, MpUint, bitops)
-make_binary(`and`, MpUint, bitops)
-make_binary(`xor`, MpUint, bitops)
-make_binary(`shr`, MpUint, bitops)
-make_binary(`shl`, MpUint, bitops)
+make_unary(`not`, MpUint)
+make_binary(`or`, MpUint)
+make_binary(`and`, MpUint)
+make_binary(`xor`, MpUint)
+proc `shr`*(x: Mpuint, y: SomeInteger): MpUint {.noInit, inline, noSideEffect.} =
+  result.data = x.data shr y
+proc `shl`*(x: Mpuint, y: SomeInteger): MpUint {.noInit, inline, noSideEffect.} =
+  result.data = x.data shl y
