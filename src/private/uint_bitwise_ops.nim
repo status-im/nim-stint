@@ -30,7 +30,7 @@ proc `xor`*(x, y: MpUintImpl): MpUintImpl {.noInit, noSideEffect, inline.}=
   result.lo = x.lo xor y.lo
   result.hi = x.hi xor y.hi
 
-proc `shl`*[T: MpUintImpl](x: T, y: SomeInteger): T {.noInit, inline, noSideEffect.}=
+proc `shl`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.noInit, inline, noSideEffect.}=
   ## Compute the `shift left` operation of x and y
   # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
   const halfSize = size_mpuintimpl(x) div 2
@@ -42,7 +42,7 @@ proc `shl`*[T: MpUintImpl](x: T, y: SomeInteger): T {.noInit, inline, noSideEffe
               else: 0.SubTy
 
 
-proc `shr`*[T: MpUintImpl](x: T, y: SomeInteger): T {.noInit, inline, noSideEffect.}=
+proc `shr`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.noInit, inline, noSideEffect.}=
   ## Compute the `shift right` operation of x and y
   # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
   const halfSize = size_mpuintimpl(x) div 2
@@ -52,4 +52,3 @@ proc `shr`*[T: MpUintImpl](x: T, y: SomeInteger): T {.noInit, inline, noSideEffe
   result.lo = (x.lo shr y) or (x.hi shl (y - halfSize)) # the shl is not a mistake
   result.hi = if y < halfSize: x.hi shr y
               else: 0.SubTy
-
