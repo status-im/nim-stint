@@ -25,7 +25,7 @@
 ## may return undefined and/or platform dependant value if given invalid input.
 
 const useBuiltins* = not defined(noIntrinsicsBitOpts)
-const noUndefined* = defined(noUndefinedBitOpts)
+# const noUndefined* = defined(noUndefinedBitOpts)
 const useGCC_builtins* = (defined(gcc) or defined(llvm_gcc) or defined(clang)) and useBuiltins
 const useICC_builtins* = defined(icc) and useBuiltins
 const useVCC_builtins* = defined(vcc) and useBuiltins
@@ -88,3 +88,24 @@ elif useICC_builtins:
     var index: uint32
     discard fnc(index.addr, v)
     index.int
+
+
+proc countLeadingZeroBits*(x: SomeInteger): int {.inline, nosideeffect.} =
+  ## Returns the number of leading zero bits in integer.
+  ## If `x` is zero, when ``noUndefinedBitOpts`` is set, result is 0,
+  ## otherwise result is undefined.
+
+  # when noUndefined:
+  if x == 0:
+    return 0
+
+  when nimvm:
+      when sizeof(x) <= 4: result = sizeof(x)*8 - 1 - fastlog2_nim(x.uint32)
+      else:                result = sizeof(x)*8 - 1 - fastlog2_nim(x.uint64)
+  else:
+    when useGCC_builtins:
+      when sizeof(x) <= 4: result = builtin_clz(x.uint32).int - (32 - sizeof(x)*8)
+      else:                result = builtin_clzll(x.uint64).int
+    else:
+      when sizeof(x) <= 4: result = sizeof(x)*8 - 1 - fastlog2_nim(x.uint32)
+      else: result = sizeof(x)*8 - 1 - fastlog2_nim(x.uint64)

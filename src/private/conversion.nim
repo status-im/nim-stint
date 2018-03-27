@@ -11,21 +11,21 @@ import  ./uint_type,
         macros
 
 
-proc toSubtype*[T: SomeInteger](b: bool, typ: typedesc[T]): T {.noSideEffect, inline.}=
+proc toSubtype*[T: SomeInteger](b: bool, _: typedesc[T]): T {.noSideEffect, inline.}=
   b.T
 
-proc toSubtype*[T: MpUintImpl](b: bool, typ: typedesc[T]): T {.noSideEffect, inline.}=
+proc toSubtype*[T: MpUintImpl](b: bool, _: typedesc[T]): T {.noSideEffect, inline.}=
   type SubTy = type result.lo
   result.lo = toSubtype(b, SubTy)
 
-proc zero*[T: BaseUint](typ: typedesc[T]): T {.noSideEffect, inline.}=
-  T()
+proc zero*[T: BaseUint](_: typedesc[T]): T {.noSideEffect, inline.}=
+  result = T(0)
 
-proc one*[T: BaseUint](typ: typedesc[T]): T {.noSideEffect, inline.}=
+proc one*[T: BaseUint](_: typedesc[T]): T {.noSideEffect, inline.}=
   when T is SomeUnsignedInt:
-    T(1)
+    result = T(1)
   else:
-    result.lo = 1
+    result.lo = one(type result.lo)
 
 proc toUint*(n: MpUIntImpl): auto {.noSideEffect, inline.}=
   ## Casts a multiprecision integer to an uint of the same size
