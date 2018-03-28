@@ -30,23 +30,23 @@ proc `xor`*(x, y: MpUintImpl): MpUintImpl {.noInit, noSideEffect, inline.}=
   result.lo = x.lo xor y.lo
   result.hi = x.hi xor y.hi
 
-
-proc `shr`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.noInit, inline, noSideEffect.}
-  # Forward declaration
-
-proc `shl`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.noInit, inline, noSideEffect.}=
+proc `shl`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline, noSideEffect.}=
   ## Compute the `shift left` operation of x and y
   # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
   const halfSize = size_mpuintimpl(x) div 2
 
-  result.hi = (x.hi shl y) or (x.lo shr (halfSize - y))
-  result.lo = x.lo shl y
+  result.hi = (x.hi shl y) or (x.lo shl (y - halfSize))
+  if y < halfSize:
+    result.lo = x.lo shl y
 
-proc `shr`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.noInit, inline, noSideEffect.}=
+proc `shr`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline, noSideEffect.}=
   ## Compute the `shift right` operation of x and y
-  # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
   const halfSize = size_mpuintimpl(x) div 2
 
-  result.lo = (x.lo shr y) or (x.hi shl (halfSize - y)) # the shl is not a mistake
-  result.hi = x.hi shr y
+  let overflow = y < halfSize
 
+  result.lo = (x.lo shr y) or (
+    if overflow: x.hi shl (halfSize - y) else: x.hi shr (y - halfSize)
+  )
+  if overflow:
+    result.hi = x.hi shr y
