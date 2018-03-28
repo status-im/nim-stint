@@ -34,7 +34,7 @@ suite "Testing multiplication implementation":
 
 
 suite "Testing division and modulo implementation":
-  test "Divmod returns the correct result":
+  test "Divmod(100, 13) returns the correct result":
 
     let a = 100.initMpUint(64)
     let b = 13.initMpUint(64)
@@ -42,3 +42,17 @@ suite "Testing division and modulo implementation":
 
     check: cast[uint64](qr.quot) == 7'u64
     check: cast[uint64](qr.rem)  == 9'u64
+
+  test "Divmod(2^64, 3) returns the correct result":
+    let a = 1.initMpUint(128) shl 64
+    let b = 3.initMpUint(128)
+
+    let qr = divmod(a, b)
+
+    let q = cast[MpUintImpl[uint64]](qr.quot)
+    let r = cast[MpUintImpl[uint64]](qr.rem)
+
+    check: q.lo == 6148914691236517205'u64
+    check: q.hi == 0'u64
+    check: r.lo == 1'u64
+    check: r.hi == 0'u64

@@ -10,6 +10,11 @@
 import  ./uint_type,
         macros
 
+# converter mpUint64*(x: MpUintImpl[uint32]): uint64 =
+#   cast[ptr uint64](unsafeAddr x)[]
+
+proc initMpUintImpl*[T: BaseUint](x: T): MpUintImpl[T] {.inline,noSideEffect.} =
+  result.lo = x
 
 proc toSubtype*[T: SomeInteger](b: bool, _: typedesc[T]): T {.noSideEffect, inline.}=
   b.T

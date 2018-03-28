@@ -10,7 +10,8 @@
 import  ./bithacks, ./conversion, ./stdlib_bitops,
         ./uint_type,
         ./uint_comparison,
-        ./uint_bitwise_ops
+        ./uint_bitwise_ops,
+        ./size_mpuintimpl
 
 # ############ Addition & Substraction ############ #
 
@@ -61,10 +62,10 @@ proc naiveMul[T: BaseUint](x, y: T): MpUintImpl[T] {.noSideEffect, noInit, inlin
 
   elif T.sizeof == 8: # uint64 or MpUint[uint32]
     # We cannot double uint64 to uint128
-    naiveMulImpl(x.toMpUintImpl, y.toMpUintImpl)
+    cast[type result](naiveMulImpl(x.toMpUintImpl, y.toMpUintImpl))
   else:
     # Case: at least uint128 * uint128 --> uint256
-    naiveMulImpl(x, y)
+    cast[type result](naiveMulImpl(x, y))
 
 
 proc naiveMulImpl[T: MpUintImpl](x, y: T): MpUintImpl[T] {.noSideEffect, noInit, inline.}=
@@ -82,7 +83,7 @@ proc naiveMulImpl[T: MpUintImpl](x, y: T): MpUintImpl[T] {.noSideEffect, noInit,
   #     and introduce branching
   #   - More total operations means more register moves
 
-  const halfSize = x.size_mpuintimpl div 2
+  const halfSize = size_mpuintimpl(x) div 2
   let
     z0 = naiveMul(x.lo, y.lo)
     tmp = naiveMul(x.hi, y.lo)
@@ -91,10 +92,10 @@ proc naiveMulImpl[T: MpUintImpl](x, y: T): MpUintImpl[T] {.noSideEffect, noInit,
   z1 += naiveMul(x.hi, y.lo)
   let z2 = (z1 < tmp).toSubtype(T) + naiveMul(x.hi, y.hi)
 
-  let tmp2  = z1.lo shl halfSize
+  let tmp2  = initMpUintImpl(z1.lo shl halfSize)
   result.lo = tmp2
   result.lo += z0
-  result.hi = (result.lo < tmp2).toSubtype(T) + z2 + z1.hi
+  result.hi = (result.lo < tmp2).toSubtype(T) + z2 + initMpUintImpl(z1.hi)
 
 proc `*`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit.}=
   ## Multiplication for multi-precision unsigned uint
@@ -115,19 +116,16 @@ proc `*`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit.}=
   # If T is a type
   # For T * T --> T we don't need to compute z2 as it always overflow
   # For T * T --> 2T (uint64 * uint64 --> uint128) we use extra precision multiplication
-
   result = naiveMul(x.lo, y.lo)
   result.hi += (naiveMul(x.hi, y.lo) + naiveMul(x.lo, y.hi)).lo
 
 
 # ################### Division ################### #
 from ./primitive_divmod import divmod
-import ./size_mpuintimpl
 
 proc divmod*(x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] {.noSideEffect.}
 
 proc div2n1n[T: BaseUint](x_hi, x_lo, y: T): tuple[quot, rem: T] {.noSideEffect, noInit.} =
-
   const
     size = size_mpuintimpl(x_hi)
     halfSize = size div 2
@@ -140,38 +138,47 @@ proc div2n1n[T: BaseUint](x_hi, x_lo, y: T): tuple[quot, rem: T] {.noSideEffect,
   let clz = countLeadingZeroBits(y) # We assume that for 0 clz returns 0
 
   # normalization, shift so that the MSB is at 2^n
-  let xn_max = (x_hi shl clz) or ((x_lo shr (size - clz)) and T(-clz shr halfMask))
-  let xn     = x_lo shl clz
+  let xn = MpUintImpl[T](hi: x_hi, lo: x_lo) shl clz
+  let yn = y shl clz
 
-  let y_hi = y shr halfSize
-  let y_lo = y and halfMask
+  # Break divisor in 2 and dividend in 4
+  let yn_hi = yn shr halfSize
+  let yn_lo = yn and halfMask
 
-  let xn_hi = xn shr halfSize
-  let xn_lo = xn and halfMask
+  let xnlohi = xn.lo shr halfSize
+  let xnlolo = xn.lo and halfMask
 
   # First half of the quotient
-  var (q1, r) = divmod(xn_max, y_hi)
+  var (q1, r) = divmod(xn.hi, yn_hi)
 
-  while (q1 >= base) or ((q1 * y_lo) > (base * r + xn_hi)):
+  while (q1 >= base) or ((q1 * yn_lo) > (base * r + xnlohi)):
     q1 -= one(T)
-    r += y_hi
+    r += yn_hi
     if r >= base:
       break
 
   # Remove it
-  let xn_rest = xn_max * base + xn_hi - q1 * y
+  let xn_rest = xn.hi shl halfSize + xnlohi - (q1 * yn)
 
   # Second half
-  var (q2, s) = divmod(xn_rest, y_hi)
+  var (q2, s) = divmod(xn_rest, yn_hi)
 
-  while (q2 >= base) or ((q2 * y_lo) > (base * s + xn_lo)):
+  var
+    q2_ynlo = q2 * yn_lo
+    sbase_xnlolo = (s shl halfSize) or xnlolo
+
+  while (q2 >= base) or (q2_ynlo > sbase_xnlolo):
     q2 -= one(T)
-    s += y_hi
+    s += yn_hi
     if s >= base:
       break
+    else:
+      q2_ynlo -= yn_lo
+      sbase_xnlolo = (s shl halfSize) or xnlolo
+
 
   result.quot = (q1 shl halfSize) or q2
-  result.rem = ((xn_rest shl halfSize) + xn_lo - q2 * y) shr clz
+  result.rem = ((xn_rest shl halfSize) + xnlolo - q2 * yn) shr clz
 
 proc divmod*(x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] {.noSideEffect.}=
 
@@ -189,20 +196,21 @@ proc divmod*(x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] {.noSideEffect.}=
     size = size_mpuintimpl(x)
     halfSize = size div 2
 
-  # Normalization of divisor
-  let clz = countLeadingZeroBits(x.hi)
-  let yn = (y shl clz).hi
-
-  # Prevent overflows
-  let xn = x shr 1
-
-  # Get the quotient
   block:
-    let (qlo, _) = div2n1n(x.hi, x.lo, y.hi)
-    result.quot.lo = qlo
+    # Normalization of divisor
+    let clz = countLeadingZeroBits(x.hi)
+    let yn = (y shl clz)
 
-  # Undo normalization
-  result.quot = result.quot shr (halfSize - 1 - clz) # -1 to correct for xn shift
+    # Prevent overflows
+    let xn = x shr 1
+
+    # Get the quotient
+    block:
+      let (qlo, _) = div2n1n(x.hi, x.lo, yn.hi)
+      result.quot.lo = qlo
+
+    # Undo normalization
+    result.quot = result.quot shr (halfSize - 1 - clz) # -1 to correct for xn shift
 
   if not result.quot.isZero:
     result.quot -= one(type result.quot)
@@ -210,10 +218,10 @@ proc divmod*(x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] {.noSideEffect.}=
   # We will fix that once we know the remainder
 
   # Remainder
-  result.rem = x - y * result.quot
+  result.rem = x - (y * result.quot)
 
   # Fix quotient and reminder if we're off by one
-  if result.rem > y:
+  if result.rem >= y:
     # one more division round
     result.quot += one(type result.quot)
     result.rem -= y
@@ -262,6 +270,7 @@ proc `mod`*(x, y: MpUintImpl): MpUintImpl {.inline, noSideEffect.} =
 # Other libraries that can be used as reference for alternative (?) implementations:
 # - TTMath: https://github.com/status-im/nim-ttmath/blob/8f6ff2e57b65a350479c4012a53699e262b19975/src/headers/ttmathuint.h#L1530-L2383
 # - LibTomMath: https://github.com/libtom/libtommath
+# - Google Abseil: https://github.com/abseil/abseil-cpp/tree/master/absl/numeric
 # - Crypto libraries like libsecp256k1, OpenSSL, ... though they are not generics. (uint256 only for example)
 # Note: GMP/MPFR are GPL. The papers can be used but not their code.
 
