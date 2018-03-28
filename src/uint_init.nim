@@ -14,18 +14,17 @@ import  ./private/bithacks, ./private/conversion,
 
 import typetraits
 
-proc initMpUint*(n: SomeInteger, bits: static[int]): MpUint[bits] {.noSideEffect.} =
-  assert n >= 0
+proc initMpUint*[T: SomeInteger](n: T, bits: static[int]): MpUint[bits] {.noSideEffect.} =
+  assert n >= 0.T
   when result.data is MpuintImpl:
-    type SubTy = type result.data.lo
-
+    static: echo result.data.type.name
     let len = n.bit_length
     if len > bits:
       raise newException(ValueError, "Input " & $n & " cannot be stored in a multi-precision " &
                                     $bits & "-bit integer." &
                                     "\nIt requires at least " & $len & " bits of precision")
     elif len < bits div 2:
-      result.data.lo = SubTy(n)
+      result.data.lo = initMpUintImpl(n, type result.data.lo)
     else: # Both have the same size and memory representation
       when bits == 16:
         # TODO: If n is int it's not properly converted at the input

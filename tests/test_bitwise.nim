@@ -14,6 +14,7 @@ suite "Testing bitwise operations":
 
   let b = a * a
   let z = 10000'u16
+  assert cast[uint16](b) == z, "Test cannot proceed, something is wrong with the multiplication implementation"
 
   test "Shift left - by less than half the size of the integer":
     check: cast[uint16](b) == z # Sanity check

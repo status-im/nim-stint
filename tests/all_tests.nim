@@ -9,5 +9,6 @@
 
 import  test_endianness,
         test_comparison,
+        test_bitwise,
         test_addsub,
         test_muldiv

@@ -52,16 +52,22 @@ proc `-`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit, inline.}=
 
 proc naiveMulImpl[T: MpUintImpl](x, y: T): MpUintImpl[T] {.noSideEffect, noInit, inline.}
   # Forward declaration
-
+import typetraits
 proc naiveMul[T: BaseUint](x, y: T): MpUintImpl[T] {.noSideEffect, noInit, inline.}=
   ## Naive multiplication algorithm with extended precision
 
-  when T.sizeof in {1, 2, 4}:
+  const size = size_mpuintimpl(x)
+
+  when size in {8, 16, 32}:
     # Use types twice bigger to do the multiplication
     cast[type result](x.asDoubleUint * y.asDoubleUint)
 
-  elif T.sizeof == 8: # uint64 or MpUint[uint32]
+  elif size == 64: # uint64 or MpUint[uint32]
     # We cannot double uint64 to uint128
+    static:
+      echo "####"
+      echo x.type.name
+      echo size
     cast[type result](naiveMulImpl(x.toMpUintImpl, y.toMpUintImpl))
   else:
     # Case: at least uint128 * uint128 --> uint256
@@ -92,10 +98,10 @@ proc naiveMulImpl[T: MpUintImpl](x, y: T): MpUintImpl[T] {.noSideEffect, noInit,
   z1 += naiveMul(x.hi, y.lo)
   let z2 = (z1 < tmp).toSubtype(T) + naiveMul(x.hi, y.hi)
 
-  let tmp2  = initMpUintImpl(z1.lo shl halfSize)
+  let tmp2  = initMpUintImpl(z1.lo shl halfSize, T)
   result.lo = tmp2
   result.lo += z0
-  result.hi = (result.lo < tmp2).toSubtype(T) + z2 + initMpUintImpl(z1.hi)
+  result.hi = (result.lo < tmp2).toSubtype(T) + z2 + initMpUintImpl(z1.hi, type result.hi)
 
 proc `*`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit.}=
   ## Multiplication for multi-precision unsigned uint
