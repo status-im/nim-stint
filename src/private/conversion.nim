@@ -35,7 +35,6 @@ proc toSubtype*[T: MpUintImpl](b: bool, _: typedesc[T]): T {.noSideEffect, inlin
 
 proc zero*[T: BaseUint](_: typedesc[T]): T {.noSideEffect, inline.}=
   discard
-  debugecho result
 
 proc one*[T: BaseUint](_: typedesc[T]): T {.noSideEffect, inline.}=
   when T is SomeUnsignedInt:
