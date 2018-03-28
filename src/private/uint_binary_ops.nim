@@ -52,7 +52,7 @@ proc `-`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit, inline.}=
 
 proc naiveMulImpl[T: MpUintImpl](x, y: T): MpUintImpl[T] {.noSideEffect, noInit, inline.}
   # Forward declaration
-import typetraits
+
 proc naiveMul[T: BaseUint](x, y: T): MpUintImpl[T] {.noSideEffect, noInit, inline.}=
   ## Naive multiplication algorithm with extended precision
 
@@ -64,10 +64,6 @@ proc naiveMul[T: BaseUint](x, y: T): MpUintImpl[T] {.noSideEffect, noInit, inlin
 
   elif size == 64: # uint64 or MpUint[uint32]
     # We cannot double uint64 to uint128
-    static:
-      echo "####"
-      echo x.type.name
-      echo size
     cast[type result](naiveMulImpl(x.toMpUintImpl, y.toMpUintImpl))
   else:
     # Case: at least uint128 * uint128 --> uint256

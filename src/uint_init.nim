@@ -17,7 +17,6 @@ import typetraits
 proc initMpUint*[T: SomeInteger](n: T, bits: static[int]): MpUint[bits] {.noSideEffect.} =
   assert n >= 0.T
   when result.data is MpuintImpl:
-    static: echo result.data.type.name
     let len = n.bit_length
     if len > bits:
       raise newException(ValueError, "Input " & $n & " cannot be stored in a multi-precision " &
