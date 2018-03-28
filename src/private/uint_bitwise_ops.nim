@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_type, size_mpuintimpl
+import  ./uint_type, ./size_mpuintimpl, ./conversion
 
 
 proc `not`*(x: MpUintImpl): MpUintImpl {.noInit, noSideEffect, inline.}=
@@ -40,7 +40,6 @@ proc `shl`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.noInit, inline, noSideE
   result.hi = (x.hi shl y) or (x.lo shl (y - halfSize))
   result.lo = if y < halfSize: x.lo shl y
               else: 0.SubTy
-
 
 proc `shr`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.noInit, inline, noSideEffect.}=
   ## Compute the `shift right` operation of x and y

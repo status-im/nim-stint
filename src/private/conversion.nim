@@ -7,14 +7,24 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_type,
+import  ./uint_type, ./size_mpuintimpl,
         macros
 
-# converter mpUint64*(x: MpUintImpl[uint32]): uint64 =
-#   cast[ptr uint64](unsafeAddr x)[]
+proc initMpUintImpl*[InType, OutType](x: InType, _: typedesc[OutType]): OutType {.noSideEffect.} =
 
-proc initMpUintImpl*[T: BaseUint](x: T): MpUintImpl[T] {.inline,noSideEffect.} =
-  result.lo = x
+  const
+    size_in = size_mpuintimpl(x)
+    size_out = size_mpuintimpl(result)
+
+  static:
+    assert size_out >= size_in, "The result type size should be equal or bigger than the input type size"
+
+  when OutType is SomeUnsignedInt:
+    result = x.OutType
+  elif size_in == size_out:
+    result = cast[type result](x)
+  else:
+    result.lo = initMpUintImpl(x, type result.lo)
 
 proc toSubtype*[T: SomeInteger](b: bool, _: typedesc[T]): T {.noSideEffect, inline.}=
   b.T
@@ -24,7 +34,8 @@ proc toSubtype*[T: MpUintImpl](b: bool, _: typedesc[T]): T {.noSideEffect, inlin
   result.lo = toSubtype(b, SubTy)
 
 proc zero*[T: BaseUint](_: typedesc[T]): T {.noSideEffect, inline.}=
-  result = T(0)
+  discard
+  debugecho result
 
 proc one*[T: BaseUint](_: typedesc[T]): T {.noSideEffect, inline.}=
   when T is SomeUnsignedInt:
@@ -73,3 +84,7 @@ proc toMpUintImpl*(n: uint16|uint32|uint64): auto {.noSideEffect, inline.} =
     return (cast[ptr [MpUintImpl[uint16]]](unsafeAddr n))[]
   elif n is uint16:
     return (cast[ptr [MpUintImpl[uint8]]](unsafeAddr n))[]
+
+proc toMpUintImpl*(n: MpUintImpl): MpUintImpl {.noSideEffect, inline.} =
+  ## No op
+  n

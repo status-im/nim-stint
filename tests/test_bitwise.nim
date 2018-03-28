@@ -14,6 +14,7 @@ suite "Testing bitwise operations":
 
   let b = a * a
   let z = 10000'u16
+  assert cast[uint16](b) == z, "Test cannot proceed, something is wrong with the multiplication implementation"
 
   test "Shift left - by less than half the size of the integer":
     check: cast[uint16](b) == z # Sanity check
@@ -30,10 +31,11 @@ suite "Testing bitwise operations":
   test "Shift right - by less than half the size of the integer":
     check: cast[uint16](b) == z # Sanity check
     check: cast[uint16](b shr 2) == z shr 2
-
+    echo cast[uint16](b shr 2)
   test "Shift right - by more than half the size of the integer":
     check: cast[uint16](b) == z # Sanity check
     check: cast[uint16](b shr 10) == z shr 10
+    echo cast[uint16](b shr 10)
 
   test "Shift right - by half the size of the integer":
     check: cast[uint16](b) == z # Sanity check
