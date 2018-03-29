@@ -182,7 +182,7 @@ proc div2n1n[T: BaseUint](x_hi, x_lo, y: T): tuple[quot, rem: T] {.noSideEffect,
   result.quot = (q1 shl halfSize) or q2
   result.rem = ((xn_rest shl halfSize) + xnlolo - q2 * yn) shr clz
 
-proc divmod*(x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] {.noSideEffect.}=
+proc divmod*(x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] {.noInit, noSideEffect.}=
 
   # Using divide and conquer algorithm.
   if y.hi.isZero:
@@ -193,7 +193,6 @@ proc divmod*(x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] {.noSideEffect.}=
       (result.quot.lo, result.rem.lo) = div2n1n(result.rem.hi, x.lo, y.lo)
       result.rem.hi = zero(type result.rem.hi)
     return
-
   const
     size = size_mpuintimpl(x)
     halfSize = size div 2
@@ -208,7 +207,7 @@ proc divmod*(x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] {.noSideEffect.}=
 
     # Get the quotient
     block:
-      let (qlo, _) = div2n1n(x.hi, x.lo, yn.hi)
+      let (qlo, _) = div2n1n(xn.hi, xn.lo, yn.hi)
       result.quot.lo = qlo
 
     # Undo normalization
