@@ -21,10 +21,8 @@ proc `+=`*(x: var MpUintImpl, y: MpUintImpl) {.noSideEffect, inline.}=
   # Optimized assembly should contain adc instruction (add with carry)
   # Clang on MacOS does with the -d:release switch and MpUint[uint32] (uint64)
   type SubTy = type x.lo
-  let tmp = x.lo
-
   x.lo += y.lo
-  x.hi += (x.lo < tmp).toSubtype(SubTy) + y.hi
+  x.hi += (x.lo < y.lo).toSubtype(SubTy) + y.hi
 
 proc `+`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit, inline.}=
   # Addition for multi-precision unsigned int
@@ -37,10 +35,8 @@ proc `-=`*(x: var MpUintImpl, y: MpUintImpl) {.noSideEffect, inline.}=
   # Optimized assembly should contain sbb instruction (substract with borrow)
   # Clang on MacOS does with the -d:release switch and MpUint[uint32] (uint64)
   type SubTy = type x.lo
-  let tmp = x.lo
-
   x.lo -= y.lo
-  x.hi -= (x.lo > tmp).toSubtype(SubTy) + y.hi
+  x.hi -= (x.lo < not y.lo).toSubtype(SubTy) + y.hi
 
 proc `-`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit, inline.}=
   # Substraction for multi-precision unsigned int
