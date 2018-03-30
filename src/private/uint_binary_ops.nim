@@ -36,7 +36,7 @@ proc `-=`*(x: var MpUintImpl, y: MpUintImpl) {.noSideEffect, inline.}=
   # Clang on MacOS does with the -d:release switch and MpUint[uint32] (uint64)
   type SubTy = type x.lo
   x.lo -= y.lo
-  x.hi -= (x.lo < not y.lo).toSubtype(SubTy) + y.hi
+  x.hi -= (x.lo <= not y.lo).toSubtype(SubTy) + y.hi
 
 proc `-`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit, inline.}=
   # Substraction for multi-precision unsigned int
