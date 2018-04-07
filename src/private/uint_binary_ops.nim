@@ -130,6 +130,22 @@ proc div2n1n[T: BaseUint](x_hi, x_lo, y: T): tuple[quot, rem: T] {.noSideEffect,
     halfMask = (one(T) shl halfSize) - one(T)
     base = one(T) shl halfSize
 
+  template halfQR(numerator, unit, d_hi, d_lo: T): tuple[q,r: T] =
+    var
+      (q, r) = divmod(numerator, d_hi)
+      m = q * d_lo
+    r = (r shl halfSize) or unit
+
+    # Fix the reminder, we're at most 2 iterations off
+    if r < m:
+      q -= one(T)
+      r += y
+      if r >= y and r < m:
+        q -= one(T)
+        r += y
+    r -= m
+    (q, r)
+
   if unlikely(x_hi >= y):
     raise newException(ValueError, "Division overflow")
 
@@ -147,36 +163,13 @@ proc div2n1n[T: BaseUint](x_hi, x_lo, y: T): tuple[quot, rem: T] {.noSideEffect,
   let xnlolo = xn.lo and halfMask
 
   # First half of the quotient
-  var (q1, r) = divmod(xn.hi, yn_hi)
-
-  while (q1 >= base) or ((q1 * yn_lo) > (base * r + xnlohi)):
-    q1 -= one(T)
-    r += yn_hi
-    if r >= base:
-      break
-
-  # Remove it
-  let xn_rest = xn.hi shl halfSize + xnlohi - (q1 * yn)
+  let (q1, r1) = halfQR(xn.hi, xnlohi, yn_hi, yn_lo)
 
   # Second half
-  var (q2, s) = divmod(xn_rest, yn_hi)
-
-  var
-    q2_ynlo = q2 * yn_lo
-    sbase_xnlolo = (s shl halfSize) or xnlolo
-
-  while (q2 >= base) or (q2_ynlo > sbase_xnlolo):
-    q2 -= one(T)
-    s += yn_hi
-    if s >= base:
-      break
-    else:
-      q2_ynlo -= yn_lo
-      sbase_xnlolo = (s shl halfSize) or xnlolo
-
+  let (q2, r2) = halfQR(r1, xnlolo, yn_hi, yn_lo)
 
   result.quot = (q1 shl halfSize) or q2
-  result.rem = ((xn_rest shl halfSize) + xnlolo - q2 * yn) shr clz
+  result.rem = r2 shr clz
 
 proc divmod*(x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] {.noInit, noSideEffect.}=
 
