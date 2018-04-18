@@ -172,7 +172,7 @@ func div3n2n( q, r1, r0: var SomeUnsignedInt,
   if a2 < b1:
     div2n1n(q, c, a2, a1, b1)
   else:
-    q = (-1).T # We want 0xFFFFF ....
+    q = 0.T - 1.T # We want 0xFFFFF ....
     c = a1 + b1
     if c < a1:
       carry = true
@@ -239,19 +239,23 @@ func div2n1n*[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) {.inline.} =
   q = (q1 shl halfSize) or q2
   r = r2
 
-func divmod*[T: BaseUint](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]] =
+func divmod*(x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] =
 
   # Normalization
-  assert not y.isZero
+  assert y.isZero.not()
+
+  const halfSize = size_mpuintimpl(x) div 2
   let clz = countLeadingZeroBits(y)
 
-  var
-    xx = MpUintImpl[MpUintImpl[T]](lo: x)
+  let
+    xx_hi = if clz < halfSize: (x shr (halfSize - clz))
+            else: x shl (clz - halfSize)
+    xx_lo = if clz < halfSize: x shl clz
+            else: zero(type x)
     yy = y shl clz
-  xx = xx shl clz
 
   # Compute
-  div2n1n(result.quot, result.rem, xx.hi, xx.lo, yy)
+  div2n1n(result.quot, result.rem, xx_hi, xx_lo, yy)
 
   # Undo normalization
   result.rem = result.rem shr clz
