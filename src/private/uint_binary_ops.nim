@@ -122,14 +122,88 @@ proc `*`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit.}=
 # ################### Division ################### #
 from ./primitive_divmod import divmod
 
-proc divmod*(x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] {.noSideEffect.}
+func div3n2n( q, r1, r0: var MpUintImpl,
+              a2, a1, a0: MpUintImpl,
+              b1, b0: MpUintImpl) {.inline.}=
+  mixin div2n1n
 
-proc div2n1n[T: BaseUint](x_hi, x_lo, y: T): tuple[quot, rem: T] {.noSideEffect, noInit.} =
+  type T = type q
+
+  var
+    c: T
+    carry: bool
+
+  if a2 < b1:
+    div2n1n(q, c, a2, a1, b1)
+  else:
+    q = zero(T) - one(T) # We want 0xFFFFF ....
+    c = a1 + b1
+    if c < a1:
+      carry = true
+
+  let
+    d = naiveMul(q, b0)
+    r = MpUintImpl[T](hi: c, lo: a0) - d
+    b = MpUintImpl[T](hi: b1, lo: b0)
+
+  if  (not carry) and (d > r):
+    q -= 1
+    r += b
+
+    if r > b:
+      q -= one(T)
+      r += b
+
+  r1 = r.hi
+  r0 = r.lo
+
+func div3n2n( q, r1, r0: var SomeUnsignedInt,
+              a2, a1, a0: SomeUnsignedInt,
+              b1, b0: SomeUnsignedInt) {.inline.}=
+  mixin div2n1n
+
+  type T = type q
+
+  var
+    c: T
+    carry: bool
+
+  if a2 < b1:
+    div2n1n(q, c, a2, a1, b1)
+  else:
+    q = (-1).T # We want 0xFFFFF ....
+    c = a1 + b1
+    if c < a1:
+      carry = true
+
+  let
+    d = naiveMul(q, b0)
+    b = MpUintImpl[T](hi: b1, lo: b0)
+
+  var r = MpUintImpl[T](hi: c, lo: a0) - d
+
+  if  (not carry) and (d > r):
+    q -= 1.T
+    r += b
+
+    if r > b:
+      q -= 1.T
+      r += b
+
+  r1 = r.hi
+  r0 = r.lo
+
+func div2n1n*(q, r: var MpUintImpl, ah, al, b: MpUintImpl) {.inline.} =
+  var s: MpUintImpl
+  div3n2n(q.hi, s.hi, s.lo, ah.hi, ah.lo, al.hi, b.hi, b.lo)
+  div3n2n(q.lo, r.hi, r.lo, s.hi, s.lo, al.lo, b.hi, b.lo)
+
+func div2n1n*[T: SomeunsignedInt](q, r: var T, x_hi, x_lo, y: T) {.inline.} =
   const
     size = size_mpuintimpl(x_hi)
     halfSize = size div 2
-    halfMask = (one(T) shl halfSize) - one(T)
-    base = one(T) shl halfSize
+    halfMask = (1.T shl halfSize) - 1.T
+    base = 1.T shl halfSize
 
   template halfQR(numerator, unit, d_hi, d_lo: T): tuple[q,r: T] =
     var
@@ -139,18 +213,19 @@ proc div2n1n[T: BaseUint](x_hi, x_lo, y: T): tuple[quot, rem: T] {.noSideEffect,
 
     # Fix the reminder, we're at most 2 iterations off
     if r < m:
-      q -= one(T)
+      q -= 1.T
       r += d_hi
       if r >= d_hi and r < m:
-        q -= one(T)
+        q -= 1.T
         r += d_hi
     r -= m
     (q, r)
 
-  if unlikely(x_hi >= y):
-    raise newException(ValueError, "Division overflow")
+  # assert x_hi >= y, "Division overflow"
 
-  let clz = countLeadingZeroBits(y) # We assume that for 0 clz returns 0
+  assert countLeadingZeroBits(0) == 0,"We assume that for 0, CountLeadingZero returns 0." &
+                                      "It seems like for your implementation, it is undefined"
+  let clz = countLeadingZeroBits(y)
 
   # normalization, shift so that the MSB is at 2^n
   let xn = MpUintImpl[T](hi: x_hi, lo: x_lo) shl clz
@@ -169,59 +244,36 @@ proc div2n1n[T: BaseUint](x_hi, x_lo, y: T): tuple[quot, rem: T] {.noSideEffect,
   # Second half
   let (q2, r2) = halfQR(r1, xnlolo, yn_hi, yn_lo)
 
-  result.quot = (q1 shl halfSize) or q2
-  result.rem = r2 shr clz
+  q = (q1 shl halfSize) or q2
+  r = r2 shr clz
 
-proc divmod*(x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] {.noInit, noSideEffect.}=
+func divmod*[T: BaseUint](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]] =
 
-  # Using divide and conquer algorithm.
-  if y.hi.isZero:
-    if x.hi < y.lo: # Bit length of quotient x/y < bit_length(MpUintImpl) / 2
-      (result.quot.lo, result.rem.lo) = div2n1n(x.hi, x.lo, y.lo)
-    else:           # Quotient can overflow the subtype so we split work
-      (result.quot.hi, result.rem.hi) = divmod(x.hi, y.hi)
-      (result.quot.lo, result.rem.lo) = div2n1n(result.rem.hi, x.lo, y.lo)
-      result.rem.hi = zero(type result.rem.hi)
-    return
   const
     size = size_mpuintimpl(x)
     halfSize = size div 2
 
-  block:
-    # Normalization of divisor
-    let clz = countLeadingZeroBits(x.hi)
-    let yn = (y shl clz)
+  # Normalization
+  assert countLeadingZeroBits(0) == 0,"We assume that for 0, CountLeadingZero returns 0." &
+                                      "It seems like for your implementation, it is undefined"
+  let clz = countLeadingZeroBits(y)
 
-    # Prevent overflows
-    let xn = x shr 1
+  var
+    xx = MpUintImpl[MpUintImpl[T]](lo: x)
+    yy = y shl clz
+  xx = xx shl clz
 
-    # Get the quotient
-    block:
-      let (qlo, _) = div2n1n(xn.hi, xn.lo, yn.hi)
-      result.quot.lo = qlo
+  # Compute
+  div2n1n(result.quot, result.rem, xx.hi, xx.lo, yy)
 
-    # Undo normalization
-    result.quot = result.quot shr (halfSize - 1 - clz) # -1 to correct for xn shift
+  # Undo normalization
+  result.rem = result.rem shr clz
 
-  if not result.quot.isZero:
-    result.quot -= one(type result.quot)
-  # Quotient is correct or too small by one
-  # We will fix that once we know the remainder
-
-  # Remainder
-  result.rem = x - (y * result.quot)
-
-  # Fix quotient and reminder if we're off by one
-  if result.rem >= y:
-    # one more division round
-    result.quot += one(type result.quot)
-    result.rem -= y
-
-proc `div`*(x, y: MpUintImpl): MpUintImpl {.inline, noSideEffect.} =
+func `div`*(x, y: MpUintImpl): MpUintImpl {.inline.} =
   ## Division operation for multi-precision unsigned uint
   divmod(x,y).quot
 
-proc `mod`*(x, y: MpUintImpl): MpUintImpl {.inline, noSideEffect.} =
+func `mod`*(x, y: MpUintImpl): MpUintImpl {.inline.} =
   ## Division operation for multi-precision unsigned uint
   divmod(x,y).rem
 
@@ -244,16 +296,16 @@ proc `mod`*(x, y: MpUintImpl): MpUintImpl {.inline, noSideEffect.} =
 # - https://github.com/ridiculousfish/libdivide/blob/master/libdivide.h
 # Furthermore libdivide also has branchless implementations
 
-# Current implementation
-# Currently we use the divide and conquer algorithm. Implementations can be found in
+# Implementation: we use recursive fast division by Burnikel and Ziegler.
+#
+# It is build upon divide and conquer algorithm that can be found in:
 # - Hacker's delight: http://www.hackersdelight.org/hdcodetxt/divDouble.c.txt
 # - Libdivide
 # - Code project: https://www.codeproject.com/Tips/785014/UInt-Division-Modulus
 # - Cuda-uint128 (unfinished): https://github.com/curtisseizert/CUDA-uint128/blob/master/cuda_uint128.h
 # - Mpdecimal: https://github.com/status-im/nim-decimal/blob/9b65e95299cb582b14e0ae9a656984a2ce0bab03/decimal/mpdecimal_wrapper/generated/basearith.c#L305-L412
 
-# Probably the most efficient algorithm that can benefit from MpUInt recursive data structure is
-# the recursive fast division by Burnikel and Ziegler (http://www.mpi-sb.mpg.de/~ziegler/TechRep.ps.gz):
+# Description of recursive fast division by Burnikel and Ziegler (http://www.mpi-sb.mpg.de/~ziegler/TechRep.ps.gz):
 #  - Python implementation: https://bugs.python.org/file11060/fast_div.py and discussion https://bugs.python.org/issue3451
 #  - C++ implementation: https://github.com/linbox-team/givaro/blob/master/src/kernel/recint/rudiv.h
 #  - The Handbook of Elliptic and Hyperelliptic Cryptography Algorithm 10.35 on page 188 has a more explicit version of the div2NxN algorithm. This algorithm is directly recursive and avoids the mutual recursion of the original paper's calls between div2NxN and div3Nx2N.
