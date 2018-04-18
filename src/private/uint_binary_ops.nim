@@ -7,11 +7,12 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./bithacks, ./conversion, ./stdlib_bitops,
+import  ./bithacks, ./conversion,
         ./uint_type,
         ./uint_comparison,
         ./uint_bitwise_ops,
-        ./size_mpuintimpl
+        ./size_mpuintimpl,
+        bitops
 
 # ############ Addition & Substraction ############ #
 
@@ -198,18 +199,20 @@ func div2n1n*(q, r: var MpUintImpl, ah, al, b: MpUintImpl) {.inline.} =
   div3n2n(q.hi, s.hi, s.lo, ah.hi, ah.lo, al.hi, b.hi, b.lo)
   div3n2n(q.lo, r.hi, r.lo, s.hi, s.lo, al.lo, b.hi, b.lo)
 
-func div2n1n*[T: SomeunsignedInt](q, r: var T, x_hi, x_lo, y: T) {.inline.} =
+func div2n1n*[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) {.inline.} =
+
+  assert countLeadingZeroBits(d) == 0, "Divisor was not normalized"
+
   const
-    size = size_mpuintimpl(x_hi)
+    size = size_mpuintimpl(q)
     halfSize = size div 2
     halfMask = (1.T shl halfSize) - 1.T
-    base = 1.T shl halfSize
 
-  template halfQR(numerator, unit, d_hi, d_lo: T): tuple[q,r: T] =
-    var
-      (q, r) = divmod(numerator, d_hi)
-      m = q * d_lo
-    r = (r shl halfSize) or unit
+  template halfQR(n_hi, n_lo, d_hi, d_lo: T): tuple[q,r: T] =
+
+    var (q, r) = divmod(n_hi, d_hi)
+    let m = q * d_lo
+    r = (r shl halfSize) or n_lo
 
     # Fix the reminder, we're at most 2 iterations off
     if r < m:
@@ -221,41 +224,25 @@ func div2n1n*[T: SomeunsignedInt](q, r: var T, x_hi, x_lo, y: T) {.inline.} =
     r -= m
     (q, r)
 
-  # assert x_hi >= y, "Division overflow"
-
-  assert countLeadingZeroBits(0) == 0,"We assume that for 0, CountLeadingZero returns 0." &
-                                      "It seems like for your implementation, it is undefined"
-  let clz = countLeadingZeroBits(y)
-
-  # normalization, shift so that the MSB is at 2^n
-  let xn = MpUintImpl[T](hi: x_hi, lo: x_lo) shl clz
-  let yn = y shl clz
-
-  # Break divisor in 2 and dividend in 4
-  let yn_hi = yn shr halfSize
-  let yn_lo = yn and halfMask
-
-  let xnlohi = xn.lo shr halfSize
-  let xnlolo = xn.lo and halfMask
+  let
+    d_hi = d shr halfSize
+    d_lo = d and halfMask
+    n_lohi = nlo shr halfSize
+    n_lolo = nlo and halfMask
 
   # First half of the quotient
-  let (q1, r1) = halfQR(xn.hi, xnlohi, yn_hi, yn_lo)
+  let (q1, r1) = halfQR(n_hi, n_lohi, d_hi, d_lo)
 
   # Second half
-  let (q2, r2) = halfQR(r1, xnlolo, yn_hi, yn_lo)
+  let (q2, r2) = halfQR(r1, n_lolo, d_hi, d_lo)
 
   q = (q1 shl halfSize) or q2
-  r = r2 shr clz
+  r = r2
 
 func divmod*[T: BaseUint](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]] =
 
-  const
-    size = size_mpuintimpl(x)
-    halfSize = size div 2
-
   # Normalization
-  assert countLeadingZeroBits(0) == 0,"We assume that for 0, CountLeadingZero returns 0." &
-                                      "It seems like for your implementation, it is undefined"
+  assert not y.isZero
   let clz = countLeadingZeroBits(y)
 
   var
