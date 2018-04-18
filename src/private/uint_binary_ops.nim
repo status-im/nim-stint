@@ -123,40 +123,84 @@ proc `*`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit.}=
 # ################### Division ################### #
 from ./primitive_divmod import divmod
 
-func div3n2n( q, r1, r0: var MpUintImpl,
-              a2, a1, a0: MpUintImpl,
-              b1, b0: MpUintImpl) {.inline.}=
-  mixin div2n1n
+# func div3n2n( q, r1, r0: var MpUintImpl,
+#               a2, a1, a0: MpUintImpl,
+#               b1, b0: MpUintImpl) {.inline.}=
+#   mixin div2n1n
 
-  type T = type q
+#   type T = type q
+
+#   var
+#     c: T
+#     carry: bool
+
+#   if a2 < b1:
+#     div2n1n(q, c, a2, a1, b1)
+#   else:
+#     q = zero(T) - one(T) # We want 0xFFFFF ....
+#     c = a1 + b1
+#     if c < a1:
+#       carry = true
+
+#   let
+#     d = naiveMul(q, b0)
+#     r = MpUintImpl[T](hi: c, lo: a0) - d
+#     b = MpUintImpl[T](hi: b1, lo: b0)
+
+#   if  (not carry) and (d > r):
+#     q -= 1
+#     r += b
+
+#     if r > b:
+#       q -= one(T)
+#       r += b
+
+#   r1 = r.hi
+#   r0 = r.lo
+
+template sub_ddmmss[T](sh, sl, ah, al, bh, bl: T) =
+  sl = al - bl
+  sh = ah - bh - (al < bl).T
+
+func lo[T:SomeUnsignedInt](x: T): T {.inline.} =
+  const
+    p = T.sizeof * 8 div 2
+    base = 1 shl p
+    mask = base - 1
+  result = x and mask
+
+func hi[T:SomeUnsignedInt](x: T): T {.inline.} =
+  const
+    p = T.sizeof * 8 div 2
+  result = x shr p
+
+func umul_ppmm[T](w1, w0: var T, u, v: T) =
+
+  const
+    p = (T.sizeof * 8 div 2)
+    base = 1 shl p
 
   var
-    c: T
-    carry: bool
-
-  if a2 < b1:
-    div2n1n(q, c, a2, a1, b1)
-  else:
-    q = zero(T) - one(T) # We want 0xFFFFF ....
-    c = a1 + b1
-    if c < a1:
-      carry = true
+    x0, x1, x2, x3: T
 
   let
-    d = naiveMul(q, b0)
-    r = MpUintImpl[T](hi: c, lo: a0) - d
-    b = MpUintImpl[T](hi: b1, lo: b0)
+    ul = u.lo
+    uh = u.hi
+    vl = v.lo
+    vh = v.hi
 
-  if  (not carry) and (d > r):
-    q -= 1
-    r += b
+  x0 = ul * vl
+  x1 = ul * vh
+  x2 = uh * vl
+  x3 = uh * vh
 
-    if r > b:
-      q -= one(T)
-      r += b
+  x1 += x0.hi           # This can't carry
+  x1 += x2              # but this can
+  if x1 < x2:           # if carry, add it to x3
+    x3 += base
 
-  r1 = r.hi
-  r0 = r.lo
+  w1 = x3 + x1.hi
+  w0 = (x1 shl p) + x0.lo
 
 func div3n2n( q, r1, r0: var SomeUnsignedInt,
               a2, a1, a0: SomeUnsignedInt,
@@ -166,33 +210,34 @@ func div3n2n( q, r1, r0: var SomeUnsignedInt,
   type T = type q
 
   var
-    c: T
+    c, d1, d0: T
     carry: bool
 
   if a2 < b1:
-    div2n1n(q, c, a2, a1, b1)
+    # div2n1n(q, c, a2, a1, b1)
+    assert false
   else:
     q = 0.T - 1.T # We want 0xFFFFF ....
     c = a1 + b1
     if c < a1:
       carry = true
 
-  let
-    d = naiveMul(q, b0)
-    b = MpUintImpl[T](hi: b1, lo: b0)
+  umul_ppmm(d1, d0, q, b0)
+  sub_ddmmss(r1, r0, c, a0, d1, d0)
 
-  var r = MpUintImpl[T](hi: c, lo: a0) - d
-
-  if  (not carry) and (d > r):
+  if  (not carry) and ((d1 > c) or ((d1 == c) and (d0 > a0))):
     q -= 1.T
-    r += b
+    r0 += b0
+    r1 += b1
+    if r0 < b0:
+      inc r1
 
-    if r > b:
+    if (r1 > b1) or ((r1 == b1) and (r0 >= b0)):
       q -= 1.T
-      r += b
-
-  r1 = r.hi
-  r0 = r.lo
+      r0 += b0
+      r1 += b1
+      if r0 < b0:
+        inc r1
 
 func div2n1n*(q, r: var MpUintImpl, ah, al, b: MpUintImpl) {.inline.} =
   var s: MpUintImpl
