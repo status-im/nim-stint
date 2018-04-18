@@ -16,6 +16,11 @@ suite "Testing bitwise operations":
   let z = 10000'u16
   assert cast[uint16](b) == z, "Test cannot proceed, something is wrong with the multiplication implementation"
 
+
+  let u = 10000.initMpUint(64)
+  let v = 10000'u64
+  let clz = 30
+
   test "Shift left - by less than half the size of the integer":
     check: cast[uint16](b) == z # Sanity check
     check: cast[uint16](b shl 2) == z shl 2
@@ -23,6 +28,8 @@ suite "Testing bitwise operations":
   test "Shift left - by more than half the size of the integer":
     check: cast[uint16](b) == z # Sanity check
     check: cast[uint16](b shl 10) == z shl 10
+
+    check: cast[uint64](u shl clz) == v shl clz
 
   test "Shift left - by half the size of the integer":
     check: cast[uint16](b) == z # Sanity check
