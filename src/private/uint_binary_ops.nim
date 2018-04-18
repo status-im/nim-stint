@@ -35,8 +35,9 @@ proc `-=`*(x: var MpUintImpl, y: MpUintImpl) {.noSideEffect, inline.}=
   # Optimized assembly should contain sbb instruction (substract with borrow)
   # Clang on MacOS does with the -d:release switch and MpUint[uint32] (uint64)
   type SubTy = type x.lo
+  let original = x.lo
   x.lo -= y.lo
-  x.hi -= (x.lo <= not y.lo).toSubtype(SubTy) + y.hi
+  x.hi -= (original < x.lo).toSubtype(SubTy) + y.hi
 
 proc `-`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit, inline.}=
   # Substraction for multi-precision unsigned int
@@ -139,10 +140,10 @@ proc div2n1n[T: BaseUint](x_hi, x_lo, y: T): tuple[quot, rem: T] {.noSideEffect,
     # Fix the reminder, we're at most 2 iterations off
     if r < m:
       q -= one(T)
-      r += y
-      if r >= y and r < m:
+      r += d_hi
+      if r >= d_hi and r < m:
         q -= one(T)
-        r += y
+        r += d_hi
     r -= m
     (q, r)
 
