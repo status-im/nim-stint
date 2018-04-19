@@ -141,40 +141,41 @@ func tohexBE(x: MpUintImpl): string =
   for i in countdown(size - 1, 0):
     result.add toHex(bytes[i])
 
-# func div3n2n( q, r1, r0: var MpUintImpl,
-#               a2, a1, a0: MpUintImpl,
-#               b1, b0: MpUintImpl) {.inline.}=
-#   mixin div2n1n
+func div3n2n[T]( q, r1, r0: var MpUintImpl[T],
+              a2, a1, a0: MpUintImpl[T],
+              b1, b0: MpUintImpl[T]) {.inline.}=
+  mixin div2n1n
 
-#   type T = type q
+  type T = type q
 
-#   var
-#     c: T
-#     carry: bool
+  var
+    c: T
+    carry: bool
 
-#   if a2 < b1:
-#     div2n1n(q, c, a2, a1, b1)
-#   else:
-#     q = zero(T) - one(T) # We want 0xFFFFF ....
-#     c = a1 + b1
-#     if c < a1:
-#       carry = true
+  if a2 < b1:
+    div2n1n(q, c, a2, a1, b1)
+  else:
+    q = zero(type q) - one(type q) # We want 0xFFFFF ....
+    c = a1 + b1
+    if c < a1:
+      carry = true
 
-#   let
-#     d = naiveMul(q, b0)
-#     r = MpUintImpl[T](hi: c, lo: a0) - d
-#     b = MpUintImpl[T](hi: b1, lo: b0)
+  let
+    d = naiveMul(q, b0)
+    b = MpUintImpl[type c](hi: b1, lo: b0)
 
-#   if  (not carry) and (d > r):
-#     q -= 1
-#     r += b
+  var r = MpUintImpl[type c](hi: c, lo: a0) - d
 
-#     if r > b:
-#       q -= one(T)
-#       r += b
+  if  (not carry) and (d > r):
+    q -= one(type q)
+    r += b
 
-#   r1 = r.hi
-#   r0 = r.lo
+    if r > b:
+      q -= one(type q)
+      r += b
+
+  r1 = r.hi
+  r0 = r.lo
 
 template sub_ddmmss[T](sh, sl, ah, al, bh, bl: T) =
   sl = al - bl

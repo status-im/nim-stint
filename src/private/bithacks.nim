@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_type, stdlib_bitops
+import  ./uint_type, stdlib_bitops, size_mpuintimpl
 
 # We reuse bitops from Nim standard lib and optimize it further on x86.
 # On x86 clz it is implemented as bitscanreverse then xor and we need to again xor/sub.
@@ -58,7 +58,7 @@ proc bit_length*(n: MpUintImpl): int {.noSideEffect.}=
 proc countLeadingZeroBits*(x: MpUintImpl): int {.inline, nosideeffect.} =
   ## Returns the number of leading zero bits in integer.
 
-  const maxHalfRepr = x.lo.type.sizeof * 8
+  const maxHalfRepr = size_mpuintimpl(x.lo) * 8
 
   let hi_clz = x.hi.countLeadingZeroBits
   result = if hi_clz == 0: x.lo.countLeadingZeroBits + maxHalfRepr
