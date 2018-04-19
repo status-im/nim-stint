@@ -135,6 +135,7 @@ func tohexBE[T: uint8 or uint16 or uint32 or uint64](x: T): string =
 func tohexBE(x: MpUintImpl): string =
 
   const size = size_mpuintimpl(x) div 8
+  debugecho "Size MpUintImpl: " & $size
 
   let bytes = cast[array[size, byte]](x)
   result = ""

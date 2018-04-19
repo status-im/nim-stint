@@ -33,9 +33,18 @@ func `xor`*(x, y: MpUintImpl): MpUintImpl {.noInit, inline.}=
 func `shl`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline.}=
   ## Compute the `shift left` operation of x and y
   # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
-  const halfSize = size_mpuintimpl(x) div 2
 
-  if y < halfSize:
+  # TODO: would it be better to reimplement this using an array of bytes/uint64
+  # That opens up to endianness issues.
+
+  const halfSize = size_mpuintimpl(x) div 2
+  let defect = halfSize - int(y)
+
+  if y == 0:
+    return x
+  elif y == halfSize:
+    result.hi = x.lo
+  elif y < halfSize:
     result.hi = (x.hi shl y) or (x.lo shr (halfSize - y))
     result.lo = x.lo shl y
   else:
@@ -45,7 +54,11 @@ func `shr`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline.}=
   ## Compute the `shift right` operation of x and y
   const halfSize = size_mpuintimpl(x) div 2
 
-  if y < halfSize:
+  if y == 0:
+    return x
+  elif y == halfSize:
+    result.lo = x.hi
+  elif y < halfSize:
     result.lo = (x.lo shr y) or (x.hi shl (halfSize - y))
     result.hi = x.hi shr y
   else:

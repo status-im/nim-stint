@@ -97,7 +97,7 @@ proc countLeadingZeroBits*(x: SomeInteger): int {.inline, nosideeffect.} =
 
   # when noUndefined:
   if x == 0:
-    return 0
+    return sizeof(x) * 8
 
   when nimvm:
       when sizeof(x) <= 4: result = sizeof(x)*8 - 1 - fastlog2_nim(x.uint32)
