@@ -35,6 +35,12 @@ suite "Testing bitwise operations":
     check: cast[uint16](b) == z # Sanity check
     check: cast[uint16](b shl 8) == z shl 8
 
+    block: # Testing shl for nested MpUintImpl
+      let p2_64 = MpUintImpl[uint64](hi:1, lo:0)
+      let p = 1.initMpUint(128) shl 64
+
+      check: p == cast[MpUint[128]](p2_64)
+
   test "Shift right - by less than half the size of the integer":
     check: cast[uint16](b) == z # Sanity check
     check: cast[uint16](b shr 2) == z shr 2
