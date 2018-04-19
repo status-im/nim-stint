@@ -122,6 +122,24 @@ proc `*`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit.}=
 
 # ################### Division ################### #
 from ./primitive_divmod import divmod
+import strutils
+
+func tohexBE[T: uint8 or uint16 or uint32 or uint64](x: T): string =
+
+  let bytes = cast[array[T.sizeof, byte]](x)
+
+  result = ""
+  for i in countdown(T.sizeof - 1, 0):
+    result.add toHex(bytes[i])
+
+func tohexBE(x: MpUintImpl): string =
+
+  const size = size_mpuintimpl(x) div 8
+
+  let bytes = cast[array[size, byte]](x)
+  result = ""
+  for i in countdown(size - 1, 0):
+    result.add toHex(bytes[i])
 
 # func div3n2n( q, r1, r0: var MpUintImpl,
 #               a2, a1, a0: MpUintImpl,
@@ -202,9 +220,12 @@ func umul_ppmm[T](w1, w0: var T, u, v: T) =
   w1 = x3 + x1.hi
   w0 = (x1 shl p) + x0.lo
 
-func div3n2n( q, r1, r0: var SomeUnsignedInt,
+import strformat
+
+proc div3n2n( q, r1, r0: var SomeUnsignedInt,
               a2, a1, a0: SomeUnsignedInt,
               b1, b0: SomeUnsignedInt) {.inline.}=
+  debugecho "\n Entering div3n2n"
   mixin div2n1n
 
   type T = type q
@@ -214,15 +235,26 @@ func div3n2n( q, r1, r0: var SomeUnsignedInt,
     carry: bool
 
   if a2 < b1:
-    # div2n1n(q, c, a2, a1, b1)
-    assert false
+    # debugecho "Branch a2 < b1"
+    div2n1n(q, c, a2, a1, b1)
+    # debugecho &"q: {q}, bytes: {toBytes(q)}"
+    # debugecho &"c: {c}, bytes: {toBytes(c)}"
+
   else:
+    # debugecho "Branch a2 >= b1"
     q = 0.T - 1.T # We want 0xFFFFF ....
     c = a1 + b1
     if c < a1:
       carry = true
 
+  # debugecho &"q: {q}, bytes: {toBytes(q)}"
+  # debugecho &"b0: {b0}, bytes: {toBytes(b0)}"
+
   umul_ppmm(d1, d0, q, b0)
+  # debugecho &"d1: {d1}, bytes: {toBytes(d1)}"
+  # debugecho &"d0: {d0}, bytes: {toBytes(d0)}"
+  # debugecho &"q * b0: {q * b0}, bytes: {toBytes(q * b0)}"
+
   sub_ddmmss(r1, r0, c, a0, d1, d0)
 
   if  (not carry) and ((d1 > c) or ((d1 == c) and (d0 > a0))):
@@ -240,13 +272,36 @@ func div3n2n( q, r1, r0: var SomeUnsignedInt,
         inc r1
 
 func div2n1n*(q, r: var MpUintImpl, ah, al, b: MpUintImpl) {.inline.} =
+
+  # assert countLeadingZeroBits(b) == 0, "Divisor was not normalized"
+
+  # debugecho "\nhere div2n1n - MpUintImpl"
+  # debugecho "ah: " & $ah
+  # debugecho "al: " & $al
+  # debugecho "b: " & $b
+  # debugecho "q: " & $q
+  # debugecho "r: " & $r
+
   var s: MpUintImpl
   div3n2n(q.hi, s.hi, s.lo, ah.hi, ah.lo, al.hi, b.hi, b.lo)
+
+  # debugecho "\n1st part - div2n1n - MpUintImpl"
+  # debugecho "q: " & $q
+  # debugecho "s: " & $s
+  # debugecho "r: " & $r
+
   div3n2n(q.lo, r.hi, r.lo, s.hi, s.lo, al.lo, b.hi, b.lo)
+
+  # debugecho "\n2nd part - div2n1n - MpUintImpl"
+  # debugecho "q: " & $q
+  # debugecho "r: " & $r
+  # debugecho "\n"
 
 func div2n1n*[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) {.inline.} =
 
-  assert countLeadingZeroBits(d) == 0, "Divisor was not normalized"
+  debugecho "here div2n1n - Normal Int"
+
+  # assert countLeadingZeroBits(d) == 0, "Divisor was not normalized"
 
   const
     size = size_mpuintimpl(q)
@@ -284,7 +339,7 @@ func div2n1n*[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) {.inline.} =
   q = (q1 shl halfSize) or q2
   r = r2
 
-func divmod*(x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] =
+func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]] =
 
   # Normalization
   assert y.isZero.not()
@@ -293,14 +348,20 @@ func divmod*(x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] =
   let clz = countLeadingZeroBits(y)
 
   let
-    xx_hi = if clz < halfSize: (x shr (halfSize - clz))
-            else: x shl (clz - halfSize)
-    xx_lo = if clz < halfSize: x shl clz
-            else: zero(type x)
+    xx = MpUintImpl[type x](lo: x) shl clz
     yy = y shl clz
 
+  debugecho "\nEntering div2n1n"
+  debugecho "x: " & x.toHexBE
+  debugecho "y: " & y.toHexBE
+
+  debugecho "Clz: " & $clz
+  debugecho "xx_hi: " & xx.hi.toHexBE
+  debugecho "xx_lo: " & xx.lo.toHexBE
+  debugecho "yy: "    & yy.toHexBE
+
   # Compute
-  div2n1n(result.quot, result.rem, xx_hi, xx_lo, yy)
+  div2n1n(result.quot, result.rem, xx.hi, xx.lo, yy)
 
   # Undo normalization
   result.rem = result.rem shr clz

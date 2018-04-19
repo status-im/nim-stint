@@ -57,6 +57,9 @@ proc bit_length*(n: MpUintImpl): int {.noSideEffect.}=
 
 proc countLeadingZeroBits*(x: MpUintImpl): int {.inline, nosideeffect.} =
   ## Returns the number of leading zero bits in integer.
+
+  const maxHalfRepr = x.lo.type.sizeof * 8
+
   let hi_clz = x.hi.countLeadingZeroBits
-  result = if hi_clz == 0: x.lo.countLeadingZeroBits
+  result = if hi_clz == 0: x.lo.countLeadingZeroBits + maxHalfRepr
            else: hi_clz
