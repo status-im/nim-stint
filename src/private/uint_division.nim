@@ -138,7 +138,7 @@ proc div3n2n( q, r1, r0: var SomeUnsignedInt,
   type T = type q
 
   var
-    c, d1, d0: T
+    c: T
     carry: bool
 
   if a2 < b1:
@@ -150,10 +150,11 @@ proc div3n2n( q, r1, r0: var SomeUnsignedInt,
     if c < a1:
       carry = true
 
-  umul_ppmm(d1, d0, q, b0)
-  sub_ddmmss(r1, r0, c, a0, d1, d0)
+  var d = naiveMul(q, b0)
+  let ca0 = MpUintImpl[T](hi: c, lo: a0)
+  sub_ddmmss(r1, r0, ca0.hi, ca0.lo, d.hi, d.lo)
 
-  if  (not carry) and ((d1 > c) or ((d1 == c) and (d0 > a0))):
+  if  (not carry) and d > ca0:
     q -= 1.T
     r0 += b0
     r1 += b1
