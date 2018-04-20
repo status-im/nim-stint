@@ -35,9 +35,8 @@ proc `-=`*(x: var MpUintImpl, y: MpUintImpl) {.noSideEffect, inline.}=
   # Optimized assembly should contain sbb instruction (substract with borrow)
   # Clang on MacOS does with the -d:release switch and MpUint[uint32] (uint64)
   type SubTy = type x.lo
-  let original = x.lo
+  x.hi -= (x.lo < x.lo).toSubtype(SubTy) + y.hi
   x.lo -= y.lo
-  x.hi -= (original < x.lo).toSubtype(SubTy) + y.hi
 
 proc `-`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit, inline.}=
   # Substraction for multi-precision unsigned int
