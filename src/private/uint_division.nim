@@ -190,6 +190,9 @@ func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]] =
       # Compute
       div2n1n(result.quot.lo, result.rem.lo, result.rem.hi, xx.lo, yy)
 
+      # Undo normalization
+      result.rem.lo = result.rem.lo shr clz
+
       # Given size n, dividing a 2n number by a 1n normalized number
       # always gives a 1n remainder.
       result.rem.hi = zero(T)
