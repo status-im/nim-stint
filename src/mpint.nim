@@ -10,8 +10,3 @@
 import  ./uint_public, ./uint_init
 
 export  uint_public, uint_init
-
-
-
-import ./private/[uint_binary_ops, uint_type, uint_bitwise_ops, primitive_divmod]
-export div2n1n, MpUintImpl, divmod, `shl`, `shr` # debug

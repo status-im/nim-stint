@@ -122,24 +122,6 @@ proc `*`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit.}=
 
 # ################### Division ################### #
 from ./primitive_divmod import divmod
-import strutils
-
-func tohexBE[T: uint8 or uint16 or uint32 or uint64](x: T): string =
-
-  let bytes = cast[array[T.sizeof, byte]](x)
-
-  result = ""
-  for i in countdown(T.sizeof - 1, 0):
-    result.add toHex(bytes[i])
-
-func tohexBE(x: MpUintImpl): string =
-
-  const size = size_mpuintimpl(x) div 8
-
-  let bytes = cast[array[size, byte]](x)
-  result = ""
-  for i in countdown(size - 1, 0):
-    result.add toHex(bytes[i])
 
 func div3n2n[T]( q, r1, r0: var MpUintImpl[T],
               a2, a1, a0: MpUintImpl[T],
