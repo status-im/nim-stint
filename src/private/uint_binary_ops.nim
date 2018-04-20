@@ -123,6 +123,11 @@ proc `*`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit.}=
 # ################### Division ################### #
 from ./primitive_divmod import divmod
 
+
+func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) {.inline.}
+func div2n1n(q, r: var MpUintImpl, ah, al, b: MpUintImpl) {.inline.}
+  # Forward declaration
+
 func div3n2n[T]( q, r1, r0: var MpUintImpl[T],
               a2, a1, a0: MpUintImpl[T],
               b1, b0: MpUintImpl[T]) {.inline.}=
@@ -203,7 +208,6 @@ func umul_ppmm[T](w1, w0: var T, u, v: T) =
   w1 = x3 + x1.hi
   w0 = (x1 shl p) + x0.lo
 
-import strformat
 
 proc div3n2n( q, r1, r0: var SomeUnsignedInt,
               a2, a1, a0: SomeUnsignedInt,
@@ -242,7 +246,7 @@ proc div3n2n( q, r1, r0: var SomeUnsignedInt,
       if r0 < b0:
         inc r1
 
-func div2n1n*(q, r: var MpUintImpl, ah, al, b: MpUintImpl) {.inline.} =
+func div2n1n(q, r: var MpUintImpl, ah, al, b: MpUintImpl) {.inline.} =
 
   # assert countLeadingZeroBits(b) == 0, "Divisor was not normalized"
 
@@ -250,7 +254,7 @@ func div2n1n*(q, r: var MpUintImpl, ah, al, b: MpUintImpl) {.inline.} =
   div3n2n(q.hi, s.hi, s.lo, ah.hi, ah.lo, al.hi, b.hi, b.lo)
   div3n2n(q.lo, r.hi, r.lo, s.hi, s.lo, al.lo, b.hi, b.lo)
 
-func div2n1n*[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) {.inline.} =
+func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) {.inline.} =
 
   # assert countLeadingZeroBits(d) == 0, "Divisor was not normalized"
 

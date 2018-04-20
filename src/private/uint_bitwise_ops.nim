@@ -30,6 +30,9 @@ func `xor`*(x, y: MpUintImpl): MpUintImpl {.noInit, inline.}=
   result.lo = x.lo xor y.lo
   result.hi = x.hi xor y.hi
 
+func `shr`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline.}
+  # Forward declaration
+
 func `shl`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline.}=
   ## Compute the `shift left` operation of x and y
   # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
