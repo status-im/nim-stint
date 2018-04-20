@@ -139,10 +139,10 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
 
     # Fix the reminder, we're at most 2 iterations off
     if r < m:
-      q -= 1.T
+      dec q
       r += d_hi
       if r >= d_hi and r < m:
-        q -= 1.T
+        dec q
         r += d_hi
     r -= m
     (q, r)
