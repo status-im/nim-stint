@@ -165,17 +165,34 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
 func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]] =
 
   assert y.isZero.not()
-  if y.hi.isZero and x.hi < y.lo:
-    # If y is smaller than the base, and normalizing x does not overflow
+  if y.hi.isZero:
+    # Shortcut if divisor is smaller than half the size of the type
+
     # Normalize
     let
       clz = countLeadingZeroBits(y.lo)
       xx = x shl clz
       yy = y.lo shl clz
-    # Compute
-    div2n1n(result.quot.lo, result.rem.lo, xx.hi, xx.lo, yy)
-    # Undo normalization
-    result.rem.lo = result.rem.lo shr clz
+
+    if x.hi < y.lo:
+      # If y is smaller than the base, normalizing x does not overflow.
+      # Compute directly
+      div2n1n(result.quot.lo, result.rem.lo, xx.hi, xx.lo, yy)
+      # Undo normalization
+      result.rem.lo = result.rem.lo shr clz
+    else:
+      # Normalizing x overflowed, we need to compute the high remainder first
+      (result.quot.hi, result.rem.hi) = divmod(x.hi, y.lo)
+
+      # Normalize the remainder. (x.lo is already normalized)
+      result.rem.hi = result.rem.hi shl clz
+
+      # Compute
+      div2n1n(result.quot.lo, result.rem.lo, result.rem.hi, xx.lo, yy)
+
+      # Given size n, dividing a 2n number by a 1n normalized number
+      # always gives a 1n remainder.
+      result.rem.hi = zero(T)
 
   else: # General case
     # Normalization
