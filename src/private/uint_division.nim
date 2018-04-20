@@ -162,7 +162,10 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
   q = (q1 shl halfSize) or q2
   r = r2
 
-func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]] =
+func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]]
+  # Forward declaration
+
+func divmodBZ[T](x, y: MpUintImpl[T], q, r: var MpUintImpl[T])=
 
   assert y.isZero.not()
   if y.hi.isZero:
@@ -177,25 +180,25 @@ func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]] =
     if x.hi < y.lo:
       # If y is smaller than the base, normalizing x does not overflow.
       # Compute directly
-      div2n1n(result.quot.lo, result.rem.lo, xx.hi, xx.lo, yy)
+      div2n1n(q.lo, r.lo, xx.hi, xx.lo, yy)
       # Undo normalization
-      result.rem.lo = result.rem.lo shr clz
+      r.lo = r.lo shr clz
     else:
       # Normalizing x overflowed, we need to compute the high remainder first
-      (result.quot.hi, result.rem.hi) = divmod(x.hi, y.lo)
+      (q.hi, r.hi) = divmod(x.hi, y.lo)
 
       # Normalize the remainder. (x.lo is already normalized)
-      result.rem.hi = result.rem.hi shl clz
+      r.hi = r.hi shl clz
 
       # Compute
-      div2n1n(result.quot.lo, result.rem.lo, result.rem.hi, xx.lo, yy)
+      div2n1n(q.lo, r.lo, r.hi, xx.lo, yy)
 
       # Undo normalization
-      result.rem.lo = result.rem.lo shr clz
+      r.lo = r.lo shr clz
 
       # Given size n, dividing a 2n number by a 1n normalized number
       # always gives a 1n remainder.
-      result.rem.hi = zero(T)
+      r.hi = zero(T)
 
   else: # General case
     # Normalization
@@ -206,10 +209,13 @@ func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]] =
       yy = y shl clz
 
     # Compute
-    div2n1n(result.quot, result.rem, xx.hi, xx.lo, yy)
+    div2n1n(q, r, xx.hi, xx.lo, yy)
 
     # Undo normalization
-    result.rem = result.rem shr clz
+    r = r shr clz
+
+func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]]=
+  divmodBZ(x, y, result.quot, result.rem)
 
 func `div`*(x, y: MpUintImpl): MpUintImpl {.inline.} =
   ## Division operation for multi-precision unsigned uint
