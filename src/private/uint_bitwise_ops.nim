@@ -10,43 +10,60 @@
 import  ./uint_type, ./size_mpuintimpl, ./conversion
 
 
-proc `not`*(x: MpUintImpl): MpUintImpl {.noInit, noSideEffect, inline.}=
+func `not`*(x: MpUintImpl): MpUintImpl {.noInit, inline.}=
   ## Bitwise complement of unsigned integer x
   result.lo = not x.lo
   result.hi = not x.hi
 
-proc `or`*(x, y: MpUintImpl): MpUintImpl {.noInit, noSideEffect, inline.}=
+func `or`*(x, y: MpUintImpl): MpUintImpl {.noInit, inline.}=
   ## `Bitwise or` of numbers x and y
   result.lo = x.lo or y.lo
   result.hi = x.hi or y.hi
 
-proc `and`*(x, y: MpUintImpl): MpUintImpl {.noInit, noSideEffect, inline.}=
+func `and`*(x, y: MpUintImpl): MpUintImpl {.noInit, inline.}=
   ## `Bitwise and` of numbers x and y
   result.lo = x.lo and y.lo
   result.hi = x.hi and y.hi
 
-proc `xor`*(x, y: MpUintImpl): MpUintImpl {.noInit, noSideEffect, inline.}=
+func `xor`*(x, y: MpUintImpl): MpUintImpl {.noInit, inline.}=
   ## `Bitwise xor` of numbers x and y
   result.lo = x.lo xor y.lo
   result.hi = x.hi xor y.hi
 
-proc `shl`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline, noSideEffect.}=
+func `shr`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline.}
+  # Forward declaration
+
+func `shl`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline.}=
   ## Compute the `shift left` operation of x and y
   # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
+
+  # TODO: would it be better to reimplement this using an array of bytes/uint64
+  # That opens up to endianness issues.
+
   const halfSize = size_mpuintimpl(x) div 2
+  let defect = halfSize - int(y)
 
-  result.hi = (x.hi shl y) or (x.lo shl (y - halfSize))
-  if y < halfSize:
+  if y == 0:
+    return x
+  elif y == halfSize:
+    result.hi = x.lo
+  elif y < halfSize:
+    result.hi = (x.hi shl y) or (x.lo shr (halfSize - y))
     result.lo = x.lo shl y
+  else:
+    result.hi = x.lo shl (y - halfSize)
 
-proc `shr`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline, noSideEffect.}=
+func `shr`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline.}=
   ## Compute the `shift right` operation of x and y
   const halfSize = size_mpuintimpl(x) div 2
 
-  let overflow = y < halfSize
-
-  result.lo = (x.lo shr y) or (
-    if overflow: x.hi shl (halfSize - y) else: x.hi shr (y - halfSize)
-  )
-  if overflow:
+  if y == 0:
+    return x
+  elif y == halfSize:
+    result.lo = x.hi
+  elif y < halfSize:
+    result.lo = (x.lo shr y) or (x.hi shl (halfSize - y))
     result.hi = x.hi shr y
+  else:
+    result.lo = x.hi shr (y - halfSize)
+

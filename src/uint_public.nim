@@ -43,13 +43,16 @@ template make_binary_inplace(op): untyped =
   export op
 
 import ./private/uint_binary_ops
-import ./private/primitive_divmod
 
 make_binary(`+`, MpUint)
 make_binary_inplace(`+=`)
 make_binary(`-`, MpUint)
 make_binary_inplace(`-=`)
 make_binary(`*`, MpUint)
+
+import ./private/primitive_divmod,
+       ./private/uint_division
+
 make_binary(`div`, MpUint)
 make_binary(`mod`, MpUint)
 proc divmod*(x, y: MpUint): tuple[quot, rem: MpUint] {.noInit, inline, noSideEffect.} =
