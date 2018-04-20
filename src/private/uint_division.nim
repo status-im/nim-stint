@@ -238,15 +238,41 @@ func divmodBS(x, y: MpUintImpl, q, r: var MpuintImpl) =
     d = d shr 1
     dec(shift)
 
+const BinaryShiftThreshold = 8  # If the difference in bit-length is below 8
+                                # binary shift is probably faster
+
 func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]]=
 
+  let x_clz = x.countLeadingZeroBits
+  let y_clz = y.countLeadingZeroBits
+
+  # We short-circuit division depending on special-cases.
+  # TODO: Constant-time division
   if unlikely(y.isZero):
     raise newException(DivByZeroError, "You attempted to divide by zero")
-  elif (x.hi or y.hi).isZero: # If computing just on the low part is enough
+  elif y_clz == (size_mpuintimpl(y) - 1):
+    # y is one
+    result.quot = x
+  elif (x.hi or y.hi).isZero:
+    # If computing just on the low part is enough
     (result.quot.lo, result.rem.lo) = divmod(x.lo, y.lo)
-    return
-
-  divmodBZ(x, y, result.quot, result.rem)
+  elif (y and (y - one(type y))).isZero:
+    # y is a power of 2. (this also matches 0 but it was eliminated earlier)
+    # TODO. Would it be faster to use countTrailingZero (ctz) + clz == size(y) - 1?
+    #       Especially because we shift by ctz after.
+    #       It is a bit tricky with recursive types. An empty n.lo means 0 or sizeof(n.lo)
+    let y_ctz = size_mpuintimpl(y) - y_clz - 1
+    result.quot = x shr y_ctz
+    result.rem = y_ctz.initMpUintImpl(MpUintImpl[T])
+    result.rem = result.rem and x
+  elif x == y:
+    result.quot.lo = one(T)
+  elif x < y:
+    result.rem = x
+  elif (y_clz - x_clz) < BinaryShiftThreshold:
+    divmodBS(x, y, result.quot, result.rem)
+  else:
+    divmodBZ(x, y, result.quot, result.rem)
 
 func `div`*(x, y: MpUintImpl): MpUintImpl {.inline.} =
   ## Division operation for multi-precision unsigned uint

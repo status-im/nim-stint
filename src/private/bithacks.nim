@@ -27,4 +27,4 @@ func countLeadingZeroBits*(n: MpUintImpl): int {.inline.} =
 
 func bit_length*(n: SomeInteger): int {.inline.}=
   ## Calculates how many bits are necessary to represent the number
-  result = n.size_mpuintimpl - n.countLeadingZeroBits
+  result = size_mpuintimpl(n) - n.countLeadingZeroBits
