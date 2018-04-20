@@ -45,20 +45,17 @@ import  ./bithacks, ./conversion,
 ##                                                                                                               ##
 ###################################################################################################################
 
-func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) {.inline.}
-func div2n1n(q, r: var MpUintImpl, ah, al, b: MpUintImpl) {.inline.}
+func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T)
+func div2n1n(q, r: var MpUintImpl, ah, al, b: MpUintImpl)
   # Forward declaration
 
 func div3n2n[T]( q: var MpUintImpl[T],
               r: var MpUintImpl[MpUintImpl[T]],
               a2, a1, a0: MpUintImpl[T],
-              b: MpUintImpl[MpUintImpl[T]]) {.inline.}=
-  mixin div2n1n
-
-  type T = type q
+              b: MpUintImpl[MpUintImpl[T]]) =
 
   var
-    c: T
+    c: MpUintImpl[T]
     carry: bool
 
   if a2 < b.hi:
@@ -71,13 +68,15 @@ func div3n2n[T]( q: var MpUintImpl[T],
 
   let
     d = naiveMul(q, b.lo)
+    ca0 = MpUintImpl[type c](hi: c, lo: a0)
 
-  r = MpUintImpl[type c](hi: c, lo: a0) - d
+  r = ca0 - d
 
-  if  (not carry) and (d > r):
+  if  (not carry) and (d > ca0):
     q -= one(type q)
     r += b
 
+    # if there was no carry
     if r > b:
       q -= one(type q)
       r += b
@@ -87,9 +86,6 @@ proc div3n2n[T: SomeUnsignedInt](
               r: var MpUintImpl[T],
               a2, a1, a0: T,
               b: MpUintImpl[T]) {.inline.}=
-  mixin div2n1n
-
-  type T = type q
 
   var
     c: T
@@ -104,19 +100,21 @@ proc div3n2n[T: SomeUnsignedInt](
     if c < a1:
       carry = true
 
-  var d = naiveMul(q, b.lo)
-  let ca0 = MpUintImpl[T](hi: c, lo: a0)
+  let
+    d = naiveMul(q, b.lo)
+    ca0 = MpUintImpl[T](hi: c, lo: a0)
   r = ca0 - d
 
   if  (not carry) and d > ca0:
-    q -= 1.T
+    dec q
     r += b
 
-    if r >= b:
-      q -= 1.T
+    # if there was no carry
+    if r > b:
+      dec q
       r += b
 
-func div2n1n(q, r: var MpUintImpl, ah, al, b: MpUintImpl) {.inline.} =
+func div2n1n(q, r: var MpUintImpl, ah, al, b: MpUintImpl) =
 
   # assert countLeadingZeroBits(b) == 0, "Divisor was not normalized"
 
@@ -124,7 +122,7 @@ func div2n1n(q, r: var MpUintImpl, ah, al, b: MpUintImpl) {.inline.} =
   div3n2n(q.hi, s, ah.hi, ah.lo, al.hi, b)
   div3n2n(q.lo, r, s.hi, s.lo, al.lo, b)
 
-func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) {.inline.} =
+func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
 
   # assert countLeadingZeroBits(d) == 0, "Divisor was not normalized"
 
