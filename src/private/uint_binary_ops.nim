@@ -135,7 +135,6 @@ func tohexBE[T: uint8 or uint16 or uint32 or uint64](x: T): string =
 func tohexBE(x: MpUintImpl): string =
 
   const size = size_mpuintimpl(x) div 8
-  debugecho "Size MpUintImpl: " & $size
 
   let bytes = cast[array[size, byte]](x)
   result = ""
@@ -227,7 +226,6 @@ import strformat
 proc div3n2n( q, r1, r0: var SomeUnsignedInt,
               a2, a1, a0: SomeUnsignedInt,
               b1, b0: SomeUnsignedInt) {.inline.}=
-  debugecho "\n Entering div3n2n"
   mixin div2n1n
 
   type T = type q
@@ -237,26 +235,15 @@ proc div3n2n( q, r1, r0: var SomeUnsignedInt,
     carry: bool
 
   if a2 < b1:
-    # debugecho "Branch a2 < b1"
     div2n1n(q, c, a2, a1, b1)
-    # debugecho &"q: {q}, bytes: {toBytes(q)}"
-    # debugecho &"c: {c}, bytes: {toBytes(c)}"
 
   else:
-    # debugecho "Branch a2 >= b1"
     q = 0.T - 1.T # We want 0xFFFFF ....
     c = a1 + b1
     if c < a1:
       carry = true
 
-  # debugecho &"q: {q}, bytes: {toBytes(q)}"
-  # debugecho &"b0: {b0}, bytes: {toBytes(b0)}"
-
   umul_ppmm(d1, d0, q, b0)
-  # debugecho &"d1: {d1}, bytes: {toBytes(d1)}"
-  # debugecho &"d0: {d0}, bytes: {toBytes(d0)}"
-  # debugecho &"q * b0: {q * b0}, bytes: {toBytes(q * b0)}"
-
   sub_ddmmss(r1, r0, c, a0, d1, d0)
 
   if  (not carry) and ((d1 > c) or ((d1 == c) and (d0 > a0))):
@@ -277,31 +264,11 @@ func div2n1n*(q, r: var MpUintImpl, ah, al, b: MpUintImpl) {.inline.} =
 
   # assert countLeadingZeroBits(b) == 0, "Divisor was not normalized"
 
-  # debugecho "\nhere div2n1n - MpUintImpl"
-  # debugecho "ah: " & $ah
-  # debugecho "al: " & $al
-  # debugecho "b: " & $b
-  # debugecho "q: " & $q
-  # debugecho "r: " & $r
-
   var s: MpUintImpl
   div3n2n(q.hi, s.hi, s.lo, ah.hi, ah.lo, al.hi, b.hi, b.lo)
-
-  # debugecho "\n1st part - div2n1n - MpUintImpl"
-  # debugecho "q: " & $q
-  # debugecho "s: " & $s
-  # debugecho "r: " & $r
-
   div3n2n(q.lo, r.hi, r.lo, s.hi, s.lo, al.lo, b.hi, b.lo)
 
-  # debugecho "\n2nd part - div2n1n - MpUintImpl"
-  # debugecho "q: " & $q
-  # debugecho "r: " & $r
-  # debugecho "\n"
-
 func div2n1n*[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) {.inline.} =
-
-  debugecho "here div2n1n - Normal Int"
 
   # assert countLeadingZeroBits(d) == 0, "Divisor was not normalized"
 
@@ -352,15 +319,6 @@ func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]] =
   let
     xx = MpUintImpl[type x](lo: x) shl clz
     yy = y shl clz
-
-  debugecho "\nEntering div2n1n"
-  debugecho "x: " & x.toHexBE
-  debugecho "y: " & y.toHexBE
-
-  debugecho "Clz: " & $clz
-  debugecho "xx_hi: " & xx.hi.toHexBE
-  debugecho "xx_lo: " & xx.lo.toHexBE
-  debugecho "yy: "    & yy.toHexBE
 
   # Compute
   div2n1n(result.quot, result.rem, xx.hi, xx.lo, yy)
