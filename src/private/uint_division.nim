@@ -167,7 +167,8 @@ func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]]
 
 func divmodBZ[T](x, y: MpUintImpl[T], q, r: var MpUintImpl[T])=
 
-  assert y.isZero.not()
+  assert y.isZero.not() # This should be checked on release mode in the divmod caller proc
+
   if y.hi.isZero:
     # Shortcut if divisor is smaller than half the size of the type
 
@@ -214,7 +215,37 @@ func divmodBZ[T](x, y: MpUintImpl[T], q, r: var MpUintImpl[T])=
     # Undo normalization
     r = r shr clz
 
+func divmodBS(x, y: MpUintImpl, q, r: var MpuintImpl) =
+  ## Division for multi-precision unsigned uint
+  ## Implementation through binary shift division
+
+  assert y.isZero.not() # This should be checked on release mode in the divmod caller proc
+
+  type SubTy = type x.lo
+
+  var
+    shift = x.countLeadingZeroBits - y.countLeadingZeroBits
+    d = y shl shift
+
+  r = x
+
+  while shift >= 0:
+    q += q
+    if r >= d:
+      r -= d
+      q.lo = q.lo or one(SubTy)
+
+    d = d shr 1
+    dec(shift)
+
 func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]]=
+
+  if unlikely(y.isZero):
+    raise newException(DivByZeroError, "You attempted to divide by zero")
+  elif (x.hi or y.hi).isZero: # If computing just on the low part is enough
+    (result.quot.lo, result.rem.lo) = divmod(x.lo, y.lo)
+    return
+
   divmodBZ(x, y, result.quot, result.rem)
 
 func `div`*(x, y: MpUintImpl): MpUintImpl {.inline.} =
@@ -264,31 +295,3 @@ func `mod`*(x, y: MpUintImpl): MpUintImpl {.inline.} =
 # - Google Abseil: https://github.com/abseil/abseil-cpp/tree/master/absl/numeric
 # - Crypto libraries like libsecp256k1, OpenSSL, ... though they are not generics. (uint256 only for example)
 # Note: GMP/MPFR are GPL. The papers can be used but not their code.
-
-# ######################################################################
-# School division
-
-# proc divmod*(x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] {.noSideEffect.}=
-#   ## Division for multi-precision unsigned uint
-#   ## Returns quotient + reminder in a (quot, rem) tuple
-#   #
-#   # Implementation through binary shift division
-#   if unlikely(y.isZero):
-#     raise newException(DivByZeroError, "You attempted to divide by zero")
-
-#   type SubTy = type x.lo
-
-#   var
-#     shift = x.bit_length - y.bit_length
-#     d = y shl shift
-
-#   result.rem  = x
-
-#   while shift >= 0:
-#     result.quot += result.quot
-#     if result.rem >= d:
-#       result.rem -= d
-#       result.quot.lo = result.quot.lo or one(SubTy)
-
-#     d = d shr 1
-#     dec(shift)
