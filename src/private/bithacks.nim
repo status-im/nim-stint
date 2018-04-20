@@ -8,6 +8,7 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import  ./uint_type, stdlib_bitops, size_mpuintimpl
+export stdlib_bitops
 
 # We reuse bitops from Nim standard lib and optimize it further on x86.
 # On x86 clz it is implemented as bitscanreverse then xor and we need to again xor/sub.

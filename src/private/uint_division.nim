@@ -164,21 +164,32 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
 
 func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]] =
 
-  # Normalization
   assert y.isZero.not()
+  if y.hi.isZero and x.hi < y.lo:
+    # If y is smaller than the base, and normalizing x does not overflow
+    # Normalize
+    let
+      clz = countLeadingZeroBits(y.lo)
+      xx = x shl clz
+      yy = y.lo shl clz
+    # Compute
+    div2n1n(result.quot.lo, result.rem.lo, xx.hi, xx.lo, yy)
+    # Undo normalization
+    result.rem.lo = result.rem.lo shr clz
 
-  const halfSize = size_mpuintimpl(x) div 2
-  let clz = countLeadingZeroBits(y)
+  else: # General case
+    # Normalization
+    let clz = countLeadingZeroBits(y)
 
-  let
-    xx = MpUintImpl[type x](lo: x) shl clz
-    yy = y shl clz
+    let
+      xx = MpUintImpl[type x](lo: x) shl clz
+      yy = y shl clz
 
-  # Compute
-  div2n1n(result.quot, result.rem, xx.hi, xx.lo, yy)
+    # Compute
+    div2n1n(result.quot, result.rem, xx.hi, xx.lo, yy)
 
-  # Undo normalization
-  result.rem = result.rem shr clz
+    # Undo normalization
+    result.rem = result.rem shr clz
 
 func `div`*(x, y: MpUintImpl): MpUintImpl {.inline.} =
   ## Division operation for multi-precision unsigned uint
