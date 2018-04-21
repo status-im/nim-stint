@@ -9,43 +9,92 @@
 
 import  ./uint_type, macros
 
-macro cast_optim(x: typed): untyped =
+macro optim(x: typed): untyped =
   let size = getSize(x)
 
   if size > 64:
     result = quote do:
-      cast[array[`size` div 64, uint64]](`x`)
+      array[`size` div 64, uint64]
   elif size == 64:
     result = quote do:
-      cast[uint64](`x`)
+      uint64
   elif size == 32:
     result = quote do:
-      cast[uint32](`x`)
+      uint32
   elif size == 16:
     result = quote do:
-      cast[uint16](`x`)
+      uint16
   elif size == 8:
     result = quote do:
-      cast[uint8](`x`)
+      uint8
   else:
     error "Unreachable path reached"
 
-proc isZero*(n: SomeUnsignedInt): bool {.noSideEffect,inline.} =
+func isZero*(n: SomeUnsignedInt): bool {.inline.} =
   n == 0
 
-proc isZero*(n: MpUintImpl): bool {.noSideEffect,inline.} =
-  n == (type n)()
+func isZero*(n: MpUintImpl): bool {.inline.} =
 
-proc `<`*(x, y: MpUintImpl): bool {.noSideEffect, noInit, inline.}=
-  (x.hi < y.hi) or ((x.hi == y.hi) and x.lo < y.lo)
+  when optim(`n`) is array:
+    for val in cast[optim(n)](n):
+      if val != 0:
+        return false
+    return true
+  else:
+    cast[optim(n)](n) == 0
 
-proc `==`*(x, y: MpuintImpl): bool {.noSideEffect, noInit, inline.}=
+func `<`*(x, y: MpUintImpl): bool {.noInit, inline.}=
+
+  when optim(x) is array:
+    let
+      x_ptr = cast[ptr optim(x)](x.unsafeaddr)
+      y_ptr = cast[ptr optim(y)](y.unsafeaddr)
+
+    when system.cpuEndian == bigEndian:
+      for i in 0..<x_ptr[].len:
+        if x_ptr[i] >= y_ptr[i]:
+          return false
+      return true
+    else: # littleEndian, the most signficant bytes are on the right
+      for i in countdown(x_ptr[].len - 1, 0):
+        if x_ptr[i] >= y_ptr[i]:
+          return false
+      return true
+  else:
+    cast[optim(x)](x) < cast[optim(y)](y)
+
+func `==`*(x, y: MpUintImpl): bool {.noInit, inline.}=
   # Equal comparison for multi-precision integers
 
-  # We cast to array of uint64 because the default comparison is slow
-  result = cast_optim(x) == cast_optim(y)
+  when optim(x) is array:
+    let
+      x_ptr = cast[ptr optim(x)](x.unsafeaddr)
+      y_ptr = cast[ptr optim(y)](y.unsafeaddr)
 
-proc `<=`*(x, y: MpUintImpl): bool {.noSideEffect, noInit, inline.}=
+    for i in 0..<x_ptr[].len:
+      if x_ptr[i] != y_ptr[i]:
+        return false
+    return true
+  else:
+    cast[optim(x)](x) < cast[optim(y)](y)
+
+func `<=`*(x, y: MpUintImpl): bool {.noInit, inline.}=
   # Lower or equal comparison for multi-precision integers
-  result = if x == y: true
-           else: x < y
+
+  when optim(x) is array:
+    let
+      x_ptr = cast[ptr optim(x)](x.unsafeaddr)
+      y_ptr = cast[ptr optim(y)](y.unsafeaddr)
+
+    when system.cpuEndian == bigEndian:
+      for i in 0..<x_ptr[].len:
+        if x_ptr[i] > y_ptr[i]:
+          return false
+      return true
+    else: # littleEndian, the most signficant bytes are on the right
+      for i in countdown(x_ptr[].len - 1, 0):
+        if x_ptr[i] > y_ptr[i]:
+          return false
+      return true
+  else:
+    cast[optim(x)](x) <= cast[optim(y)](y)
