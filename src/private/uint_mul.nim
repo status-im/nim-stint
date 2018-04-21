@@ -134,5 +134,5 @@ func `*`*[T](x, y: MpUintImpl[T]): MpUintImpl[T] {.inline.}=
   # For T * T --> T we don't need to compute z2 as it always overflow
   # For T * T --> 2T (uint64 * uint64 --> uint128) we use extra precision multiplication
 
-  extPrecMul[T](result, x.lo, y.lo)
+  extPrecMul(result, x.lo, y.lo)
   result.hi += x.lo * y.hi + x.hi * y.lo
