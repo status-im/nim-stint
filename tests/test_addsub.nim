@@ -28,16 +28,16 @@ suite "Testing addition implementation":
 
   test "When the low half overflows, it is properly carried":
     # uint8 (low half) overflow at 255
-    let a = 100.initMpUint(16)
-    let b = 100.initMpUint(16)
+    let a = 100'u16.initMpUint(16)
+    let b = 100'u16.initMpUint(16)
 
     check: cast[uint16](a+b) == 200
 
   test "Full overflow is handled like native unsigned types":
     # uint16 overflows after 65535
-    let a = 100.initMpUint(16)
-    var z = 0.initMpUint(16)
-    let o = 36.initMpUint(16)
+    let a = 100'u16.initMpUint(16)
+    var z = 0'u16.initMpUint(16)
+    let o = 36'u16.initMpUint(16)
 
     for _ in 0 ..< 655:
       z += a
@@ -70,7 +70,7 @@ suite "Testing substraction implementation":
 
   test "Full overflow is handled like native unsigned types":
     # uint16 overflows after 65535
-    let a = 100.initMpUint(16)
-    let b = 101.initMpUint(16)
+    let a = 100'u16.initMpUint(16)
+    let b = 101'u16.initMpUint(16)
 
     check: cast[uint16](a-b) == high(uint16)
