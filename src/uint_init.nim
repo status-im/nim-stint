@@ -9,30 +9,27 @@
 
 import  typetraits
 
-import  ./private/bithacks, ./private/conversion,
-        ./private/uint_type
+import  ./private/uint_type
 
 import typetraits
 
 func initMpUint*[T: SomeInteger](n: T, bits: static[int]): MpUint[bits] {.inline.}=
   assert n >= 0.T
   when result.data is MpuintImpl:
-    let len = n.bit_length
-    if len > bits:
-      raise newException(ValueError, "Input " & $n & " cannot be stored in a multi-precision " &
+    when getSize(n) > bits:
+      # To avoid a costly runtime check, we refuse storing into MpUint types smaller
+      # than the input type.
+      raise newException(ValueError, "Input " & $n & " (" & $T &
+                                    ") cannot be stored in a multi-precision " &
                                     $bits & "-bit integer." &
-                                    "\nIt requires at least " & $len & " bits of precision")
-    elif len < bits div 2:
-      result.data.lo = initMpUintImpl(n, type result.data.lo)
-    else: # Both have the same size and memory representation
-      when bits == 16:
-        # TODO: If n is int it's not properly converted at the input
-        result.data = toMpUintImpl n.uint16
-      elif bits == 32:
-        result.data = toMpUintImpl n.uint32
-      elif bits == 64:
-        result.data = toMpUintImpl n.uint64
+                                    "\nUse a smaller input type instead. This is a compile-time check" &
+                                    " to avoid a costly run-time bit_length check at each MpUint initialization.")
+    else:
+      let r_ptr = cast[ptr array[bits div (sizeof(T) * 8), T]](result.addr)
+      when system.cpuEndian == littleEndian:
+        # "Least significant byte are at the beginning"
+        r_ptr[0] = n
       else:
-        raise newException(ValueError, "Fatal")
+        r_ptr[r_ptr[].len - 1] = n
   else:
     result.data = (type result.data)(n)

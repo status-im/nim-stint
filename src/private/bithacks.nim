@@ -24,7 +24,3 @@ func countLeadingZeroBits*(n: MpUintImpl): int {.inline.} =
   result =  if hi_clz == maxHalfRepr:
               n.lo.countLeadingZeroBits + maxHalfRepr
             else: hi_clz
-
-func bit_length*(n: SomeInteger): int {.inline.}=
-  ## Calculates how many bits are necessary to represent the number
-  result = getSize(n) - n.countLeadingZeroBits

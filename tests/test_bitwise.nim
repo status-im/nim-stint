@@ -10,7 +10,7 @@
 import ../src/mpint, unittest
 
 suite "Testing bitwise operations":
-  let a = 100.initMpUint(16)
+  let a = 100'i16.initMpUint(16)
 
   let b = a * a
   let z = 10000'u16

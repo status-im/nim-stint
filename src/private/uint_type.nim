@@ -67,10 +67,15 @@ proc getSize*(x: NimNode): static[int] =
   # size(node[1]) * multiplier is the size in byte
 
   # For optimization we cast to the biggest possible uint
-  result =  if eqIdent(node, "uint64"): multiplier * 64
-            elif eqIdent(node, "uint32"): multiplier * 32
-            elif eqIdent(node, "uint16"): multiplier * 16
-            else: multiplier * 8
+  result =  if eqIdent(node, "uint64") or eqIdent(node, "int64"): multiplier * 64
+            elif eqIdent(node, "uint32") or eqIdent(node, "int32"): multiplier * 32
+            elif eqIdent(node, "uint16") or eqIdent(node, "int16"): multiplier * 16
+            elif eqIdent(node, "uint8") or eqIdent(node, "int8"): multiplier * 8
+            elif eqIdent(node, "int") or eqIdent(node, "uint"):
+              multiplier * 8 * sizeof(int)
+            else:
+              assert false, "Error when computing the size. Found: " & $node
+              0
 
 macro getSize*(x: typed): untyped =
   let size = getSize(x)

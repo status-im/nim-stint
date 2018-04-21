@@ -8,7 +8,7 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import  ./uint_type,
-        macros
+        macros, typetraits
 
 func initMpUintImpl*[InType, OutType](x: InType, _: typedesc[OutType]): OutType {.inline.} =
 
@@ -17,7 +17,10 @@ func initMpUintImpl*[InType, OutType](x: InType, _: typedesc[OutType]): OutType 
     size_out = getSize(result)
 
   static:
-    assert size_out >= size_in, "The result type size should be equal or bigger than the input type size"
+    assert size_out >= size_in, "The result type size (" & $size_out &
+      " for " & $OutType.name &
+      ") should be equal or bigger than the input type size (" & $size_in &
+      " for " & $InType.name & ")."
 
   when OutType is SomeUnsignedInt:
     result = x.OutType
