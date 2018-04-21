@@ -18,10 +18,10 @@ echo "Warmup: " & $(stop - start) & "s"
 
 start = cpuTime()
 block:
-  var foo = 123.initMpUint(128)
+  var foo = 123.initMpUint(256)
   for i in 0 ..< 10_000_000:
-    foo += i.initMpUint(128) * i.initMpUint(128) mod 456.initMpUint(128)
-    foo = foo mod 789.initMpUint(128)
+    foo += i.initMpUint(256) * i.initMpUint(256) mod 456.initMpUint(256)
+    foo = foo mod 789.initMpUint(256)
 
 stop = cpuTime()
 echo "Library: " & $(stop - start) & "s"

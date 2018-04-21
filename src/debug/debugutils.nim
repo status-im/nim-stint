@@ -11,7 +11,7 @@
 
 import
   strutils,
-  ../private/[uint_type, size_mpuintimpl]
+  ../private/[uint_type, getSize]
 
 func tohexBE*[T: uint8 or uint16 or uint32 or uint64](x: T): string =
   ## Stringify an uint to hex, Most significant byte on the left
@@ -31,7 +31,7 @@ func tohexBE*(x: MpUintImpl): string =
   ## Stringify an uint to hex, Most significant byte on the left
   ## i.e. a (2.uint128)^64 + 1 will be 0000000100000001
 
-  const size = size_mpuintimpl(x) div 8
+  const size = getSize(x) div 8
 
   let bytes = cast[ptr array[size, byte]](x.unsafeaddr)
 

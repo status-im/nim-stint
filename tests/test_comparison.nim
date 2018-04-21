@@ -14,27 +14,42 @@ suite "Testing comparison operators":
     a = 10.initMpUint(16)
     b = 15.initMpUint(16)
     c = 150'u16
+    d = 4.initMpUint(128) shl 64
+    e = 4.initMpUint(128)
+    f = 4.initMpUint(128) shl 65
 
   test "< operator":
-    check: a < b
-    check: not (a + b < b)
-    check: not (a + a + a < b + b)
-    check: not (a * b < cast[MpUint[16]](c))
+    check:
+      a < b
+      not (a + b < b)
+      not (a + a + a < b + b)
+      not (a * b < cast[MpUint[16]](c))
+      e < d
+      d < f
 
   test "<= operator":
-    check: a <= b
-    check: not (a + b <= b)
-    check: a + a + a <= b + b
-    check: a * b <= cast[MpUint[16]](c)
+    check:
+      a <= b
+      not (a + b <= b)
+      a + a + a <= b + b
+      a * b <= cast[MpUint[16]](c)
+      e <= d
+      d <= f
 
   test "> operator":
-    check: b > a
-    check: not (b > a + b)
-    check: not (b + b > a + a + a)
-    check: not (cast[Mpuint[16]](c) > a * b)
+    check:
+      b > a
+      not (b > a + b)
+      not (b + b > a + a + a)
+      not (cast[Mpuint[16]](c) > a * b)
+      d > e
+      f > d
 
   test ">= operator":
-    check: b >= a
-    check: not (b >= a + b)
-    check: b + b >= a + a + a
-    check: cast[MpUint[16]](c) >= a * b
+    check:
+      b >= a
+      not (b >= a + b)
+      b + b >= a + a + a
+      cast[MpUint[16]](c) >= a * b
+      d >= e
+      f >= d

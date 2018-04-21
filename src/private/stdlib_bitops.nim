@@ -24,6 +24,13 @@
 ## At this time only `fastLog2`, `firstSetBit, `countLeadingZeroBits`, `countTrailingZeroBits`
 ## may return undefined and/or platform dependant value if given invalid input.
 
+
+# Bitops from the standard lib modified for MpInt use.
+#   - No undefined behaviour or flag needed
+#   - Note that for CountLeadingZero, it returns sizeof(input) * 8
+#     instead of 0
+
+
 const useBuiltins* = not defined(noIntrinsicsBitOpts)
 # const noUndefined* = defined(noUndefinedBitOpts)
 const useGCC_builtins* = (defined(gcc) or defined(llvm_gcc) or defined(clang)) and useBuiltins
@@ -32,7 +39,7 @@ const useVCC_builtins* = defined(vcc) and useBuiltins
 const arch64* = sizeof(int) == 8
 
 
-proc fastlog2_nim*(x: uint32): int {.inline, nosideeffect.} =
+func fastlog2_nim(x: uint32): int {.inline.} =
   ## Quickly find the log base 2 of a 32-bit or less integer.
   # https://graphics.stanford.edu/%7Eseander/bithacks.html#IntegerLogDeBruijn
   # https://stackoverflow.com/questions/11376288/fast-computing-of-log2-for-64-bit-integers
@@ -46,7 +53,7 @@ proc fastlog2_nim*(x: uint32): int {.inline, nosideeffect.} =
   v = v or v shr 16
   result = lookup[uint32(v * 0x07C4ACDD'u32) shr 27].int
 
-proc fastlog2_nim*(x: uint64): int {.inline, nosideeffect.} =
+func fastlog2_nim(x: uint64): int {.inline.} =
   ## Quickly find the log base 2 of a 64-bit integer.
   # https://graphics.stanford.edu/%7Eseander/bithacks.html#IntegerLogDeBruijn
   # https://stackoverflow.com/questions/11376288/fast-computing-of-log2-for-64-bit-integers
@@ -89,15 +96,14 @@ elif useICC_builtins:
     discard fnc(index.addr, v)
     index.int
 
-
-proc countLeadingZeroBits*(x: SomeInteger): int {.inline, nosideeffect.} =
+func countLeadingZeroBits*(x: SomeInteger): int {.inline.} =
   ## Returns the number of leading zero bits in integer.
   ## If `x` is zero, when ``noUndefinedBitOpts`` is set, result is 0,
   ## otherwise result is undefined.
 
   # when noUndefined:
   if x == 0:
-    return sizeof(x) * 8
+    return sizeof(x) * 8 # Note this differes from the stdlib which returns 0
 
   when nimvm:
       when sizeof(x) <= 4: result = sizeof(x)*8 - 1 - fastlog2_nim(x.uint32)

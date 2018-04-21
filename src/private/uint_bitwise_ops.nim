@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_type, ./size_mpuintimpl, ./conversion
+import  ./uint_type, ./conversion
 
 
 func `not`*(x: MpUintImpl): MpUintImpl {.noInit, inline.}=
@@ -40,7 +40,7 @@ func `shl`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline.}=
   # TODO: would it be better to reimplement this using an array of bytes/uint64
   # That opens up to endianness issues.
 
-  const halfSize = size_mpuintimpl(x) div 2
+  const halfSize = getSize(x) div 2
   let defect = halfSize - int(y)
 
   if y == 0:
@@ -55,7 +55,7 @@ func `shl`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline.}=
 
 func `shr`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline.}=
   ## Compute the `shift right` operation of x and y
-  const halfSize = size_mpuintimpl(x) div 2
+  const halfSize = getSize(x) div 2
 
   if y == 0:
     return x

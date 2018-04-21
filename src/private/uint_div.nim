@@ -11,9 +11,8 @@ import  ./bithacks, ./conversion,
         ./uint_type,
         ./uint_comparison,
         ./uint_bitwise_ops,
-        ./uint_binary_ops,
-        ./size_mpuintimpl,
-        ./primitive_divmod
+        ./uint_addsub,
+        ./uint_mul
 
 # ################### Division ################### #
 # We use the following algorithm:
@@ -45,142 +44,96 @@ import  ./bithacks, ./conversion,
 ##                                                                                                               ##
 ###################################################################################################################
 
-func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) {.inline.}
-func div2n1n(q, r: var MpUintImpl, ah, al, b: MpUintImpl) {.inline.}
+func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T)
+func div2n1n(q, r: var MpUintImpl, ah, al, b: MpUintImpl)
   # Forward declaration
 
-func div3n2n[T]( q, r1, r0: var MpUintImpl[T],
-              a2, a1, a0: MpUintImpl[T],
-              b1, b0: MpUintImpl[T]) {.inline.}=
-  mixin div2n1n
+proc divmod*(x, y: SomeInteger): tuple[quot, rem: SomeInteger] {.noSideEffect, inline.}=
+  # hopefully the compiler fuse that in a single op
+  (x div y, x mod y)
 
-  type T = type q
+func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]]
+  # Forward declaration
+
+func div3n2n[T]( q: var MpUintImpl[T],
+              r: var MpUintImpl[MpUintImpl[T]],
+              a2, a1, a0: MpUintImpl[T],
+              b: MpUintImpl[MpUintImpl[T]]) =
 
   var
-    c: T
+    c: MpUintImpl[T]
+    d: MpUintImpl[MpUintImpl[T]]
     carry: bool
 
-  if a2 < b1:
-    div2n1n(q, c, a2, a1, b1)
+  if a2 < b.hi:
+    div2n1n(q, c, a2, a1, b.hi)
   else:
     q = zero(type q) - one(type q) # We want 0xFFFFF ....
-    c = a1 + b1
+    c = a1 + b.hi
     if c < a1:
       carry = true
 
-  let
-    d = naiveMul(q, b0)
-    b = MpUintImpl[type c](hi: b1, lo: b0)
+  extPrecMul[T](d, q, b.lo)
+  let ca0 = MpUintImpl[type c](hi: c, lo: a0)
 
-  var r = MpUintImpl[type c](hi: c, lo: a0) - d
+  r = ca0 - d
 
-  if  (not carry) and (d > r):
+  if (not carry) and (d > ca0):
     q -= one(type q)
     r += b
 
+    # if there was no carry
     if r > b:
       q -= one(type q)
       r += b
 
-  r1 = r.hi
-  r0 = r.lo
-
-template sub_ddmmss[T](sh, sl, ah, al, bh, bl: T) =
-  sl = al - bl
-  sh = ah - bh - (al < bl).T
-
-func lo[T:SomeUnsignedInt](x: T): T {.inline.} =
-  const
-    p = T.sizeof * 8 div 2
-    base = 1 shl p
-    mask = base - 1
-  result = x and mask
-
-func hi[T:SomeUnsignedInt](x: T): T {.inline.} =
-  const
-    p = T.sizeof * 8 div 2
-  result = x shr p
-
-func umul_ppmm[T](w1, w0: var T, u, v: T) =
-
-  const
-    p = (T.sizeof * 8 div 2)
-    base = 1 shl p
+proc div3n2n[T: SomeUnsignedInt](
+              q: var T,
+              r: var MpUintImpl[T],
+              a2, a1, a0: T,
+              b: MpUintImpl[T]) =
 
   var
-    x0, x1, x2, x3: T
-
-  let
-    ul = u.lo
-    uh = u.hi
-    vl = v.lo
-    vh = v.hi
-
-  x0 = ul * vl
-  x1 = ul * vh
-  x2 = uh * vl
-  x3 = uh * vh
-
-  x1 += x0.hi           # This can't carry
-  x1 += x2              # but this can
-  if x1 < x2:           # if carry, add it to x3
-    x3 += base
-
-  w1 = x3 + x1.hi
-  w0 = (x1 shl p) + x0.lo
-
-
-proc div3n2n( q, r1, r0: var SomeUnsignedInt,
-              a2, a1, a0: SomeUnsignedInt,
-              b1, b0: SomeUnsignedInt) {.inline.}=
-  mixin div2n1n
-
-  type T = type q
-
-  var
-    c, d1, d0: T
+    c: T
+    d: MpUintImpl[T]
     carry: bool
 
-  if a2 < b1:
-    div2n1n(q, c, a2, a1, b1)
+  if a2 < b.hi:
+    div2n1n(q, c, a2, a1, b.hi)
 
   else:
     q = 0.T - 1.T # We want 0xFFFFF ....
-    c = a1 + b1
+    c = a1 + b.hi
     if c < a1:
       carry = true
 
-  umul_ppmm(d1, d0, q, b0)
-  sub_ddmmss(r1, r0, c, a0, d1, d0)
+  extPrecMul[T](d, q, b.lo)
+  let ca0 = MpUintImpl[T](hi: c, lo: a0)
+  r = ca0 - d
 
-  if  (not carry) and ((d1 > c) or ((d1 == c) and (d0 > a0))):
-    q -= 1.T
-    r0 += b0
-    r1 += b1
-    if r0 < b0:
-      inc r1
+  if  (not carry) and d > ca0:
+    dec q
+    r += b
 
-    if (r1 > b1) or ((r1 == b1) and (r0 >= b0)):
-      q -= 1.T
-      r0 += b0
-      r1 += b1
-      if r0 < b0:
-        inc r1
+    # if there was no carry
+    if r > b:
+      dec q
+      r += b
 
-func div2n1n(q, r: var MpUintImpl, ah, al, b: MpUintImpl) {.inline.} =
+func div2n1n(q, r: var MpUintImpl, ah, al, b: MpUintImpl) =
 
   # assert countLeadingZeroBits(b) == 0, "Divisor was not normalized"
 
   var s: MpUintImpl
-  div3n2n(q.hi, s.hi, s.lo, ah.hi, ah.lo, al.hi, b.hi, b.lo)
-  div3n2n(q.lo, r.hi, r.lo, s.hi, s.lo, al.lo, b.hi, b.lo)
+  div3n2n(q.hi, s, ah.hi, ah.lo, al.hi, b)
+  div3n2n(q.lo, r, s.hi, s.lo, al.lo, b)
 
-func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) {.inline.} =
+func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
 
   # assert countLeadingZeroBits(d) == 0, "Divisor was not normalized"
 
   const
-    size = size_mpuintimpl(q)
+    size = getSize(q)
     halfSize = size div 2
     halfMask = (1.T shl halfSize) - 1.T
 
@@ -192,10 +145,10 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) {.inline.} =
 
     # Fix the reminder, we're at most 2 iterations off
     if r < m:
-      q -= 1.T
+      dec q
       r += d_hi
       if r >= d_hi and r < m:
-        q -= 1.T
+        dec q
         r += d_hi
     r -= m
     (q, r)
@@ -215,23 +168,114 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) {.inline.} =
   q = (q1 shl halfSize) or q2
   r = r2
 
-func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]] =
+func divmodBZ[T](x, y: MpUintImpl[T], q, r: var MpUintImpl[T])=
 
-  # Normalization
-  assert y.isZero.not()
+  assert y.isZero.not() # This should be checked on release mode in the divmod caller proc
 
-  const halfSize = size_mpuintimpl(x) div 2
-  let clz = countLeadingZeroBits(y)
+  if y.hi.isZero:
+    # Shortcut if divisor is smaller than half the size of the type
 
-  let
-    xx = MpUintImpl[type x](lo: x) shl clz
-    yy = y shl clz
+    # Normalize
+    let
+      clz = countLeadingZeroBits(y.lo)
+      xx = x shl clz
+      yy = y.lo shl clz
 
-  # Compute
-  div2n1n(result.quot, result.rem, xx.hi, xx.lo, yy)
+    if x.hi < y.lo:
+      # If y is smaller than the base, normalizing x does not overflow.
+      # Compute directly
+      div2n1n(q.lo, r.lo, xx.hi, xx.lo, yy)
+      # Undo normalization
+      r.lo = r.lo shr clz
+    else:
+      # Normalizing x overflowed, we need to compute the high remainder first
+      (q.hi, r.hi) = divmod(x.hi, y.lo)
 
-  # Undo normalization
-  result.rem = result.rem shr clz
+      # Normalize the remainder. (x.lo is already normalized)
+      r.hi = r.hi shl clz
+
+      # Compute
+      div2n1n(q.lo, r.lo, r.hi, xx.lo, yy)
+
+      # Undo normalization
+      r.lo = r.lo shr clz
+
+      # Given size n, dividing a 2n number by a 1n normalized number
+      # always gives a 1n remainder.
+      r.hi = zero(T)
+
+  else: # General case
+    # Normalization
+    let clz = countLeadingZeroBits(y)
+
+    let
+      xx = MpUintImpl[type x](lo: x) shl clz
+      yy = y shl clz
+
+    # Compute
+    div2n1n(q, r, xx.hi, xx.lo, yy)
+
+    # Undo normalization
+    r = r shr clz
+
+func divmodBS(x, y: MpUintImpl, q, r: var MpuintImpl) =
+  ## Division for multi-precision unsigned uint
+  ## Implementation through binary shift division
+
+  assert y.isZero.not() # This should be checked on release mode in the divmod caller proc
+
+  type SubTy = type x.lo
+
+  var
+    shift = x.countLeadingZeroBits - y.countLeadingZeroBits
+    d = y shl shift
+
+  r = x
+
+  while shift >= 0:
+    q += q
+    if r >= d:
+      r -= d
+      q.lo = q.lo or one(SubTy)
+
+    d = d shr 1
+    dec(shift)
+
+const BinaryShiftThreshold = 8  # If the difference in bit-length is below 8
+                                # binary shift is probably faster
+
+func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]]=
+
+  let x_clz = x.countLeadingZeroBits
+  let y_clz = y.countLeadingZeroBits
+
+  # We short-circuit division depending on special-cases.
+  # TODO: Constant-time division
+  if unlikely(y.isZero):
+    raise newException(DivByZeroError, "You attempted to divide by zero")
+  elif y_clz == (getSize(y) - 1):
+    # y is one
+    result.quot = x
+  elif (x.hi or y.hi).isZero:
+    # If computing just on the low part is enough
+    (result.quot.lo, result.rem.lo) = divmod(x.lo, y.lo)
+  elif (y and (y - one(type y))).isZero:
+    # y is a power of 2. (this also matches 0 but it was eliminated earlier)
+    # TODO. Would it be faster to use countTrailingZero (ctz) + clz == size(y) - 1?
+    #       Especially because we shift by ctz after.
+    #       It is a bit tricky with recursive types. An empty n.lo means 0 or sizeof(n.lo)
+    let y_ctz = getSize(y) - y_clz - 1
+    result.quot = x shr y_ctz
+    result.rem = y_ctz.initMpUintImpl(MpUintImpl[T])
+    result.rem = result.rem and x
+  elif x == y:
+    result.quot.lo = one(T)
+  elif x < y:
+    result.rem = x
+  elif (y_clz - x_clz) < BinaryShiftThreshold:
+    divmodBS(x, y, result.quot, result.rem)
+  else:
+    divmodBZ(x, y, result.quot, result.rem)
 
 func `div`*(x, y: MpUintImpl): MpUintImpl {.inline.} =
   ## Division operation for multi-precision unsigned uint
@@ -280,31 +324,3 @@ func `mod`*(x, y: MpUintImpl): MpUintImpl {.inline.} =
 # - Google Abseil: https://github.com/abseil/abseil-cpp/tree/master/absl/numeric
 # - Crypto libraries like libsecp256k1, OpenSSL, ... though they are not generics. (uint256 only for example)
 # Note: GMP/MPFR are GPL. The papers can be used but not their code.
-
-# ######################################################################
-# School division
-
-# proc divmod*(x, y: MpUintImpl): tuple[quot, rem: MpUintImpl] {.noSideEffect.}=
-#   ## Division for multi-precision unsigned uint
-#   ## Returns quotient + reminder in a (quot, rem) tuple
-#   #
-#   # Implementation through binary shift division
-#   if unlikely(y.isZero):
-#     raise newException(DivByZeroError, "You attempted to divide by zero")
-
-#   type SubTy = type x.lo
-
-#   var
-#     shift = x.bit_length - y.bit_length
-#     d = y shl shift
-
-#   result.rem  = x
-
-#   while shift >= 0:
-#     result.quot += result.quot
-#     if result.rem >= d:
-#       result.rem -= d
-#       result.quot.lo = result.quot.lo or one(SubTy)
-
-#     d = d shr 1
-#     dec(shift)

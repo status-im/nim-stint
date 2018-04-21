@@ -7,14 +7,14 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_type, ./size_mpuintimpl,
+import  ./uint_type,
         macros
 
-proc initMpUintImpl*[InType, OutType](x: InType, _: typedesc[OutType]): OutType {.noSideEffect.} =
+func initMpUintImpl*[InType, OutType](x: InType, _: typedesc[OutType]): OutType {.inline.} =
 
   const
-    size_in = size_mpuintimpl(x)
-    size_out = size_mpuintimpl(result)
+    size_in = getSize(x)
+    size_out = getSize(result)
 
   static:
     assert size_out >= size_in, "The result type size should be equal or bigger than the input type size"
@@ -26,23 +26,27 @@ proc initMpUintImpl*[InType, OutType](x: InType, _: typedesc[OutType]): OutType 
   else:
     result.lo = initMpUintImpl(x, type result.lo)
 
-proc toSubtype*[T: SomeInteger](b: bool, _: typedesc[T]): T {.noSideEffect, inline.}=
+func toSubtype*[T: SomeInteger](b: bool, _: typedesc[T]): T {.inline.}=
   b.T
 
-proc toSubtype*[T: MpUintImpl](b: bool, _: typedesc[T]): T {.noSideEffect, inline.}=
+func toSubtype*[T: MpUintImpl](b: bool, _: typedesc[T]): T {.inline.}=
   type SubTy = type result.lo
   result.lo = toSubtype(b, SubTy)
 
-proc zero*[T: BaseUint](_: typedesc[T]): T {.noSideEffect, inline.}=
+func zero*[T: BaseUint](_: typedesc[T]): T {.inline.}=
   discard
 
-proc one*[T: BaseUint](_: typedesc[T]): T {.noSideEffect, inline.}=
+func one*[T: BaseUint](_: typedesc[T]): T {.inline.}=
   when T is SomeUnsignedInt:
     result = T(1)
   else:
-    result.lo = one(type result.lo)
+    let r_ptr = cast[ptr array[getSize(result) div 8, byte]](result.addr)
+    when system.cpuEndian == bigEndian:
+      r_ptr[0] = 1
+    else:
+      r_ptr[r_ptr[].len - 1] = 1
 
-proc toUint*(n: MpUIntImpl): auto {.noSideEffect, inline.}=
+func toUint*(n: MpUIntImpl): auto {.inline.}=
   ## Casts a multiprecision integer to an uint of the same size
 
   # TODO: uint128 support
@@ -57,11 +61,11 @@ proc toUint*(n: MpUIntImpl): auto {.noSideEffect, inline.}=
   else:
     raise newException("Unreachable. MpUInt must be 16-bit minimum and a power of 2")
 
-proc toUint*(n: SomeUnsignedInt): SomeUnsignedInt {.noSideEffect, inline.}=
+func toUint*(n: SomeUnsignedInt): SomeUnsignedInt {.inline.}=
   ## No-op overload of multi-precision int casting
   n
 
-proc asDoubleUint*(n: BaseUint): auto {.noSideEffect, inline.} =
+func asDoubleUint*(n: BaseUint): auto {.inline.} =
   ## Convert an integer or MpUint to an uint with double the size
 
   type Double = (
@@ -73,7 +77,7 @@ proc asDoubleUint*(n: BaseUint): auto {.noSideEffect, inline.} =
   n.toUint.Double
 
 
-proc toMpUintImpl*(n: uint16|uint32|uint64): auto {.noSideEffect, inline.} =
+func toMpUintImpl*(n: uint16|uint32|uint64): auto {.inline.} =
   ## Cast an integer to the corresponding size MpUintImpl
   # Sometimes direct casting doesn't work and we must cast through a pointer
 
@@ -84,6 +88,6 @@ proc toMpUintImpl*(n: uint16|uint32|uint64): auto {.noSideEffect, inline.} =
   elif n is uint16:
     return (cast[ptr [MpUintImpl[uint8]]](unsafeAddr n))[]
 
-proc toMpUintImpl*(n: MpUintImpl): MpUintImpl {.noSideEffect, inline.} =
+func toMpUintImpl*(n: MpUintImpl): MpUintImpl {.inline.} =
   ## No op
   n
