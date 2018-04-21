@@ -14,7 +14,7 @@ import  ./private/bithacks, ./private/conversion,
 
 import typetraits
 
-proc initMpUint*[T: SomeInteger](n: T, bits: static[int]): MpUint[bits] {.noSideEffect.} =
+func initMpUint*[T: SomeInteger](n: T, bits: static[int]): MpUint[bits] {.inline.}=
   assert n >= 0.T
   when result.data is MpuintImpl:
     let len = n.bit_length
