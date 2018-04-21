@@ -11,8 +11,8 @@ import ../src/mpint, unittest
 
 suite "Testing comparison operators":
   let
-    a = 10.initMpUint(16)
-    b = 15.initMpUint(16)
+    a = 10'i16.initMpUint(16)
+    b = 15'i16.initMpUint(16)
     c = 150'u16
     d = 4.initMpUint(128) shl 64
     e = 4.initMpUint(128)
