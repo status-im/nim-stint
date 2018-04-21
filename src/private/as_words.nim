@@ -66,11 +66,9 @@ iterator asWordsRaw*(n: MpUintImpl): auto =
     yield cast[optim(n)](n)
 
 iterator asWordsRawZip*(x, y: MpUintImpl): auto =
-  ## Iterates over n, as an array of words.
+  ## Iterates over x and y, as an array of words.
   ## Input:
   ##   - x, y: The multiprecision ints
-  ##   - xw, yw: a pair of word of the multi-precision ints
-  ##   - body: the operation you want to do
   ## Iteration is done from low to high, not taking endianness in account
   when optim(x) is array:
     {.pragma: restrict, codegenDecl: "$# __restrict__ $#".}
@@ -82,6 +80,45 @@ iterator asWordsRawZip*(x, y: MpUintImpl): auto =
       yield (x_ptr[i], y_ptr[i])
   else:
     yield (cast[optim(x)](x), cast[optim(y)](y))
+
+iterator m_asWordsRawZip*(m: var MpUintImpl, x: MpUintImpl): auto =
+  ## Iterates over a mutable int m and x as an array of words.
+  ## returning a !! Pointer !! of the proper type to m.
+  # TODO return a var. This is a workaround because casting prevents returning a var
+  ## Input:
+  ##   - m: A mutable array
+  ##   - x: The multiprecision ints
+  ## Iteration is done from low to high, not taking endianness in account
+  when optim(x) is array:
+    {.pragma: restrict, codegenDecl: "$# __restrict__ $#".}
+    let
+      m_ptr{.restrict.} = cast[ptr optim(m)](m.unsafeaddr)
+      x_ptr{.restrict.} = cast[ptr optim(x)](x.unsafeaddr)
+
+    for i in 0..<x_ptr[].len:
+      yield (m_ptr[i].addr, x_ptr[i])
+  else:
+    yield (cast[ptr optim(m)](m), cast[optim(x)](x))
+
+iterator m_asWordsRawZip*(m: var MpUintImpl, x, y: MpUintImpl): auto =
+  ## Iterates over a mutable int m and x, y as an array of words.
+  ## returning a !! Pointer !! of the proper type to m.
+  # TODO return a var
+  ## Input:
+  ##   - m: A mutable array
+  ##   - x, y: The multiprecision ints
+  ## Iteration is done from low to high, not taking endianness in account
+  when optim(x) is array:
+    {.pragma: restrict, codegenDecl: "$# __restrict__ $#".}
+    let
+      m_ptr{.restrict.} = cast[ptr optim(m)](m.unsafeaddr)
+      x_ptr{.restrict.} = cast[ptr optim(x)](x.unsafeaddr)
+      y_ptr{.restrict.} = cast[ptr optim(y)](y.unsafeaddr)
+
+    for i in 0..<x_ptr[].len:
+      yield (m_ptr[i].addr, x_ptr[i], y_ptr[i])
+  else:
+    yield (cast[ptr optim(m)](m), cast[optim(x)](x), cast[optim(y)](y))
 
 iterator asWordsZip*(x, y: MpUintImpl): auto =
   ## Iterates over n, as an array of words.

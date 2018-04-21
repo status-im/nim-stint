@@ -7,28 +7,28 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_type, ./conversion
+import  ./uint_type, ./as_words
 
 
 func `not`*(x: MpUintImpl): MpUintImpl {.noInit, inline.}=
   ## Bitwise complement of unsigned integer x
-  result.lo = not x.lo
-  result.hi = not x.hi
+  for rw, xw in m_asWordsRawZip(result, x):
+    rw[] = not xw
 
 func `or`*(x, y: MpUintImpl): MpUintImpl {.noInit, inline.}=
   ## `Bitwise or` of numbers x and y
-  result.lo = x.lo or y.lo
-  result.hi = x.hi or y.hi
+  for rw, xw, yw in m_asWordsRawZip(result, x, y):
+    rw[] = xw or yw
 
 func `and`*(x, y: MpUintImpl): MpUintImpl {.noInit, inline.}=
   ## `Bitwise and` of numbers x and y
-  result.lo = x.lo and y.lo
-  result.hi = x.hi and y.hi
+  for rw, xw, yw in m_asWordsRawZip(result, x, y):
+    rw[] = xw and yw
 
 func `xor`*(x, y: MpUintImpl): MpUintImpl {.noInit, inline.}=
   ## `Bitwise xor` of numbers x and y
-  result.lo = x.lo xor y.lo
-  result.hi = x.hi xor y.hi
+  for rw, xw, yw in m_asWordsRawZip(result, x, y):
+    rw[] = xw xor yw
 
 func `shr`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline.}
   # Forward declaration
@@ -39,9 +39,7 @@ func `shl`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline.}=
 
   # TODO: would it be better to reimplement this using an array of bytes/uint64
   # That opens up to endianness issues.
-
   const halfSize = getSize(x) div 2
-  let defect = halfSize - int(y)
 
   if y == 0:
     return x
