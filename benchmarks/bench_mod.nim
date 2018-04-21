@@ -26,11 +26,6 @@ block:
 stop = cpuTime()
 echo "Library: " & $(stop - start) & "s"
 
-# On my i5-5257 broadwell with the flags:
-# nim c -d:release -d:mpint_test
-# Warmup: 0.040888s
-# Library: 5.838267s
-
 when defined(bench_ttmath):
   # need C++
   import ttmath
@@ -46,3 +41,9 @@ when defined(bench_ttmath):
 
   stop = cpuTime()
   echo "TTMath: " & $(stop - start) & "s"
+
+# On my i5-5257 broadwell with the flags:
+# nim c -d:release -d:bench_ttmath
+# Warmup: 0.04060799999999999s
+# Library: 0.9576759999999999s
+# TTMath: 0.758443s
