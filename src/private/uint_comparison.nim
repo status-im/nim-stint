@@ -52,14 +52,14 @@ func `<`*(x, y: MpUintImpl): bool {.noInit, inline.}=
 
     when system.cpuEndian == bigEndian:
       for i in 0..<x_ptr[].len:
-        if x_ptr[i] >= y_ptr[i]:
-          return false
-      return true
-    else: # littleEndian, the most signficant bytes are on the right
+        if x_ptr[i] != y_ptr[i]:
+          return x_ptr[i] < y_ptr[i]
+      return false # They're equal
+    else: # littleEndian, the most significant bytes are on the right
       for i in countdown(x_ptr[].len - 1, 0):
-        if x_ptr[i] >= y_ptr[i]:
-          return false
-      return true
+        if x_ptr[i] != y_ptr[i]:
+          return x_ptr[i] < y_ptr[i]
+      return false # They're equal
   else:
     cast[optim(x)](x) < cast[optim(y)](y)
 
@@ -88,13 +88,13 @@ func `<=`*(x, y: MpUintImpl): bool {.noInit, inline.}=
 
     when system.cpuEndian == bigEndian:
       for i in 0..<x_ptr[].len:
-        if x_ptr[i] > y_ptr[i]:
-          return false
-      return true
-    else: # littleEndian, the most signficant bytes are on the right
+        if x_ptr[i] != y_ptr[i]:
+          return x_ptr[i] < y_ptr[i]
+      return true # They're equal
+    else: # littleEndian, the most significant bytes are on the right
       for i in countdown(x_ptr[].len - 1, 0):
-        if x_ptr[i] > y_ptr[i]:
-          return false
-      return true
+        if x_ptr[i] != y_ptr[i]:
+          return x_ptr[i] < y_ptr[i]
+      return true # They're equal
   else:
     cast[optim(x)](x) <= cast[optim(y)](y)
