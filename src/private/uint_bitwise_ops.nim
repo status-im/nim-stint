@@ -13,22 +13,22 @@ import  ./uint_type, ./as_words
 func `not`*(x: MpUintImpl): MpUintImpl {.noInit, inline.}=
   ## Bitwise complement of unsigned integer x
   for rw, xw in m_asWordsRawZip(result, x):
-    rw[] = not xw
+    rw = not xw
 
 func `or`*(x, y: MpUintImpl): MpUintImpl {.noInit, inline.}=
   ## `Bitwise or` of numbers x and y
   for rw, xw, yw in m_asWordsRawZip(result, x, y):
-    rw[] = xw or yw
+    rw = xw or yw
 
 func `and`*(x, y: MpUintImpl): MpUintImpl {.noInit, inline.}=
   ## `Bitwise and` of numbers x and y
   for rw, xw, yw in m_asWordsRawZip(result, x, y):
-    rw[] = xw and yw
+    rw = xw and yw
 
 func `xor`*(x, y: MpUintImpl): MpUintImpl {.noInit, inline.}=
   ## `Bitwise xor` of numbers x and y
   for rw, xw, yw in m_asWordsRawZip(result, x, y):
-    rw[] = xw xor yw
+    rw = xw xor yw
 
 func `shr`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline.}
   # Forward declaration

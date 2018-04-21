@@ -54,6 +54,8 @@ else:
 proc getSize*(x: NimNode): static[int] =
 
   # Size of doesn't always work at compile-time, pending PR https://github.com/nim-lang/Nim/pull/5664
+  echo "getSize"
+  echo x.getTypeInst.treerepr
 
   var multiplier = 1
   var node = x.getTypeInst
@@ -70,7 +72,10 @@ proc getSize*(x: NimNode): static[int] =
   result =  if eqIdent(node, "uint64"): multiplier * 64
             elif eqIdent(node, "uint32"): multiplier * 32
             elif eqIdent(node, "uint16"): multiplier * 16
-            else: multiplier * 8
+            elif  eqIdent(node, "uint8"): multiplier * 8
+            else:
+              assert false, "Error when computing the size. Found: " & $node
+              0
 
 macro getSize*(x: typed): untyped =
   let size = getSize(x)

@@ -12,10 +12,36 @@ import  ./uint_type, macros
 macro optim(x: typed): untyped =
   let size = getSize(x)
 
+  echo "\nOptim"
+  echo x.treeRepr
+  echo size
+
   if size > 64:
     result = quote do:
       array[`size` div 64, uint64]
   elif size == 64:
+    result = quote do:
+      uint64
+  elif size == 32:
+    result = quote do:
+      uint32
+  elif size == 16:
+    result = quote do:
+      uint16
+  elif size == 8:
+    result = quote do:
+      uint8
+  else:
+    error "Unreachable path reached"
+
+macro word(x: typed): untyped =
+  let size = getSize(x)
+
+  echo "\nWord"
+  echo x.getTypeInst[1].treeRepr
+  echo size
+
+  if size >= 64:
     result = quote do:
       uint64
   elif size == 32:
@@ -52,7 +78,7 @@ macro optim(x: typed): untyped =
 #       yw{.inject.} = cast[optim(y)](y)
 #     body
 
-iterator asWordsRaw*(n: MpUintImpl): auto =
+iterator asWordsRaw*[T](n: MpUintImpl[T]): word(n) =
   ## Iterates over n, as an array of words.
   ## Input:
   ##   - n: The Multiprecision int
@@ -65,7 +91,7 @@ iterator asWordsRaw*(n: MpUintImpl): auto =
   else:
     yield cast[optim(n)](n)
 
-iterator asWordsRawZip*(x, y: MpUintImpl): auto =
+iterator asWordsRawZip*[T](x, y: MpUintImpl[T]): (word(x),word(y)) =
   ## Iterates over x and y, as an array of words.
   ## Input:
   ##   - x, y: The multiprecision ints
@@ -81,10 +107,9 @@ iterator asWordsRawZip*(x, y: MpUintImpl): auto =
   else:
     yield (cast[optim(x)](x), cast[optim(y)](y))
 
-iterator m_asWordsRawZip*(m: var MpUintImpl, x: MpUintImpl): auto =
+iterator m_asWordsRawZip*[T](m: var MpUintImpl[T], x: MpUintImpl[T]): (var word(m), word(x)) =
   ## Iterates over a mutable int m and x as an array of words.
   ## returning a !! Pointer !! of the proper type to m.
-  # TODO return a var. This is a workaround because casting prevents returning a var
   ## Input:
   ##   - m: A mutable array
   ##   - x: The multiprecision ints
@@ -96,14 +121,13 @@ iterator m_asWordsRawZip*(m: var MpUintImpl, x: MpUintImpl): auto =
       x_ptr{.restrict.} = cast[ptr optim(x)](x.unsafeaddr)
 
     for i in 0..<x_ptr[].len:
-      yield (m_ptr[i].addr, x_ptr[i])
+      yield (m_ptr[i], x_ptr[i])
   else:
-    yield (cast[ptr optim(m)](m), cast[optim(x)](x))
+    yield (cast[var optim(m)](m.addr), cast[optim(x)](x))
 
-iterator m_asWordsRawZip*(m: var MpUintImpl, x, y: MpUintImpl): auto =
+iterator m_asWordsRawZip*[T](m: var MpUintImpl[T], x, y: MpUintImpl[T]): (var word(m), word(x), word(y)) =
   ## Iterates over a mutable int m and x, y as an array of words.
   ## returning a !! Pointer !! of the proper type to m.
-  # TODO return a var
   ## Input:
   ##   - m: A mutable array
   ##   - x, y: The multiprecision ints
@@ -116,11 +140,11 @@ iterator m_asWordsRawZip*(m: var MpUintImpl, x, y: MpUintImpl): auto =
       y_ptr{.restrict.} = cast[ptr optim(y)](y.unsafeaddr)
 
     for i in 0..<x_ptr[].len:
-      yield (m_ptr[i].addr, x_ptr[i], y_ptr[i])
+      yield (m_ptr[i], x_ptr[i], y_ptr[i])
   else:
-    yield (cast[ptr optim(m)](m), cast[optim(x)](x), cast[optim(y)](y))
+    yield (cast[var optim(m)](m.addr), cast[optim(x)](x), cast[optim(y)](y))
 
-iterator asWordsZip*(x, y: MpUintImpl): auto =
+iterator asWordsZip*[T](x, y: MpUintImpl[T]): (word(x), word(y)) =
   ## Iterates over n, as an array of words.
   ## Input:
   ##   - x, y: The multiprecision ints
