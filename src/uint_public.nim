@@ -42,16 +42,18 @@ template make_binary_inplace(op): untyped =
     op(x.data, y.data)
   export op
 
-import ./private/uint_binary_ops
+import ./private/uint_addsub
 
 make_binary(`+`, MpUint)
 make_binary_inplace(`+=`)
 make_binary(`-`, MpUint)
 make_binary_inplace(`-=`)
+
+import ./private/uint_mul
 make_binary(`*`, MpUint)
 
 import ./private/primitive_divmod,
-       ./private/uint_division
+       ./private/uint_div
 
 make_binary(`div`, MpUint)
 make_binary(`mod`, MpUint)

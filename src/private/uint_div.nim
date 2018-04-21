@@ -11,7 +11,8 @@ import  ./bithacks, ./conversion,
         ./uint_type,
         ./uint_comparison,
         ./uint_bitwise_ops,
-        ./uint_binary_ops,
+        ./uint_addsub,
+        ./uint_mul,
         ./size_mpuintimpl,
         ./primitive_divmod
 
@@ -56,6 +57,7 @@ func div3n2n[T]( q: var MpUintImpl[T],
 
   var
     c: MpUintImpl[T]
+    d: MpUintImpl[MpUintImpl[T]]
     carry: bool
 
   if a2 < b.hi:
@@ -66,13 +68,12 @@ func div3n2n[T]( q: var MpUintImpl[T],
     if c < a1:
       carry = true
 
-  let
-    d = naiveMul(q, b.lo)
-    ca0 = MpUintImpl[type c](hi: c, lo: a0)
+  extPrecMul[T](d, q, b.lo)
+  let ca0 = MpUintImpl[type c](hi: c, lo: a0)
 
   r = ca0 - d
 
-  if  (not carry) and (d > ca0):
+  if (not carry) and (d > ca0):
     q -= one(type q)
     r += b
 
@@ -85,10 +86,11 @@ proc div3n2n[T: SomeUnsignedInt](
               q: var T,
               r: var MpUintImpl[T],
               a2, a1, a0: T,
-              b: MpUintImpl[T]) {.inline.}=
+              b: MpUintImpl[T]) =
 
   var
     c: T
+    d: MpUintImpl[T]
     carry: bool
 
   if a2 < b.hi:
@@ -100,9 +102,8 @@ proc div3n2n[T: SomeUnsignedInt](
     if c < a1:
       carry = true
 
-  let
-    d = naiveMul(q, b.lo)
-    ca0 = MpUintImpl[T](hi: c, lo: a0)
+  extPrecMul[T](d, q, b.lo)
+  let ca0 = MpUintImpl[T](hi: c, lo: a0)
   r = ca0 - d
 
   if  (not carry) and d > ca0:
