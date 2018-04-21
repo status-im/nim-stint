@@ -10,8 +10,7 @@
 import  ./bithacks, ./conversion,
         ./uint_type,
         ./uint_comparison,
-        ./uint_bitwise_ops,
-        ./size_mpuintimpl
+        ./uint_bitwise_ops
 
 # ############ Addition & Substraction ############ #
 

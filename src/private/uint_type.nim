@@ -51,6 +51,32 @@ else:
     else:
       error "Fatal: unreachable"
 
+proc getSize*(x: NimNode): static[int] =
+
+  # Size of doesn't always work at compile-time, pending PR https://github.com/nim-lang/Nim/pull/5664
+
+  var multiplier = 1
+  var node = x.getTypeInst
+
+  while node.kind == nnkBracketExpr:
+    assert eqIdent(node[0], "MpuintImpl")
+    multiplier *= 2
+    node = node[1]
+
+  # node[1] has the type
+  # size(node[1]) * multiplier is the size in byte
+
+  # For optimization we cast to the biggest possible uint
+  result =  if eqIdent(node, "uint64"): multiplier * 64
+            elif eqIdent(node, "uint32"): multiplier * 32
+            elif eqIdent(node, "uint16"): multiplier * 16
+            else: multiplier * 8
+
+macro getSize*(x: typed): untyped =
+  let size = getSize(x)
+  result = quote do:
+    `size`
+
 type
   # ### Private ### #
   # If this is not in the same type section

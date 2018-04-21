@@ -7,14 +7,14 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_type, ./size_mpuintimpl,
+import  ./uint_type,
         macros
 
 proc initMpUintImpl*[InType, OutType](x: InType, _: typedesc[OutType]): OutType {.noSideEffect.} =
 
   const
-    size_in = size_mpuintimpl(x)
-    size_out = size_mpuintimpl(result)
+    size_in = getSize(x)
+    size_out = getSize(result)
 
   static:
     assert size_out >= size_in, "The result type size should be equal or bigger than the input type size"

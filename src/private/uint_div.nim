@@ -12,9 +12,7 @@ import  ./bithacks, ./conversion,
         ./uint_comparison,
         ./uint_bitwise_ops,
         ./uint_addsub,
-        ./uint_mul,
-        ./size_mpuintimpl,
-        ./primitive_divmod
+        ./uint_mul
 
 # ################### Division ################### #
 # We use the following algorithm:
@@ -48,6 +46,13 @@ import  ./bithacks, ./conversion,
 
 func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T)
 func div2n1n(q, r: var MpUintImpl, ah, al, b: MpUintImpl)
+  # Forward declaration
+
+proc divmod*(x, y: SomeInteger): tuple[quot, rem: SomeInteger] {.noSideEffect, inline.}=
+  # hopefully the compiler fuse that in a single op
+  (x div y, x mod y)
+
+func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]]
   # Forward declaration
 
 func div3n2n[T]( q: var MpUintImpl[T],
@@ -128,7 +133,7 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
   # assert countLeadingZeroBits(d) == 0, "Divisor was not normalized"
 
   const
-    size = size_mpuintimpl(q)
+    size = getSize(q)
     halfSize = size div 2
     halfMask = (1.T shl halfSize) - 1.T
 
@@ -162,9 +167,6 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
 
   q = (q1 shl halfSize) or q2
   r = r2
-
-func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]]
-  # Forward declaration
 
 func divmodBZ[T](x, y: MpUintImpl[T], q, r: var MpUintImpl[T])=
 
@@ -251,7 +253,7 @@ func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]]=
   # TODO: Constant-time division
   if unlikely(y.isZero):
     raise newException(DivByZeroError, "You attempted to divide by zero")
-  elif y_clz == (size_mpuintimpl(y) - 1):
+  elif y_clz == (getSize(y) - 1):
     # y is one
     result.quot = x
   elif (x.hi or y.hi).isZero:
@@ -262,7 +264,7 @@ func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]]=
     # TODO. Would it be faster to use countTrailingZero (ctz) + clz == size(y) - 1?
     #       Especially because we shift by ctz after.
     #       It is a bit tricky with recursive types. An empty n.lo means 0 or sizeof(n.lo)
-    let y_ctz = size_mpuintimpl(y) - y_clz - 1
+    let y_ctz = getSize(y) - y_clz - 1
     result.quot = x shr y_ctz
     result.rem = y_ctz.initMpUintImpl(MpUintImpl[T])
     result.rem = result.rem and x

@@ -52,8 +52,7 @@ make_binary_inplace(`-=`)
 import ./private/uint_mul
 make_binary(`*`, MpUint)
 
-import ./private/primitive_divmod,
-       ./private/uint_div
+import ./private/uint_div
 
 make_binary(`div`, MpUint)
 make_binary(`mod`, MpUint)

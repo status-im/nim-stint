@@ -7,10 +7,10 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_type, ./size_mpuintimpl, macros
+import  ./uint_type, macros
 
 macro cast_optim(x: typed): untyped =
-  let size = size_mpuintimpl(x)
+  let size = getSize(x)
 
   if size > 64:
     result = quote do:

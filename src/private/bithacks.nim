@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_type, stdlib_bitops, size_mpuintimpl
+import  ./uint_type, stdlib_bitops
 export stdlib_bitops
 
 # We reuse bitops from Nim standard lib, and expand it for multi-precision int.
@@ -17,7 +17,7 @@ export stdlib_bitops
 func countLeadingZeroBits*(n: MpUintImpl): int {.inline.} =
   ## Returns the number of leading zero bits in integer.
 
-  const maxHalfRepr = size_mpuintimpl(n) div 2
+  const maxHalfRepr = getSize(n) div 2
 
   let hi_clz = n.hi.countLeadingZeroBits
 
@@ -27,4 +27,4 @@ func countLeadingZeroBits*(n: MpUintImpl): int {.inline.} =
 
 func bit_length*(n: SomeInteger): int {.inline.}=
   ## Calculates how many bits are necessary to represent the number
-  result = size_mpuintimpl(n) - n.countLeadingZeroBits
+  result = getSize(n) - n.countLeadingZeroBits
