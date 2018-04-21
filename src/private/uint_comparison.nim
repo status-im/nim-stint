@@ -7,94 +7,34 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_type, macros
-
-macro optim(x: typed): untyped =
-  let size = getSize(x)
-
-  if size > 64:
-    result = quote do:
-      array[`size` div 64, uint64]
-  elif size == 64:
-    result = quote do:
-      uint64
-  elif size == 32:
-    result = quote do:
-      uint32
-  elif size == 16:
-    result = quote do:
-      uint16
-  elif size == 8:
-    result = quote do:
-      uint8
-  else:
-    error "Unreachable path reached"
+import  ./uint_type, ./as_words
 
 func isZero*(n: SomeUnsignedInt): bool {.inline.} =
   n == 0
 
 func isZero*(n: MpUintImpl): bool {.inline.} =
+  for val in asWordsRaw(n):
+    if val != 0:
+      return false
+  return true
 
-  when optim(`n`) is array:
-    for val in cast[optim(n)](n):
-      if val != 0:
-        return false
-    return true
-  else:
-    cast[optim(n)](n) == 0
+func `<`*(x, y: MpUintImpl): bool {.inline.}=
+  # Lower comparison for multi-precision integers
+  for xw, yw in asWordsZip(x, y):
+    if xw != yw:
+      return xw < yw
+  return false # they're equal
 
-func `<`*(x, y: MpUintImpl): bool {.noInit, inline.}=
-
-  when optim(x) is array:
-    let
-      x_ptr = cast[ptr optim(x)](x.unsafeaddr)
-      y_ptr = cast[ptr optim(y)](y.unsafeaddr)
-
-    when system.cpuEndian == bigEndian:
-      for i in 0..<x_ptr[].len:
-        if x_ptr[i] != y_ptr[i]:
-          return x_ptr[i] < y_ptr[i]
-      return false # They're equal
-    else: # littleEndian, the most significant bytes are on the right
-      for i in countdown(x_ptr[].len - 1, 0):
-        if x_ptr[i] != y_ptr[i]:
-          return x_ptr[i] < y_ptr[i]
-      return false # They're equal
-  else:
-    cast[optim(x)](x) < cast[optim(y)](y)
-
-func `==`*(x, y: MpUintImpl): bool {.noInit, inline.}=
+func `==`*(x, y: MpUintImpl): bool {.inline.}=
   # Equal comparison for multi-precision integers
+  for xw, yw in asWordsRawZip(x, y):
+    if xw != yw:
+      return false
+  return true # they're equal
 
-  when optim(x) is array:
-    let
-      x_ptr = cast[ptr optim(x)](x.unsafeaddr)
-      y_ptr = cast[ptr optim(y)](y.unsafeaddr)
-
-    for i in 0..<x_ptr[].len:
-      if x_ptr[i] != y_ptr[i]:
-        return false
-    return true
-  else:
-    cast[optim(x)](x) < cast[optim(y)](y)
-
-func `<=`*(x, y: MpUintImpl): bool {.noInit, inline.}=
+func `<=`*(x, y: MpUintImpl): bool {.inline.}=
   # Lower or equal comparison for multi-precision integers
-
-  when optim(x) is array:
-    let
-      x_ptr = cast[ptr optim(x)](x.unsafeaddr)
-      y_ptr = cast[ptr optim(y)](y.unsafeaddr)
-
-    when system.cpuEndian == bigEndian:
-      for i in 0..<x_ptr[].len:
-        if x_ptr[i] != y_ptr[i]:
-          return x_ptr[i] < y_ptr[i]
-      return true # They're equal
-    else: # littleEndian, the most significant bytes are on the right
-      for i in countdown(x_ptr[].len - 1, 0):
-        if x_ptr[i] != y_ptr[i]:
-          return x_ptr[i] < y_ptr[i]
-      return true # They're equal
-  else:
-    cast[optim(x)](x) <= cast[optim(y)](y)
+  for xw, yw in asWordsZip(x, y):
+    if xw != yw:
+      return xw < yw
+  return  true # they're equal
