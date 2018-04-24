@@ -227,7 +227,7 @@ func divmodBS(x, y: MpUintImpl, q, r: var MpuintImpl) =
   type SubTy = type x.lo
 
   var
-    shift = x.countLeadingZeroBits - y.countLeadingZeroBits
+    shift = y.countLeadingZeroBits - x.countLeadingZeroBits
     d = y shl shift
 
   r = x

@@ -9,8 +9,7 @@
 
 import ../src/mpint, unittest, quicktest
 
-const itercount = 100
-
+const itercount = 1000
 
 suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / uint32 on 32-bit":
 
