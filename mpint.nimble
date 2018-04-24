@@ -7,7 +7,8 @@ srcDir        = "src"
 
 ### Dependencies
 
-requires "nim >= 0.18", "https://github.com/alehander42/nim-quicktest >= 0.0.9"
+# TODO remove test only requirements: https://github.com/nim-lang/nimble/issues/482
+requires "nim >= 0.18", "https://github.com/alehander42/nim-quicktest >= 0.0.9", "https://github.com/status-im/nim-ttmath#master"
 
 proc test(name: string, lang: string = "c") =
   if not dirExists "build":
@@ -37,8 +38,20 @@ task test_property_release, "Run random tests (release mode) - test implementati
   switch("define", "release")
   test "property_based"
 
+task test_property_uint256_debug, "Run random tests (normal mode) vs TTMath on Uint256":
+  # TODO: another reference implementation?
+  requires "quicktest > 0.0.8"
+  test "property_based", "cpp"
+
+task test_property_uint256_release, "Run random tests (release mode) vs TTMath on Uint256":
+  # TODO: another reference implementation?
+  requires "quicktest > 0.0.8"
+  switch("define", "release")
+  test "property_based", "cpp"
+
 task test, "Run all tests - test and production implementation":
   exec "nimble test_debug"
   exec "nimble test_release"
   exec "nimble test_property_debug"
   exec "nimble test_property_release"
+  # TODO: ttmath tests, but importing both together raises illegal storage access

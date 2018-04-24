@@ -212,5 +212,3 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
         tz = tx div ty
 
     check(cast[uint](tz) == x div y)
-
-# suite "Property-based testing (testing with random inputs - uint256 (ttmath)":
