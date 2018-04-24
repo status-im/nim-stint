@@ -23,7 +23,7 @@ make_conv(u256, 256)
 
 template make_unary(op, ResultTy): untyped =
   func `op`*(x: MpUint): ResultTy {.noInit, inline.} =
-    when resultTy is MpUint:
+    when ResultTy is MpUint:
       result.data = op(x.data)
     else:
       op(x.data)
