@@ -158,7 +158,7 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
     check(cast[uint](tz) == x*y)
 
-  quicktest "`shl`", itercount do(x: uint(min=0, max=hi), y: int(min=0, max=high(int))):
+  quicktest "`shl`", itercount do(x: uint(min=0, max=hi), y: int(min = 0, max=(sizeof(int)*8-1))):
 
     when sizeof(int) == 8:
       let
@@ -171,7 +171,7 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
     check(cast[uint](tz) == x shl y)
 
-  quicktest "`shr`", itercount do(x: uint(min=0, max=hi), y: int(min=0, max=high(int))):
+  quicktest "`shr`", itercount do(x: uint(min=0, max=hi), y: int(min = 0, max=(sizeof(int)*8-1))):
 
     when sizeof(int) == 8:
       let
