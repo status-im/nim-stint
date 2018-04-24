@@ -143,6 +143,21 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
     check(cast[uint](tz) == x-y)
 
+  quicktest "`*`", itercount do(x: uint(min=0, max=hi), y: uint(min=0, max=hi)):
+
+    when sizeof(int) == 8:
+      let
+        tx = cast[MpUint[64]](x)
+        ty = cast[MpUint[64]](y)
+        tz = tx * ty
+    else:
+      let
+        tx = cast[MpUint[32]](x)
+        ty = cast[MpUint[32]](y)
+        tz = tx * ty
+
+    check(cast[uint](tz) == x*y)
+
   quicktest "`shl`", itercount do(x: uint(min=0, max=hi), y: int(min=0, max=high(int))):
 
     when sizeof(int) == 8:
@@ -168,21 +183,6 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
         tz = tx shr y
 
     check(cast[uint](tz) == x shr y)
-
-  quicktest "`*`", itercount do(x: uint(min=0, max=hi), y: uint(min=0, max=hi)):
-
-    when sizeof(int) == 8:
-      let
-        tx = cast[MpUint[64]](x)
-        ty = cast[MpUint[64]](y)
-        tz = tx * ty
-    else:
-      let
-        tx = cast[MpUint[32]](x)
-        ty = cast[MpUint[32]](y)
-        tz = tx * ty
-
-    check(cast[uint](tz) == x*y)
 
   quicktest "`mod`", itercount do(x: uint(min=0, max=hi), y: uint(min = 1, max = hi)):
 
