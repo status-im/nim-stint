@@ -10,257 +10,200 @@
 import ../src/mpint, unittest, quicktest
 
 suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / uint32 on 32-bit":
-  quicktest "`or`", 10_000 do(x: int(min=low(int), max=high(int)), y: int(min=low(int), max=high(int))):
 
-    let
-      # Quicktest does not support uint at the moment
-      xu = cast[uint](x)
-      yu = cast[uint](y)
+  let hi = 1'u shl (sizeof(uint)*7)
+
+  quicktest "`or`", 10_000 do(x: uint(min=0, max=hi), y: uint(min=0, max=hi)):
 
     when sizeof(int) == 8:
       let
-        mx = cast[MpUint[64]](x)
-        my = cast[MpUint[64]](y)
-        z = mx or my
+        tx = cast[MpUint[64]](x)
+        ty = cast[MpUint[64]](y)
+        tz = tx or ty
     else:
       let
-        mx = cast[MpUint[32]](x)
-        my = cast[MpUint[32]](y)
-        z = mx or my
+        tx = cast[MpUint[32]](x)
+        ty = cast[MpUint[32]](y)
+        tz = tx or ty
 
-    check(cast[uint](z) == (xu or yu))
 
-  quicktest "`and`", 10_000 do(x: int(min=low(int), max=high(int)), y: int(min=low(int), max=high(int))):
+    check(cast[uint](tz) == (x or y))
 
-    let
-      # Quicktest does not support uint at the moment
-      xu = cast[uint](x)
-      yu = cast[uint](y)
+
+  quicktest "`and`", 10_000 do(x: uint(min=0, max=hi), y: uint(min=0, max=hi)):
 
     when sizeof(int) == 8:
       let
-        mx = cast[MpUint[64]](x)
-        my = cast[MpUint[64]](y)
-        z = mx and my
+        tx = cast[MpUint[64]](x)
+        ty = cast[MpUint[64]](y)
+        tz = tx and ty
     else:
       let
-        mx = cast[MpUint[32]](x)
-        my = cast[MpUint[32]](y)
-        z = mx and my
+        tx = cast[MpUint[32]](x)
+        ty = cast[MpUint[32]](y)
+        tz = tx and ty
 
-    check(cast[uint](z) == (xu and yu))
+    check(cast[uint](tz) == (x and y))
 
-  quicktest "`xor`", 10_000 do(x: int(min=low(int), max=high(int)), y: int(min=low(int), max=high(int))):
-
-    let
-      # Quicktest does not support uint at the moment
-      xu = cast[uint](x)
-      yu = cast[uint](y)
+  quicktest "`xor`", 10_000 do(x: uint(min=0, max=hi), y: uint(min=0, max=hi)):
 
     when sizeof(int) == 8:
       let
-        mx = cast[MpUint[64]](x)
-        my = cast[MpUint[64]](y)
-        z = mx xor my
+        tx = cast[MpUint[64]](x)
+        ty = cast[MpUint[64]](y)
+        tz = tx xor ty
     else:
       let
-        mx = cast[MpUint[32]](x)
-        my = cast[MpUint[32]](y)
-        z = mx xor my
+        tx = cast[MpUint[32]](x)
+        ty = cast[MpUint[32]](y)
+        tz = tx xor ty
 
-    check(cast[uint](z) == (xu xor yu))
+    check(cast[uint](tz) == (x xor y))
 
-  quicktest "`not`", 10_000 do(x: int(min=low(int), max=high(int))):
-
-    let
-      # Quicktest does not support uint at the moment
-      xu = cast[uint](x)
+  quicktest "`not`", 10_000 do(x: uint(min=0, max=hi)):
 
     when sizeof(int) == 8:
       let
-        mx = cast[MpUint[64]](x)
-        z = not mx
+        tx = cast[MpUint[64]](x)
+        tz = not tx
     else:
       let
-        mx = cast[MpUint[32]](x)
-        z = not mx
+        tx = cast[MpUint[32]](x)
+        tz = not tx
 
-    check(cast[uint](z) == (not xu))
+    check(cast[uint](tz) == (not x))
 
-  quicktest "`<`", 10_000 do(x: int(min=low(int), max=high(int)), y: int(min=low(int), max=high(int))):
-
-    let
-      # Quicktest does not support uint at the moment
-      xu = cast[uint](x)
-      yu = cast[uint](y)
+  quicktest "`<`", 10_000 do(x: uint(min=0, max=hi), y: uint(min=0, max=hi)):
 
     when sizeof(int) == 8:
       let
-        mx = cast[MpUint[64]](x)
-        my = cast[MpUint[64]](y)
-        z = mx < my
+        tx = cast[MpUint[64]](x)
+        ty = cast[MpUint[64]](y)
+        tz = tx < ty
     else:
       let
-        mx = cast[MpUint[32]](x)
-        my = cast[MpUint[32]](y)
-        z = mx < my
+        tx = cast[MpUint[32]](x)
+        ty = cast[MpUint[32]](y)
+        tz = tx < ty
 
-    check(z == (xu < yu))
+    check(tz == (x < y))
 
 
-  quicktest "`<=`", 10_000 do(x: int(min=low(int), max=high(int)), y: int(min=low(int), max=high(int))):
-
-    let
-      # Quicktest does not support uint at the moment
-      xu = cast[uint](x)
-      yu = cast[uint](y)
+  quicktest "`<=`", 10_000 do(x: uint(min=0, max=hi), y: uint(min=0, max=hi)):
 
     when sizeof(int) == 8:
       let
-        mx = cast[MpUint[64]](x)
-        my = cast[MpUint[64]](y)
-        z = mx <= my
+        tx = cast[MpUint[64]](x)
+        ty = cast[MpUint[64]](y)
+        tz = tx <= ty
     else:
       let
-        mx = cast[MpUint[32]](x)
-        my = cast[MpUint[32]](y)
-        z = mx <= my
+        tx = cast[MpUint[32]](x)
+        ty = cast[MpUint[32]](y)
+        tz = tx <= ty
 
-    check(z == (xu <= yu))
+    check(tz == (x <= y))
 
-  quicktest "`+`", 10_000 do(x: int(min=low(int), max=high(int)), y: int(min=low(int), max=high(int))):
-
-    let
-      # Quicktest does not support uint at the moment
-      xu = cast[uint](x)
-      yu = cast[uint](y)
+  quicktest "`+`", 10_000 do(x: uint(min=0, max=hi), y: uint(min=0, max=hi)):
 
     when sizeof(int) == 8:
       let
-        mx = cast[MpUint[64]](x)
-        my = cast[MpUint[64]](y)
-        z = mx + my
+        tx = cast[MpUint[64]](x)
+        ty = cast[MpUint[64]](y)
+        tz = tx + ty
     else:
       let
-        mx = cast[MpUint[32]](x)
-        my = cast[MpUint[32]](y)
-        z = mx + my
+        tx = cast[MpUint[32]](x)
+        ty = cast[MpUint[32]](y)
+        tz = tx + ty
 
-    check(cast[uint](z) == xu+yu)
+    check(cast[uint](tz) == x+y)
 
 
-  quicktest "`-`", 10_000 do(x: int(min=low(int), max=high(int)), y: int(min=low(int), max=high(int))):
-
-    let
-      # Quicktest does not support uint at the moment
-      xu = cast[uint](x)
-      yu = cast[uint](y)
+  quicktest "`-`", 10_000 do(x: uint(min=0, max=hi), y: uint(min=0, max=hi)):
 
     when sizeof(int) == 8:
       let
-        mx = cast[MpUint[64]](x)
-        my = cast[MpUint[64]](y)
-        z = mx - my
+        tx = cast[MpUint[64]](x)
+        ty = cast[MpUint[64]](y)
+        tz = tx - ty
     else:
       let
-        mx = cast[MpUint[32]](x)
-        my = cast[MpUint[32]](y)
-        z = mx - my
+        tx = cast[MpUint[32]](x)
+        ty = cast[MpUint[32]](y)
+        tz = tx - ty
 
-    check(cast[uint](z) == xu-yu)
+    check(cast[uint](tz) == x-y)
 
-  quicktest "`shl`", 10_000 do(x: int(min=low(int), max=high(int)), y: int(min=low(int), max=high(int))):
-
-    let
-      # Quicktest does not support uint at the moment
-      xu = cast[uint](x)
+  quicktest "`shl`", 10_000 do(x: uint(min=0, max=hi), y: int(min=0, max=high(int))):
 
     when sizeof(int) == 8:
       let
-        mx = cast[MpUint[64]](x)
-        z = mx shl y
+        tx = cast[MpUint[64]](x)
+        tz = tx shl y
     else:
       let
-        mx = cast[MpUint[32]](x)
-        z = mx shl y
+        tx = cast[MpUint[32]](x)
+        tz = tx shl y
 
-    check(cast[uint](z) == xu shl y)
+    check(cast[uint](tz) == x shl y)
 
-  quicktest "`shr`", 10_000 do(x: int(min=low(int), max=high(int)), y: int(min=low(int), max=high(int))):
-
-    let
-      # Quicktest does not support uint at the moment
-      xu = cast[uint](x)
+  quicktest "`shr`", 10_000 do(x: uint(min=0, max=hi), y: int(min=0, max=high(int))):
 
     when sizeof(int) == 8:
       let
-        mx = cast[MpUint[64]](x)
-        z = mx shr y
+        tx = cast[MpUint[64]](x)
+        tz = tx shr y
     else:
       let
-        mx = cast[MpUint[32]](x)
-        z = mx shr y
+        tx = cast[MpUint[32]](x)
+        tz = tx shr y
 
-    check(cast[uint](z) == xu shr y)
+    check(cast[uint](tz) == x shr y)
 
-  quicktest "`*`", 10_000 do(x: int(min=low(int), max=high(int)), y: int(min=low(int), max=high(int))):
-
-    let
-      # Quicktest does not support uint at the moment
-      xu = cast[uint](x)
-      yu = cast[uint](y)
+  quicktest "`*`", 10_000 do(x: uint(min=0, max=hi), y: uint(min=0, max=hi)):
 
     when sizeof(int) == 8:
       let
-        mx = cast[MpUint[64]](x)
-        my = cast[MpUint[64]](y)
-        z = mx * my
+        tx = cast[MpUint[64]](x)
+        ty = cast[MpUint[64]](y)
+        tz = tx * ty
     else:
       let
-        mx = cast[MpUint[32]](x)
-        my = cast[MpUint[32]](y)
-        z = mx * my
+        tx = cast[MpUint[32]](x)
+        ty = cast[MpUint[32]](y)
+        tz = tx * ty
 
-    check(cast[uint](z) == xu*yu)
+    check(cast[uint](tz) == x*y)
 
-  quicktest "`mod`", 10_000 do(x: int(min=low(int), max=high(int)), y: int(min = 1, max = high(int))):
-
-    let
-      # Quicktest does not support uint at the moment
-      xu = cast[uint](x)
-      yu = cast[uint](y)
+  quicktest "`mod`", 10_000 do(x: uint(min=0, max=hi), y: uint(min = 1, max = hi)):
 
     when sizeof(int) == 8:
       let
-        mx = cast[MpUint[64]](x)
-        my = cast[MpUint[64]](y)
-        z = mx mod my
+        tx = cast[MpUint[64]](x)
+        ty = cast[MpUint[64]](y)
+        tz = tx mod ty
     else:
       let
-        mx = cast[MpUint[32]](x)
-        my = cast[MpUint[32]](y)
-        z = mx mod my
+        tx = cast[MpUint[32]](x)
+        ty = cast[MpUint[32]](y)
+        tz = tx mod ty
 
-    check(cast[uint](z) == xu mod yu)
+    check(cast[uint](tz) == x mod y)
 
-  quicktest "`div`", 10_000 do(x: int(min=low(int), max=high(int)), y: int(min = 1, max = high(int))):
-
-    let
-      # Quicktest does not support uint at the moment
-      xu = cast[uint](x)
-      yu = cast[uint](y)
+  quicktest "`div`", 10_000 do(x: uint(min=0, max=hi), y: uint(min = 1, max = hi)):
 
     when sizeof(int) == 8:
       let
-        mx = cast[MpUint[64]](x)
-        my = cast[MpUint[64]](y)
-        z = mx div my
+        tx = cast[MpUint[64]](x)
+        ty = cast[MpUint[64]](y)
+        tz = tx div ty
     else:
       let
-        mx = cast[MpUint[32]](x)
-        my = cast[MpUint[32]](y)
-        z = mx div my
+        tx = cast[MpUint[32]](x)
+        ty = cast[MpUint[32]](y)
+        tz = tx div ty
 
-    check(cast[uint](z) == xu div yu)
+    check(cast[uint](tz) == x div y)
 
 # suite "Property-based testing (testing with random inputs - uint256 (ttmath)":
