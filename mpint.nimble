@@ -7,7 +7,7 @@ srcDir        = "src"
 
 ### Dependencies
 
-requires "nim >= 0.18", "https://github.com/alehander42/nim-quicktest >= 0.09"
+requires "nim >= 0.18", "https://github.com/alehander42/nim-quicktest >= 0.0.9"
 
 proc test(name: string, lang: string = "c") =
   if not dirExists "build":
