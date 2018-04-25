@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -35,8 +35,21 @@ when defined(mpint_test):
   macro intImpl*(bits: static[int]): untyped =
     # Test version, StInt[64] = 2 uint32. Test the logic of the library
     # Note that ints are implemented in terms of unsigned ints
-    # SIgned operatiosn will be built on top of that.
-    result = getAst(uintImpl(bits))
+    # Signed operatiosn will be built on top of that.
+    assert (bits and (bits-1)) == 0, $bits & " is not a power of 2"
+    assert bits >= 16, "The number of bits in a should be greater or equal to 16"
+
+    if bits >= 128:
+      let inner = getAST(uintImpl(bits div 2)) # IntImpl is built on top of UintImpl
+      result = newTree(nnkBracketExpr, ident("IntImpl"), inner)
+    elif bits == 64:
+      result = newTree(nnkBracketExpr, ident("IntImpl"), ident("uint32"))
+    elif bits == 32:
+      result = newTree(nnkBracketExpr, ident("IntImpl"), ident("uint16"))
+    elif bits == 16:
+      result = newTree(nnkBracketExpr, ident("IntImpl"), ident("uint8"))
+    else:
+      error "Fatal: unreachable"
 
 else:
   macro uintImpl*(bits: static[int]): untyped =
@@ -64,7 +77,8 @@ else:
     # Signed operations will be built on top of that.
 
     if bits >= 128:
-      result = getAst(uintImpl(bits))
+      let inner = getAST(uintImpl(bits div 2))
+      result = newTree(nnkBracketExpr, ident("IntImpl"), inner)
     elif bits == 64:
       result = ident("int64")
     elif bits == 32:
@@ -84,7 +98,8 @@ proc getSize*(x: NimNode): static[int] =
   var node = x.getTypeInst
 
   while node.kind == nnkBracketExpr:
-    assert eqIdent(node[0], "UintImpl")
+    assert eqIdent(node[0], "UintImpl") or eqIdent(node[0], "IntImpl"), (
+      "getSize only supports primitive integers, Stint and Stuint")
     multiplier *= 2
     node = node[1]
 

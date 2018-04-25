@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -43,7 +43,7 @@ macro most_significant_word*(x: IntImpl): untyped =
   let optim_type = optimInt(x)
   if optim_type.isInt:
     result = quote do:
-      (cast[ptr `optim_type`](`x`.unsafeAddr))[]
+      cast[`optim_type`](`x`)
   else:
     when system.cpuEndian == littleEndian:
       let size = getSize(x)
@@ -51,7 +51,22 @@ macro most_significant_word*(x: IntImpl): untyped =
     else:
       let msw_pos = 0
     result = quote do:
-      (cast[ptr `optim_type`](`x`)[`msw_pos`.unsafeAddr])[]
+      cast[int](cast[`optim_type`](`x`)[`msw_pos`])
+
+macro most_significant_word_mut*(x: var IntImpl): untyped =
+
+  let optim_type = optimInt(x)
+  if optim_type.isInt:
+    result = quote do:
+      cast[var `optim_type`](`x`.addr)
+  else:
+    when system.cpuEndian == littleEndian:
+      let size = getSize(x)
+      let msw_pos = size - 1
+    else:
+      let msw_pos = 0
+    result = quote do:
+      (cast[ptr `optim_type`](`x`.unsafeAddr)[`msw_pos`])[]
 
 macro asSignedWordsZip*[T](
   x, y: IntImpl[T],

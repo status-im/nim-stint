@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -30,14 +30,14 @@ func `<`*(x, y: IntImpl): bool {.inline.}=
       return x < y
   return false # they're equal
 
-func `==`*(x, y: UintImpl): bool {.inline.}=
+func `==`*(x, y: IntImpl): bool {.inline.}=
   # Equal comparison for multi-precision integers
   asWordsZip(x, y, ignoreEndianness = true):
     if x != y:
       return false
   return true # they're equal
 
-func `<=`*(x, y: UintImpl): bool {.inline.}=
+func `<=`*(x, y: IntImpl): bool {.inline.}=
   # Lower or equal comparison for multi-precision integers
   asSignedWordsZip(x, y):
     if x != y:

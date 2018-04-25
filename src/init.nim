@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -7,11 +7,10 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  typetraits
-
-import  ./private/datatypes
-
-import typetraits
+import
+  ./private/datatypes,
+  ./private/int_addsubneg,
+  typetraits
 
 func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
   assert n >= 0.T
@@ -36,7 +35,7 @@ func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
 
 func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
 
-  when result.data is UintImpl:
+  when result.data is IntImpl:
     when getSize(n) > bits:
       # To avoid a costly runtime check, we refuse storing into StUint types smaller
       # than the input type.

@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -7,31 +7,39 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes, ./int_bitwise_ops,
+import  ./datatypes, ./int_bitwise_ops, ./conversion,
         ./initialization, ./as_signed_words, ./int_highlow
 
 func `+`*(x, y: IntImpl): IntImpl {.noInit, inline.}=
-  # Addition for multi-precision signed int
+  # Addition for multi-precision signed int.
   type SubTy = type x.lo
   result.lo = x.lo + y.lo
   result.hi = (x.lo < y.lo).toSubtype(SubTy) + x.hi + y.hi
 
   when compileOption("boundChecks"):
     if unlikely(
-      (result.most_significant_word xor a.most_significant_word >= 0) or
-      (result.most_significant_word xor b.most_significant_word >= 0)
+      ((result.most_significant_word xor x.most_significant_word) >= 0) or
+      ((result.most_significant_word xor y.most_significant_word) >= 0)
     ):
-      raise newException(OverflowError, "Addition overflow")
+      return
+    raise newException(OverflowError, "Addition overflow")
+
+func `+=`*(x: var IntImpl, y: IntImpl) {.inline.}=
+  ## In-place addition for multi-precision signed int.
+  x = x + y
 
 func `-`*[T: IntImpl](x: T): T {.noInit, inline.}=
-  result = not x
-  result += one(T)
+  # Negate a multi-precision signed int.
+
   when compileOption("boundChecks"):
     if unlikely(x == low(T)):
       raise newException(OverflowError, "The lowest negative number cannot be negated")
 
+  result = not x
+  result += one(T)
+
 func `-`*(x, y: IntImpl): IntImpl {.noInit, inline.}=
-  # Substraction for multi-precision signed int
+  # Substraction for multi-precision signed int.
 
   type SubTy = type x.lo
   result.lo = x.lo - y.lo
@@ -39,11 +47,12 @@ func `-`*(x, y: IntImpl): IntImpl {.noInit, inline.}=
 
   when compileOption("boundChecks"):
     if unlikely(
-      (result.most_significant_word xor a.most_significant_word >= 0) or
-      (result.most_significant_word xor (not b).most_significant_word >= 0)
+      ((result.most_significant_word xor x.most_significant_word) >= 0) or
+      ((result.most_significant_word xor (not y).most_significant_word) >= 0)
     ):
-      raise newException(OverflowError, "Substraction underflow")
+      return
+    raise newException(OverflowError, "Substraction underflow")
 
 func `-=`*(x: var IntImpl, y: IntImpl) {.inline.}=
-  ## In-place substraction for multi-precision signed int
+  ## In-place substraction for multi-precision signed int.
   x = x - y

@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -9,20 +9,17 @@
 
 import ./datatypes, ./as_signed_words
 
-func low*(T: typedesc[UintImpl]): T {.inline.}=
+func low*(T: typedesc[IntImpl]): T {.inline.}=
 
   # The lowest signed int has representation
   # 0b1000_0000_0000_0000 ....
   # so we only have to set the most significant bit.
   type Msw = type result.most_significant_word
-  when Msw is uint64:
-    type U = int64
-  else:
-    type U = Msw
+  type U = Msw
 
-  result.most_significant_word = low(U)
+  most_significant_word_mut(result) = low(U)
 
-func high*(T: typedesc[UintImpl]): T {.inline, noInit.}=
+func high*(T: typedesc[IntImpl]): T {.inline, noInit.}=
 
   # The lowest signed int has representation
   # 0b0111_1111_1111_1111 ....

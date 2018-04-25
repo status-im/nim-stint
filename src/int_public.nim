@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -47,8 +47,8 @@ import ./private/int_addsubneg
 make_binary(`+`, Stint)
 make_binary_inplace(`+=`)
 make_unary(`-`, Stint)
-# make_binary(`-`, Stint)
-# make_binary_inplace(`-=`)
+make_binary(`-`, Stint)
+make_binary_inplace(`-=`)
 
 # import ./private/int_mul
 # make_binary(`*`, Stint)

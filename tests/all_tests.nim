@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -12,3 +12,7 @@ import  test_uint_endianness,
         test_uint_bitwise,
         test_uint_addsub,
         test_uint_muldiv
+
+import  test_int_endianness,
+        test_int_comparison,
+        test_int_addsubneg
