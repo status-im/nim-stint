@@ -25,7 +25,7 @@ func countLeadingZeroBits*(n: UintImpl): int {.inline.} =
               n.lo.countLeadingZeroBits + maxHalfRepr
             else: hi_clz
 
-func msb*[T: SomeInteger](n: T): T =
+func msb*[T: SomeInteger](n: T): T {.inline.}=
   ## Returns the most significant bit of an integer.
 
   when T is int64 or (T is int and sizeof(int) == 8):
@@ -42,7 +42,7 @@ func msb*[T: SomeInteger](n: T): T =
   const msb_pos = sizeof(T) * 8 - 1
   result = T(cast[Uint](n) shr msb_pos)
 
-func msb*(n: IntImpl): auto =
+func msb*(n: IntImpl): auto {.inline.}=
   ## Returns the most significant bit of an arbitrary precision integer.
 
   result = msb most_significant_word(n)

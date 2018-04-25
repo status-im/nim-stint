@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../src/mpint, unittest
+import ../src/stint, unittest
 
 suite "Testing bitwise operations":
   let a = 100'i16.stuint(16)

@@ -109,8 +109,6 @@ macro getSize*(x: typed): untyped =
 
 type
   # ### Private ### #
-  # If this is not in the same type section
-  # the compiler has trouble
   BaseUint* = UintImpl or SomeUnsignedInt
 
   UintImpl*[Baseuint] = object
@@ -120,6 +118,7 @@ type
       hi*, lo*: BaseUint
 
   IntImpl*[Baseuint] = object
+    # Ints are implemented in terms of uints
     when system.cpuEndian == littleEndian:
       lo*, hi*: BaseUint
     else:

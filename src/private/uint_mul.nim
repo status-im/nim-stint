@@ -115,7 +115,7 @@ func extPrecMul*[T](result: var UintImpl[UintImpl[T]], x, y: UintImpl[T]) =
   if result.lo.hi < z1.lo:
     result.hi += one(UintImpl[T])
 
-func `*`*[T](x, y: UintImpl[T]): UintImpl[T] {.inline.}=
+func `*`*[T](x, y: UintImpl[T]): UintImpl[T] {.inline, noInit.}=
   ## Multiplication for multi-precision unsigned uint
   #
   # For our representation, it is similar to school grade multiplication

@@ -40,3 +40,13 @@ func one*[T: BaseUint](_: typedesc[T]): T {.inline.}=
       r_ptr[0] = 1
     else:
       r_ptr[r_ptr[].len - 1] = 1
+
+func one*[T: IntImpl](_: typedesc[T]): T {.inline.}=
+  when T is SomeInteger:
+    result = T(1)
+  else:
+    let r_ptr = cast[ptr array[getSize(result) div 8, byte]](result.addr)
+    when system.cpuEndian == bigEndian:
+      r_ptr[0] = 1
+    else:
+      r_ptr[r_ptr[].len - 1] = 1
