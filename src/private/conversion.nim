@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_type,
+import  ./datatypes,
         macros, typetraits
 
 func initUintImpl*[InType, OutType](x: InType, _: typedesc[OutType]): OutType {.inline.} =

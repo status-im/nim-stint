@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_type, ./as_words
+import  ./datatypes, ./as_words
 
 
 func `not`*(x: UintImpl): UintImpl {.noInit, inline.}=

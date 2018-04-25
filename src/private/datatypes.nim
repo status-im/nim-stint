@@ -12,16 +12,16 @@
 import macros
 
 
-# The macro getUintImpl must be exported
+# The macro uintImpl must be exported
 
 when defined(mpint_test):
-  macro getUintImpl*(bits: static[int]): untyped =
+  macro uintImpl*(bits: static[int]): untyped =
     # Test version, StUint[64] = 2 uint32. Test the logic of the library
     assert (bits and (bits-1)) == 0, $bits & " is not a power of 2"
     assert bits >= 16, "The number of bits in a should be greater or equal to 16"
 
     if bits >= 128:
-      let inner = getAST(getUintImpl(bits div 2))
+      let inner = getAST(uintImpl(bits div 2))
       result = newTree(nnkBracketExpr, ident("UintImpl"), inner)
     elif bits == 64:
       result = newTree(nnkBracketExpr, ident("UintImpl"), ident("uint32"))
@@ -31,14 +31,21 @@ when defined(mpint_test):
       result = newTree(nnkBracketExpr, ident("UintImpl"), ident("uint8"))
     else:
       error "Fatal: unreachable"
+
+  macro intImpl*(bits: static[int]): untyped =
+    # Test version, StInt[64] = 2 uint32. Test the logic of the library
+    # Note that ints are implemented in terms of unsigned ints
+    # SIgned operatiosn will be built on top of that.
+    result = getAst(uintImpl(bits))
+
 else:
-  macro getUintImpl*(bits: static[int]): untyped =
+  macro uintImpl*(bits: static[int]): untyped =
     # Release version, StUint[64] = uint64.
     assert (bits and (bits-1)) == 0, $bits & " is not a power of 2"
     assert bits >= 8, "The number of bits in a should be greater or equal to 8"
 
     if bits >= 128:
-      let inner = getAST(getUintImpl(bits div 2))
+      let inner = getAST(uintImpl(bits div 2))
       result = newTree(nnkBracketExpr, ident("UintImpl"), inner)
     elif bits == 64:
       result = ident("uint64")
@@ -48,6 +55,24 @@ else:
       result = ident("uint16")
     elif bits == 8:
       result = ident("uint8")
+    else:
+      error "Fatal: unreachable"
+
+  macro intImpl*(bits: static[int]): untyped =
+    # Release version, StInt[64] = int64.
+    # Note that int of size 128+ are implemented in terms of unsigned ints
+    # Signed operations will be built on top of that.
+
+    if bits >= 128:
+      result = getAst(uintImpl(bits))
+    elif bits == 64:
+      result = ident("int64")
+    elif bits == 32:
+      result = ident("int32")
+    elif bits == 16:
+      result = ident("int16")
+    elif bits == 8:
+      result = ident("int8")
     else:
       error "Fatal: unreachable"
 
@@ -93,8 +118,17 @@ type
       lo*, hi*: BaseUint
     else:
       hi*, lo*: BaseUint
+
+  IntImpl*[Baseuint] = object
+    when system.cpuEndian == littleEndian:
+      lo*, hi*: BaseUint
+    else:
+      hi*, lo*: BaseUint
+
   # ### Private ### #
 
   StUint*[bits: static[int]] = object
-    data*: getUintImpl(bits)
-    # wrapped in object to avoid recursive calls
+    data*: uintImpl(bits)
+
+  StInt*[bits: static[int]] = object
+    data*: intImpl(bits)

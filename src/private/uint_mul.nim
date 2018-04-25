@@ -8,7 +8,7 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import  ./conversion,
-        ./uint_type,
+        ./datatypes,
         ./uint_comparison,
         ./uint_addsub
 

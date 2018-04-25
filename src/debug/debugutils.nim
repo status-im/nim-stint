@@ -11,7 +11,7 @@
 
 import
   strutils,
-  ../private/[uint_type, getSize]
+  ../private/[datatypes, getSize]
 
 func tohexBE*[T: uint8 or uint16 or uint32 or uint64](x: T): string =
   ## Stringify an uint to hex, Most significant byte on the left

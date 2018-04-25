@@ -7,8 +7,8 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ./private/uint_type, macros
-export StUint, UintImpl, getUintImpl # TODO remove the need to export UintImpl and this macro
+import ./private/datatypes, macros
+export StUint, UintImpl, uintImpl # TODO remove the need to export UintImpl and this macro
 
 type
   UInt128* = StUint[128]

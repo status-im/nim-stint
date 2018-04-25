@@ -9,7 +9,7 @@
 
 import  typetraits
 
-import  ./private/uint_type
+import  ./private/datatypes
 
 import typetraits
 

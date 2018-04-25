@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_type, stdlib_bitops
+import  ./datatypes, stdlib_bitops
 export stdlib_bitops
 
 # We reuse bitops from Nim standard lib, and expand it for multi-precision int.
