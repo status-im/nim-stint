@@ -13,17 +13,17 @@ import  ./private/uint_type
 
 import typetraits
 
-func initMpUint*[T: SomeInteger](n: T, bits: static[int]): MpUint[bits] {.inline.}=
+func u*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
   assert n >= 0.T
-  when result.data is MpuintImpl:
+  when result.data is UintImpl:
     when getSize(n) > bits:
-      # To avoid a costly runtime check, we refuse storing into MpUint types smaller
+      # To avoid a costly runtime check, we refuse storing into StUint types smaller
       # than the input type.
       raise newException(ValueError, "Input " & $n & " (" & $T &
                                     ") cannot be stored in a multi-precision " &
                                     $bits & "-bit integer." &
                                     "\nUse a smaller input type instead. This is a compile-time check" &
-                                    " to avoid a costly run-time bit_length check at each MpUint initialization.")
+                                    " to avoid a costly run-time bit_length check at each StUint initialization.")
     else:
       let r_ptr = cast[ptr array[bits div (sizeof(T) * 8), T]](result.addr)
       when system.cpuEndian == littleEndian:

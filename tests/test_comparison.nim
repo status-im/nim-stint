@@ -11,19 +11,19 @@ import ../src/mpint, unittest
 
 suite "Testing comparison operators":
   let
-    a = 10'i16.initMpUint(16)
-    b = 15'i16.initMpUint(16)
+    a = 10'i16.u(16)
+    b = 15'i16.u(16)
     c = 150'u16
-    d = 4.initMpUint(128) shl 64
-    e = 4.initMpUint(128)
-    f = 4.initMpUint(128) shl 65
+    d = 4.u(128) shl 64
+    e = 4.u(128)
+    f = 4.u(128) shl 65
 
   test "< operator":
     check:
       a < b
       not (a + b < b)
       not (a + a + a < b + b)
-      not (a * b < cast[MpUint[16]](c))
+      not (a * b < cast[StUint[16]](c))
       e < d
       d < f
 
@@ -32,7 +32,7 @@ suite "Testing comparison operators":
       a <= b
       not (a + b <= b)
       a + a + a <= b + b
-      a * b <= cast[MpUint[16]](c)
+      a * b <= cast[StUint[16]](c)
       e <= d
       d <= f
 
@@ -41,7 +41,7 @@ suite "Testing comparison operators":
       b > a
       not (b > a + b)
       not (b + b > a + a + a)
-      not (cast[Mpuint[16]](c) > a * b)
+      not (cast[StUint[16]](c) > a * b)
       d > e
       f > d
 
@@ -50,6 +50,6 @@ suite "Testing comparison operators":
       b >= a
       not (b >= a + b)
       b + b >= a + a + a
-      cast[MpUint[16]](c) >= a * b
+      cast[StUint[16]](c) >= a * b
       d >= e
       f >= d

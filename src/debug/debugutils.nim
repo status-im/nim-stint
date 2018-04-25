@@ -27,7 +27,7 @@ func tohexBE*[T: uint8 or uint16 or uint32 or uint64](x: T): string =
     for i in 0 ..< T.sizeof:
       result.add toHex(bytes[i])
 
-func tohexBE*(x: MpUintImpl): string =
+func tohexBE*(x: UintImpl): string =
   ## Stringify an uint to hex, Most significant byte on the left
   ## i.e. a (2.uint128)^64 + 1 will be 0000000100000001
 
