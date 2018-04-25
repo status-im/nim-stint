@@ -14,7 +14,7 @@ export stdlib_bitops
 # MpInt rely on no undefined behaviour as often we scan 0. (if 1 is stored in a uint128 for example)
 # Also countLeadingZeroBits must return the size of the type and not 0 like in the stdlib
 
-func countLeadingZeroBits*(n: MpUintImpl): int {.inline.} =
+func countLeadingZeroBits*(n: UintImpl): int {.inline.} =
   ## Returns the number of leading zero bits in integer.
 
   const maxHalfRepr = getSize(n) div 2

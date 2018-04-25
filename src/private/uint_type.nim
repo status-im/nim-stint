@@ -12,34 +12,34 @@
 import macros
 
 
-# The macro getMpUintImpl must be exported
+# The macro getUintImpl must be exported
 
 when defined(mpint_test):
-  macro getMpUintImpl*(bits: static[int]): untyped =
-    # Test version, mpuint[64] = 2 uint32. Test the logic of the library
+  macro getUintImpl*(bits: static[int]): untyped =
+    # Test version, StUint[64] = 2 uint32. Test the logic of the library
     assert (bits and (bits-1)) == 0, $bits & " is not a power of 2"
     assert bits >= 16, "The number of bits in a should be greater or equal to 16"
 
     if bits >= 128:
-      let inner = getAST(getMpUintImpl(bits div 2))
-      result = newTree(nnkBracketExpr, ident("MpUintImpl"), inner)
+      let inner = getAST(getUintImpl(bits div 2))
+      result = newTree(nnkBracketExpr, ident("UintImpl"), inner)
     elif bits == 64:
-      result = newTree(nnkBracketExpr, ident("MpUintImpl"), ident("uint32"))
+      result = newTree(nnkBracketExpr, ident("UintImpl"), ident("uint32"))
     elif bits == 32:
-      result = newTree(nnkBracketExpr, ident("MpUintImpl"), ident("uint16"))
+      result = newTree(nnkBracketExpr, ident("UintImpl"), ident("uint16"))
     elif bits == 16:
-      result = newTree(nnkBracketExpr, ident("MpUintImpl"), ident("uint8"))
+      result = newTree(nnkBracketExpr, ident("UintImpl"), ident("uint8"))
     else:
       error "Fatal: unreachable"
 else:
-  macro getMpUintImpl*(bits: static[int]): untyped =
-    # Release version, mpuint[64] = uint64.
+  macro getUintImpl*(bits: static[int]): untyped =
+    # Release version, StUint[64] = uint64.
     assert (bits and (bits-1)) == 0, $bits & " is not a power of 2"
     assert bits >= 8, "The number of bits in a should be greater or equal to 8"
 
     if bits >= 128:
-      let inner = getAST(getMpUintImpl(bits div 2))
-      result = newTree(nnkBracketExpr, ident("MpUintImpl"), inner)
+      let inner = getAST(getUintImpl(bits div 2))
+      result = newTree(nnkBracketExpr, ident("UintImpl"), inner)
     elif bits == 64:
       result = ident("uint64")
     elif bits == 32:
@@ -59,7 +59,7 @@ proc getSize*(x: NimNode): static[int] =
   var node = x.getTypeInst
 
   while node.kind == nnkBracketExpr:
-    assert eqIdent(node[0], "MpuintImpl")
+    assert eqIdent(node[0], "UintImpl")
     multiplier *= 2
     node = node[1]
 
@@ -86,15 +86,15 @@ type
   # ### Private ### #
   # If this is not in the same type section
   # the compiler has trouble
-  BaseUint* = MpUintImpl or SomeUnsignedInt
+  BaseUint* = UintImpl or SomeUnsignedInt
 
-  MpUintImpl*[Baseuint] = object
+  UintImpl*[Baseuint] = object
     when system.cpuEndian == littleEndian:
       lo*, hi*: BaseUint
     else:
       hi*, lo*: BaseUint
   # ### Private ### #
 
-  MpUint*[bits: static[int]] = object
-    data*: getMpUintImpl(bits)
+  StUint*[bits: static[int]] = object
+    data*: getUintImpl(bits)
     # wrapped in object to avoid recursive calls

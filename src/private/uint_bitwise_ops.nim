@@ -10,30 +10,30 @@
 import  ./uint_type, ./as_words
 
 
-func `not`*(x: MpUintImpl): MpUintImpl {.noInit, inline.}=
+func `not`*(x: UintImpl): UintImpl {.noInit, inline.}=
   ## Bitwise complement of unsigned integer x
   m_asWordsZip(result, x, ignoreEndianness = true):
     result = not x
 
-func `or`*(x, y: MpUintImpl): MpUintImpl {.noInit, inline.}=
+func `or`*(x, y: UintImpl): UintImpl {.noInit, inline.}=
   ## `Bitwise or` of numbers x and y
   m_asWordsZip(result, x, y, ignoreEndianness = true):
     result = x or y
 
-func `and`*(x, y: MpUintImpl): MpUintImpl {.noInit, inline.}=
+func `and`*(x, y: UintImpl): UintImpl {.noInit, inline.}=
   ## `Bitwise and` of numbers x and y
   m_asWordsZip(result, x, y, ignoreEndianness = true):
     result = x and y
 
-func `xor`*(x, y: MpUintImpl): MpUintImpl {.noInit, inline.}=
+func `xor`*(x, y: UintImpl): UintImpl {.noInit, inline.}=
   ## `Bitwise xor` of numbers x and y
   m_asWordsZip(result, x, y, ignoreEndianness = true):
     result = x xor y
 
-func `shr`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline.}
+func `shr`*(x: UintImpl, y: SomeInteger): UintImpl {.inline.}
   # Forward declaration
 
-func `shl`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline.}=
+func `shl`*(x: UintImpl, y: SomeInteger): UintImpl {.inline.}=
   ## Compute the `shift left` operation of x and y
   # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
 
@@ -51,7 +51,7 @@ func `shl`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline.}=
   else:
     result.hi = x.lo shl (y - halfSize)
 
-func `shr`*(x: MpUintImpl, y: SomeInteger): MpUintImpl {.inline.}=
+func `shr`*(x: UintImpl, y: SomeInteger): UintImpl {.inline.}=
   ## Compute the `shift right` operation of x and y
   const halfSize = getSize(x) div 2
 

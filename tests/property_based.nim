@@ -24,13 +24,13 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
     when sizeof(int) == 8:
       let
-        tx = cast[MpUint[64]](x)
-        ty = cast[MpUint[64]](y)
+        tx = cast[StUint[64]](x)
+        ty = cast[StUint[64]](y)
         tz = tx or ty
     else:
       let
-        tx = cast[MpUint[32]](x)
-        ty = cast[MpUint[32]](y)
+        tx = cast[StUint[32]](x)
+        ty = cast[StUint[32]](y)
         tz = tx or ty
 
 
@@ -41,13 +41,13 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
     when sizeof(int) == 8:
       let
-        tx = cast[MpUint[64]](x)
-        ty = cast[MpUint[64]](y)
+        tx = cast[StUint[64]](x)
+        ty = cast[StUint[64]](y)
         tz = tx and ty
     else:
       let
-        tx = cast[MpUint[32]](x)
-        ty = cast[MpUint[32]](y)
+        tx = cast[StUint[32]](x)
+        ty = cast[StUint[32]](y)
         tz = tx and ty
 
     check(cast[uint](tz) == (x and y))
@@ -56,13 +56,13 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
     when sizeof(int) == 8:
       let
-        tx = cast[MpUint[64]](x)
-        ty = cast[MpUint[64]](y)
+        tx = cast[StUint[64]](x)
+        ty = cast[StUint[64]](y)
         tz = tx xor ty
     else:
       let
-        tx = cast[MpUint[32]](x)
-        ty = cast[MpUint[32]](y)
+        tx = cast[StUint[32]](x)
+        ty = cast[StUint[32]](y)
         tz = tx xor ty
 
     check(cast[uint](tz) == (x xor y))
@@ -71,11 +71,11 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
     when sizeof(int) == 8:
       let
-        tx = cast[MpUint[64]](x)
+        tx = cast[StUint[64]](x)
         tz = not tx
     else:
       let
-        tx = cast[MpUint[32]](x)
+        tx = cast[StUint[32]](x)
         tz = not tx
 
     check(cast[uint](tz) == (not x))
@@ -84,13 +84,13 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
     when sizeof(int) == 8:
       let
-        tx = cast[MpUint[64]](x)
-        ty = cast[MpUint[64]](y)
+        tx = cast[StUint[64]](x)
+        ty = cast[StUint[64]](y)
         tz = tx < ty
     else:
       let
-        tx = cast[MpUint[32]](x)
-        ty = cast[MpUint[32]](y)
+        tx = cast[StUint[32]](x)
+        ty = cast[StUint[32]](y)
         tz = tx < ty
 
     check(tz == (x < y))
@@ -100,13 +100,13 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
     when sizeof(int) == 8:
       let
-        tx = cast[MpUint[64]](x)
-        ty = cast[MpUint[64]](y)
+        tx = cast[StUint[64]](x)
+        ty = cast[StUint[64]](y)
         tz = tx <= ty
     else:
       let
-        tx = cast[MpUint[32]](x)
-        ty = cast[MpUint[32]](y)
+        tx = cast[StUint[32]](x)
+        ty = cast[StUint[32]](y)
         tz = tx <= ty
 
     check(tz == (x <= y))
@@ -115,13 +115,13 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
     when sizeof(int) == 8:
       let
-        tx = cast[MpUint[64]](x)
-        ty = cast[MpUint[64]](y)
+        tx = cast[StUint[64]](x)
+        ty = cast[StUint[64]](y)
         tz = tx + ty
     else:
       let
-        tx = cast[MpUint[32]](x)
-        ty = cast[MpUint[32]](y)
+        tx = cast[StUint[32]](x)
+        ty = cast[StUint[32]](y)
         tz = tx + ty
 
     check(cast[uint](tz) == x+y)
@@ -131,13 +131,13 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
     when sizeof(int) == 8:
       let
-        tx = cast[MpUint[64]](x)
-        ty = cast[MpUint[64]](y)
+        tx = cast[StUint[64]](x)
+        ty = cast[StUint[64]](y)
         tz = tx - ty
     else:
       let
-        tx = cast[MpUint[32]](x)
-        ty = cast[MpUint[32]](y)
+        tx = cast[StUint[32]](x)
+        ty = cast[StUint[32]](y)
         tz = tx - ty
 
     check(cast[uint](tz) == x-y)
@@ -146,13 +146,13 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
     when sizeof(int) == 8:
       let
-        tx = cast[MpUint[64]](x)
-        ty = cast[MpUint[64]](y)
+        tx = cast[StUint[64]](x)
+        ty = cast[StUint[64]](y)
         tz = tx * ty
     else:
       let
-        tx = cast[MpUint[32]](x)
-        ty = cast[MpUint[32]](y)
+        tx = cast[StUint[32]](x)
+        ty = cast[StUint[32]](y)
         tz = tx * ty
 
     check(cast[uint](tz) == x*y)
@@ -161,11 +161,11 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
     when sizeof(int) == 8:
       let
-        tx = cast[MpUint[64]](x)
+        tx = cast[StUint[64]](x)
         tz = tx shl y
     else:
       let
-        tx = cast[MpUint[32]](x)
+        tx = cast[StUint[32]](x)
         tz = tx shl y
 
     check(cast[uint](tz) == x shl y)
@@ -174,11 +174,11 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
     when sizeof(int) == 8:
       let
-        tx = cast[MpUint[64]](x)
+        tx = cast[StUint[64]](x)
         tz = tx shr y
     else:
       let
-        tx = cast[MpUint[32]](x)
+        tx = cast[StUint[32]](x)
         tz = tx shr y
 
     check(cast[uint](tz) == x shr y)
@@ -187,13 +187,13 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
     when sizeof(int) == 8:
       let
-        tx = cast[MpUint[64]](x)
-        ty = cast[MpUint[64]](y)
+        tx = cast[StUint[64]](x)
+        ty = cast[StUint[64]](y)
         tz = tx mod ty
     else:
       let
-        tx = cast[MpUint[32]](x)
-        ty = cast[MpUint[32]](y)
+        tx = cast[StUint[32]](x)
+        ty = cast[StUint[32]](y)
         tz = tx mod ty
 
     check(cast[uint](tz) == x mod y)
@@ -202,13 +202,13 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
     when sizeof(int) == 8:
       let
-        tx = cast[MpUint[64]](x)
-        ty = cast[MpUint[64]](y)
+        tx = cast[StUint[64]](x)
+        ty = cast[StUint[64]](y)
         tz = tx div ty
     else:
       let
-        tx = cast[MpUint[32]](x)
-        ty = cast[MpUint[32]](y)
+        tx = cast[StUint[32]](x)
+        ty = cast[StUint[32]](y)
         tz = tx div ty
 
     check(cast[uint](tz) == x div y)

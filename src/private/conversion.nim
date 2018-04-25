@@ -10,7 +10,7 @@
 import  ./uint_type,
         macros, typetraits
 
-func initMpUintImpl*[InType, OutType](x: InType, _: typedesc[OutType]): OutType {.inline.} =
+func initUintImpl*[InType, OutType](x: InType, _: typedesc[OutType]): OutType {.inline.} =
 
   const
     size_in = getSize(x)
@@ -27,12 +27,12 @@ func initMpUintImpl*[InType, OutType](x: InType, _: typedesc[OutType]): OutType 
   elif size_in == size_out:
     result = cast[type result](x)
   else:
-    result.lo = initMpUintImpl(x, type result.lo)
+    result.lo = initUintImpl(x, type result.lo)
 
 func toSubtype*[T: SomeInteger](b: bool, _: typedesc[T]): T {.inline.}=
   b.T
 
-func toSubtype*[T: MpUintImpl](b: bool, _: typedesc[T]): T {.inline.}=
+func toSubtype*[T: UintImpl](b: bool, _: typedesc[T]): T {.inline.}=
   type SubTy = type result.lo
   result.lo = toSubtype(b, SubTy)
 
@@ -49,12 +49,12 @@ func one*[T: BaseUint](_: typedesc[T]): T {.inline.}=
     else:
       r_ptr[r_ptr[].len - 1] = 1
 
-func toUint*(n: MpUIntImpl): auto {.inline.}=
+func toUint*(n: UintImpl): auto {.inline.}=
   ## Casts a multiprecision integer to an uint of the same size
 
   # TODO: uint128 support
   when n.sizeof > 8:
-    raise newException("Unreachable. You are trying to cast a MpUint with more than 64-bit of precision")
+    raise newException("Unreachable. You are trying to cast a StUint with more than 64-bit of precision")
   elif n.sizeof == 8:
     cast[uint64](n)
   elif n.sizeof == 4:
@@ -62,14 +62,14 @@ func toUint*(n: MpUIntImpl): auto {.inline.}=
   elif n.sizeof == 2:
     cast[uint16](n)
   else:
-    raise newException("Unreachable. MpUInt must be 16-bit minimum and a power of 2")
+    raise newException("Unreachable. StUint must be 16-bit minimum and a power of 2")
 
 func toUint*(n: SomeUnsignedInt): SomeUnsignedInt {.inline.}=
   ## No-op overload of multi-precision int casting
   n
 
 func asDoubleUint*(n: BaseUint): auto {.inline.} =
-  ## Convert an integer or MpUint to an uint with double the size
+  ## Convert an integer or StUint to an uint with double the size
 
   type Double = (
     when n.sizeof == 4: uint64
@@ -80,17 +80,17 @@ func asDoubleUint*(n: BaseUint): auto {.inline.} =
   n.toUint.Double
 
 
-func toMpUintImpl*(n: uint16|uint32|uint64): auto {.inline.} =
-  ## Cast an integer to the corresponding size MpUintImpl
+func toUintImpl*(n: uint16|uint32|uint64): auto {.inline.} =
+  ## Cast an integer to the corresponding size UintImpl
   # Sometimes direct casting doesn't work and we must cast through a pointer
 
   when n is uint64:
-    return (cast[ptr [MpUintImpl[uint32]]](unsafeAddr n))[]
+    return (cast[ptr [UintImpl[uint32]]](unsafeAddr n))[]
   elif n is uint32:
-    return (cast[ptr [MpUintImpl[uint16]]](unsafeAddr n))[]
+    return (cast[ptr [UintImpl[uint16]]](unsafeAddr n))[]
   elif n is uint16:
-    return (cast[ptr [MpUintImpl[uint8]]](unsafeAddr n))[]
+    return (cast[ptr [UintImpl[uint8]]](unsafeAddr n))[]
 
-func toMpUintImpl*(n: MpUintImpl): MpUintImpl {.inline.} =
+func toUintImpl*(n: UintImpl): UintImpl {.inline.} =
   ## No op
   n

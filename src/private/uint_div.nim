@@ -45,24 +45,24 @@ import  ./bithacks, ./conversion,
 ###################################################################################################################
 
 func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T)
-func div2n1n(q, r: var MpUintImpl, ah, al, b: MpUintImpl)
+func div2n1n(q, r: var UintImpl, ah, al, b: UintImpl)
   # Forward declaration
 
 proc divmod*(x, y: SomeInteger): tuple[quot, rem: SomeInteger] {.noSideEffect, inline.}=
   # hopefully the compiler fuse that in a single op
   (x div y, x mod y)
 
-func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]]
+func divmod*[T](x, y: UintImpl[T]): tuple[quot, rem: UintImpl[T]]
   # Forward declaration
 
-func div3n2n[T]( q: var MpUintImpl[T],
-              r: var MpUintImpl[MpUintImpl[T]],
-              a2, a1, a0: MpUintImpl[T],
-              b: MpUintImpl[MpUintImpl[T]]) =
+func div3n2n[T]( q: var UintImpl[T],
+              r: var UintImpl[UintImpl[T]],
+              a2, a1, a0: UintImpl[T],
+              b: UintImpl[UintImpl[T]]) =
 
   var
-    c: MpUintImpl[T]
-    d: MpUintImpl[MpUintImpl[T]]
+    c: UintImpl[T]
+    d: UintImpl[UintImpl[T]]
     carry: bool
 
   if a2 < b.hi:
@@ -74,7 +74,7 @@ func div3n2n[T]( q: var MpUintImpl[T],
       carry = true
 
   extPrecMul[T](d, q, b.lo)
-  let ca0 = MpUintImpl[type c](hi: c, lo: a0)
+  let ca0 = UintImpl[type c](hi: c, lo: a0)
 
   r = ca0 - d
 
@@ -89,13 +89,13 @@ func div3n2n[T]( q: var MpUintImpl[T],
 
 proc div3n2n[T: SomeUnsignedInt](
               q: var T,
-              r: var MpUintImpl[T],
+              r: var UintImpl[T],
               a2, a1, a0: T,
-              b: MpUintImpl[T]) =
+              b: UintImpl[T]) =
 
   var
     c: T
-    d: MpUintImpl[T]
+    d: UintImpl[T]
     carry: bool
 
   if a2 < b.hi:
@@ -108,7 +108,7 @@ proc div3n2n[T: SomeUnsignedInt](
       carry = true
 
   extPrecMul[T](d, q, b.lo)
-  let ca0 = MpUintImpl[T](hi: c, lo: a0)
+  let ca0 = UintImpl[T](hi: c, lo: a0)
   r = ca0 - d
 
   if  (not carry) and d > ca0:
@@ -120,11 +120,11 @@ proc div3n2n[T: SomeUnsignedInt](
       dec q
       r += b
 
-func div2n1n(q, r: var MpUintImpl, ah, al, b: MpUintImpl) =
+func div2n1n(q, r: var UintImpl, ah, al, b: UintImpl) =
 
   # assert countLeadingZeroBits(b) == 0, "Divisor was not normalized"
 
-  var s: MpUintImpl
+  var s: UintImpl
   div3n2n(q.hi, s, ah.hi, ah.lo, al.hi, b)
   div3n2n(q.lo, r, s.hi, s.lo, al.lo, b)
 
@@ -168,7 +168,7 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
   q = (q1 shl halfSize) or q2
   r = r2
 
-func divmodBZ[T](x, y: MpUintImpl[T], q, r: var MpUintImpl[T])=
+func divmodBZ[T](x, y: UintImpl[T], q, r: var UintImpl[T])=
 
   assert y.isZero.not() # This should be checked on release mode in the divmod caller proc
 
@@ -209,7 +209,7 @@ func divmodBZ[T](x, y: MpUintImpl[T], q, r: var MpUintImpl[T])=
     let clz = countLeadingZeroBits(y)
 
     let
-      xx = MpUintImpl[type x](lo: x) shl clz
+      xx = UintImpl[type x](lo: x) shl clz
       yy = y shl clz
 
     # Compute
@@ -218,7 +218,7 @@ func divmodBZ[T](x, y: MpUintImpl[T], q, r: var MpUintImpl[T])=
     # Undo normalization
     r = r shr clz
 
-func divmodBS(x, y: MpUintImpl, q, r: var MpuintImpl) =
+func divmodBS(x, y: UintImpl, q, r: var UintImpl) =
   ## Division for multi-precision unsigned uint
   ## Implementation through binary shift division
 
@@ -244,7 +244,7 @@ func divmodBS(x, y: MpUintImpl, q, r: var MpuintImpl) =
 const BinaryShiftThreshold = 8  # If the difference in bit-length is below 8
                                 # binary shift is probably faster
 
-func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]]=
+func divmod*[T](x, y: UintImpl[T]): tuple[quot, rem: UintImpl[T]]=
 
   let x_clz = x.countLeadingZeroBits
   let y_clz = y.countLeadingZeroBits
@@ -266,7 +266,7 @@ func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]]=
     #       It is a bit tricky with recursive types. An empty n.lo means 0 or sizeof(n.lo)
     let y_ctz = getSize(y) - y_clz - 1
     result.quot = x shr y_ctz
-    result.rem = y_ctz.initMpUintImpl(MpUintImpl[T])
+    result.rem = y_ctz.initUintImpl(UintImpl[T])
     result.rem = result.rem and x
   elif x == y:
     result.quot.lo = one(T)
@@ -277,11 +277,11 @@ func divmod*[T](x, y: MpUintImpl[T]): tuple[quot, rem: MpUintImpl[T]]=
   else:
     divmodBZ(x, y, result.quot, result.rem)
 
-func `div`*(x, y: MpUintImpl): MpUintImpl {.inline.} =
+func `div`*(x, y: UintImpl): UintImpl {.inline.} =
   ## Division operation for multi-precision unsigned uint
   divmod(x,y).quot
 
-func `mod`*(x, y: MpUintImpl): MpUintImpl {.inline.} =
+func `mod`*(x, y: UintImpl): UintImpl {.inline.} =
   ## Division operation for multi-precision unsigned uint
   divmod(x,y).rem
 

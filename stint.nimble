@@ -1,7 +1,7 @@
-packageName   = "mpint"
+packageName   = "stint"
 version       = "0.0.1"
 author        = "Status Research & Development GmbH"
-description   = "Efficient multiprecision int in Nim"
+description   = "Efficient stack-based multiprecision int in Nim"
 license       = "Apache License 2.0 or MIT"
 srcDir        = "src"
 
@@ -20,19 +20,19 @@ proc test(name: string, lang: string = "c") =
   switch("out", ("./build/" & name))
   setCommand lang, "tests/" & name & ".nim"
 
-task test_debug, "Run all tests - test implementation (MpUint[64] = 2x uint32":
+task test_debug, "Run all tests - test implementation (StUint[64] = 2x uint32":
   switch("define", "mpint_test")
   test "all_tests"
 
-task test_release, "Run all tests - prod implementation (MpUint[64] = uint64":
+task test_release, "Run all tests - prod implementation (StUint[64] = uint64":
   test "all_tests"
 
-task test_property_debug, "Run random tests (normal mode) - test implementation (MpUint[64] = 2x uint32)":
+task test_property_debug, "Run random tests (normal mode) - test implementation (StUint[64] = 2x uint32)":
   requires "quicktest > 0.0.8"
   switch("define", "mpint_test")
   test "property_based"
 
-task test_property_release, "Run random tests (release mode) - test implementation (MpUint[64] = 2x uint32)":
+task test_property_release, "Run random tests (release mode) - test implementation (StUint[64] = 2x uint32)":
   requires "quicktest > 0.0.8"
   switch("define", "mpint_test")
   switch("define", "release")

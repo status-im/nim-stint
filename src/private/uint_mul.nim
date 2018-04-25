@@ -26,24 +26,24 @@ func hi[T:SomeUnsignedInt](x: T): T {.inline.} =
     p = T.sizeof * 8 div 2
   result = x shr p
 
-# No generic, somehow Nim is given ambiguous call with the T: MpUintImpl overload
-func extPrecMul*(result: var MpUintImpl[uint8], x, y: uint8) =
+# No generic, somehow Nim is given ambiguous call with the T: UintImpl overload
+func extPrecMul*(result: var UintImpl[uint8], x, y: uint8) =
   ## Extended precision multiplication
   result = cast[type result](x.asDoubleUint * y.asDoubleUint)
 
-func extPrecMul*(result: var MpUintImpl[uint16], x, y: uint16) =
+func extPrecMul*(result: var UintImpl[uint16], x, y: uint16) =
   ## Extended precision multiplication
   result = cast[type result](x.asDoubleUint * y.asDoubleUint)
 
-func extPrecMul*(result: var MpUintImpl[uint32], x, y: uint32) =
+func extPrecMul*(result: var UintImpl[uint32], x, y: uint32) =
   ## Extended precision multiplication
   result = cast[type result](x.asDoubleUint * y.asDoubleUint)
 
-func extPrecAddMul[T: uint8 or uint16 or uint32](result: var MpUintImpl[T], x, y: T) =
+func extPrecAddMul[T: uint8 or uint16 or uint32](result: var UintImpl[T], x, y: T) =
   ## Extended precision fused in-place addition & multiplication
   result += cast[type result](x.asDoubleUint * y.asDoubleUint)
 
-template extPrecMulImpl(result: var MpUintImpl[uint64], op: untyped, u, v: uint64) =
+template extPrecMulImpl(result: var UintImpl[uint64], op: untyped, u, v: uint64) =
   const
     p = 64 div 2
     base = 1 shl p
@@ -70,15 +70,15 @@ template extPrecMulImpl(result: var MpUintImpl[uint64], op: untyped, u, v: uint6
   op(result.hi, x3 + x1.hi)
   op(result.lo, (x1 shl p) or x0.lo)
 
-func extPrecMul*(result: var MpUintImpl[uint64], u, v: uint64) =
+func extPrecMul*(result: var UintImpl[uint64], u, v: uint64) =
   ## Extended precision multiplication
   extPrecMulImpl(result, `=`, u, v)
 
-func extPrecAddMul(result: var MpUintImpl[uint64], u, v: uint64) =
+func extPrecAddMul(result: var UintImpl[uint64], u, v: uint64) =
   ## Extended precision fused in-place addition & multiplication
   extPrecMulImpl(result, `+=`, u, v)
 
-func extPrecMul*[T](result: var MpUintImpl[MpUintImpl[T]], x, y: MpUintImpl[T]) =
+func extPrecMul*[T](result: var UintImpl[UintImpl[T]], x, y: UintImpl[T]) =
   # See details at
   # https://en.wikipedia.org/wiki/Karatsuba_algorithm
   # https://locklessinc.com/articles/256bit_arithmetic/
@@ -93,7 +93,7 @@ func extPrecMul*[T](result: var MpUintImpl[MpUintImpl[T]], x, y: MpUintImpl[T]) 
   #     and introduce branching
   #   - More total operations means more register moves
 
-  var z1: MpUintImpl[T]
+  var z1: UintImpl[T]
 
   # Low part - z0
   extPrecMul(result.lo, x.lo, y.lo)
@@ -112,9 +112,9 @@ func extPrecMul*[T](result: var MpUintImpl[MpUintImpl[T]], x, y: MpUintImpl[T]) 
   # Finalize low part
   result.lo.hi += z1.lo
   if result.lo.hi < z1.lo:
-    result.hi += one(MpUintImpl[T])
+    result.hi += one(UintImpl[T])
 
-func `*`*[T](x, y: MpUintImpl[T]): MpUintImpl[T] {.inline.}=
+func `*`*[T](x, y: UintImpl[T]): UintImpl[T] {.inline.}=
   ## Multiplication for multi-precision unsigned uint
   #
   # For our representation, it is similar to school grade multiplication

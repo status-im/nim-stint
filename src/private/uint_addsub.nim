@@ -14,25 +14,25 @@ import  ./bithacks, ./conversion,
 
 # ############ Addition & Substraction ############ #
 
-proc `+=`*(x: var MpUintImpl, y: MpUintImpl) {.noSideEffect, inline.}=
+proc `+=`*(x: var UintImpl, y: UintImpl) {.noSideEffect, inline.}=
   ## In-place addition for multi-precision unsigned int
 
   type SubTy = type x.lo
   x.lo += y.lo
   x.hi += (x.lo < y.lo).toSubtype(SubTy) + y.hi
 
-proc `+`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit, inline.}=
+proc `+`*(x, y: UintImpl): UintImpl {.noSideEffect, noInit, inline.}=
   # Addition for multi-precision unsigned int
   result = x
   result += y
 
-proc `-`*(x, y: MpUintImpl): MpUintImpl {.noSideEffect, noInit, inline.}=
+proc `-`*(x, y: UintImpl): UintImpl {.noSideEffect, noInit, inline.}=
   # Substraction for multi-precision unsigned int
 
   type SubTy = type x.lo
   result.lo = x.lo - y.lo
   result.hi = x.hi - y.hi - (x.lo < y.lo).toSubtype(SubTy)
 
-proc `-=`*(x: var MpUintImpl, y: MpUintImpl) {.noSideEffect, inline.}=
+proc `-=`*(x: var UintImpl, y: UintImpl) {.noSideEffect, inline.}=
   ## In-place substraction for multi-precision unsigned int
   x = x - y

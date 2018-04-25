@@ -35,8 +35,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
       ttm_x = cast[ttmath.UInt256](x)
       ttm_y = cast[ttmath.UInt256](y)
-      mp_x  = cast[MpUint[256]](x)
-      mp_y  = cast[MpUint[256]](y)
+      mp_x  = cast[StUint[256]](x)
+      mp_y  = cast[StUint[256]](y)
 
     let
       ttm_z = ttm_x or ttm_y
@@ -60,8 +60,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
       ttm_x = cast[ttmath.UInt256](x)
       ttm_y = cast[ttmath.UInt256](y)
-      mp_x  = cast[MpUint[256]](x)
-      mp_y  = cast[MpUint[256]](y)
+      mp_x  = cast[StUint[256]](x)
+      mp_y  = cast[StUint[256]](y)
 
     let
       ttm_z = ttm_x and ttm_y
@@ -84,8 +84,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
       ttm_x = cast[ttmath.UInt256](x)
       ttm_y = cast[ttmath.UInt256](y)
-      mp_x  = cast[MpUint[256]](x)
-      mp_y  = cast[MpUint[256]](y)
+      mp_x  = cast[StUint[256]](x)
+      mp_y  = cast[StUint[256]](y)
 
     let
       ttm_z = ttm_x xor ttm_y
@@ -104,7 +104,7 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
   #     y = [y0, y1, y2, y3]
 
   #     ttm_x = cast[ttmath.UInt256](x)
-  #     mp_x  = cast[MpUint[256]](x)
+  #     mp_x  = cast[StUint[256]](x)
 
   #   let
   #     ttm_z = not ttm_x
@@ -127,8 +127,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
       ttm_x = cast[ttmath.UInt256](x)
       ttm_y = cast[ttmath.UInt256](y)
-      mp_x  = cast[MpUint[256]](x)
-      mp_y  = cast[MpUint[256]](y)
+      mp_x  = cast[StUint[256]](x)
+      mp_y  = cast[StUint[256]](y)
 
     let
       ttm_z = ttm_x < ttm_y
@@ -152,8 +152,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
       ttm_x = cast[ttmath.UInt256](x)
       ttm_y = cast[ttmath.UInt256](y)
-      mp_x  = cast[MpUint[256]](x)
-      mp_y  = cast[MpUint[256]](y)
+      mp_x  = cast[StUint[256]](x)
+      mp_y  = cast[StUint[256]](y)
 
     let
       ttm_z = ttm_x <= ttm_y
@@ -176,8 +176,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
       ttm_x = cast[ttmath.UInt256](x)
       ttm_y = cast[ttmath.UInt256](y)
-      mp_x  = cast[MpUint[256]](x)
-      mp_y  = cast[MpUint[256]](y)
+      mp_x  = cast[StUint[256]](x)
+      mp_y  = cast[StUint[256]](y)
 
     let
       ttm_z = ttm_x + ttm_y
@@ -200,8 +200,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
       ttm_x = cast[ttmath.UInt256](x)
       ttm_y = cast[ttmath.UInt256](y)
-      mp_x  = cast[MpUint[256]](x)
-      mp_y  = cast[MpUint[256]](y)
+      mp_x  = cast[StUint[256]](x)
+      mp_y  = cast[StUint[256]](y)
 
     let
       ttm_z = ttm_x - ttm_y
@@ -224,8 +224,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
       ttm_x = cast[ttmath.UInt256](x)
       ttm_y = cast[ttmath.UInt256](y)
-      mp_x  = cast[MpUint[256]](x)
-      mp_y  = cast[MpUint[256]](y)
+      mp_x  = cast[StUint[256]](x)
+      mp_y  = cast[StUint[256]](y)
 
     let
       ttm_z = ttm_x * ttm_y
@@ -243,7 +243,7 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       x = [x0, x1, x2, x3]
 
       ttm_x = cast[ttmath.UInt256](x)
-      mp_x  = cast[MpUint[256]](x)
+      mp_x  = cast[StUint[256]](x)
 
     let
       ttm_z = ttm_x shl y
@@ -261,7 +261,7 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       x = [x0, x1, x2, x3]
 
       ttm_x = cast[ttmath.UInt256](x)
-      mp_x  = cast[MpUint[256]](x)
+      mp_x  = cast[StUint[256]](x)
 
     let
       ttm_z = ttm_x shr y
@@ -284,8 +284,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
       ttm_x = cast[ttmath.UInt256](x)
       ttm_y = cast[ttmath.UInt256](y)
-      mp_x  = cast[MpUint[256]](x)
-      mp_y  = cast[MpUint[256]](y)
+      mp_x  = cast[StUint[256]](x)
+      mp_y  = cast[StUint[256]](y)
 
     let
       ttm_z = ttm_x mod ttm_y
@@ -306,8 +306,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
 
       ttm_x = cast[ttmath.UInt256](x)
       ttm_y = cast[ttmath.UInt256](y)
-      mp_x  = cast[MpUint[256]](x)
-      mp_y  = cast[MpUint[256]](y)
+      mp_x  = cast[StUint[256]](x)
+      mp_y  = cast[StUint[256]](y)
 
     let
       ttm_z = ttm_x div ttm_y

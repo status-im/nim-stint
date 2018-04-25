@@ -60,7 +60,7 @@ proc isUint(x: NimNode): static[bool] =
   elif eqIdent(x, "uint8"):  true
   else: false
 
-macro asWords*[T](n: MpUintImpl[T], ignoreEndianness: static[bool], loopBody: untyped): untyped =
+macro asWords*[T](n: UintImpl[T], ignoreEndianness: static[bool], loopBody: untyped): untyped =
   ## Iterates over n, as an array of words.
   ## Input:
   ##   - n: The Multiprecision int
@@ -96,7 +96,7 @@ macro asWords*[T](n: MpUintImpl[T], ignoreEndianness: static[bool], loopBody: un
     else:
       assert false, "Not implemented"
 
-macro asWordsZip*[T](x, y: MpUintImpl[T], ignoreEndianness: static[bool], loopBody: untyped): untyped =
+macro asWordsZip*[T](x, y: UintImpl[T], ignoreEndianness: static[bool], loopBody: untyped): untyped =
   ## Iterates over x and y, as an array of words.
   ## Input:
   ##   - x, y: The multiprecision ints
@@ -155,7 +155,7 @@ macro asWordsZip*[T](x, y: MpUintImpl[T], ignoreEndianness: static[bool], loopBo
         for `idx` in countdown(`inner_x`[].len - 1, 0):
           `replacedAST`
 
-macro m_asWordsZip*[T](m: var MpUintImpl[T], x: MpUintImpl[T], ignoreEndianness: static[bool], loopBody: untyped): untyped =
+macro m_asWordsZip*[T](m: var UintImpl[T], x: UintImpl[T], ignoreEndianness: static[bool], loopBody: untyped): untyped =
   ## Iterates over a mutable int m and x as an array of words.
   ## returning a !! Pointer !! of the proper type to m.
   ## Input:
@@ -217,7 +217,7 @@ macro m_asWordsZip*[T](m: var MpUintImpl[T], x: MpUintImpl[T], ignoreEndianness:
           `replacedAST`
 
 
-macro m_asWordsZip*[T](m: var MpUintImpl[T], x, y: MpUintImpl[T], ignoreEndianness: static[bool], loopBody: untyped): untyped =
+macro m_asWordsZip*[T](m: var UintImpl[T], x, y: UintImpl[T], ignoreEndianness: static[bool], loopBody: untyped): untyped =
   ## Iterates over a mutable int m and x as an array of words.
   ## returning a !! Pointer !! of the proper type to m.
   ## Input:
