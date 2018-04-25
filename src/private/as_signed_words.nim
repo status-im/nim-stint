@@ -43,7 +43,7 @@ macro most_significant_word*(x: IntImpl): untyped =
   let optim_type = optimInt(x)
   if optim_type.isInt:
     result = quote do:
-      cast[`optim_type`](`x`)
+      (cast[ptr `optim_type`](`x`.unsafeAddr))[]
   else:
     when system.cpuEndian == littleEndian:
       let size = getSize(x)
@@ -51,7 +51,7 @@ macro most_significant_word*(x: IntImpl): untyped =
     else:
       let msw_pos = 0
     result = quote do:
-      cast[`optim_type`](`x`)[`msw_pos`]
+      (cast[ptr `optim_type`](`x`)[`msw_pos`.unsafeAddr])[]
 
 macro asSignedWordsZip*[T](
   x, y: IntImpl[T],

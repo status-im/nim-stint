@@ -7,20 +7,43 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ./datatypes, ./int_bitwise_ops, ./initialization
+import  ./datatypes, ./int_bitwise_ops,
+        ./initialization, ./as_signed_words, ./int_highlow
 
-func `+=`*(x: var IntImpl, y: IntImpl) {.inline.}=
-  ## In-place addition for multi-precision signed int
-
-  type SubTy = type x.lo
-  x.lo += y.lo
-  x.hi += (x.lo < y.lo).toSubtype(SubTy) + y.hi
-
-func `+`*(x, y: UintImpl): UintImpl {.noInit, inline.}=
+func `+`*(x, y: IntImpl): IntImpl {.noInit, inline.}=
   # Addition for multi-precision signed int
-  result = x
-  result += y
+  type SubTy = type x.lo
+  result.lo = x.lo + y.lo
+  result.hi = (x.lo < y.lo).toSubtype(SubTy) + x.hi + y.hi
+
+  when compileOption("boundChecks"):
+    if unlikely(
+      (result.most_significant_word xor a.most_significant_word >= 0) or
+      (result.most_significant_word xor b.most_significant_word >= 0)
+    ):
+      raise newException(OverflowError, "Addition overflow")
 
 func `-`*[T: IntImpl](x: T): T {.noInit, inline.}=
   result = not x
   result += one(T)
+  when compileOption("boundChecks"):
+    if unlikely(x == low(T)):
+      raise newException(OverflowError, "The lowest negative number cannot be negated")
+
+func `-`*(x, y: IntImpl): IntImpl {.noInit, inline.}=
+  # Substraction for multi-precision signed int
+
+  type SubTy = type x.lo
+  result.lo = x.lo - y.lo
+  result.hi = x.hi - y.hi - (x.lo < y.lo).toSubtype(SubTy)
+
+  when compileOption("boundChecks"):
+    if unlikely(
+      (result.most_significant_word xor a.most_significant_word >= 0) or
+      (result.most_significant_word xor (not b).most_significant_word >= 0)
+    ):
+      raise newException(OverflowError, "Substraction underflow")
+
+func `-=`*(x: var IntImpl, y: IntImpl) {.inline.}=
+  ## In-place substraction for multi-precision signed int
+  x = x - y
