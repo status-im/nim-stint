@@ -30,6 +30,28 @@ proc optim(x: NimNode): NimNode =
   else:
     error "Unreachable path reached"
 
+proc isUint(x: NimNode): static[bool] =
+  if eqIdent(x, "uint64"):   true
+  elif eqIdent(x, "uint32"): true
+  elif eqIdent(x, "uint16"): true
+  elif eqIdent(x, "uint8"):  true
+  else: false
+
+macro most_significant_word*(x: IntImpl): untyped =
+
+  let optim_type = optim(x)
+  if optim_type.isUint:
+    result = quote do:
+      cast[`optim_type`](`x`)
+  else:
+    when system.cpuEndian == littleEndian:
+      let size = getSize(x)
+      let msw_pos = size - 1
+    else:
+      let msw_pos = 0
+    result = quote do:
+      cast[`optim_type`](`x`)[`msw_pos`]
+
 proc replaceNodes(ast: NimNode, replacing: NimNode, to_replace: NimNode): NimNode =
   # Args:
   #   - The full syntax tree
@@ -52,13 +74,6 @@ proc replaceNodes(ast: NimNode, replacing: NimNode, to_replace: NimNode): NimNod
         rTree.add inspect(child)
       return rTree
   result = inspect(ast)
-
-proc isUint(x: NimNode): static[bool] =
-  if eqIdent(x, "uint64"):   true
-  elif eqIdent(x, "uint32"): true
-  elif eqIdent(x, "uint16"): true
-  elif eqIdent(x, "uint8"):  true
-  else: false
 
 macro asWords*[T](n: UintImpl[T], ignoreEndianness: static[bool], loopBody: untyped): untyped =
   ## Iterates over n, as an array of words.
