@@ -17,7 +17,7 @@ func toSubtype*[T: UintImpl](b: bool, _: typedesc[T]): T {.inline.}=
   result.lo = toSubtype(b, SubTy)
 
 func toUint*(n: UintImpl): auto {.inline.}=
-  ## Casts a multiprecision integer to an uint of the same size
+  ## Casts an unsigned integer to an uint of the same size
 
   # TODO: uint128 support
   when n.sizeof > 8:
@@ -45,19 +45,3 @@ func asDoubleUint*(n: BaseUint): auto {.inline.} =
   )
 
   n.toUint.Double
-
-
-func toUintImpl*(n: uint16|uint32|uint64): auto {.inline.} =
-  ## Cast an integer to the corresponding size UintImpl
-  # Sometimes direct casting doesn't work and we must cast through a pointer
-
-  when n is uint64:
-    return (cast[ptr [UintImpl[uint32]]](unsafeAddr n))[]
-  elif n is uint32:
-    return (cast[ptr [UintImpl[uint16]]](unsafeAddr n))[]
-  elif n is uint16:
-    return (cast[ptr [UintImpl[uint8]]](unsafeAddr n))[]
-
-func toUintImpl*(n: UintImpl): UintImpl {.inline.} =
-  ## No op
-  n

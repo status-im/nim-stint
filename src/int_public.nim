@@ -50,8 +50,8 @@ make_unary(`-`, Stint)
 make_binary(`-`, Stint)
 make_binary_inplace(`-=`)
 
-# import ./private/int_mul
-# make_binary(`*`, Stint)
+import ./private/int_mul
+make_binary(`*`, Stint)
 
 # import ./private/int_div
 
