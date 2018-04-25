@@ -9,7 +9,7 @@
 
 import  ./datatypes, macros
 
-proc optim(x: NimNode): NimNode =
+proc optimUint(x: NimNode): NimNode =
   let size = getSize(x)
 
   if size > 64:
@@ -37,22 +37,7 @@ proc isUint(x: NimNode): static[bool] =
   elif eqIdent(x, "uint8"):  true
   else: false
 
-macro most_significant_word*(x: IntImpl): untyped =
-
-  let optim_type = optim(x)
-  if optim_type.isUint:
-    result = quote do:
-      cast[`optim_type`](`x`)
-  else:
-    when system.cpuEndian == littleEndian:
-      let size = getSize(x)
-      let msw_pos = size - 1
-    else:
-      let msw_pos = 0
-    result = quote do:
-      cast[`optim_type`](`x`)[`msw_pos`]
-
-proc replaceNodes(ast: NimNode, replacing: NimNode, to_replace: NimNode): NimNode =
+proc replaceNodes*(ast: NimNode, replacing: NimNode, to_replace: NimNode): NimNode =
   # Args:
   #   - The full syntax tree
   #   - an array of replacement value
@@ -75,14 +60,16 @@ proc replaceNodes(ast: NimNode, replacing: NimNode, to_replace: NimNode): NimNod
       return rTree
   result = inspect(ast)
 
-macro asWords*[T](n: UintImpl[T], ignoreEndianness: static[bool], loopBody: untyped): untyped =
+macro asWords*(n: UintImpl or IntImpl, ignoreEndianness: static[bool], loopBody: untyped): untyped =
   ## Iterates over n, as an array of words.
   ## Input:
   ##   - n: The Multiprecision int
-  ##   - body: the operation you want to do on each word of n
-  ## If iteration is needed, it is done from low to high, not taking endianness in account
+  ##   - If endianness should be taken into account for iteratio order.
+  ##     If yes, iteration is done from most significant word to least significant.
+  ##     Otherwise it is done in memory layout order.
+  ##   - loopBody: the operation you want to do on each word of n
   let
-    optim_type = optim(n)
+    optim_type = optimUint(n)
   var
     inner_n: NimNode
     to_replace = nnkBracket.newTree
@@ -111,13 +98,16 @@ macro asWords*[T](n: UintImpl[T], ignoreEndianness: static[bool], loopBody: unty
     else:
       assert false, "Not implemented"
 
-macro asWordsZip*[T](x, y: UintImpl[T], ignoreEndianness: static[bool], loopBody: untyped): untyped =
+macro asWordsZip*(x, y: UintImpl or IntImpl, ignoreEndianness: static[bool], loopBody: untyped): untyped =
   ## Iterates over x and y, as an array of words.
   ## Input:
   ##   - x, y: The multiprecision ints
-  ## If iteration is needed, it is done from low to high, not taking endianness in account
+  ##   - If endianness should be taken into account for iteratio order.
+  ##     If yes, iteration is done from most significant word to least significant.
+  ##     Otherwise it is done in memory layout order.
+  ##   - loopBody: the operation you want to do on each word of n
   let
-    optim_type = optim(x)
+    optim_type = optimUint(x)
     idx = ident("idx_asWordsRawZip")
   var
     inner_x, inner_y: NimNode
@@ -170,15 +160,19 @@ macro asWordsZip*[T](x, y: UintImpl[T], ignoreEndianness: static[bool], loopBody
         for `idx` in countdown(`inner_x`[].len - 1, 0):
           `replacedAST`
 
-macro m_asWordsZip*[T](m: var UintImpl[T], x: UintImpl[T], ignoreEndianness: static[bool], loopBody: untyped): untyped =
+macro m_asWordsZip*[T: UintImpl or IntImpl](m: var T, x: T,
+  ignoreEndianness: static[bool], loopBody: untyped): untyped =
   ## Iterates over a mutable int m and x as an array of words.
   ## returning a !! Pointer !! of the proper type to m.
   ## Input:
   ##   - m: A mutable array
   ##   - x: The multiprecision ints
-  ## Iteration is done from low to high, not taking endianness in account
+  ##   - If endianness should be taken into account for iteratio order.
+  ##     If yes, iteration is done from most significant word to least significant.
+  ##     Otherwise it is done in memory layout order.
+  ##   - loopBody: the operation you want to do on each word of n
   let
-    optim_type = optim(x)
+    optim_type = optimUint(x)
     idx = ident("idx_asWordsRawZip")
   var
     inner_m, inner_x: NimNode
@@ -232,15 +226,19 @@ macro m_asWordsZip*[T](m: var UintImpl[T], x: UintImpl[T], ignoreEndianness: sta
           `replacedAST`
 
 
-macro m_asWordsZip*[T](m: var UintImpl[T], x, y: UintImpl[T], ignoreEndianness: static[bool], loopBody: untyped): untyped =
+macro m_asWordsZip*[T: UintImpl or IntImpl](m: var T, x, y: T,
+  ignoreEndianness: static[bool], loopBody: untyped): untyped =
   ## Iterates over a mutable int m and x as an array of words.
   ## returning a !! Pointer !! of the proper type to m.
   ## Input:
   ##   - m: A mutable array
   ##   - x: The multiprecision ints
-  ## Iteration is done from low to high, not taking endianness in account
+  ##   - If endianness should be taken into account for iteratio order.
+  ##     If yes, iteration is done from most significant word to least significant.
+  ##     Otherwise it is done in memory layout order.
+  ##   - loopBody: the operation you want to do on each word of n
   let
-    optim_type = optim(x)
+    optim_type = optimUint(x)
     idx = ident("idx_asWordsRawZip")
   var
     inner_m, inner_x, inner_y: NimNode

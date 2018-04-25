@@ -7,8 +7,8 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  test_endianness,
-        test_comparison,
-        test_bitwise,
-        test_addsub,
-        test_muldiv
+import  test_uint_endianness,
+        test_uint_comparison,
+        test_uint_bitwise,
+        test_uint_addsub,
+        test_uint_muldiv

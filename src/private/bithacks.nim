@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes, stdlib_bitops, as_words
+import  ./datatypes, stdlib_bitops, as_signed_words
 export stdlib_bitops
 
 # We reuse bitops from Nim standard lib, and expand it for multi-precision int.
