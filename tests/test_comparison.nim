@@ -11,12 +11,12 @@ import ../src/mpint, unittest
 
 suite "Testing comparison operators":
   let
-    a = 10'i16.u(16)
-    b = 15'i16.u(16)
+    a = 10'i16.stuint(16)
+    b = 15'i16.stuint(16)
     c = 150'u16
-    d = 4.u(128) shl 64
-    e = 4.u(128)
-    f = 4.u(128) shl 65
+    d = 4.stuint(128) shl 64
+    e = 4.stuint(128)
+    f = 4.stuint(128) shl 65
 
   test "< operator":
     check:

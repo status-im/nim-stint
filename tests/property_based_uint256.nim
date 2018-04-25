@@ -7,6 +7,9 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
+
+# Requires "https://github.com/status-im/nim-ttmath#master"
+# Note that currently importing both Stint and TTMath will crash the compiler for unknown reason
 import ../src/mpint, unittest, quicktest, ttmath
 
 const itercount = 1000

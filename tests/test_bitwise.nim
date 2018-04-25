@@ -10,14 +10,14 @@
 import ../src/mpint, unittest
 
 suite "Testing bitwise operations":
-  let a = 100'i16.u(16)
+  let a = 100'i16.stuint(16)
 
   let b = a * a
   let z = 10000'u16
   assert cast[uint16](b) == z, "Test cannot proceed, something is wrong with the multiplication implementation"
 
 
-  let u = 10000.u(64)
+  let u = 10000.stuint(64)
   let v = 10000'u64
   let clz = 30
 
@@ -37,7 +37,7 @@ suite "Testing bitwise operations":
 
     block: # Testing shl for nested UintImpl
       let p2_64 = UintImpl[uint64](hi:1, lo:0)
-      let p = 1.u(128) shl 64
+      let p = 1.stuint(128) shl 64
 
       check: p == cast[StUint[128]](p2_64)
 

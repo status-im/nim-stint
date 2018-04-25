@@ -16,7 +16,7 @@ type
 
 template make_conv(conv_name: untyped, size: int): untyped =
   func `convname`*(n: SomeInteger): StUint[size] {.inline, noInit.}=
-    n.u(size)
+    n.stuint(size)
 
 make_conv(u128, 128)
 make_conv(u256, 256)

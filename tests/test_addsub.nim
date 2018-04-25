@@ -12,8 +12,8 @@ import ../src/mpint, unittest
 suite "Testing addition implementation":
   test "In-place addition gives expected result":
 
-    var a = 20182018.u(64)
-    let b = 20172017.u(64)
+    var a = 20182018.stuint(64)
+    let b = 20172017.stuint(64)
 
     a += b
 
@@ -21,23 +21,23 @@ suite "Testing addition implementation":
 
   test "Addition gives expected result":
 
-    let a = 20182018.u(64)
-    let b = 20172017.u(64)
+    let a = 20182018.stuint(64)
+    let b = 20172017.stuint(64)
 
     check: cast[uint64](a+b) == 20182018'u64 + 20172017'u64
 
   test "When the low half overflows, it is properly carried":
     # uint8 (low half) overflow at 255
-    let a = 100'u16.u(16)
-    let b = 100'u16.u(16)
+    let a = 100'u16.stuint(16)
+    let b = 100'u16.stuint(16)
 
     check: cast[uint16](a+b) == 200
 
   test "Full overflow is handled like native unsigned types":
     # uint16 overflows after 65535
-    let a = 100'u16.u(16)
-    var z = 0'u16.u(16)
-    let o = 36'u16.u(16)
+    let a = 100'u16.stuint(16)
+    var z = 0'u16.stuint(16)
+    let o = 36'u16.stuint(16)
 
     for _ in 0 ..< 655:
       z += a
@@ -54,8 +54,8 @@ suite "Testing addition implementation":
 suite "Testing substraction implementation":
   test "In-place substraction gives expected result":
 
-    var a = 20182018.u(64)
-    let b = 20172017.u(64)
+    var a = 20182018.stuint(64)
+    let b = 20172017.stuint(64)
 
     a -= b
 
@@ -63,14 +63,14 @@ suite "Testing substraction implementation":
 
   test "Substraction gives expected result":
 
-    let a = 20182018.u(64)
-    let b = 20172017.u(64)
+    let a = 20182018.stuint(64)
+    let b = 20172017.stuint(64)
 
     check: cast[uint64](a-b) == 20182018'u64 - 20172017'u64
 
   test "Full overflow is handled like native unsigned types":
     # uint16 overflows after 65535
-    let a = 100'u16.u(16)
-    let b = 101'u16.u(16)
+    let a = 100'u16.stuint(16)
+    let b = 101'u16.stuint(16)
 
     check: cast[uint16](a-b) == high(uint16)

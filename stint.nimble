@@ -8,7 +8,7 @@ srcDir        = "src"
 ### Dependencies
 
 # TODO remove test only requirements: https://github.com/nim-lang/nimble/issues/482
-requires "nim >= 0.18", "https://github.com/alehander42/nim-quicktest >= 0.0.9", "https://github.com/status-im/nim-ttmath#master"
+requires "nim >= 0.18", "https://github.com/alehander42/nim-quicktest >= 0.0.9"
 
 proc test(name: string, lang: string = "c") =
   if not dirExists "build":
@@ -40,11 +40,13 @@ task test_property_release, "Run random tests (release mode) - test implementati
 
 task test_property_uint256_debug, "Run random tests (normal mode) vs TTMath on Uint256":
   # TODO: another reference implementation?
+  # Note that currently importing both Stint and TTMath will crash the compiler for unknown reason.
   requires "quicktest > 0.0.8"
   test "property_based", "cpp"
 
 task test_property_uint256_release, "Run random tests (release mode) vs TTMath on Uint256":
   # TODO: another reference implementation?
+  # Note that currently importing both Stint and TTMath will crash the compiler for unknown reason.
   requires "quicktest > 0.0.8"
   switch("define", "release")
   test "property_based", "cpp"

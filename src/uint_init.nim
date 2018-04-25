@@ -13,7 +13,7 @@ import  ./private/uint_type
 
 import typetraits
 
-func u*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
+func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
   assert n >= 0.T
   when result.data is UintImpl:
     when getSize(n) > bits:
