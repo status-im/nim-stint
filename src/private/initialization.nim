@@ -31,22 +31,12 @@ func initUintImpl*[InType, OutType](x: InType, _: typedesc[OutType]): OutType {.
 func zero*[T: BaseUint](_: typedesc[T]): T {.inline.}=
   discard
 
-func one*[T: BaseUint](_: typedesc[T]): T {.inline.}=
-  when T is SomeUnsignedInt:
-    result = T(1)
-  else:
-    let r_ptr = cast[ptr array[getSize(result) div 8, byte]](result.addr)
-    when system.cpuEndian == bigEndian:
-      r_ptr[0] = 1
-    else:
-      r_ptr[r_ptr[].len - 1] = 1
-
-func one*[T: IntImpl](_: typedesc[T]): T {.inline.}=
+func one*[T: BaseUint or IntImpl](_: typedesc[T]): T {.inline.}=
   when T is SomeInteger:
     result = T(1)
   else:
     let r_ptr = cast[ptr array[getSize(result) div 8, byte]](result.addr)
-    when system.cpuEndian == bigEndian:
+    when system.cpuEndian == littleEndian:
       r_ptr[0] = 1
     else:
       r_ptr[r_ptr[].len - 1] = 1

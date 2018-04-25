@@ -60,8 +60,4 @@ func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
         else:
           r_ptr[r_ptr[].len - 1] = n
   else:
-    if n < 0:
-      result.data = (type result.data)(-n)
-      result = -result
-    else:
-      result.data = (type result.data)(n)
+    result.data = (type result.data)(n)

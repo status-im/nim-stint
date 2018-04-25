@@ -11,25 +11,13 @@
 
 import
   strutils,
-  ../private/[datatypes, getSize]
+  ../private/datatypes
 
-func tohexBE*[T: uint8 or uint16 or uint32 or uint64](x: T): string =
+func tohexBE*(x: UintImpl or IntImpl or SomeInteger): string =
   ## Stringify an uint to hex, Most significant byte on the left
-  ## i.e. a 1.uint64 will be 00000001
-
-  let bytes = cast[ptr array[T.sizeof, byte]](x.unsafeaddr)
-
-  result = ""
-  when system.cpuEndian == littleEndian:
-    for i in countdown(T.sizeof - 1, 0):
-      result.add toHex(bytes[i])
-  else:
-    for i in 0 ..< T.sizeof:
-      result.add toHex(bytes[i])
-
-func tohexBE*(x: UintImpl): string =
-  ## Stringify an uint to hex, Most significant byte on the left
-  ## i.e. a (2.uint128)^64 + 1 will be 0000000100000001
+  ## i.e.
+  ## - 1.uint64 will be 00000001
+  ## - (2.uint128)^64 + 1 will be 0000000100000001
 
   const size = getSize(x) div 8
 
@@ -42,3 +30,6 @@ func tohexBE*(x: UintImpl): string =
   else:
     for i in 0 ..< size:
       result.add toHex(bytes[i])
+
+func tohexBE*(x: Stint or StUint): string {.inline.}=
+  x.data.tohexBE
