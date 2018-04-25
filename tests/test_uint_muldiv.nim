@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -9,7 +9,7 @@
 
 import ../src/stint, unittest
 
-suite "Testing multiplication implementation":
+suite "Testing unsigned int multiplication implementation":
   test "Multiplication with result fitting in low half":
 
     let a = 10000.stuint(64)
@@ -33,7 +33,7 @@ suite "Testing multiplication implementation":
     check: cast[uint64](a*b*c) == 1_000_000_000_000_000_000_000'u64 # need 70-bits
 
 
-suite "Testing division and modulo implementation":
+suite "Testing unsigned int division and modulo implementation":
   test "Divmod(100, 13) returns the correct result":
 
     let a = 100.stuint(64)

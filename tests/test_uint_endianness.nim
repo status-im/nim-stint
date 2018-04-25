@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -9,7 +9,7 @@
 
 import ../src/stint, unittest
 
-suite "Testing byte representation":
+suite "Testing unsigned int byte representation":
   test "Byte representation conforms to the platform endianness":
     let a = 20182018.stuint(64)
     let b = 20182018'u64

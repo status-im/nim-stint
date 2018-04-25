@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
