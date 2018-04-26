@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ./datatypes, ./uint_mul, ./conversion
+import ./datatypes, ./uint_mul
 
 func `*`*[T](x, y: IntImpl[T]): IntImpl[T] {.inline, noInit.}=
   ## Multiplication for multi-precision unsigned uint

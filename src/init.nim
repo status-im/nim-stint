@@ -9,7 +9,7 @@
 
 import
   ./private/datatypes,
-  ./private/int_addsubneg,
+  ./private/int_negabs,
   typetraits
 
 func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=

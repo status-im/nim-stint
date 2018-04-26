@@ -42,23 +42,26 @@ template make_binary_inplace(op): untyped =
     op(x.data, y.data)
   export op
 
-import ./private/int_addsubneg
+import ./private/int_addsub
 
 make_binary(`+`, Stint)
 make_binary_inplace(`+=`)
-make_unary(`-`, Stint)
 make_binary(`-`, Stint)
 make_binary_inplace(`-=`)
+
+import ./private/int_negabs
+make_unary(`-`, Stint)
+make_unary(abs, Stint)
 
 import ./private/int_mul
 make_binary(`*`, Stint)
 
-# import ./private/int_div
+import ./private/int_div
 
-# make_binary(`div`, Stint)
-# make_binary(`mod`, Stint)
-# func divmod*(x, y: Stint): tuple[quot, rem: Stint] {.noInit, inline.} =
-#   (result.quot.data, result.rem.data) = divmod(x.data, y.data)
+make_binary(`div`, Stint)
+make_binary(`mod`, Stint)
+func divmod*(x, y: Stint): tuple[quot, rem: Stint] {.noInit, inline.} =
+  (result.quot.data, result.rem.data) = divmod(x.data, y.data)
 
 import ./private/int_comparison
 

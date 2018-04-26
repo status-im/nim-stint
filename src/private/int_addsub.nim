@@ -7,8 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes, ./int_bitwise_ops, ./conversion,
-        ./initialization, ./as_signed_words, ./int_highlow
+import  ./datatypes, ./conversion, ./as_signed_words
 
 func `+`*(x, y: IntImpl): IntImpl {.noInit, inline.}=
   # Addition for multi-precision signed int.
@@ -27,16 +26,6 @@ func `+`*(x, y: IntImpl): IntImpl {.noInit, inline.}=
 func `+=`*(x: var IntImpl, y: IntImpl) {.inline.}=
   ## In-place addition for multi-precision signed int.
   x = x + y
-
-func `-`*[T: IntImpl](x: T): T {.noInit, inline.}=
-  # Negate a multi-precision signed int.
-
-  when compileOption("boundChecks"):
-    if unlikely(x == low(T)):
-      raise newException(OverflowError, "The lowest negative number cannot be negated")
-
-  result = not x
-  result += one(T)
 
 func `-`*(x, y: IntImpl): IntImpl {.noInit, inline.}=
   # Substraction for multi-precision signed int.
