@@ -78,7 +78,7 @@ func readHexChar(c: char): int {.inline.}=
   else:
     raise newException(ValueError, $c & "is not a hexademical character")
 
-func skipPrefixes(current_idx: var int, str: string, base: static[range[2..16]]) {.inline.} =
+func skipPrefixes(current_idx: var int, str: string, base: range[2..16]) {.inline.} =
   ## Returns the index of the first meaningful char in `hexStr` by skipping
   ## "0x" prefix
 
@@ -97,7 +97,7 @@ func skipPrefixes(current_idx: var int, str: string, base: static[range[2..16]])
 func nextNonBlank(current_idx: var int, s: string) {.inline.} =
   ## Move the current index, skipping white spaces and "_" characters.
 
-  const blanks = {'0', '_'}
+  const blanks = {' ', '_'}
 
   inc current_idx
   while s[current_idx] in blanks and current_idx < s.len:
@@ -108,11 +108,20 @@ func readDecChar(c: range['0'..'9']): int {.inline.}=
   # specialization without branching for base <= 10.
   ord(c) - ord('0')
 
-func parse*[bits: static[int]](T: typedesc[Stint[bits]|Stuint[bits]], input: string, base: static[range[2..16]] = 10): T =
+func parse*[bits: static[int]](T: typedesc[Stint[bits]|Stuint[bits]], input: string, base: static[int]): T =
   ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
+
+  assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
+  # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
 
   # TODO: we can special case hex result/input as an array of bytes
   #       and be much faster
+
+  when T is Stint:
+    template Ty(x: int): Stint = stint(x, bits)
+  else:
+    template Ty(x: int): Stuint = stuint(x, bits)
+
   var
     curr = 0 # Current index in the string
     isNeg = false
@@ -122,20 +131,29 @@ func parse*[bits: static[int]](T: typedesc[Stint[bits]|Stuint[bits]], input: str
     assert T is Stint, "Negative numbers only work with signed integers."
     isNeg = true
     inc curr
+  else:
+    skipPrefixes(curr, input, base)
 
-  # TODO: we can't create the lowest int this way
-
-  skipPrefixes(curr, input)
   while curr < input.len:
     # TODO: overflow detection
     when base <= 10:
-      result = result * base + input[curr].readDecChar
+      result = result * base.Ty
+      result += input[curr].readDecChar.Ty
     else:
-      result = result * base + input[curr].readHexChar
+      result = result * base.Ty + input[curr].readHexChar.Ty
     nextNonBlank(curr, input)
 
-  if isNeg:
-    result = -result
+  when T is Stint:
+    # TODO: we can't create the lowest int this way
+    if isNeg:
+      result = -result
+
+func parse*[bits: static[int]](T: typedesc[Stint[bits]|Stuint[bits]], input: string): T {.inline, noInit.}=
+  ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
+  ## Input is considered a decimal string.
+  # TODO: Have a default static argument in the previous proc. Currently we get
+  #       "Cannot evaluate at compile-time" in several places (2018-04-26).
+  parse(T, input, 10)
 
 func toString*[bits: static[int]](num: Stint[bits] or StUint[bits], base: static[range[2..16]] = 10): string =
   ## Convert a Stint or Stuint to string.
@@ -145,9 +163,9 @@ func toString*[bits: static[int]](num: Stint[bits] or StUint[bits], base: static
 
   const hexChars = "0123456789abcdef"
   when num is Stint:
-    const sbase = base.stint[bits]
+    const sbase = base.stint(bits)
   else:
-    const sbase = base.stuint[bits]
+    const sbase = base.stuint(bits)
 
   result = ""
   when num is Stint:
