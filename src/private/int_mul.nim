@@ -10,5 +10,8 @@
 import ./datatypes, ./uint_mul
 
 func `*`*[T](x, y: IntImpl[T]): IntImpl[T] {.inline, noInit.}=
-  ## Multiplication for multi-precision unsigned uint
+  ## Multiplication for multi-precision signed integers
+  # For 2-complement representation this is the exact same
+  # as unsigned multiplication. We don't need to deal with the sign
+  # TODO: overflow detection.
   cast[type result](cast[UIntImpl[T]](x) * cast[UIntImpl[T]](y))
