@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -7,5 +7,10 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_public, ./uint_init
-export  uint_public, uint_init
+import ./datatypes, ./initialization
+
+func low*(T: typedesc[UintImpl]): T {.inline, noInit.}=
+  zero(T)
+
+func high*(T: typedesc[UintImpl]): T {.inline, noInit.}=
+  not zero(T)

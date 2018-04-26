@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -8,7 +8,8 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import  ./conversion,
-        ./uint_type,
+        ./initialization,
+        ./datatypes,
         ./uint_comparison,
         ./uint_addsub
 
@@ -114,7 +115,7 @@ func extPrecMul*[T](result: var UintImpl[UintImpl[T]], x, y: UintImpl[T]) =
   if result.lo.hi < z1.lo:
     result.hi += one(UintImpl[T])
 
-func `*`*[T](x, y: UintImpl[T]): UintImpl[T] {.inline.}=
+func `*`*[T](x, y: UintImpl[T]): UintImpl[T] {.inline, noInit.}=
   ## Multiplication for multi-precision unsigned uint
   #
   # For our representation, it is similar to school grade multiplication

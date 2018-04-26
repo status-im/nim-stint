@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -7,9 +7,9 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../src/mpint, unittest
+import ../src/stint, unittest
 
-suite "Testing bitwise operations":
+suite "Testing unsigned int bitwise operations":
   let a = 100'i16.stuint(16)
 
   let b = a * a

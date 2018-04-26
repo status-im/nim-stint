@@ -7,12 +7,14 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  test_uint_endianness,
-        test_uint_comparison,
-        test_uint_bitwise,
-        test_uint_addsub,
-        test_uint_muldiv
+import ../src/stint, unittest
 
-import  test_int_endianness,
-        test_int_comparison,
-        test_int_addsub
+suite "Testing unsigned int byte representation":
+  test "Byte representation conforms to the platform endianness":
+    let a = 20182018.stuint(64)
+    let b = 20182018'u64
+
+    type AsBytes = array[8, byte]
+
+    check cast[AsBytes](a) == cast[AsBytes](b)
+

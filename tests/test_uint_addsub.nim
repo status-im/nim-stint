@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -7,9 +7,9 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../src/mpint, unittest
+import ../src/stint, unittest
 
-suite "Testing addition implementation":
+suite "Testing unsigned int addition implementation":
   test "In-place addition gives expected result":
 
     var a = 20182018.stuint(64)
@@ -51,7 +51,7 @@ suite "Testing addition implementation":
     z += a
     check: cast[uint16](z) == 164
 
-suite "Testing substraction implementation":
+suite "Testing unsigned int substraction implementation":
   test "In-place substraction gives expected result":
 
     var a = 20182018.stuint(64)

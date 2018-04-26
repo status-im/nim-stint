@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -7,8 +7,8 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./bithacks, ./conversion,
-        ./uint_type,
+import  ./bithacks, ./conversion, ./initialization,
+        ./datatypes,
         ./uint_comparison,
         ./uint_bitwise_ops,
         ./uint_addsub,
@@ -48,7 +48,7 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T)
 func div2n1n(q, r: var UintImpl, ah, al, b: UintImpl)
   # Forward declaration
 
-proc divmod*(x, y: SomeInteger): tuple[quot, rem: SomeInteger] {.noSideEffect, inline.}=
+func divmod*(x, y: SomeUnsignedInt): tuple[quot, rem: SomeUnsignedInt] {.noInit, inline.}=
   # hopefully the compiler fuse that in a single op
   (x div y, x mod y)
 

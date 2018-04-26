@@ -7,34 +7,39 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes, ./as_words
+import  ./datatypes, ./bithacks, ./as_words, ./as_signed_words,
+        ./bithacks
 
-func isZero*(n: SomeUnsignedInt): bool {.inline.} =
+func isZero*(n: SomeSignedInt): bool {.inline.} =
   n == 0
 
-func isZero*(n: UintImpl): bool {.inline.} =
+func isZero*(n: IntImpl): bool {.inline.} =
   asWords(n, ignoreEndianness = true):
     if n != 0:
       return false
   return true
 
-func `<`*(x, y: UintImpl): bool {.inline.}=
+func isNegative*(n: IntImpl): bool {.inline.} =
+  ## Returns true if a number is negative:
+  n.msb.bool
+
+func `<`*(x, y: IntImpl): bool {.inline.}=
   # Lower comparison for multi-precision integers
-  asWordsZip(x, y, ignoreEndianness = false):
+  asSignedWordsZip(x, y):
     if x != y:
       return x < y
   return false # they're equal
 
-func `==`*(x, y: UintImpl): bool {.inline.}=
+func `==`*(x, y: IntImpl): bool {.inline.}=
   # Equal comparison for multi-precision integers
   asWordsZip(x, y, ignoreEndianness = true):
     if x != y:
       return false
   return true # they're equal
 
-func `<=`*(x, y: UintImpl): bool {.inline.}=
+func `<=`*(x, y: IntImpl): bool {.inline.}=
   # Lower or equal comparison for multi-precision integers
-  asWordsZip(x, y, ignoreEndianness = false):
+  asSignedWordsZip(x, y):
     if x != y:
       return x < y
   return true # they're equal

@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_type, ./as_words
+import  ./datatypes, ./as_words
 
 
 func `not`*(x: UintImpl): UintImpl {.noInit, inline.}=

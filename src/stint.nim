@@ -1,4 +1,4 @@
-# Mpint
+# Stint
 # Copyright 2018 Status Research & Development GmbH
 # Licensed under either of
 #
@@ -7,14 +7,5 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../src/mpint, unittest
-
-suite "Testing byte representation":
-  test "Byte representation conforms to the platform endianness":
-    let a = 20182018.stuint(64)
-    let b = 20182018'u64
-
-    type AsBytes = array[8, byte]
-
-    check cast[AsBytes](a) == cast[AsBytes](b)
-
+import  ./uint_public, ./int_public, ./init
+export  uint_public, int_public, init
