@@ -174,49 +174,34 @@ func divmodBZ[T](x, y: UintImpl[T], q, r: var UintImpl[T])=
 
   if y.hi.isZero:
     # Shortcut if divisor is smaller than half the size of the type
-
-    # Normalize
-    let
-      clz = countLeadingZeroBits(y.lo)
-      xx = x shl clz
-      yy = y.lo shl clz
-
     if x.hi < y.lo:
+      # Normalize
+      let
+        clz = countLeadingZeroBits(y.lo)
+        xx = x shl clz
+        yy = y.lo shl clz
+
       # If y is smaller than the base, normalizing x does not overflow.
-      # Compute directly
+      # Compute directly the low part
       div2n1n(q.lo, r.lo, xx.hi, xx.lo, yy)
       # Undo normalization
       r.lo = r.lo shr clz
-    else:
-      # Normalizing x overflowed, we need to compute the high remainder first
-      (q.hi, r.hi) = divmod(x.hi, y.lo)
+      return
 
-      # Normalize the remainder. (x.lo is already normalized)
-      r.hi = r.hi shl clz
+  # General case
 
-      # Compute
-      div2n1n(q.lo, r.lo, r.hi, xx.lo, yy)
+  # Normalization
+  let clz = countLeadingZeroBits(y)
 
-      # Undo normalization
-      r.lo = r.lo shr clz
+  let
+    xx = UintImpl[type x](lo: x) shl clz
+    yy = y shl clz
 
-      # Given size n, dividing a 2n number by a 1n normalized number
-      # always gives a 1n remainder.
-      r.hi = zero(T)
+  # Compute
+  div2n1n(q, r, xx.hi, xx.lo, yy)
 
-  else: # General case
-    # Normalization
-    let clz = countLeadingZeroBits(y)
-
-    let
-      xx = UintImpl[type x](lo: x) shl clz
-      yy = y shl clz
-
-    # Compute
-    div2n1n(q, r, xx.hi, xx.lo, yy)
-
-    # Undo normalization
-    r = r shr clz
+  # Undo normalization
+  r = r shr clz
 
 func divmodBS(x, y: UintImpl, q, r: var UintImpl) =
   ## Division for multi-precision unsigned uint
