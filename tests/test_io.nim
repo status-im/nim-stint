@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../src/stint, unittest
+import ../src/stint, unittest, strutils
 
 suite "Testing input and output procedures":
   test "Creation from decimal strings":
@@ -70,10 +70,19 @@ suite "Testing input and output procedures":
   test "Conversion to hex strings":
     block:
       let a = 0x1234567890ABCDEF.stint(128)
-      check: a.toString(base = 16) == "0x1234567890ABCDEF"
+      check: a.toString(base = 16).toUpperAscii == "1234567890ABCDEF"
 
     block:
       let a = 0x1234567890ABCDEF.stuint(128)
-      check: a.toString(base = 16) == "0x1234567890ABCDEF"
+      check: a.toString(base = 16).toUpperAscii == "1234567890ABCDEF"
 
     # TODO: negative hex
+
+  test "Hex dump":
+    block:
+      let a = 0x1234'i32.stint(32)
+      check: a.dumpHex(bigEndian).toUpperAscii == "00001234"
+
+    block:
+      let a = 0x1234'i32.stint(32)
+      check: a.dumpHex(littleEndian).toUpperAscii == "34120000"
