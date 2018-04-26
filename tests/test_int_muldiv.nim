@@ -107,3 +107,15 @@ suite "Testing signed int division and modulo implementation":
   #   check: q.hi == 0'u64
   #   check: r.lo == 1'u64
   #   check: r.hi == 0'u64
+
+  test "Divmod(1234567891234567890, 10) returns the correct result":
+    let a = cast[Stint[64]](1234567891234567890'i64)
+    let b = cast[Stint[64]](10'i64)
+
+    let qr = divmod(a, b)
+
+    let q = cast[int64](qr.quot)
+    let r = cast[int64](qr.rem)
+
+    check: q == 123456789123456789'i64
+    check: r == 0'i64

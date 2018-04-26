@@ -56,3 +56,15 @@ suite "Testing unsigned int division and modulo implementation":
     check: q.hi == 0'u64
     check: r.lo == 1'u64
     check: r.hi == 0'u64
+
+  test "Divmod(1234567891234567890, 10) returns the correct result":
+    let a = cast[StUint[64]](1234567891234567890'u64)
+    let b = cast[StUint[64]](10'u64)
+
+    let qr = divmod(a, b)
+
+    let q = cast[uint64](qr.quot)
+    let r = cast[uint64](qr.rem)
+
+    check: q == 123456789123456789'u64
+    check: r == 0'u64
