@@ -183,20 +183,23 @@ func toString*[bits: static[int]](num: Stint[bits] or StUint[bits], base: static
 
   result = ""
   when num is Stint:
-    var num = num
-    if base == 10 and num.isNegative:
+    var
+      num = num
+      isNeg = num.isNegative
+    if base == 10 and isNeg:
       num = -num
 
-  var q, r: type num
+  var (q, r) = divmod(num, radix)
 
   while true:
-    (q, r) = divmod(num, radix)
     result.add hexChars[r.toInt]
     if q.isZero:
       break
+    (q, r) = divmod(q, radix)
+
 
   when num is Stint:
-    if num.isNegative:
+    if isNeg:
       result.add '-'
 
   reverse(result)
