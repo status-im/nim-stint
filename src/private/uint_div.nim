@@ -251,8 +251,7 @@ func divmod*[T](x, y: UintImpl[T]): tuple[quot, rem: UintImpl[T]]=
     #       It is a bit tricky with recursive types. An empty n.lo means 0 or sizeof(n.lo)
     let y_ctz = getSize(y) - y_clz - 1
     result.quot = x shr y_ctz
-    result.rem = y_ctz.initUintImpl(UintImpl[T])
-    result.rem = result.rem and x
+    result.rem = x and (y - one(type y))
   elif x == y:
     result.quot.lo = one(T)
   elif x < y:
