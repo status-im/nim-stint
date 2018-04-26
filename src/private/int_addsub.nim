@@ -13,7 +13,7 @@ func `+`*(x, y: IntImpl): IntImpl {.noInit, inline.}=
   # Addition for multi-precision signed int.
   type SubTy = type x.lo
   result.lo = x.lo + y.lo
-  result.hi = (x.lo < y.lo).toSubtype(SubTy) + x.hi + y.hi
+  result.hi = (result.lo < y.lo).toSubtype(SubTy) + x.hi + y.hi
 
   when compileOption("boundChecks"):
     if unlikely(
