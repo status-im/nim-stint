@@ -197,7 +197,6 @@ func toString*[bits: static[int]](num: Stint[bits] or StUint[bits], base: static
       break
     (q, r) = divmod(q, radix)
 
-
   when num is Stint:
     if isNeg:
       result.add '-'
@@ -212,7 +211,7 @@ func toString*[bits: static[int]](num: Stint[bits] or StUint[bits]): string {.in
   #       "Error: type mismatch: got <int, type StInt[128]>, required type static[int]"
   toString(num, 10)
 
-func dumpHex*(x: Stint or StUint, order: static[Endianness] = system.cpuEndian): string =
+func dumpHex*(x: Stint or StUint, order: static[Endianness]): string =
   ## Stringify an int to hex.
   ##
   ## By default, dump is done as the CPU stores data in memory.
@@ -228,18 +227,22 @@ func dumpHex*(x: Stint or StUint, order: static[Endianness] = system.cpuEndian):
 
   const
     hexChars = "0123456789abcdef"
-    size = getSize(x) div 8
+    size = getSize(x.data) div 8
 
   {.pragma: restrict, codegenDecl: "$# __restrict__ $#".}
   let bytes {.restrict.}= cast[ptr array[size, byte]](x.unsafeaddr)
 
   result = newString(2*size)
 
-  when order == system.cpuEndian:
-    for i in 0 ..< size:
+  for i in 0 ..< size:
+    when order == system.cpuEndian:
       result[2*i] = hexChars[int bytes[i] shr 4 and 0xF]
       result[2*i+1] = hexChars[int bytes[i] and 0xF]
-  else:
-    for i in countdown(size - 1, 0):
-      result[2*i] = hexChars[int bytes[i] shr 4 and 0xF]
-      result[2*i+1] = hexChars[int bytes[i] and 0xF]
+    else:
+      result[2*i] = hexChars[int bytes[bytes[].high - i] shr 4 and 0xF]
+      result[2*i+1] = hexChars[int bytes[bytes[].high - i] and 0xF]
+
+func dumpHex*(x: Stint or StUint): string {.inline.}=
+  dumpHex(x, cpuEndian)
+  # TODO: Have a default static argument in the previous proc. Currently we get
+  #       "Cannot evaluate at compile-time".
