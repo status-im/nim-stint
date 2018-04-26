@@ -7,5 +7,5 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./uint_public, ./int_public, ./init
-export  uint_public, int_public, init
+import  ./uint_public, ./int_public, ./init_dump
+export  uint_public, int_public, init_dump
