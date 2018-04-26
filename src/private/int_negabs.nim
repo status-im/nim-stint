@@ -10,7 +10,7 @@
 import
   ./datatypes,
   ./initialization, ./int_highlow,
-  ./int_addsub
+  ./int_addsub, ./int_comparison
 
 func `-`*[T: IntImpl](x: T): T {.noInit, inline.}=
   # Negate a multi-precision signed int.

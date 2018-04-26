@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ./datatypes, ./int_negabs, ./uint_div
+import ./datatypes, ./int_negabs, ./uint_div, ./int_comparison
 
 # Here are the expected signs for division/modulo by opposite signs and both negative numbers
 #   in EVM

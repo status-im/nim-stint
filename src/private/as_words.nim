@@ -71,7 +71,7 @@ macro least_significant_word*(x: UintImpl): untyped =
       let size = getSize(x)
       let msw_pos = 0
     else:
-      let msw_pos = size - 1
+      let msw_pos = size div 64 - 1
     result = quote do:
       cast[`optim_type`](`x`)[`msw_pos`]
 
