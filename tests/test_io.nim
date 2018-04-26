@@ -31,3 +31,49 @@ suite "Testing input and output procedures":
 
       check: a == b
       check: -123456789'i64 == cast[int64](a)
+
+  test "Creation from hex strings":
+    block:
+      let a = parse(Stint[64], "0xFF", 16)
+      let b = 255.stint(64)
+
+      check: a == b
+      check: 255'i64 == cast[int64](a)
+
+    block:
+      let a = parse(Stuint[64], "0xFF", 16)
+      let b = 255.stuint(64)
+
+      check: a == b
+      check: 255'u64 == cast[uint64](a)
+
+    block:
+      let a = parse(Stint[16], "0xFFFF", 16)
+      let b = (-1'i16).stint(16)
+
+      check: a == b
+      check: -1'i16 == cast[int16](a)
+
+  test "Conversion to decimal strings":
+    block:
+      let a = 1234567891234567890.stint(128)
+      check: a.toString == "1234567891234567890"
+
+    block:
+      let a = 1234567891234567890.stuint(128)
+      check: a.toString == "1234567891234567890"
+
+    block:
+      let a = (-1234567891234567890).stint(128)
+      check: a.toString == "-1234567891234567890"
+
+  test "Conversion to hex strings":
+    block:
+      let a = 0x1234567890ABCDEF.stint(128)
+      check: a.toString(base = 16) == "0x1234567890ABCDEF"
+
+    block:
+      let a = 0x1234567890ABCDEF.stuint(128)
+      check: a.toString(base = 16) == "0x1234567890ABCDEF"
+
+    # TODO: negative hex

@@ -67,16 +67,16 @@ func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
 
 func toInt*(num: Stint or StUint): int {.inline.}=
   # Returns as int. Result is modulo 2^(sizeof(int)
-  num.least_significant_word.int
+  num.data.least_significant_word.int
 
-func readHexChar(c: char): int {.inline.}=
+func readHexChar(c: char): int8 {.inline.}=
   ## Converts an hex char to an int
   case c
-  of '0'..'9': result = ord(c) - ord('0')
-  of 'a'..'f': result = ord(c) - ord('a') + 10
-  of 'A'..'F': result = ord(c) - ord('A') + 10
+  of '0'..'9': result = int8 ord(c) - ord('0')
+  of 'a'..'f': result = int8 ord(c) - ord('a') + 10
+  of 'A'..'F': result = int8 ord(c) - ord('A') + 10
   else:
-    raise newException(ValueError, $c & "is not a hexademical character")
+    raise newException(ValueError, $c & "is not a hexadecimal character")
 
 func skipPrefixes(current_idx: var int, str: string, base: range[2..16]) {.inline.} =
   ## Returns the index of the first meaningful char in `hexStr` by skipping
@@ -108,6 +108,18 @@ func readDecChar(c: range['0'..'9']): int {.inline.}=
   # specialization without branching for base <= 10.
   ord(c) - ord('0')
 
+func convBase[bits: static[int]](base: static[int], T: typedesc[Stint[bits]|Stuint[bits]]): T =
+  ## Returns the base/radix as a Stint/Stuint
+
+  # TODO: allow that at compile-time.
+  # This would require avoiding the cast
+
+  let r_ptr = cast[ptr array[bits div 8, byte]](result.addr)
+  when system.cpuEndian == littleEndian:
+    r_ptr[0] = base.byte
+  else:
+    r_ptr[r_ptr[].len - 1] = base.byte
+
 func parse*[bits: static[int]](T: typedesc[Stint[bits]|Stuint[bits]], input: string, base: static[int]): T =
   ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
 
@@ -121,6 +133,8 @@ func parse*[bits: static[int]](T: typedesc[Stint[bits]|Stuint[bits]], input: str
     template Ty(x: int): Stint = stint(x, bits)
   else:
     template Ty(x: int): Stuint = stuint(x, bits)
+
+  let radix = convBase(base, T)
 
   var
     curr = 0 # Current index in the string
@@ -137,10 +151,10 @@ func parse*[bits: static[int]](T: typedesc[Stint[bits]|Stuint[bits]], input: str
   while curr < input.len:
     # TODO: overflow detection
     when base <= 10:
-      result = result * base.Ty
+      result = result * radix
       result += input[curr].readDecChar.Ty
     else:
-      result = result * base.Ty + input[curr].readHexChar.Ty
+      result = result * radix + input[curr].readHexChar.Ty
     nextNonBlank(curr, input)
 
   when T is Stint:
@@ -155,17 +169,17 @@ func parse*[bits: static[int]](T: typedesc[Stint[bits]|Stuint[bits]], input: str
   #       "Cannot evaluate at compile-time" in several places (2018-04-26).
   parse(T, input, 10)
 
-func toString*[bits: static[int]](num: Stint[bits] or StUint[bits], base: static[range[2..16]] = 10): string =
+func toString*[bits: static[int]](num: Stint[bits] or StUint[bits], base: static[int]): string =
   ## Convert a Stint or Stuint to string.
   ## In case of negative numbers:
   ##   - they are prefixed with "-" for base 10.
   ##   - if not base 10, they are returned raw in two-complement form.
 
+  assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
+  # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
+
   const hexChars = "0123456789abcdef"
-  when num is Stint:
-    const sbase = base.stint(bits)
-  else:
-    const sbase = base.stuint(bits)
+  let radix = convBase(base, type num)
 
   result = ""
   when num is Stint:
@@ -176,15 +190,24 @@ func toString*[bits: static[int]](num: Stint[bits] or StUint[bits], base: static
   var q, r: type num
 
   while true:
-    (q, r) = divmod(num, sbase)
+    (q, r) = divmod(num, radix)
     result.add hexChars[r.toInt]
     if q.isZero:
       break
 
-  if num.isNegative:
-    result.add '-'
+  when num is Stint:
+    if num.isNegative:
+      result.add '-'
 
   reverse(result)
+
+func toString*[bits: static[int]](num: Stint[bits] or StUint[bits]): string {.inline, noinit.}=
+  ## Convert to a string.
+  ## Output is considered a decimal string.
+  #
+  # TODO: Have a default static argument in the previous proc. Currently we get
+  #       "Error: type mismatch: got <int, type StInt[128]>, required type static[int]"
+  toString(num, 10)
 
 func dumpHex*(x: Stint or StUint, order: static[Endianness] = system.cpuEndian): string =
   ## Stringify an int to hex.

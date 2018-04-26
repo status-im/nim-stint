@@ -69,6 +69,7 @@ make_binary(`<`, bool)
 make_binary(`<=`, bool)
 make_binary(`==`, bool)
 func isZero*(x: Stint): bool {.inline.} = isZero x.data
+func isNegative*(x: Stint): bool {.inline.} = isNegative x.data
 
 import ./private/int_bitwise_ops
 
