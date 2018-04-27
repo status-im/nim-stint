@@ -18,50 +18,48 @@ import
 func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
   assert n >= 0.T
   when result.data is UintImpl:
-    when getSize(n) > bits:
-      # To avoid a costly runtime check, we refuse storing into StUint types smaller
-      # than the input type.
-      raise newException(ValueError, "Input " & $n & " (" & $T &
-                                    ") cannot be stored in a multi-precision " &
-                                    $bits & "-bit integer." &
-                                    "\nUse a smaller input type instead. This is a compile-time check" &
-                                    " to avoid a costly run-time bit_length check at each StUint initialization.")
+    # To avoid a costly runtime check, we refuse storing into StUint types smaller
+    # than the input type.
+    static: assert getSize(n) > bits, "Input " & $n & " (" & $T &
+              ") cannot be stored in a multi-precision " &
+              $bits & "-bit integer." &
+              "\nUse a smaller input type instead. This is a compile-time check" &
+              " to avoid a costly run-time bit_length check at each StUint initialization."
+
+    let r_ptr = cast[ptr array[bits div (sizeof(T) * 8), T]](result.addr)
+    when system.cpuEndian == littleEndian:
+      # "Least significant byte are at the beginning"
+      r_ptr[0] = n
     else:
-      let r_ptr = cast[ptr array[bits div (sizeof(T) * 8), T]](result.addr)
-      when system.cpuEndian == littleEndian:
-        # "Least significant byte are at the beginning"
-        r_ptr[0] = n
-      else:
-        r_ptr[r_ptr[].len - 1] = n
+      r_ptr[r_ptr[].len - 1] = n
   else:
     result.data = (type result.data)(n)
 
 func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
 
   when result.data is IntImpl:
-    when getSize(n) > bits:
-      # To avoid a costly runtime check, we refuse storing into StUint types smaller
-      # than the input type.
-      raise newException(ValueError, "Input " & $n & " (" & $T &
-                                    ") cannot be stored in a multi-precision " &
-                                    $bits & "-bit integer." &
-                                    "\nUse a smaller input type instead. This is a compile-time check" &
-                                    " to avoid a costly run-time bit_length check at each StUint initialization.")
-    else:
-      let r_ptr = cast[ptr array[bits div (sizeof(T) * 8), T]](result.addr)
-      when system.cpuEndian == littleEndian:
-        # "Least significant byte are at the beginning"
-        if n < 0:
-          r_ptr[0] = -n
-          result = -result
-        else:
-          r_ptr[0] = n
+    # To avoid a costly runtime check, we refuse storing into StUint types smaller
+    # than the input type.
+    static: assert getSize(n) > bits, "Input " & $n & " (" & $T &
+              ") cannot be stored in a multi-precision " &
+              $bits & "-bit integer." &
+              "\nUse a smaller input type instead. This is a compile-time check" &
+              " to avoid a costly run-time bit_length check at each StUint initialization."
+
+    let r_ptr = cast[ptr array[bits div (sizeof(T) * 8), T]](result.addr)
+    when system.cpuEndian == littleEndian:
+      # "Least significant byte are at the beginning"
+      if n < 0:
+        r_ptr[0] = -n
+        result = -result
       else:
-        if n < 0:
-          r_ptr[r_ptr[].len - 1] = -n
-          result = -result
-        else:
-          r_ptr[r_ptr[].len - 1] = n
+        r_ptr[0] = n
+    else:
+      if n < 0:
+        r_ptr[r_ptr[].len - 1] = -n
+        result = -result
+      else:
+        r_ptr[r_ptr[].len - 1] = n
   else:
     result.data = (type result.data)(n)
 
