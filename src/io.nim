@@ -183,7 +183,7 @@ func parse*[bits: static[int]](T: typedesc[Stint[bits]|Stuint[bits]], input: str
   #       "Cannot evaluate at compile-time" in several places (2018-04-26).
   parse(T, input, 10)
 
-func toString*[bits: static[int]](num: Stint[bits] or StUint[bits], base: static[int]): string =
+func toString*[bits: static[int]](num: StUint[bits], base: static[int]): string =
   ## Convert a Stint or Stuint to string.
   ## In case of negative numbers:
   ##   - they are prefixed with "-" for base 10.
@@ -196,12 +196,33 @@ func toString*[bits: static[int]](num: Stint[bits] or StUint[bits], base: static
   let radix = unsafeConv(base, type num)
 
   result = ""
-  when num is Stint:
-    var
-      num = num
-      isNeg = num.isNegative
-    if base == 10 and isNeg:
-      num = -num
+  var (q, r) = divmod(num, radix)
+
+  while true:
+    result.add hexChars[r.toInt]
+    if q.isZero:
+      break
+    (q, r) = divmod(q, radix)
+
+  reverse(result)
+
+func toString*[bits: static[int]](num: Stint[bits], base: static[int]): string =
+  ## Convert a Stint or Stuint to string.
+  ## In case of negative numbers:
+  ##   - they are prefixed with "-" for base 10.
+  ##   - if not base 10, they are returned raw in two-complement form.
+
+  static: assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
+  # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
+
+  const hexChars = "0123456789abcdef"
+  let radix = unsafeConv(base, type num)
+
+  result = ""
+
+  let isNeg = num.isNegative
+  let num = if base == 10 and isNeg: -num
+            else: num
 
   var (q, r) = divmod(num, radix)
 
@@ -211,9 +232,8 @@ func toString*[bits: static[int]](num: Stint[bits] or StUint[bits], base: static
       break
     (q, r) = divmod(q, radix)
 
-  when num is Stint:
-    if isNeg:
-      result.add '-'
+  if isNeg:
+    result.add '-'
 
   reverse(result)
 
@@ -227,8 +247,7 @@ func toString*[bits: static[int]](num: Stint[bits] or StUint[bits]): string {.in
 
 func dumpHex*(x: Stint or StUint, order: static[Endianness]): string =
   ## Stringify an int to hex.
-  ##
-  ## By default, dump is done as the CPU stores data in memory.
+  ## Note. Leading 0 are not removed. Use toString(n, base = 16) instead.
   ##
   ## You can specify bigEndian or littleEndian order.
   ## i.e. in bigEndian:
@@ -257,6 +276,8 @@ func dumpHex*(x: Stint or StUint, order: static[Endianness]): string =
       result[2*i+1] = hexChars[int bytes[bytes[].high - i] and 0xF]
 
 func dumpHex*(x: Stint or StUint): string {.inline.}=
-  dumpHex(x, cpuEndian)
+  ## Stringify an int to hex.
+  ## By default, dump is done in bigEndian order.
+  dumpHex(x, bigEndian)
   # TODO: Have a default static argument in the previous proc. Currently we get
   #       "Cannot evaluate at compile-time".
