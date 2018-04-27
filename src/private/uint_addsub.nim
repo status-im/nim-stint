@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./bithacks, ./conversion,
+import  ./bithacks, ./conversion, ./initialization,
         ./datatypes,
         ./uint_comparison,
         ./uint_bitwise_ops
@@ -36,3 +36,6 @@ proc `-`*(x, y: UintImpl): UintImpl {.noSideEffect, noInit, inline.}=
 proc `-=`*(x: var UintImpl, y: UintImpl) {.noSideEffect, inline.}=
   ## In-place substraction for multi-precision unsigned int
   x = x - y
+
+func inc*(x: var UintImpl){.inline.}=
+  x += one(type x)

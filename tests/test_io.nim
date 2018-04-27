@@ -86,3 +86,14 @@ suite "Testing input and output procedures":
     block:
       let a = 0x1234'i32.stint(32)
       check: a.dumpHex(littleEndian).toUpperAscii == "34120000"
+
+  test "Back and forth bigint conversion consistency":
+    block:
+      let s = "1234567890123456789012345678901234567890123456789"
+      let a = parse(StInt[512], s)
+      check: a.toString == s
+
+    block:
+      let s = "1234567890123456789012345678901234567890123456789"
+      let a = parse(StUInt[512], s)
+      check: a.toString == s

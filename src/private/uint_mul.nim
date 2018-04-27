@@ -7,7 +7,8 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./conversion,
+import  macros,
+        ./conversion,
         ./initialization,
         ./datatypes,
         ./uint_comparison,
@@ -53,23 +54,23 @@ template extPrecMulImpl(result: var UintImpl[uint64], op: untyped, u, v: uint64)
     x0, x1, x2, x3: uint64
 
   let
-    ul = u.lo
-    uh = u.hi
-    vl = v.lo
-    vh = v.hi
+    ul = lo(u)
+    uh = hi(u)
+    vl = lo(v)
+    vh = hi(v)
 
   x0 = ul * vl
   x1 = ul * vh
   x2 = uh * vl
   x3 = uh * vh
 
-  x1 += x0.hi           # This can't carry
+  x1 += hi(x0)          # This can't carry
   x1 += x2              # but this can
   if x1 < x2:           # if carry, add it to x3
     x3 += base
 
-  op(result.hi, x3 + x1.hi)
-  op(result.lo, (x1 shl p) or x0.lo)
+  op(result.hi, x3 + hi(x1))
+  op(result.lo, (x1 shl p) or lo(x0))
 
 func extPrecMul*(result: var UintImpl[uint64], u, v: uint64) =
   ## Extended precision multiplication
@@ -79,7 +80,15 @@ func extPrecAddMul(result: var UintImpl[uint64], u, v: uint64) =
   ## Extended precision fused in-place addition & multiplication
   extPrecMulImpl(result, `+=`, u, v)
 
-func extPrecMul*[T](result: var UintImpl[UintImpl[T]], x, y: UintImpl[T]) =
+macro eqSym(x, y: untyped): untyped =
+  let eq = $x == $y # Unfortunately eqIdent compares to string.
+  result = quote do: `eq`
+
+func extPrecAddMul[T](result: var UintImpl[UintImpl[T]], u, v: UintImpl[T])
+func extPrecMul*[T](result: var UintImpl[UintImpl[T]], u, v: UintImpl[T])
+  # Forward declaration
+
+template extPrecMulImpl*[T](result: var UintImpl[UintImpl[T]], op: untyped, x, y: UintImpl[T]) =
   # See details at
   # https://en.wikipedia.org/wiki/Karatsuba_algorithm
   # https://locklessinc.com/articles/256bit_arithmetic/
@@ -94,17 +103,20 @@ func extPrecMul*[T](result: var UintImpl[UintImpl[T]], x, y: UintImpl[T]) =
   #     and introduce branching
   #   - More total operations means more register moves
 
-  var z1: UintImpl[T]
+  var z1: type x
 
   # Low part - z0
-  extPrecMul(result.lo, x.lo, y.lo)
+  when eqSym(op, `+=`):
+    extPrecAddMul(result.lo, x.lo, y.lo)
+  else:
+    extPrecMul(result.lo, x.lo, y.lo)
 
   # Middle part - z1
   extPrecMul(z1, x.hi, y.lo)
   let carry_check = z1
   extPrecAddMul(z1, x.lo, y.hi)
   if z1 < carry_check:
-    result.hi.lo = one(T)
+    inc result.hi.lo
 
   # High part - z2
   result.hi.lo +=  z1.hi
@@ -113,7 +125,15 @@ func extPrecMul*[T](result: var UintImpl[UintImpl[T]], x, y: UintImpl[T]) =
   # Finalize low part
   result.lo.hi += z1.lo
   if result.lo.hi < z1.lo:
-    result.hi += one(UintImpl[T])
+    inc result.hi
+
+func extPrecAddMul[T](result: var UintImpl[UintImpl[T]], u, v: UintImpl[T]) =
+  ## Extended precision fused in-place addition & multiplication
+  extPrecMulImpl(result, `+=`, u, v)
+
+func extPrecMul*[T](result: var UintImpl[UintImpl[T]], u, v: UintImpl[T]) =
+  ## Extended precision multiplication
+  extPrecMulImpl(result, `=`, u, v)
 
 func `*`*[T](x, y: UintImpl[T]): UintImpl[T] {.inline, noInit.}=
   ## Multiplication for multi-precision unsigned uint
