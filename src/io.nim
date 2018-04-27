@@ -119,7 +119,7 @@ func convBase[bits: static[int]](base: static[int], T: typedesc[Stint[bits]|Stui
 func parse*[bits: static[int]](T: typedesc[Stint[bits]|Stuint[bits]], input: string, base: static[int]): T =
   ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
 
-  assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
+  static: assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
 
   # TODO: we can special case hex result/input as an array of bytes
@@ -171,7 +171,7 @@ func toString*[bits: static[int]](num: Stint[bits] or StUint[bits], base: static
   ##   - they are prefixed with "-" for base 10.
   ##   - if not base 10, they are returned raw in two-complement form.
 
-  assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
+  static: assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
 
   const hexChars = "0123456789abcdef"
