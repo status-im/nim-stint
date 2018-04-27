@@ -6,10 +6,10 @@
 #  * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
-
+{.pragma: fooPragma.}
 import  ./datatypes, ./conversion, ./as_signed_words
 
-func `+`*(x, y: IntImpl): IntImpl {.noInit, inline.}=
+func `+`*(x, y: IntImpl): IntImpl {.fooPragma, inline.}=
   # Addition for multi-precision signed int.
   type SubTy = type x.lo
   result.lo = x.lo + y.lo
@@ -27,7 +27,7 @@ func `+=`*(x: var IntImpl, y: IntImpl) {.inline.}=
   ## In-place addition for multi-precision signed int.
   x = x + y
 
-func `-`*(x, y: IntImpl): IntImpl {.noInit, inline.}=
+func `-`*(x, y: IntImpl): IntImpl {.fooPragma, inline.}=
   # Substraction for multi-precision signed int.
 
   type SubTy = type x.lo

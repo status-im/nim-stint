@@ -6,26 +6,26 @@
 #  * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
-
+{.pragma: fooPragma.}
 import  ./datatypes, ./as_words
 
 
-func `not`*(x: UintImpl): UintImpl {.noInit, inline.}=
+func `not`*(x: UintImpl): UintImpl {.fooPragma, inline.}=
   ## Bitwise complement of unsigned integer x
   m_asWordsZip(result, x, ignoreEndianness = true):
     result = not x
 
-func `or`*(x, y: UintImpl): UintImpl {.noInit, inline.}=
+func `or`*(x, y: UintImpl): UintImpl {.fooPragma, inline.}=
   ## `Bitwise or` of numbers x and y
   m_asWordsZip(result, x, y, ignoreEndianness = true):
     result = x or y
 
-func `and`*(x, y: UintImpl): UintImpl {.noInit, inline.}=
+func `and`*(x, y: UintImpl): UintImpl {.fooPragma, inline.}=
   ## `Bitwise and` of numbers x and y
   m_asWordsZip(result, x, y, ignoreEndianness = true):
     result = x and y
 
-func `xor`*(x, y: UintImpl): UintImpl {.noInit, inline.}=
+func `xor`*(x, y: UintImpl): UintImpl {.fooPragma, inline.}=
   ## `Bitwise xor` of numbers x and y
   m_asWordsZip(result, x, y, ignoreEndianness = true):
     result = x xor y

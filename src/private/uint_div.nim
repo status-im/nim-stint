@@ -6,7 +6,7 @@
 #  * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
-
+{.pragma: fooPragma.}
 import  ./bithacks, ./conversion, ./initialization,
         ./datatypes,
         ./uint_comparison,
@@ -48,7 +48,7 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T)
 func div2n1n(q, r: var UintImpl, ah, al, b: UintImpl)
   # Forward declaration
 
-func divmod*(x, y: SomeUnsignedInt): tuple[quot, rem: SomeUnsignedInt] {.noInit, inline.}=
+func divmod*(x, y: SomeUnsignedInt): tuple[quot, rem: SomeUnsignedInt] {.fooPragma, inline.}=
   # hopefully the compiler fuse that in a single op
   (x div y, x mod y)
 

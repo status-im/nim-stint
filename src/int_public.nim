@@ -6,7 +6,7 @@
 #  * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
-
+{.pragma: fooPragma.}
 import ./private/datatypes, macros
 export StInt, IntImpl, intImpl # TODO remove the need to export intImpl and this macro
 
@@ -15,14 +15,14 @@ type
   Int256* = Stint[256]
 
 template make_conv(conv_name: untyped, size: int): untyped =
-  func `convname`*(n: SomeInteger): Stint[size] {.inline, noInit.}=
+  func `convname`*(n: SomeInteger): Stint[size] {.inline, fooPragma.}=
     n.stint(size)
 
 make_conv(i128, 128)
 make_conv(i256, 256)
 
 template make_unary(op, ResultTy): untyped =
-  func `op`*(x: Stint): ResultTy {.noInit, inline.} =
+  func `op`*(x: Stint): ResultTy {.fooPragma, inline.} =
     when ResultTy is Stint:
       result.data = op(x.data)
     else:
@@ -30,7 +30,7 @@ template make_unary(op, ResultTy): untyped =
   export op
 
 template make_binary(op, ResultTy): untyped =
-  func `op`*(x, y: Stint): ResultTy {.noInit, inline.} =
+  func `op`*(x, y: Stint): ResultTy {.fooPragma, inline.} =
     when ResultTy is Stint:
       result.data = op(x.data, y.data)
     else:
@@ -60,7 +60,7 @@ import ./private/int_div
 
 make_binary(`div`, Stint)
 make_binary(`mod`, Stint)
-func divmod*(x, y: Stint): tuple[quot, rem: Stint] {.noInit, inline.} =
+func divmod*(x, y: Stint): tuple[quot, rem: Stint] {.fooPragma, inline.} =
   (result.quot.data, result.rem.data) = divmod(x.data, y.data)
 
 import ./private/int_comparison
@@ -77,7 +77,7 @@ make_unary(`not`, Stint)
 make_binary(`or`, Stint)
 make_binary(`and`, Stint)
 make_binary(`xor`, Stint)
-# proc `shr`*(x: Stint, y: SomeInteger): Stint {.noInit, inline, noSideEffect.} =
+# proc `shr`*(x: Stint, y: SomeInteger): Stint {.fooPragma, inline, noSideEffect.} =
 #   result.data = x.data shr y
-# proc `shl`*(x: Stint, y: SomeInteger): Stint {.noInit, inline, noSideEffect.} =
+# proc `shl`*(x: Stint, y: SomeInteger): Stint {.fooPragma, inline, noSideEffect.} =
 #   result.data = x.data shl y

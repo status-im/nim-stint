@@ -6,7 +6,7 @@
 #  * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
-
+{.pragma: fooPragma.}
 import
   ./private/datatypes,
   ./private/int_negabs,
@@ -176,7 +176,7 @@ func parse*[bits: static[int]](T: typedesc[Stint[bits]], input: string, base: st
   else:
     result = cast[Stint[bits]](no_overflow)
 
-func parse*[bits: static[int]](T: typedesc[Stint[bits]|Stuint[bits]], input: string): T {.inline, noInit.}=
+func parse*[bits: static[int]](T: typedesc[Stint[bits]|Stuint[bits]], input: string): T {.inline, fooPragma.}=
   ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
   ## Input is considered a decimal string.
   # TODO: Have a default static argument in the previous proc. Currently we get
@@ -237,7 +237,7 @@ func toString*[bits: static[int]](num: Stint[bits], base: static[int]): string =
 
   reverse(result)
 
-func toString*[bits: static[int]](num: Stint[bits] or StUint[bits]): string {.inline, noinit.}=
+func toString*[bits: static[int]](num: Stint[bits] or StUint[bits]): string {.inline, fooPragma.}=
   ## Convert to a string.
   ## Output is considered a decimal string.
   #

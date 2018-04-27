@@ -6,7 +6,7 @@
 #  * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
-
+{.pragma: fooPragma.}
 import  macros,
         ./conversion,
         ./initialization,
@@ -135,7 +135,7 @@ func extPrecMul*[T](result: var UintImpl[UintImpl[T]], u, v: UintImpl[T]) =
   ## Extended precision multiplication
   extPrecMulImpl(result, `=`, u, v)
 
-func `*`*[T](x, y: UintImpl[T]): UintImpl[T] {.inline, noInit.}=
+func `*`*[T](x, y: UintImpl[T]): UintImpl[T] {.inline, fooPragma.}=
   ## Multiplication for multi-precision unsigned uint
   #
   # For our representation, it is similar to school grade multiplication
