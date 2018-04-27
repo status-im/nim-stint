@@ -104,19 +104,20 @@ func readDecChar(c: range['0'..'9']): int {.inline.}=
   # specialization without branching for base <= 10.
   ord(c) - ord('0')
 
-func convBase[bits: static[int]](base: static[int], T: typedesc[Stint[bits]|Stuint[bits]]): T =
-  ## Returns the base/radix as a Stint/Stuint
-
-  # TODO: allow that at compile-time.
-  # This would require avoiding the cast
+func unsafeConv[bits: static[int]](n: range[0..16], T: typedesc[Stint[bits]|Stuint[bits]]): T =
+  ## Fast convert a small int to a Stint/Stuint
+  ## This assumes that the int always fit.
+  ## Purpose:
+  ##   - Converting bases in the range [2..16]
+  ##   - Converting decimal/hexadecimal in range [0..15]
 
   let r_ptr = cast[ptr array[bits div 8, byte]](result.addr)
   when system.cpuEndian == littleEndian:
-    r_ptr[0] = base.byte
+    r_ptr[0] = n.byte
   else:
-    r_ptr[r_ptr[].len - 1] = base.byte
+    r_ptr[r_ptr[].len - 1] = n.byte
 
-func parse*[bits: static[int]](T: typedesc[Stint[bits]|Stuint[bits]], input: string, base: static[int]): T =
+func parse*[bits: static[int]](T: typedesc[Stuint[bits]], input: string, base: static[int]): T =
   ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
 
   static: assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
@@ -125,20 +126,37 @@ func parse*[bits: static[int]](T: typedesc[Stint[bits]|Stuint[bits]], input: str
   # TODO: we can special case hex result/input as an array of bytes
   #       and be much faster
 
-  when T is Stint:
-    template Ty(x: int): Stint = stint(x, bits)
-  else:
-    template Ty(x: int): Stuint = stuint(x, bits)
+  let radix = unsafeConv(base, T)
+  var curr = 0 # Current index in the string
+  skipPrefixes(curr, input, base)
 
-  let radix = convBase(base, T)
+  while curr < input.len:
+    # TODO: overflow detection
+    when base <= 10:
+      result = result * radix + input[curr].readDecChar.unsafeConv(T)
+    else:
+      result = result * radix + input[curr].readHexChar.unsafeConv(T)
+    nextNonBlank(curr, input)
+
+func parse*[bits: static[int]](T: typedesc[Stint[bits]], input: string, base: static[int]): T =
+  ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
+
+  static: assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
+  # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
+
+  # TODO: we can special case hex result/input as an array of bytes
+  #       and be much faster
+
+  # For conversion we require overflowing operations (for example for negative hex numbers)
+  let radix = unsafeConv(base, Stuint[bits])
 
   var
     curr = 0 # Current index in the string
     isNeg = false
+    no_overflow: Stuint[bits]
 
   if input[curr] == '-':
     assert base == 10, "Negative numbers are only supported with base 10 input."
-    assert T is Stint, "Negative numbers only work with signed integers."
     isNeg = true
     inc curr
   else:
@@ -147,16 +165,16 @@ func parse*[bits: static[int]](T: typedesc[Stint[bits]|Stuint[bits]], input: str
   while curr < input.len:
     # TODO: overflow detection
     when base <= 10:
-      result = result * radix
-      result += input[curr].readDecChar.Ty
+      no_overflow = no_overflow * radix + input[curr].readDecChar.unsafeConv(Stuint[bits])
     else:
-      result = result * radix + input[curr].readHexChar.Ty
+      no_overflow = no_overflow * radix + input[curr].readHexChar.unsafeConv(Stuint[bits])
     nextNonBlank(curr, input)
 
-  when T is Stint:
-    # TODO: we can't create the lowest int this way
-    if isNeg:
-      result = -result
+  # TODO: we can't create the lowest int this way
+  if isNeg:
+    result = -cast[Stint[bits]](no_overflow)
+  else:
+    result = cast[Stint[bits]](no_overflow)
 
 func parse*[bits: static[int]](T: typedesc[Stint[bits]|Stuint[bits]], input: string): T {.inline, noInit.}=
   ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
@@ -175,7 +193,7 @@ func toString*[bits: static[int]](num: Stint[bits] or StUint[bits], base: static
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
 
   const hexChars = "0123456789abcdef"
-  let radix = convBase(base, type num)
+  let radix = unsafeConv(base, type num)
 
   result = ""
   when num is Stint:
