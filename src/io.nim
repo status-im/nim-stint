@@ -15,20 +15,24 @@ import
   ./int_public, ./uint_public,
   typetraits, algorithm
 
+template static_check_size(T: typedesc[SomeInteger], bits: static[int]) =
+  # To avoid a costly runtime check, we refuse storing into StUint types smaller
+  # than the input type.
+
+  static: assert sizeof(T) * 8 <= bits, "Input type (" & $T &
+            ") cannot be stored in a multi-precision " &
+            $bits & "-bit integer." &
+            "\nUse a smaller input type instead. This is a compile-time check" &
+            " to avoid a costly run-time bit_length check at each StUint initialization."
+
 func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
   assert n >= 0.T
   when result.data is UintImpl:
-    # To avoid a costly runtime check, we refuse storing into StUint types smaller
-    # than the input type.
-    static: assert getSize(n) > bits, "Input " & $n & " (" & $T &
-              ") cannot be stored in a multi-precision " &
-              $bits & "-bit integer." &
-              "\nUse a smaller input type instead. This is a compile-time check" &
-              " to avoid a costly run-time bit_length check at each StUint initialization."
+    static_check_size(T, bits)
 
     let r_ptr = cast[ptr array[bits div (sizeof(T) * 8), T]](result.addr)
     when system.cpuEndian == littleEndian:
-      # "Least significant byte are at the beginning"
+      # "Least significant byte is at the beginning"
       r_ptr[0] = n
     else:
       r_ptr[r_ptr[].len - 1] = n
@@ -38,17 +42,11 @@ func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
 func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
 
   when result.data is IntImpl:
-    # To avoid a costly runtime check, we refuse storing into StUint types smaller
-    # than the input type.
-    static: assert getSize(n) > bits, "Input " & $n & " (" & $T &
-              ") cannot be stored in a multi-precision " &
-              $bits & "-bit integer." &
-              "\nUse a smaller input type instead. This is a compile-time check" &
-              " to avoid a costly run-time bit_length check at each StUint initialization."
+    static_check_size(T, bits)
 
     let r_ptr = cast[ptr array[bits div (sizeof(T) * 8), T]](result.addr)
     when system.cpuEndian == littleEndian:
-      # "Least significant byte are at the beginning"
+      # "Least significant byte is at the beginning"
       if n < 0:
         r_ptr[0] = -n
         result = -result
