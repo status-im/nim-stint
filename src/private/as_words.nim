@@ -60,6 +60,21 @@ proc replaceNodes*(ast: NimNode, replacing: NimNode, to_replace: NimNode): NimNo
       return rTree
   result = inspect(ast)
 
+macro least_significant_word*(x: UintImpl): untyped =
+
+  let optim_type = optimUInt(x)
+  if optim_type.isUInt:
+    result = quote do:
+      cast[`optim_type`](`x`)
+  else:
+    when system.cpuEndian == littleEndian:
+      let size = getSize(x)
+      let msw_pos = 0
+    else:
+      let msw_pos = size div 64 - 1
+    result = quote do:
+      cast[`optim_type`](`x`)[`msw_pos`]
+
 macro asWords*(n: UintImpl or IntImpl, ignoreEndianness: static[bool], loopBody: untyped): untyped =
   ## Iterates over n, as an array of words.
   ## Input:

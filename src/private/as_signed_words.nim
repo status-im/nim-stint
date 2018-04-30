@@ -32,10 +32,11 @@ proc optimInt*(x: NimNode): NimNode =
     error "Unreachable path reached"
 
 proc isInt*(x: NimNode): static[bool] =
-  if eqIdent(x, "int64"):   true
-  elif eqIdent(x, "int32"): true
-  elif eqIdent(x, "int16"): true
-  elif eqIdent(x, "int8"):  true
+  if   eqIdent(x, "uint64"): true
+  elif eqIdent(x, "int64"):  true
+  elif eqIdent(x, "int32"):  true
+  elif eqIdent(x, "int16"):  true
+  elif eqIdent(x, "int8"):   true
   else: false
 
 macro most_significant_word*(x: IntImpl): untyped =
@@ -47,26 +48,28 @@ macro most_significant_word*(x: IntImpl): untyped =
   else:
     when system.cpuEndian == littleEndian:
       let size = getSize(x)
-      let msw_pos = size - 1
+      let msw_pos = size div 64 - 1
     else:
       let msw_pos = 0
     result = quote do:
+      # most significant word must be returned signed for addition/substraction
+      # overflow checking
       cast[int](cast[`optim_type`](`x`)[`msw_pos`])
 
-macro most_significant_word_mut*(x: var IntImpl): untyped =
+macro least_significant_word*(x: IntImpl): untyped =
 
   let optim_type = optimInt(x)
   if optim_type.isInt:
     result = quote do:
-      cast[var `optim_type`](`x`.addr)
+      cast[`optim_type`](`x`)
   else:
     when system.cpuEndian == littleEndian:
       let size = getSize(x)
-      let msw_pos = size - 1
-    else:
       let msw_pos = 0
+    else:
+      let msw_pos = size div 8 - 1
     result = quote do:
-      (cast[ptr `optim_type`](`x`.unsafeAddr)[`msw_pos`])[]
+      cast[int](cast[`optim_type`](`x`)[`msw_pos`])
 
 macro asSignedWordsZip*[T](
   x, y: IntImpl[T],

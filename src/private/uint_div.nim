@@ -6,7 +6,7 @@
 #  * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
-
+{.pragma: fooPragma.}
 import  ./bithacks, ./conversion, ./initialization,
         ./datatypes,
         ./uint_comparison,
@@ -48,7 +48,7 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T)
 func div2n1n(q, r: var UintImpl, ah, al, b: UintImpl)
   # Forward declaration
 
-func divmod*(x, y: SomeUnsignedInt): tuple[quot, rem: SomeUnsignedInt] {.noInit, inline.}=
+func divmod*(x, y: SomeUnsignedInt): tuple[quot, rem: SomeUnsignedInt] {.fooPragma, inline.}=
   # hopefully the compiler fuse that in a single op
   (x div y, x mod y)
 
@@ -174,49 +174,34 @@ func divmodBZ[T](x, y: UintImpl[T], q, r: var UintImpl[T])=
 
   if y.hi.isZero:
     # Shortcut if divisor is smaller than half the size of the type
-
-    # Normalize
-    let
-      clz = countLeadingZeroBits(y.lo)
-      xx = x shl clz
-      yy = y.lo shl clz
-
     if x.hi < y.lo:
+      # Normalize
+      let
+        clz = countLeadingZeroBits(y.lo)
+        xx = x shl clz
+        yy = y.lo shl clz
+
       # If y is smaller than the base, normalizing x does not overflow.
-      # Compute directly
+      # Compute directly the low part
       div2n1n(q.lo, r.lo, xx.hi, xx.lo, yy)
       # Undo normalization
       r.lo = r.lo shr clz
-    else:
-      # Normalizing x overflowed, we need to compute the high remainder first
-      (q.hi, r.hi) = divmod(x.hi, y.lo)
+      return
 
-      # Normalize the remainder. (x.lo is already normalized)
-      r.hi = r.hi shl clz
+  # General case
 
-      # Compute
-      div2n1n(q.lo, r.lo, r.hi, xx.lo, yy)
+  # Normalization
+  let clz = countLeadingZeroBits(y)
 
-      # Undo normalization
-      r.lo = r.lo shr clz
+  let
+    xx = UintImpl[type x](lo: x) shl clz
+    yy = y shl clz
 
-      # Given size n, dividing a 2n number by a 1n normalized number
-      # always gives a 1n remainder.
-      r.hi = zero(T)
+  # Compute
+  div2n1n(q, r, xx.hi, xx.lo, yy)
 
-  else: # General case
-    # Normalization
-    let clz = countLeadingZeroBits(y)
-
-    let
-      xx = UintImpl[type x](lo: x) shl clz
-      yy = y shl clz
-
-    # Compute
-    div2n1n(q, r, xx.hi, xx.lo, yy)
-
-    # Undo normalization
-    r = r shr clz
+  # Undo normalization
+  r = r shr clz
 
 func divmodBS(x, y: UintImpl, q, r: var UintImpl) =
   ## Division for multi-precision unsigned uint
@@ -266,8 +251,7 @@ func divmod*[T](x, y: UintImpl[T]): tuple[quot, rem: UintImpl[T]]=
     #       It is a bit tricky with recursive types. An empty n.lo means 0 or sizeof(n.lo)
     let y_ctz = getSize(y) - y_clz - 1
     result.quot = x shr y_ctz
-    result.rem = y_ctz.initUintImpl(UintImpl[T])
-    result.rem = result.rem and x
+    result.rem = x and (y - one(type y))
   elif x == y:
     result.quot.lo = one(T)
   elif x < y:

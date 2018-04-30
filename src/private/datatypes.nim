@@ -11,7 +11,6 @@
 
 import macros
 
-
 # The macro uintImpl must be exported
 
 when defined(mpint_test):
