@@ -68,3 +68,29 @@ suite "Testing unsigned int division and modulo implementation":
 
     check: q == 123456789123456789'u64
     check: r == 0'u64
+
+suite "Testing specific failures highlighted by property-based testing":
+  test "Modulo: 65696211516342324 mod 174261910798982":
+
+    let u = 65696211516342324'u64
+    let v = 174261910798982'u64
+
+    let a = cast[Stuint[64]](u)
+    let b = cast[Stuint[64]](v)
+
+    let z = u mod v
+    let tz = cast[uint64](a mod b)
+
+    check: z == tz
+
+  test "Modulo: 15080397990160655 mod 600432699691":
+    let u = 15080397990160655'u64
+    let v = 600432699691'u64
+
+    let a = cast[Stuint[64]](u)
+    let b = cast[Stuint[64]](v)
+
+    let z = u mod v
+    let tz = cast[uint64](a mod b)
+
+    check: z == tz
