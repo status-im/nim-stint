@@ -249,7 +249,7 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       mp_x  = cast[StUint[256]](x)
 
     let
-      ttm_z = ttm_x shl y
+      ttm_z = ttm_x shl y.uint
       mp_z  = mp_x  shl y
 
     check(cast[array[4, uint64]](ttm_z) == cast[array[4, uint64]](mp_z))
@@ -267,7 +267,7 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       mp_x  = cast[StUint[256]](x)
 
     let
-      ttm_z = ttm_x shr y
+      ttm_z = ttm_x shr y.uint
       mp_z  = mp_x  shr y
 
     check(cast[array[4, uint64]](ttm_z) == cast[array[4, uint64]](mp_z))
