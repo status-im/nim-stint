@@ -96,7 +96,7 @@ func nextNonBlank(current_idx: var int, s: string) {.inline.} =
   const blanks = {' ', '_'}
 
   inc current_idx
-  while s[current_idx] in blanks and current_idx < s.len:
+  while current_idx < s.len and s[current_idx] in blanks:
     inc current_idx
 
 func readDecChar(c: range['0'..'9']): int {.inline.}=
