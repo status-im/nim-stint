@@ -20,6 +20,13 @@ proc test(name: string, lang: string = "c") =
   switch("out", ("./build/" & name))
   setCommand lang, "tests/" & name & ".nim"
 
+task test_internal_debug, "Run tests for internal procs - test implementation (StUint[64] = 2x uint32":
+  switch("define", "mpint_test")
+  test "internal"
+
+task test_internal_release, "Run tests for internal procs - prod implementation (StUint[64] = uint64":
+  test "internal"
+
 task test_debug, "Run all tests - test implementation (StUint[64] = 2x uint32":
   switch("define", "mpint_test")
   test "all_tests"
@@ -52,6 +59,8 @@ task test_property_uint256_release, "Run random tests (release mode) vs TTMath o
   test "property_based", "cpp"
 
 task test, "Run all tests - test and production implementation":
+  exec "nimble test_internal_debug"
+  exec "nimble test_internal_release"
   exec "nimble test_debug"
   exec "nimble test_release"
   exec "nimble test_property_debug"
