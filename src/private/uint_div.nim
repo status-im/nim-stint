@@ -137,19 +137,19 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
     halfSize = size div 2
     halfMask = (1.T shl halfSize) - 1.T
 
-  template halfQR(n_hi, n_lo, d_hi, d_lo: T): tuple[q,r: T] =
+  template halfQR(n_hi, n_lo, d, d_hi, d_lo: T): tuple[q,r: T] =
 
     var (q, r) = divmod(n_hi, d_hi)
     let m = q * d_lo
-    r = (r shl halfSize) or n_lo
+    var r = (r shl halfSize) or n_lo
 
     # Fix the reminder, we're at most 2 iterations off
     if r < m:
       dec q
-      r += d_hi
-      if r >= d_hi and r < m:
+      r += d
+      if r >= d and r < m:
         dec q
-        r += d_hi
+        r += d
     r -= m
     (q, r)
 
@@ -160,10 +160,10 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
     n_lolo = nlo and halfMask
 
   # First half of the quotient
-  let (q1, r1) = halfQR(n_hi, n_lohi, d_hi, d_lo)
+  let (q1, r1) = halfQR(n_hi, n_lohi, d, d_hi, d_lo)
 
   # Second half
-  let (q2, r2) = halfQR(r1, n_lolo, d_hi, d_lo)
+  let (q2, r2) = halfQR(r1, n_lolo, d, d_hi, d_lo)
 
   q = (q1 shl halfSize) or q2
   r = r2
