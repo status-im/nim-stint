@@ -14,7 +14,7 @@ import ../src/stint, unittest, quicktest, ttmath_compat
 
 const itercount = 1000
 
-suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / uint32 on 32-bit":
+suite "Property-based testing (testing with random inputs) of Uint256":
 
   when defined(release):
     echo "Testing in release mode. (StUint[256] = 4 x uint64)"
