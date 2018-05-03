@@ -7,8 +7,8 @@ srcDir        = "src"
 
 ### Dependencies
 
-# TODO remove test only requirements: https://github.com/nim-lang/nimble/issues/482
-requires "nim >= 0.18", "https://github.com/alehander42/nim-quicktest >= 0.18.0"
+# TODO remove quicktest and ttmath test only requirements: https://github.com/nim-lang/nimble/issues/482
+requires "nim >= 0.18", "https://github.com/alehander42/nim-quicktest >= 0.18.0", "https://github.com/status-im/nim-ttmath"
 
 proc test(name: string, lang: string = "c") =
   if not dirExists "build":
@@ -34,7 +34,7 @@ task test_debug, "Run all tests - test implementation (StUint[64] = 2x uint32":
 task test_release, "Run all tests - prod implementation (StUint[64] = uint64":
   test "all_tests"
 
-task test_property_debug, "Run random tests (normal mode) - test implementation (StUint[64] = 2x uint32)":
+task test_property_debug, "Run random tests (debug mode) - test implementation (StUint[64] = 2x uint32)":
   requires "quicktest > 0.0.8"
   switch("define", "mpint_test")
   test "property_based"
@@ -45,13 +45,13 @@ task test_property_release, "Run random tests (release mode) - test implementati
   switch("define", "release")
   test "property_based"
 
-task test_property_uint256_debug, "Run random tests (normal mode) vs TTMath on Uint256":
+task test_property_uint256_debug, "Run random tests Uint256 (debug mode) vs TTMath (StUint[256] = 8 x uint32)":
   # TODO: another reference implementation?
   # Note that currently importing both Stint and TTMath will crash the compiler for unknown reason.
   requires "quicktest > 0.0.8"
   test "property_based", "cpp"
 
-task test_property_uint256_release, "Run random tests (release mode) vs TTMath on Uint256":
+task test_property_uint256_release, "Run random tests Uint256 (release mode) vs TTMath (StUint[256] = 4 x uint64)":
   # TODO: another reference implementation?
   # Note that currently importing both Stint and TTMath will crash the compiler for unknown reason.
   requires "quicktest > 0.0.8"
@@ -65,4 +65,5 @@ task test, "Run all tests - test and production implementation":
   exec "nimble test_release"
   exec "nimble test_property_debug"
   exec "nimble test_property_release"
-  # TODO: ttmath tests, but importing both together raises illegal storage access
+  exec "nimble test_property_uint256_debug"
+  exec "nimble test_property_uint256_release"
