@@ -10,7 +10,7 @@
 
 # Requires "https://github.com/status-im/nim-ttmath#master"
 # Note that currently importing both Stint and TTMath will crash the compiler for unknown reason
-import ../src/stint, unittest, quicktest, ttmath
+import ../src/stint, unittest, quicktest, ttmath_compat
 
 const itercount = 1000
 
@@ -36,8 +36,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       x = [x0, x1, x2, x3]
       y = [y0, y1, y2, y3]
 
-      ttm_x = cast[ttmath.UInt256](x)
-      ttm_y = cast[ttmath.UInt256](y)
+      ttm_x = x.asTT
+      ttm_y = y.asTT
       mp_x  = cast[StUint[256]](x)
       mp_y  = cast[StUint[256]](y)
 
@@ -45,8 +45,7 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       ttm_z = ttm_x or ttm_y
       mp_z  = mp_x  or mp_y
 
-    check(cast[array[4, uint64]](ttm_z) == cast[array[4, uint64]](mp_z))
-
+    check ttm_z.asSt == mp_z
 
   quicktest "`and`", itercount do(x0: uint(min=0, max=hi),
                                 x1: uint(min=0, max=hi),
@@ -61,8 +60,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       x = [x0, x1, x2, x3]
       y = [y0, y1, y2, y3]
 
-      ttm_x = cast[ttmath.UInt256](x)
-      ttm_y = cast[ttmath.UInt256](y)
+      ttm_x = x.asTT
+      ttm_y = y.asTT
       mp_x  = cast[StUint[256]](x)
       mp_y  = cast[StUint[256]](y)
 
@@ -70,7 +69,7 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       ttm_z = ttm_x and ttm_y
       mp_z  = mp_x  and mp_y
 
-    check(cast[array[4, uint64]](ttm_z) == cast[array[4, uint64]](mp_z))
+    check ttm_z.asSt == mp_z
 
   quicktest "`xor`", itercount do(x0: uint(min=0, max=hi),
                                 x1: uint(min=0, max=hi),
@@ -85,8 +84,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       x = [x0, x1, x2, x3]
       y = [y0, y1, y2, y3]
 
-      ttm_x = cast[ttmath.UInt256](x)
-      ttm_y = cast[ttmath.UInt256](y)
+      ttm_x = x.asTT
+      ttm_y = y.asTT
       mp_x  = cast[StUint[256]](x)
       mp_y  = cast[StUint[256]](y)
 
@@ -94,7 +93,7 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       ttm_z = ttm_x xor ttm_y
       mp_z  = mp_x  xor mp_y
 
-    check(cast[array[4, uint64]](ttm_z) == cast[array[4, uint64]](mp_z))
+    check ttm_z.asSt == mp_z
 
   # Not defined for ttmath
   # quicktest "`not`", itercount do(x0: uint(min=0, max=hi),
@@ -128,8 +127,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       x = [x0, x1, x2, x3]
       y = [y0, y1, y2, y3]
 
-      ttm_x = cast[ttmath.UInt256](x)
-      ttm_y = cast[ttmath.UInt256](y)
+      ttm_x = x.asTT
+      ttm_y = y.asTT
       mp_x  = cast[StUint[256]](x)
       mp_y  = cast[StUint[256]](y)
 
@@ -153,8 +152,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       x = [x0, x1, x2, x3]
       y = [y0, y1, y2, y3]
 
-      ttm_x = cast[ttmath.UInt256](x)
-      ttm_y = cast[ttmath.UInt256](y)
+      ttm_x = x.asTT
+      ttm_y = y.asTT
       mp_x  = cast[StUint[256]](x)
       mp_y  = cast[StUint[256]](y)
 
@@ -177,8 +176,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       x = [x0, x1, x2, x3]
       y = [y0, y1, y2, y3]
 
-      ttm_x = cast[ttmath.UInt256](x)
-      ttm_y = cast[ttmath.UInt256](y)
+      ttm_x = x.asTT
+      ttm_y = y.asTT
       mp_x  = cast[StUint[256]](x)
       mp_y  = cast[StUint[256]](y)
 
@@ -186,7 +185,7 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       ttm_z = ttm_x + ttm_y
       mp_z  = mp_x  + mp_y
 
-    check(cast[array[4, uint64]](ttm_z) == cast[array[4, uint64]](mp_z))
+    check ttm_z.asSt == mp_z
 
   quicktest "`-`", itercount do(x0: uint(min=0, max=hi),
                                 x1: uint(min=0, max=hi),
@@ -201,8 +200,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       x = [x0, x1, x2, x3]
       y = [y0, y1, y2, y3]
 
-      ttm_x = cast[ttmath.UInt256](x)
-      ttm_y = cast[ttmath.UInt256](y)
+      ttm_x = x.asTT
+      ttm_y = y.asTT
       mp_x  = cast[StUint[256]](x)
       mp_y  = cast[StUint[256]](y)
 
@@ -210,7 +209,7 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       ttm_z = ttm_x - ttm_y
       mp_z  = mp_x  - mp_y
 
-    check(cast[array[4, uint64]](ttm_z) == cast[array[4, uint64]](mp_z))
+    check ttm_z.asSt == mp_z
 
   quicktest "`*`", itercount do(x0: uint(min=0, max=hi),
                                 x1: uint(min=0, max=hi),
@@ -225,8 +224,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       x = [x0, x1, x2, x3]
       y = [y0, y1, y2, y3]
 
-      ttm_x = cast[ttmath.UInt256](x)
-      ttm_y = cast[ttmath.UInt256](y)
+      ttm_x = x.asTT
+      ttm_y = y.asTT
       mp_x  = cast[StUint[256]](x)
       mp_y  = cast[StUint[256]](y)
 
@@ -234,7 +233,7 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       ttm_z = ttm_x * ttm_y
       mp_z  = mp_x  * mp_y
 
-    check(cast[array[4, uint64]](ttm_z) == cast[array[4, uint64]](mp_z))
+    check ttm_z.asSt == mp_z
 
   quicktest "`shl`", itercount do(x0: uint(min=0, max=hi),
                                 x1: uint(min=0, max=hi),
@@ -245,14 +244,14 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
     let
       x = [x0, x1, x2, x3]
 
-      ttm_x = cast[ttmath.UInt256](x)
+      ttm_x = x.asTT
       mp_x  = cast[StUint[256]](x)
 
     let
       ttm_z = ttm_x shl y.uint
       mp_z  = mp_x  shl y
 
-    check(cast[array[4, uint64]](ttm_z) == cast[array[4, uint64]](mp_z))
+    check ttm_z.asSt == mp_z
 
   quicktest "`shr`", itercount do(x0: uint(min=0, max=hi),
                                 x1: uint(min=0, max=hi),
@@ -263,14 +262,14 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
     let
       x = [x0, x1, x2, x3]
 
-      ttm_x = cast[ttmath.UInt256](x)
+      ttm_x = x.asTT
       mp_x  = cast[StUint[256]](x)
 
     let
       ttm_z = ttm_x shr y.uint
       mp_z  = mp_x  shr y
 
-    check(cast[array[4, uint64]](ttm_z) == cast[array[4, uint64]](mp_z))
+    check ttm_z.asSt == mp_z
 
   quicktest "`mod`", itercount do(x0: uint(min=0, max=hi),
                                 x1: uint(min=0, max=hi),
@@ -285,8 +284,8 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       x = [x0, x1, x2, x3]
       y = [y0, y1, y2, y3]
 
-      ttm_x = cast[ttmath.UInt256](x)
-      ttm_y = cast[ttmath.UInt256](y)
+      ttm_x = x.asTT
+      ttm_y = y.asTT
       mp_x  = cast[StUint[256]](x)
       mp_y  = cast[StUint[256]](y)
 
@@ -307,11 +306,12 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       x = [x0, x1, x2, x3]
       y = [y0, y1, y2, y3]
 
-      ttm_x = cast[ttmath.UInt256](x)
-      ttm_y = cast[ttmath.UInt256](y)
+      ttm_x = x.asTT
+      ttm_y = y.asTT
       mp_x  = cast[StUint[256]](x)
       mp_y  = cast[StUint[256]](y)
 
     let
       ttm_z = ttm_x div ttm_y
       mp_z  = mp_x  div mp_y
+
