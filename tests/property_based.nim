@@ -14,9 +14,13 @@ const itercount = 1000
 suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / uint32 on 32-bit":
 
   when defined(release):
-    echo "Testing in release mode with " & $itercount & " random tests for each proc. (StUint[64] = uint64)"
+    echo "Testing in release mode with " & $itercount & " random tests for each proc."
   else:
     echo "Testing in debug mode " & $itercount & " random tests for each proc. (StUint[64] = 2x uint32)"
+  when defined(mpint_test):
+    echo "(StUint[64] = 2x uint32)"
+  else:
+    echo "(StUint[64] = uint64)"
 
   let hi = 1'u shl (sizeof(uint)*7)
 
