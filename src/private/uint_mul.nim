@@ -105,27 +105,34 @@ template extPrecMulImpl*[T](result: var UintImpl[UintImpl[T]], op: untyped, x, y
 
   var z1: type x
 
-  # Low part - z0
+  # Low part and hi part - z0 & z2
   when eqSym(op, `+=`):
     extPrecAddMul(result.lo, x.lo, y.lo)
+    extPrecAddMul(result.hi, x.hi, y.hi)
   else:
     extPrecMul(result.lo, x.lo, y.lo)
+    extPrecMul(result.hi, x.hi, y.hi)
 
-  # Middle part - z1
+  ## TODO - fuse those parts and reduce the number of carry checks
+  # Middle part - z1 - 1st mul
   extPrecMul(z1, x.hi, y.lo)
-  let carry_check = z1
-  extPrecAddMul(z1, x.lo, y.hi)
-  if z1 < carry_check:
-    inc result.hi.lo
-
-  # High part - z2
-  result.hi.lo +=  z1.hi
-  extPrecAddMul(result.hi, x.hi, y.hi)
-
-  # Finalize low part
   result.lo.hi += z1.lo
   if result.lo.hi < z1.lo:
     inc result.hi
+
+  result.hi.lo += z1.hi
+  if result.hi.lo < z1.hi:
+    inc result.hi.hi
+
+  # Middle part - z1 - 2nd mul
+  extPrecMul(z1, x.lo, y.hi)
+  result.lo.hi += z1.lo
+  if result.lo.hi < z1.lo:
+    inc result.hi
+
+  result.hi.lo += z1.hi
+  if result.hi.lo < z1.hi:
+    inc result.hi.hi
 
 func extPrecAddMul[T](result: var UintImpl[UintImpl[T]], u, v: UintImpl[T]) =
   ## Extended precision fused in-place addition & multiplication
