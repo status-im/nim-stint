@@ -12,14 +12,14 @@
 # Note that currently importing both Stint and TTMath will crash the compiler for unknown reason
 import ../src/stint, unittest, quicktest, ttmath_compat
 
-const itercount = 1000
+const itercount = 10000
 
 suite "Property-based testing (testing with random inputs) of Uint256":
 
   when defined(release):
-    echo "Testing in release mode. (StUint[256] = 4 x uint64)"
+    echo "Testing in release mode with " & $itercount & " random tests for each proc. (StUint[64] = uint64)"
   else:
-    echo "Testing in debug mode. (StUint[256] = 8 x uint32)"
+    echo "Testing in debug mode " & $itercount & " random tests for each proc. (StUint[64] = 2x uint32)"
 
   let hi = 1'u shl (sizeof(uint)*7)
 
