@@ -12,7 +12,7 @@
 # Note that currently importing both Stint and TTMath will crash the compiler for unknown reason
 import ../src/stint, unittest, quicktest, ttmath_compat
 
-const itercount = 10_000_000_000
+const itercount = 10_000
 
 suite "Property-based testing (testing with random inputs) of Uint256":
 
