@@ -76,3 +76,9 @@ proc `shr`*(x: StUint, y: SomeInteger): StUint {.fooPragma, inline, noSideEffect
   result.data = x.data shr y
 proc `shl`*(x: StUint, y: SomeInteger): StUint {.fooPragma, inline, noSideEffect.} =
   result.data = x.data shl y
+
+func high*[bits: static[int]](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.} =
+  result.data = high(type result.data)
+
+func low*[bits: static[int]](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.} =
+  result.data = low(type result.data)
