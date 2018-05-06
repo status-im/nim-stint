@@ -6,7 +6,7 @@
 #  * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
-{.pragma: fooPragma.}
+
 import  ./bithacks, ./conversion, ./initialization,
         ./datatypes,
         ./uint_comparison,
@@ -21,12 +21,12 @@ proc `+=`*(x: var UintImpl, y: UintImpl) {.noSideEffect, inline.}=
   x.lo += y.lo
   x.hi += (x.lo < y.lo).toSubtype(SubTy) + y.hi
 
-proc `+`*(x, y: UintImpl): UintImpl {.noSideEffect, fooPragma, inline.}=
+proc `+`*(x, y: UintImpl): UintImpl {.noSideEffect, inline.}=
   # Addition for multi-precision unsigned int
   result = x
   result += y
 
-proc `-`*(x, y: UintImpl): UintImpl {.noSideEffect, fooPragma, inline.}=
+proc `-`*(x, y: UintImpl): UintImpl {.noSideEffect, inline.}=
   # Substraction for multi-precision unsigned int
 
   type SubTy = type x.lo

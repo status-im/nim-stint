@@ -6,7 +6,7 @@
 #  * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
-{.pragma: fooPragma.}
+
 import ./datatypes, ./int_negabs, ./uint_div, ./int_comparison
 
 # Here are the expected signs for division/modulo by opposite signs and both negative numbers
@@ -32,11 +32,11 @@ import ./datatypes, ./int_negabs, ./uint_div, ./int_comparison
 #       echo "-10 mod -3: " & $(-10 mod -3) # -1
 #       echo '\n'
 
-func divmod*(x, y: SomeSignedInt): tuple[quot, rem: SomeSignedInt] {.fooPragma, inline.}=
+func divmod*(x, y: SomeSignedInt): tuple[quot, rem: SomeSignedInt] {.inline.}=
   # hopefully the compiler fuse that in a single op
   (x div y, x mod y)
 
-proc divmod*[T](x, y: IntImpl[T]): tuple[quot, rem: IntImpl[T]] {.fooPragma.}=
+proc divmod*[T](x, y: IntImpl[T]): tuple[quot, rem: IntImpl[T]] =
   ## Divmod operation for multi-precision signed integer
 
   result = cast[type result](divmod(

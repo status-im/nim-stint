@@ -6,10 +6,10 @@
 #  * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
-{.pragma: fooPragma.}
+
 import ./datatypes, ./uint_bitwise_ops, ./int_bitwise_ops, ./initialization
 
-func high*[T](_: typedesc[IntImpl[T]]): IntImpl[T] {.inline, fooPragma.}=
+func high*[T](_: typedesc[IntImpl[T]]): IntImpl[T] {.inline.}=
 
   # The lowest signed int has representation
   # 0b0111_1111_1111_1111 ....
@@ -17,7 +17,7 @@ func high*[T](_: typedesc[IntImpl[T]]): IntImpl[T] {.inline, fooPragma.}=
   let only_msb_set = UintImpl[T].zero.not shr 1
   result = cast[IntImpl[T]](only_msb_set)
 
-func low*[T](_: typedesc[IntImpl[T]]): IntImpl[T] {.inline, fooPragma.}=
+func low*[T](_: typedesc[IntImpl[T]]): IntImpl[T] {.inline.}=
 
   # The lowest signed int has representation
   # 0b1000_0000_0000_0000 ....

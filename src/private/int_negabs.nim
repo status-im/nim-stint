@@ -6,13 +6,13 @@
 #  * MIT license ([LICENSE-MIT](LICENSE-MIT) or http://opensource.org/licenses/MIT)
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
-{.pragma: fooPragma.}
+
 import
   ./datatypes,
   ./initialization, ./int_highlow,
   ./int_addsub, ./int_comparison
 
-func `-`*[T: IntImpl](x: T): T {.fooPragma, inline.}=
+func `-`*[T: IntImpl](x: T): T {.inline.}=
   # Negate a multi-precision signed int.
 
   when compileOption("boundChecks"):
@@ -22,7 +22,7 @@ func `-`*[T: IntImpl](x: T): T {.fooPragma, inline.}=
   result = not x
   result += one(T)
 
-func abs*[T: IntImpl](x: T): T {.fooPragma, inline.}=
+func abs*[T: IntImpl](x: T): T {.inline.}=
   ## Returns the absolute value of a signed int.
 
   result =  if x.isNegative: -x

@@ -9,8 +9,8 @@
 
 import ./datatypes, ./initialization
 
-func low*(T: typedesc[UintImpl]): T {.inline, fooPragma.}=
+func low*(T: typedesc[UintImpl]): T {.inline.}=
   zero(T)
 
-func high*(T: typedesc[UintImpl]): T {.inline, fooPragma.}=
+func high*(T: typedesc[UintImpl]): T {.inline.}=
   not zero(T)

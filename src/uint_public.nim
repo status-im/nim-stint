@@ -9,20 +9,20 @@
 
 import ./private/datatypes, macros
 export StUint, UintImpl, uintImpl # TODO remove the need to export UintImpl and this macro
-{.pragma: fooPragma.}
+
 type
   UInt128* = StUint[128]
   UInt256* = StUint[256]
 
 template make_conv(conv_name: untyped, size: int): untyped =
-  func `convname`*(n: SomeInteger): StUint[size] {.inline, fooPragma.}=
+  func `convname`*(n: SomeInteger): StUint[size] {.inline.}=
     n.stuint(size)
 
 make_conv(u128, 128)
 make_conv(u256, 256)
 
 template make_unary(op, ResultTy): untyped =
-  func `op`*(x: StUint): ResultTy {.fooPragma, inline.} =
+  func `op`*(x: StUint): ResultTy {.inline.} =
     when ResultTy is StUint:
       result.data = op(x.data)
     else:
@@ -30,7 +30,7 @@ template make_unary(op, ResultTy): untyped =
   export op
 
 template make_binary(op, ResultTy): untyped =
-  func `op`*(x, y: StUint): ResultTy {.fooPragma, inline.} =
+  func `op`*(x, y: StUint): ResultTy {.inline.} =
     when ResultTy is StUint:
       result.data = op(x.data, y.data)
     else:
@@ -56,7 +56,7 @@ import ./private/uint_div
 
 make_binary(`div`, StUint)
 make_binary(`mod`, StUint)
-func divmod*(x, y: StUint): tuple[quot, rem: StUint] {.fooPragma, inline.} =
+func divmod*(x, y: StUint): tuple[quot, rem: StUint] {.inline.} =
   (result.quot.data, result.rem.data) = divmod(x.data, y.data)
 
 import ./private/uint_comparison
@@ -72,9 +72,9 @@ make_unary(`not`, StUint)
 make_binary(`or`, StUint)
 make_binary(`and`, StUint)
 make_binary(`xor`, StUint)
-proc `shr`*(x: StUint, y: SomeInteger): StUint {.fooPragma, inline, noSideEffect.} =
+proc `shr`*(x: StUint, y: SomeInteger): StUint {.inline, noSideEffect.} =
   result.data = x.data shr y
-proc `shl`*(x: StUint, y: SomeInteger): StUint {.fooPragma, inline, noSideEffect.} =
+proc `shl`*(x: StUint, y: SomeInteger): StUint {.inline, noSideEffect.} =
   result.data = x.data shl y
 
 import ./private/uint_highlow
