@@ -82,6 +82,8 @@ make_binary(`xor`, Stint)
 # proc `shl`*(x: Stint, y: SomeInteger): Stint {.fooPragma, inline, noSideEffect.} =
 #   result.data = x.data shl y
 
+import ./private/int_highlow
+
 func high*[bits: static[int]](_: typedesc[Stint[bits]]): Stint[bits] {.inline.} =
   result.data = high(type result.data)
 

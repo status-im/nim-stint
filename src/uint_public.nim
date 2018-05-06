@@ -77,6 +77,8 @@ proc `shr`*(x: StUint, y: SomeInteger): StUint {.fooPragma, inline, noSideEffect
 proc `shl`*(x: StUint, y: SomeInteger): StUint {.fooPragma, inline, noSideEffect.} =
   result.data = x.data shl y
 
+import ./private/uint_highlow
+
 func high*[bits: static[int]](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.} =
   result.data = high(type result.data)
 
