@@ -10,17 +10,6 @@
 import ./private/datatypes, macros
 export StUint, UintImpl, uintImpl # TODO remove the need to export UintImpl and this macro
 
-type
-  UInt128* = StUint[128]
-  UInt256* = StUint[256]
-
-template make_conv(conv_name: untyped, size: int): untyped =
-  func `convname`*(n: SomeInteger): StUint[size] {.inline.}=
-    n.stuint(size)
-
-make_conv(u128, 128)
-make_conv(u256, 256)
-
 template make_unary(op, ResultTy): untyped =
   func `op`*(x: StUint): ResultTy {.inline.} =
     when ResultTy is StUint:
