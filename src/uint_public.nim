@@ -73,3 +73,8 @@ func high*[bits: static[int]](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.
 
 func low*[bits: static[int]](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.} =
   result.data = low(type result.data)
+
+import ./private/bithacks
+
+func countLeadingZeroBits*(x: StUint): int {.inline.} =
+  x.data.countLeadingZeroBits
