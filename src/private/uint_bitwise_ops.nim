@@ -39,7 +39,7 @@ func `shl`*(x: UintImpl, y: SomeInteger): UintImpl {.inline.}=
 
   # TODO: would it be better to reimplement this using an array of bytes/uint64
   # That opens up to endianness issues.
-  const halfSize = getSize(x) div 2
+  const halfSize: type(y) = getSize(x) div 2
 
   if y == 0:
     return x
@@ -53,7 +53,7 @@ func `shl`*(x: UintImpl, y: SomeInteger): UintImpl {.inline.}=
 
 func `shr`*(x: UintImpl, y: SomeInteger): UintImpl {.inline.}=
   ## Compute the `shift right` operation of x and y
-  const halfSize = getSize(x) div 2
+  const halfSize: type(y) = getSize(x) div 2
 
   if y == 0:
     return x
