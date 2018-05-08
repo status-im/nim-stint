@@ -20,7 +20,7 @@ template make_conv(conv_name: untyped, size: int): untyped =
   func `convname`*(n: SomeInteger): StUint[size] {.inline.}=
     n.stuint(size)
   func `convname`*(input: string): StUint[size] {.inline.}=
-    parse(Stuint[size], input)
+    input.parse(Stuint[size])
 
 make_conv(u128, 128)
 make_conv(u256, 256)
@@ -29,7 +29,7 @@ template make_conv(conv_name: untyped, size: int): untyped =
   func `convname`*(n: SomeInteger): Stint[size] {.inline.}=
     n.stint(size)
   func `convname`*(input: string): Stint[size] {.inline.}=
-    parse(Stint[size], input)
+    input.parse(Stint[size])
 
 make_conv(i128, 128)
 make_conv(i256, 256)

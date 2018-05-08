@@ -133,7 +133,7 @@ macro asSignedWordsZip*[T](
     # if we have multiple iterations to do
     if system.cpuEndian == bigEndian:
       result = quote do:
-        {.pragma: restrict, codegenDecl: "$# __restrict__ $#".}
+        {.pragma: restrict, codegenDecl: "$# __restrict $#".}
         let
           `next_x`{.restrict.} = cast[ptr `optim_type`](`x`.unsafeaddr)
           `next_y`{.restrict.} = cast[ptr `optim_type`](`y`.unsafeaddr)
@@ -143,7 +143,7 @@ macro asSignedWordsZip*[T](
     else:
       # Little-Endian, iteration in reverse
       result = quote do:
-        {.pragma: restrict, codegenDecl: "$# __restrict__ $#".}
+        {.pragma: restrict, codegenDecl: "$# __restrict $#".}
         let
           `next_x`{.restrict.} = cast[ptr `optim_type`](`x`.unsafeaddr)
           `next_y`{.restrict.} = cast[ptr `optim_type`](`y`.unsafeaddr)
