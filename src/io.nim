@@ -281,3 +281,44 @@ func dumpHex*(x: Stint or StUint): string {.inline.}=
   dumpHex(x, bigEndian)
   # TODO: Have a default static argument in the previous proc. Currently we get
   #       "Cannot evaluate at compile-time".
+
+func readUintBE*[N: static[int]](a: array[N, byte]): Stuint[N*8] =
+  ## Convert a big-endian array of N Bytes to an UInt[N*8] (in native host endianness)
+  ## Input:
+  ##   - a big-endian array of size N
+  ## Returns:
+  ##   - A unsigned integer of the same size with N*8 bits
+
+  when system.cpuEndian == bigEndian:
+    result = cast[type result](a)
+  else:
+    let r_ptr = cast[ptr array[N, byte]](result.addr)
+    for i, val in a:
+      r_ptr[N-1 - i] = val
+
+func readUintBE*[bits: static[int]](s: seq[byte]): Stuint[bits] =
+  ## Convert a big-endian array of (bits div 8) Bytes to an UInt[bits] (in native host endianness)
+  ## Input:
+  ##   - a big-endian sequence of size (bits div 8)
+  ## Returns:
+  ##   - A unsigned integer of the same size with `bits` bits
+
+  let r_ptr = cast[ptr array[bits div 8, byte]](result.addr)
+  for i, val in s:
+    when system.cpuEndian == bigEndian:
+      r_ptr[i] = val
+    else:
+      r_ptr[N-1 - i] = val
+
+func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte] =
+  ## Convert a uint[bits] to to a big-endian array of bits div 8 bytes
+  ## Input:
+  ##   - an unsigned integer
+  ## Returns:
+  ##   - a big-endian array of the same size
+  when system.cpuEndian == bigEndian:
+    result = cast[type result](n)
+  else:
+    let n_ptr = cast[ptr array[bits div 8, byte]](n.unsafeAddr)
+    for i in 0 ..< bits div 8:
+      result[N-1 - i] = n_ptr[i]
