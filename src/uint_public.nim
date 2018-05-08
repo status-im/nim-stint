@@ -78,3 +78,11 @@ import ./private/bithacks
 
 func countLeadingZeroBits*(x: StUint): int {.inline.} =
   x.data.countLeadingZeroBits
+
+import ./private/initialization
+
+func one*[bits: static[int]](T: typedesc[Stuint[bits] or Stint[bits]]): T {.inline.} =
+  result.data = one(type result.data)
+
+func zero*[bits: static[int]](T: typedesc[Stuint[bits] or Stint[bits]]): T {.inline.} =
+  discard
