@@ -304,7 +304,8 @@ func readUintBE*[bits: static[int]](ba: openarray[byte]): Stuint[bits] =
   const N = bits div 8
   assert(ba.len == N)
 
-  let r_ptr = cast[ptr array[N, byte]](result.addr)
+  {.pragma: restrict, codegenDecl: "$# __restrict $#".}
+  let r_ptr {.restrict.} = cast[ptr array[N, byte]](result.addr)
   for i, val in ba:
     when system.cpuEndian == bigEndian:
       # TODO: due to https://github.com/status-im/nim-stint/issues/38
@@ -325,6 +326,7 @@ func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte]
   when system.cpuEndian == bigEndian:
     result = cast[type result](n)
   else:
-    let n_ptr = cast[ptr array[N, byte]](n.unsafeAddr)
+    {.pragma: restrict, codegenDecl: "$# __restrict $#".}
+    let n_ptr {.restrict.} = cast[ptr array[N, byte]](n.unsafeAddr)
     for i in 0 ..< N:
       result[N-1 - i] = n_ptr[i]
