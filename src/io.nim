@@ -249,9 +249,15 @@ func toString*[bits: static[int]](num: Stint[bits] or StUint[bits]): string {.in
   #       "Error: type mismatch: got <int, type StInt[128]>, required type static[int]"
   toString(num, 10)
 
+func toHex*[bits: static[int]](num: Stint[bits] or StUint[bits]): string {.inline.}=
+  ## Convert to a hex string.
+  ## Output is considered a big-endian base 16 string.
+  ## Leading zeros are stripped. Use dumpHex instead if you need the in-memory representation
+  toString(num, 16)
+
 func dumpHex*(x: Stint or StUint, order: static[Endianness]): string =
   ## Stringify an int to hex.
-  ## Note. Leading 0 are not removed. Use toString(n, base = 16) instead.
+  ## Note. Leading zeros are not removed. Use toString(n, base = 16)/toHex instead.
   ##
   ## You can specify bigEndian or littleEndian order.
   ## i.e. in bigEndian:

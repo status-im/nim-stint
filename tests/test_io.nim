@@ -73,11 +73,11 @@ suite "Testing input and output procedures":
   test "Conversion to hex strings":
     block:
       let a = 0x1234567890ABCDEF.stint(128)
-      check: a.toString(base = 16).toUpperAscii == "1234567890ABCDEF"
+      check: a.toHex.toUpperAscii == "1234567890ABCDEF"
 
     block:
       let a = 0x1234567890ABCDEF.stuint(128)
-      check: a.toString(base = 16).toUpperAscii == "1234567890ABCDEF"
+      check: a.toHex.toUpperAscii == "1234567890ABCDEF"
 
     # TODO: negative hex
 
