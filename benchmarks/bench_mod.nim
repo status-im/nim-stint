@@ -1,4 +1,4 @@
-import ../src/mpint, times
+import ../stint/mpint, times
 
 
 # Warmup on normal int

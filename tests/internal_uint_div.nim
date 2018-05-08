@@ -9,7 +9,7 @@
 
 # Test implementation of internal proc:
 
-include ../src/private/uint_div
+include ../stint/private/uint_div
 import unittest
 
 suite "implementation of internal division procecures":

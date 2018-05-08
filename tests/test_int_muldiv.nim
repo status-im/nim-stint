@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../src/stint, unittest
+import ../stint, unittest
 
 suite "Testing signed int multiplication implementation":
   test "Multiplication with result fitting in low half":
