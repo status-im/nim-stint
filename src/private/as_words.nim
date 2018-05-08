@@ -159,7 +159,7 @@ macro asWordsZip*(x, y: UintImpl or IntImpl, ignoreEndianness: static[bool], loo
   else:
     if ignoreEndianness or system.cpuEndian == bigEndian:
       result = quote do:
-        {.pragma: restrict, codegenDecl: "$# __restrict__ $#".}
+        {.pragma: restrict, codegenDecl: "$# __restrict $#".}
         let
           `inner_x`{.restrict.} = cast[ptr `optim_type`](`x`.unsafeaddr)
           `inner_y`{.restrict.} = cast[ptr `optim_type`](`y`.unsafeaddr)
@@ -168,7 +168,7 @@ macro asWordsZip*(x, y: UintImpl or IntImpl, ignoreEndianness: static[bool], loo
     else:
       # Little-Endian, iteration in reverse
       result = quote do:
-        {.pragma: restrict, codegenDecl: "$# __restrict__ $#".}
+        {.pragma: restrict, codegenDecl: "$# __restrict $#".}
         let
           `inner_x`{.restrict.} = cast[ptr `optim_type`](`x`.unsafeaddr)
           `inner_y`{.restrict.} = cast[ptr `optim_type`](`y`.unsafeaddr)
@@ -224,7 +224,7 @@ macro m_asWordsZip*[T: UintImpl or IntImpl](m: var T, x: T,
   else:
     if ignoreEndianness or system.cpuEndian == bigEndian:
       result = quote do:
-        {.pragma: restrict, codegenDecl: "$# __restrict__ $#".}
+        {.pragma: restrict, codegenDecl: "$# __restrict $#".}
         let
           `inner_m`{.restrict.} = cast[ptr `optim_type`](`m`.addr)
           `inner_x`{.restrict.} = cast[ptr `optim_type`](`x`.unsafeaddr)
@@ -233,7 +233,7 @@ macro m_asWordsZip*[T: UintImpl or IntImpl](m: var T, x: T,
     else:
       # Little-Endian, iteration in reverse
       result = quote do:
-        {.pragma: restrict, codegenDecl: "$# __restrict__ $#".}
+        {.pragma: restrict, codegenDecl: "$# __restrict $#".}
         let
           `inner_m`{.restrict.} = cast[ptr `optim_type`](`m`.addr)
           `inner_x`{.restrict.} = cast[ptr `optim_type`](`x`.unsafeaddr)
@@ -298,7 +298,7 @@ macro m_asWordsZip*[T: UintImpl or IntImpl](m: var T, x, y: T,
   else:
     if ignoreEndianness or system.cpuEndian == bigEndian:
       result = quote do:
-        {.pragma: restrict, codegenDecl: "$# __restrict__ $#".}
+        {.pragma: restrict, codegenDecl: "$# __restrict $#".}
         let
           `inner_m`{.restrict.} = cast[ptr `optim_type`](`m`.addr)
           `inner_x`{.restrict.} = cast[ptr `optim_type`](`x`.unsafeaddr)
@@ -308,7 +308,7 @@ macro m_asWordsZip*[T: UintImpl or IntImpl](m: var T, x, y: T,
     else:
       # Little-Endian, iteration in reverse
       result = quote do:
-        {.pragma: restrict, codegenDecl: "$# __restrict__ $#".}
+        {.pragma: restrict, codegenDecl: "$# __restrict $#".}
         let
           `inner_m`{.restrict.} = cast[ptr `optim_type`](`m`.addr)
           `inner_x`{.restrict.} = cast[ptr `optim_type`](`x`.unsafeaddr)

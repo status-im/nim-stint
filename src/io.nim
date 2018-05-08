@@ -262,7 +262,7 @@ func dumpHex*(x: Stint or StUint, order: static[Endianness]): string =
     hexChars = "0123456789abcdef"
     size = getSize(x.data) div 8
 
-  {.pragma: restrict, codegenDecl: "$# __restrict__ $#".}
+  {.pragma: restrict, codegenDecl: "$# __restrict $#".}
   let bytes {.restrict.}= cast[ptr array[size, byte]](x.unsafeaddr)
 
   result = newString(2*size)
