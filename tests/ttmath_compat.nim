@@ -1,4 +1,4 @@
-import ../src/stint, ttmath
+import ../stint, ttmath
 export ttmath
 
 template asSt*(val: UInt): auto =

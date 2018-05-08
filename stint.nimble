@@ -3,8 +3,7 @@ version       = "0.0.1"
 author        = "Status Research & Development GmbH"
 description   = "Efficient stack-based multiprecision int in Nim"
 license       = "Apache License 2.0 or MIT"
-srcDir        = "src"
-
+skipDirs      = @["tests", "benchmarks"]
 ### Dependencies
 
 # TODO remove quicktest and ttmath test only requirements: https://github.com/nim-lang/nimble/issues/482

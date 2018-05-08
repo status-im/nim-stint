@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../src/stint, unittest, strutils
+import ../stint, unittest, strutils
 
 suite "Testing input and output procedures":
   test "Creation from decimal strings":

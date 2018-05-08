@@ -10,7 +10,7 @@
 
 # Requires "https://github.com/status-im/nim-ttmath#master"
 # Note that currently importing both Stint and TTMath will crash the compiler for unknown reason
-import ../src/stint, unittest, quicktest, ttmath_compat
+import ../stint, unittest, quicktest, ttmath_compat
 
 const itercount = 10_000
 
