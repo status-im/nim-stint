@@ -117,7 +117,7 @@ func unsafeConv[bits: static[int]](n: range[0..16], T: typedesc[Stint[bits]|Stui
   else:
     r_ptr[r_ptr[].len - 1] = n.byte
 
-func parse*[bits: static[int]](T: typedesc[Stuint[bits]], input: string, base: static[int]): T =
+func parse*[bits: static[int]](input: string, T: typedesc[Stuint[bits]], base: static[int]): T =
   ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
 
   static: assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
@@ -138,7 +138,7 @@ func parse*[bits: static[int]](T: typedesc[Stuint[bits]], input: string, base: s
       result = result * radix + input[curr].readHexChar.unsafeConv(T)
     nextNonBlank(curr, input)
 
-func parse*[bits: static[int]](T: typedesc[Stint[bits]], input: string, base: static[int]): T =
+func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], base: static[int]): T =
   ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
 
   static: assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
@@ -176,12 +176,16 @@ func parse*[bits: static[int]](T: typedesc[Stint[bits]], input: string, base: st
   else:
     result = cast[Stint[bits]](no_overflow)
 
-func parse*[bits: static[int]](T: typedesc[Stint[bits]|Stuint[bits]], input: string): T {.inline.}=
+func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]|Stuint[bits]]): T {.inline.}=
   ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
   ## Input is considered a decimal string.
   # TODO: Have a default static argument in the previous proc. Currently we get
   #       "Cannot evaluate at compile-time" in several places (2018-04-26).
-  parse(T, input, 10)
+  parse(input, T, 10)
+
+func hexToUint*[bits: static[int]](hexString: string): Stuint[bits] {.inline.} =
+  ## Convert an hex string to the corresponding unsigned integer
+  parse(hexString, type result, base = 16)
 
 func toString*[bits: static[int]](num: StUint[bits], base: static[int]): string =
   ## Convert a Stint or Stuint to string.
@@ -282,30 +286,23 @@ func dumpHex*(x: Stint or StUint): string {.inline.}=
   # TODO: Have a default static argument in the previous proc. Currently we get
   #       "Cannot evaluate at compile-time".
 
-func readUintBE*[N: static[int]](a: array[N, byte]): Stuint[N*8] =
-  ## Convert a big-endian array of N Bytes to an UInt[N*8] (in native host endianness)
-  ## Input:
-  ##   - a big-endian array of size N
-  ## Returns:
-  ##   - A unsigned integer of the same size with N*8 bits
-
-  when system.cpuEndian == bigEndian:
-    result = cast[type result](a)
-  else:
-    let r_ptr = cast[ptr array[N, byte]](result.addr)
-    for i, val in a:
-      r_ptr[N-1 - i] = val
-
-func readUintBE*[bits: static[int]](s: seq[byte]): Stuint[bits] =
+func readUintBE*[bits: static[int]](ba: openarray[byte]): Stuint[bits] =
   ## Convert a big-endian array of (bits div 8) Bytes to an UInt[bits] (in native host endianness)
   ## Input:
-  ##   - a big-endian sequence of size (bits div 8)
+  ##   - a big-endian openarray of size (bits div 8) at least
   ## Returns:
   ##   - A unsigned integer of the same size with `bits` bits
+  ##
+  ## ⚠ If the openarray length is bigger than bits div 8, part converted is undefined behaviour.
 
-  let r_ptr = cast[ptr array[bits div 8, byte]](result.addr)
-  for i, val in s:
+  const N = bits div 8
+  assert(ba.len == N)
+
+  let r_ptr = cast[ptr array[N, byte]](result.addr)
+  for i, val in ba:
     when system.cpuEndian == bigEndian:
+      # TODO: due to https://github.com/status-im/nim-stint/issues/38
+      # We can't cast a stack byte array to stuint with a convenient proc signature.
       r_ptr[i] = val
     else:
       r_ptr[N-1 - i] = val
@@ -316,9 +313,12 @@ func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte]
   ##   - an unsigned integer
   ## Returns:
   ##   - a big-endian array of the same size
+
+  const N = bits div 8
+
   when system.cpuEndian == bigEndian:
     result = cast[type result](n)
   else:
-    let n_ptr = cast[ptr array[bits div 8, byte]](n.unsafeAddr)
-    for i in 0 ..< bits div 8:
+    let n_ptr = cast[ptr array[N, byte]](n.unsafeAddr)
+    for i in 0 ..< N:
       result[N-1 - i] = n_ptr[i]
