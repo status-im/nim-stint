@@ -16,16 +16,16 @@ import  macros,
 
 # ################### Multiplication ################### #
 
-func lo[T:SomeUnsignedInt](x: T): T {.inline.} =
+func lo(x: uint64): uint64 {.inline.} =
   const
-    p = T.sizeof * 8 div 2
-    base = 1 shl p
-    mask = base - 1
+    p: uint64 = 32
+    base: uint64 = 1 shl p
+    mask: uint64 = base - 1
   result = x and mask
 
-func hi[T:SomeUnsignedInt](x: T): T {.inline.} =
+func hi(x: uint64): uint64 {.inline.} =
   const
-    p = T.sizeof * 8 div 2
+    p = 32
   result = x shr p
 
 # No generic, somehow Nim is given ambiguous call with the T: UintImpl overload
