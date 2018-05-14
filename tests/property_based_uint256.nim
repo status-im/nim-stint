@@ -323,7 +323,7 @@ suite "Property-based testing (testing with random inputs) of Uint256":
 
     check ttm_z.asSt == mp_z
 
-  quicktest "`^`", itercount do(x0: uint(min=0, max=hi),
+  quicktest "pow", itercount do(x0: uint(min=0, max=hi),
                                 x1: uint(min=0, max=hi),
                                 x2: uint(min=0, max=hi),
                                 x3: uint(min=0, max=hi),
@@ -336,6 +336,6 @@ suite "Property-based testing (testing with random inputs) of Uint256":
 
     let
       ttm_z = ttm_x.pow(y.uint)
-      mp_z  = mp_x ^ y
+      mp_z  = mp_x.pow y
 
     check ttm_z.asSt == mp_z

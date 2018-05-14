@@ -87,7 +87,10 @@ func one*[bits: static[int]](T: typedesc[Stuint[bits] or Stint[bits]]): T {.inli
 func zero*[bits: static[int]](T: typedesc[Stuint[bits] or Stint[bits]]): T {.inline.} =
   discard
 
-import ./private/uint_exp
+import ./private/uint_exp, math
 
-func `^`*(x: StUint, y: Natural): StUint {.inline.} =
-  result.data = x.data ^ y
+func pow*(x: StUint, y: Natural): StUint {.inline.} =
+  when x.data is UintImpl:
+    result.data = x.data.pow(y)
+  else:
+    result.data = x.data ^ y

@@ -11,7 +11,7 @@ import
   ./datatypes,
   ./uint_bitwise_ops, ./uint_mul, ./initialization
 
-func `^`*(x: UintImpl, y: Natural): UintImpl =
+func pow*(x: UintImpl, y: Natural): UintImpl =
   ## Compute ``x`` to the power of ``y``,
   ## ``x`` must be non-negative
 
