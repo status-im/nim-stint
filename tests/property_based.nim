@@ -223,9 +223,16 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
       let
         tx = cast[StUint[64]](x)
         tz = tx.pow(y)
+
+        ty = cast[StUint[64]](y)
+        tz2 = tx.pow(ty)
     else:
       let
         tx = cast[StUint[32]](x)
         tz = tx.pow(y)
 
+        ty = cast[StUint[32]](y)
+        tz2 = tx.pow(ty)
+
     check(cast[uint](tz) == x ^ y)
+    check(cast[uint](tz2) == x ^ y)

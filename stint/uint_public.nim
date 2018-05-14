@@ -94,3 +94,9 @@ func pow*(x: StUint, y: Natural): StUint {.inline.} =
     result.data = x.data.pow(y)
   else:
     result.data = x.data ^ y
+
+func pow*(x: StUint, y: StUint): StUint {.inline.} =
+  when x.data is UintImpl:
+    result.data = x.data.pow(y.data)
+  else:
+    result.data = x.data ^ y.data
