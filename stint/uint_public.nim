@@ -61,9 +61,9 @@ make_unary(`not`, StUint)
 make_binary(`or`, StUint)
 make_binary(`and`, StUint)
 make_binary(`xor`, StUint)
-proc `shr`*(x: StUint, y: SomeInteger): StUint {.inline, noSideEffect.} =
+func `shr`*(x: StUint, y: SomeInteger): StUint {.inline.} =
   result.data = x.data shr y
-proc `shl`*(x: StUint, y: SomeInteger): StUint {.inline, noSideEffect.} =
+func `shl`*(x: StUint, y: SomeInteger): StUint {.inline.} =
   result.data = x.data shl y
 
 import ./private/uint_highlow
@@ -86,3 +86,8 @@ func one*[bits: static[int]](T: typedesc[Stuint[bits] or Stint[bits]]): T {.inli
 
 func zero*[bits: static[int]](T: typedesc[Stuint[bits] or Stint[bits]]): T {.inline.} =
   discard
+
+import ./private/uint_exp
+
+func `^`*(x: StUint, y: Natural): StUint {.inline.} =
+  result.data = x.data ^ y
