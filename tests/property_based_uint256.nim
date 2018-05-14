@@ -297,6 +297,8 @@ suite "Property-based testing (testing with random inputs) of Uint256":
       ttm_z = ttm_x mod ttm_y
       mp_z  = mp_x  mod mp_y
 
+    check ttm_z.asSt == mp_z
+
   quicktest "`div`", itercount do(x0: uint(min=0, max=hi),
                                 x1: uint(min=0, max=hi),
                                 x2: uint(min=0, max=hi),
@@ -319,3 +321,21 @@ suite "Property-based testing (testing with random inputs) of Uint256":
       ttm_z = ttm_x div ttm_y
       mp_z  = mp_x  div mp_y
 
+    check ttm_z.asSt == mp_z
+
+  quicktest "pow", itercount do(x0: uint(min=0, max=hi),
+                                x1: uint(min=0, max=hi),
+                                x2: uint(min=0, max=hi),
+                                x3: uint(min=0, max=hi),
+                                y : int(min=0, max=high(int))):
+
+    let
+      x = [x0, x1, x2, x3]
+      ttm_x = x.asTT
+      mp_x  = cast[StUint[256]](x)
+
+    let
+      ttm_z = ttm_x.pow(y.uint)
+      mp_z  = mp_x.pow y
+
+    check ttm_z.asSt == mp_z

@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, quicktest
+import ../stint, unittest, quicktest, math
 
 const itercount = 1000
 
@@ -216,3 +216,16 @@ suite "Property-based testing (testing with random inputs) - uint64 on 64-bit / 
         tz = tx div ty
 
     check(cast[uint](tz) == x div y)
+
+  quicktest "pow", itercount do(x: uint(min=0, max=hi), y: int(min = 0, max = high(int))):
+
+    when sizeof(int) == 8:
+      let
+        tx = cast[StUint[64]](x)
+        tz = tx.pow(y)
+    else:
+      let
+        tx = cast[StUint[32]](x)
+        tz = tx.pow(y)
+
+    check(cast[uint](tz) == x ^ y)
