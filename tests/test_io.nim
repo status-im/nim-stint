@@ -61,14 +61,17 @@ suite "Testing input and output procedures":
     block:
       let a = 1234567891234567890.stint(128)
       check: a.toString == "1234567891234567890"
+      check: $a == "1234567891234567890"
 
     block:
       let a = 1234567891234567890.stuint(128)
       check: a.toString == "1234567891234567890"
+      check: $a == "1234567891234567890"
 
     block:
       let a = (-1234567891234567890).stint(128)
       check: a.toString == "-1234567891234567890"
+      check: $a == "-1234567891234567890"
 
   test "Conversion to hex strings":
     block:
@@ -95,11 +98,13 @@ suite "Testing input and output procedures":
       let s = "1234567890123456789012345678901234567890123456789"
       let a = parse(s, StInt[512])
       check: a.toString == s
+      check: $a == s
 
     block:
       let s = "1234567890123456789012345678901234567890123456789"
       let a = parse(s, StUInt[512])
       check: a.toString == s
+      check: $a == s
 
 suite "Testing conversion functions: Hex, Bytes, Endianness using secp256k1 curve":
 

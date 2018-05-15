@@ -247,7 +247,16 @@ func toString*[bits: static[int]](num: Stint[bits] or StUint[bits]): string {.in
   #
   # TODO: Have a default static argument in the previous proc. Currently we get
   #       "Error: type mismatch: got <int, type StInt[128]>, required type static[int]"
-  toString(num, 10)
+  when num.data is SomeInteger:
+    $num.data
+  else:
+    toString(num, 10)
+
+func `$`*(num: Stint or StUint): string {.inline.}=
+  when num.data is SomeInteger:
+    $num.data
+  else:
+    toString(num, 10)
 
 func toHex*[bits: static[int]](num: Stint[bits] or StUint[bits]): string {.inline.}=
   ## Convert to a hex string.
