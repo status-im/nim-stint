@@ -54,3 +54,12 @@ suite "Signed int - Testing comparison operators":
       a >= -c
       b >= -c
       -b >= -b
+
+  test "isOdd/isEven":
+    check:
+      a.isEven
+      not a.isOdd
+      b.isOdd
+      not b.isEven
+      c.isEven
+      not c.isOdd

@@ -23,7 +23,7 @@ func pow*(x: UintImpl, y: Natural): UintImpl =
   result = one(type x)
 
   while true:
-    if (y and 1) != 0:
+    if bool(y and 1): # if y is odd
       result = result * x
     y = y shr 1
     if y == 0:
@@ -42,7 +42,7 @@ func pow*(x: UintImpl, y: UintImpl): UintImpl =
   result = one(type x)
 
   while true:
-    if not (y and one(type y)).isZero:
+    if y.isOdd:
       result = result * x
     y = y shr 1
     if y.isZero:
