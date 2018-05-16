@@ -43,3 +43,9 @@ func `<=`*(x, y: IntImpl): bool {.inline.}=
     if x != y:
       return x < y
   return true # they're equal
+
+func isOdd*(x: IntImpl): bool {.inline.}=
+  bool(x.least_significant_word and 1)
+
+func isEven*(x: IntImpl): bool {.inline.}=
+  not x.isOdd

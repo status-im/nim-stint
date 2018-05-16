@@ -53,7 +53,18 @@ import ./private/uint_comparison
 make_binary(`<`, bool)
 make_binary(`<=`, bool)
 make_binary(`==`, bool)
-func isZero*(x: StUint): bool {.inline.} = isZero x.data
+make_unary(isZero, bool)
+
+func isOdd(x: SomeUnsignedInt): bool {.inline.}=
+  # internal
+  bool(x and 1)
+
+func isEven(x: SomeUnsignedInt): bool {.inline.}=
+  # internal
+  not x.isOdd
+
+make_unary(isOdd, bool)
+make_unary(isEven, bool)
 
 import ./private/uint_bitwise_ops
 

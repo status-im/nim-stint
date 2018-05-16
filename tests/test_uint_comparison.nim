@@ -53,3 +53,12 @@ suite "Testing unsigned int comparison operators":
       cast[StUint[16]](c) >= a * b
       d >= e
       f >= d
+
+  test "isOdd/isEven":
+    check:
+      a.isEven
+      not a.isOdd
+      b.isOdd
+      not b.isEven
+      c.isEven
+      not c.isOdd
