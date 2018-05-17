@@ -11,7 +11,7 @@ import ./datatypes, ./uint_bitwise_ops, ./int_bitwise_ops, ./initialization
 
 func high*[T](_: typedesc[IntImpl[T]]): IntImpl[T] {.inline.}=
 
-  # The lowest signed int has representation
+  # The highest signed int has representation
   # 0b0111_1111_1111_1111 ....
   # so we only have to unset the most significant bit.
   let only_msb_unset = UintImpl[T].zero.not shr 1
