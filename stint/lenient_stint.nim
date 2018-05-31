@@ -68,12 +68,3 @@ make_mixed_types_ops(`==`, bool, BothSigned, switchInputs = true)
 make_mixed_types_ops(`or`, InputType, BothSigned, switchInputs = true)
 make_mixed_types_ops(`and`, InputType, BothSigned, switchInputs = true)
 make_mixed_types_ops(`xor`, InputType, BothSigned, switchInputs = true)
-
-# Specialization / fast path for comparison to zero
-template mtoIsZero*{a == 0}(a: StUint or Stint): bool = a.isZero
-template mtoIsZero*{0 == a}(a: StUint or Stint): bool = a.isZero
-
-template mtoIsNeg*{a < 0}(a: Stint): bool = a.isNegative
-template mtoIsNegOrZero*{a <= 0}(a: Stint): bool = a.isZero or a.isNegative
-template mtoIsPos*{a > 0}(a: Stint): bool = not(a.isZero or a.isNegative)
-template mtoIsPosOrZero*{a >= 0}(a: Stint): bool = not a.isNegative
