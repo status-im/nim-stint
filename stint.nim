@@ -7,8 +7,8 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import stint/[uint_public, int_public, io, modular_arithmetic]
-export uint_public, int_public, io, modular_arithmetic
+import stint/[uint_public, int_public, io, modular_arithmetic, literals_stint]
+export uint_public, int_public, io, modular_arithmetic, literals_stint
 
 type
   Int128* = Stint[128]
