@@ -45,12 +45,12 @@ macro make_mixed_types_ops(op: untyped, ResultTy: untyped, sign: static[Signedne
 
     result.add quote do:
       proc `op`*[bits: static[int]](a: Stint[bits], b: SomeInteger): `ResultTy` {.inline.}=
-        `op`(a, b.stuint(bits))
+        `op`(a, b.stint(bits))
 
     if switchInputs:
       result.add quote do:
         proc `op`*[bits: static[int]](a: SomeInteger, b: Stint[bits]): `ResultTy` {.inline.}=
-          `op`(a.stuint(bits), b)
+          `op`(a.stint(bits), b)
 
 make_mixed_types_ops(`+`, InputType, BothSigned, switchInputs = true)
 make_mixed_types_ops(`+=`, InputType, BothSigned, switchInputs = false)
