@@ -75,14 +75,10 @@ proc least_significant_two_words*(x: NimNode): tuple[lo, hi: NimNode] =
   result = (result_lo, result_hi)
 
 macro second_least_significant_word*(x: UintImpl or IntImpl): untyped =
-  let slsw = least_significant_two_words(x).hi
-  result = quote do:
-    `slsw`
+  result = least_significant_two_words(x).hi
 
 macro least_significant_word*(x: UintImpl or IntImpl): untyped =
-  let lsw = least_significant_two_words(x).lo
-  result = quote do:
-    `lsw`
+  result = least_significant_two_words(x).lo
 
 macro asWords*(n: UintImpl or IntImpl, ignoreEndianness: static[bool], loopBody: untyped): untyped =
   ## Iterates over n, as an array of words.
