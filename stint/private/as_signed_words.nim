@@ -56,21 +56,6 @@ macro most_significant_word*(x: IntImpl): untyped =
       # overflow checking
       cast[int](cast[`optim_type`](`x`)[`msw_pos`])
 
-macro least_significant_word*(x: IntImpl): untyped =
-
-  let optim_type = optimInt(x)
-  if optim_type.isInt:
-    result = quote do:
-      cast[`optim_type`](`x`)
-  else:
-    when system.cpuEndian == littleEndian:
-      let size = getSize(x)
-      let msw_pos = 0
-    else:
-      let msw_pos = size div 8 - 1
-    result = quote do:
-      cast[int](cast[`optim_type`](`x`)[`msw_pos`])
-
 macro asSignedWordsZip*[T](
   x, y: IntImpl[T],
   loopBody: untyped): untyped =

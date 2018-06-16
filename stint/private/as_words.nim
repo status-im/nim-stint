@@ -60,20 +60,20 @@ proc replaceNodes*(ast: NimNode, replacing: NimNode, to_replace: NimNode): NimNo
       return rTree
   result = inspect(ast)
 
-macro least_significant_word*(x: UintImpl): untyped =
+proc least_significant_word*(x: NimNode): NimNode =
+  var node = x.getTypeInst
+  result = x
 
-  let optim_type = optimUInt(x)
-  if optim_type.isUInt:
-    result = quote do:
-      cast[`optim_type`](`x`)
-  else:
-    when system.cpuEndian == littleEndian:
-      let size = getSize(x)
-      let msw_pos = 0
-    else:
-      let msw_pos = size div 64 - 1
-    result = quote do:
-      cast[`optim_type`](`x`)[`msw_pos`]
+  while node.kind == nnkBracketExpr:
+    assert eqIdent(node[0], "UintImpl") or eqIdent(node[0], "IntImpl"), (
+      "least_significant_word only supports primitive integers, Stint and Stuint")
+    result = quote do: `result`.lo
+    node = node[1]
+
+macro least_significant_word*(x: UintImpl or IntImpl): untyped =
+  let least_significant_word = least_significant_word(x)
+  result = quote do:
+    `least_significant_word`
 
 macro asWords*(n: UintImpl or IntImpl, ignoreEndianness: static[bool], loopBody: untyped): untyped =
   ## Iterates over n, as an array of words.
