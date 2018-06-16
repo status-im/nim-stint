@@ -92,11 +92,11 @@ func countLeadingZeroBits*(x: StUint): int {.inline.} =
 
 import ./private/initialization
 
-func one*[bits: static[int]](T: typedesc[Stuint[bits] or Stint[bits]]): T {.inline.} =
-  result.data = one(type result.data)
-
 func zero*[bits: static[int]](T: typedesc[Stuint[bits] or Stint[bits]]): T {.inline.} =
   discard
+
+func one*[bits: static[int]](T: typedesc[Stuint[bits]]): T {.inline.} =
+  result.data = one(type result.data)
 
 import ./private/uint_exp, math
 

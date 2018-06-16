@@ -60,20 +60,25 @@ proc replaceNodes*(ast: NimNode, replacing: NimNode, to_replace: NimNode): NimNo
       return rTree
   result = inspect(ast)
 
-macro least_significant_word*(x: UintImpl): untyped =
+proc least_significant_two_words*(x: NimNode): tuple[lo, hi: NimNode] =
+  var node = x.getTypeInst
+  var result_lo = x
 
-  let optim_type = optimUInt(x)
-  if optim_type.isUInt:
-    result = quote do:
-      cast[`optim_type`](`x`)
-  else:
-    when system.cpuEndian == littleEndian:
-      let size = getSize(x)
-      let msw_pos = 0
-    else:
-      let msw_pos = size div 64 - 1
-    result = quote do:
-      cast[`optim_type`](`x`)[`msw_pos`]
+  while node.kind == nnkBracketExpr:
+    assert eqIdent(node[0], "UintImpl") or eqIdent(node[0], "IntImpl"), (
+      "least_significant_word only supports primitive integers, Stint and Stuint")
+    result_lo = quote do: `result_lo`.lo
+    node = node[1]
+
+  var result_hi = result_lo.copyNimTree # ⚠ Aliasing: NimNodes are ref objects
+  result_hi[1] = newIdentNode("hi")     # replace the last lo by hi
+  result = (result_lo, result_hi)
+
+macro second_least_significant_word*(x: UintImpl or IntImpl): untyped =
+  result = least_significant_two_words(x).hi
+
+macro least_significant_word*(x: UintImpl or IntImpl): untyped =
+  result = least_significant_two_words(x).lo
 
 macro asWords*(n: UintImpl or IntImpl, ignoreEndianness: static[bool], loopBody: untyped): untyped =
   ## Iterates over n, as an array of words.
