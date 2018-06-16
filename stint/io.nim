@@ -10,7 +10,6 @@
 import
   ./private/datatypes,
   ./private/int_negabs,
-  ./private/initialization,
   ./private/[as_words, as_signed_words],
   ./int_public, ./uint_public,
   typetraits, algorithm
