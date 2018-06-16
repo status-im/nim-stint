@@ -24,25 +24,45 @@ template static_check_size(T: typedesc[SomeInteger], bits: static[int]) =
             "\nUse a smaller input type instead. This is a compile-time check" &
             " to avoid a costly run-time bit_length check at each StUint initialization."
 
+template assign_least_significant_words[T: SomeInteger](n: T) =
+  template lsw_result: untyped = least_significant_word(result.data)
+  template slsw_result: untyped = second_least_significant_word(result.data)
+
+  const wordSize = lsw_result.getSize
+  when sizeof(T) * 8 <= wordSize:
+    lsw_result = (type lsw_result)(n)
+  else: # We try to store an int64 in 2 x uint32 or 4 x uint16
+        # For now we only support assignation from 64 to 2x32 bit
+    const
+      size = getSize(T)
+      halfSize = size div 2
+      halfMask = (1.T shl halfSize) - 1.T
+
+    lsw_result = (type lsw_result)(n and halfMask)
+    slsw_result = (type slsw_result)(n shr halfSize)
+
 func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
   ## Converts an integer to an arbitrary precision integer.
-  ##
-  # Testing note: The integer is stored in the least significant word (lo)
-  # i.e. an uint64 can only be stored in test Stuint[64] == (lo: uint32, hi: uint32)
-  #      if it's lower than 2^32
-  least_significant_word(result.data) = (type least_significant_word(result.data))(n)
+
+  assert n >= 0.T
+  when result.data is UintImpl:
+    static_check_size(T, bits)
+    assign_least_significant_words(n)
+  else:
+    result.data = (type result.data)(n)
 
 func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
   ## Converts an integer to an arbitrary precision signed integer.
-  ##
-  # Testing note: The integer is stored in the least significant word (lo)
-  # i.e. an uint64 can only be stored in test Stuint[64] == (lo: uint32, hi: uint32)
-  #      if it's lower than 2^32
-  if n < 0:
-    least_significant_word(result.data) = (type least_significant_word(result.data))(-n)
-    result = -result
+
+  when result.data is IntImpl:
+    static_check_size(T, bits)
+    if n < 0:
+      assign_least_significant_words(-n)
+      result = -result
+    else:
+      assign_least_significant_words(n)
   else:
-    least_significant_word(result.data) = (type least_significant_word(result.data))(n)
+    result.data = (type result.data)(n)
 
 func toInt*(num: Stint or StUint): int {.inline.}=
   # Returns as int. Result is modulo 2^(sizeof(int)
@@ -87,20 +107,7 @@ func readDecChar(c: range['0'..'9']): int {.inline.}=
   # specialization without branching for base <= 10.
   ord(c) - ord('0')
 
-func unsafeConv[bits: static[int]](n: range[0..16], T: typedesc[Stint[bits]|Stuint[bits]]): T =
-  ## Fast convert a small int to a Stint/Stuint
-  ## This assumes that the int always fit.
-  ## Purpose:
-  ##   - Converting bases in the range [2..16]
-  ##   - Converting decimal/hexadecimal in range [0..15]
-
-  let r_ptr = cast[ptr array[bits div 8, byte]](result.addr)
-  when system.cpuEndian == littleEndian:
-    r_ptr[0] = n.byte
-  else:
-    r_ptr[r_ptr[].len - 1] = n.byte
-
-func parse*[bits: static[int]](input: string, T: typedesc[Stuint[bits]], base: static[int]): T =
+func parse*[bits: static[int]](input: string, T: typedesc[Stuint[bits]], base: static[uint8]): T =
   ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
 
   static: assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
@@ -109,19 +116,19 @@ func parse*[bits: static[int]](input: string, T: typedesc[Stuint[bits]], base: s
   # TODO: we can special case hex result/input as an array of bytes
   #       and be much faster
 
-  let radix = unsafeConv(base, T)
+  const radix = base.uint8.stuint(bits)
   var curr = 0 # Current index in the string
   skipPrefixes(curr, input, base)
 
   while curr < input.len:
     # TODO: overflow detection
     when base <= 10:
-      result = result * radix + input[curr].readDecChar.unsafeConv(T)
+      result = result * radix + input[curr].readDecChar.stuint(bits)
     else:
-      result = result * radix + input[curr].readHexChar.unsafeConv(T)
+      result = result * radix + input[curr].readHexChar.stuint(bits)
     nextNonBlank(curr, input)
 
-func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], base: static[int]): T =
+func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], base: static[int8]): T =
   ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
 
   static: assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
@@ -131,7 +138,7 @@ func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], base: st
   #       and be much faster
 
   # For conversion we require overflowing operations (for example for negative hex numbers)
-  let radix = unsafeConv(base, Stuint[bits])
+  const radix = base.int8.stuint(bits)
 
   var
     curr = 0 # Current index in the string
@@ -148,9 +155,9 @@ func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], base: st
   while curr < input.len:
     # TODO: overflow detection
     when base <= 10:
-      no_overflow = no_overflow * radix + input[curr].readDecChar.unsafeConv(Stuint[bits])
+      no_overflow = no_overflow * radix + input[curr].readDecChar.stuint(bits)
     else:
-      no_overflow = no_overflow * radix + input[curr].readHexChar.unsafeConv(Stuint[bits])
+      no_overflow = no_overflow * radix + input[curr].readHexChar.stuint(bits)
     nextNonBlank(curr, input)
 
   # TODO: we can't create the lowest int this way
@@ -170,7 +177,7 @@ func hexToUint*[bits: static[int]](hexString: string): Stuint[bits] {.inline.} =
   ## Convert an hex string to the corresponding unsigned integer
   parse(hexString, type result, base = 16)
 
-func toString*[bits: static[int]](num: StUint[bits], base: static[int]): string =
+func toString*[bits: static[int]](num: StUint[bits], base: static[uint8]): string =
   ## Convert a Stint or Stuint to string.
   ## In case of negative numbers:
   ##   - they are prefixed with "-" for base 10.
@@ -180,7 +187,7 @@ func toString*[bits: static[int]](num: StUint[bits], base: static[int]): string 
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
 
   const hexChars = "0123456789abcdef"
-  let radix = unsafeConv(base, type num)
+  const radix = base.uint8.stuint(bits)
 
   result = ""
   var (q, r) = divmod(num, radix)
@@ -193,7 +200,7 @@ func toString*[bits: static[int]](num: StUint[bits], base: static[int]): string 
 
   reverse(result)
 
-func toString*[bits: static[int]](num: Stint[bits], base: static[int]): string =
+func toString*[bits: static[int]](num: Stint[bits], base: static[int8]): string =
   ## Convert a Stint or Stuint to string.
   ## In case of negative numbers:
   ##   - they are prefixed with "-" for base 10.
@@ -203,7 +210,7 @@ func toString*[bits: static[int]](num: Stint[bits], base: static[int]): string =
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
 
   const hexChars = "0123456789abcdef"
-  let radix = unsafeConv(base, type num)
+  const radix = base.int8.stint(bits)
 
   result = ""
 

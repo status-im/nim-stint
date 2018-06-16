@@ -60,20 +60,29 @@ proc replaceNodes*(ast: NimNode, replacing: NimNode, to_replace: NimNode): NimNo
       return rTree
   result = inspect(ast)
 
-proc least_significant_word*(x: NimNode): NimNode =
+proc least_significant_two_words*(x: NimNode): tuple[lo, hi: NimNode] =
   var node = x.getTypeInst
-  result = x
+  var result_lo = x
 
   while node.kind == nnkBracketExpr:
     assert eqIdent(node[0], "UintImpl") or eqIdent(node[0], "IntImpl"), (
       "least_significant_word only supports primitive integers, Stint and Stuint")
-    result = quote do: `result`.lo
+    result_lo = quote do: `result_lo`.lo
     node = node[1]
 
-macro least_significant_word*(x: UintImpl or IntImpl): untyped =
-  let least_significant_word = least_significant_word(x)
+  var result_hi = result_lo.copyNimTree # ⚠ Aliasing: NimNodes are ref objects
+  result_hi[1] = newIdentNode("hi")     # replace the last lo by hi
+  result = (result_lo, result_hi)
+
+macro second_least_significant_word*(x: UintImpl or IntImpl): untyped =
+  let slsw = least_significant_two_words(x).hi
   result = quote do:
-    `least_significant_word`
+    `slsw`
+
+macro least_significant_word*(x: UintImpl or IntImpl): untyped =
+  let lsw = least_significant_two_words(x).lo
+  result = quote do:
+    `lsw`
 
 macro asWords*(n: UintImpl or IntImpl, ignoreEndianness: static[bool], loopBody: untyped): untyped =
   ## Iterates over n, as an array of words.
