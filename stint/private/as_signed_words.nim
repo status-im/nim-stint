@@ -39,7 +39,7 @@ proc isInt*(x: NimNode): static[bool] =
   elif eqIdent(x, "int8"):   true
   else: false
 
-macro most_significant_word*(x: IntImpl): untyped =
+macro most_significant_word_signed*(x: IntImpl): untyped =
 
   let optim_type = optimInt(x)
   if optim_type.isInt:
@@ -87,8 +87,8 @@ macro asSignedWordsZip*[T](
     first_y = quote do:
       cast[`optim_type`](`y`)
   else:
-    first_x = getAST(most_significant_word(x))
-    first_y = getAST(most_significant_word(y))
+    first_x = getAST(most_significant_word_signed(x))
+    first_y = getAST(most_significant_word_signed(y))
 
   replacing.add first_x
   replacing.add first_y

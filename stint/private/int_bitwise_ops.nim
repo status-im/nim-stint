@@ -11,20 +11,20 @@ import  ./datatypes, ./as_words
 
 func `not`*(x: IntImpl): IntImpl {.inline.}=
   ## Bitwise complement of unsigned integer x
-  m_asWordsZip(result, x, ignoreEndianness = true):
-    result = not x
+  for wr, wx in asWords(result, x):
+    wr = not wx
 
 func `or`*(x, y: IntImpl): IntImpl {.inline.}=
   ## `Bitwise or` of numbers x and y
-  m_asWordsZip(result, x, y, ignoreEndianness = true):
-    result = x or y
+  for wr, wx, wy in asWords(result, x, y):
+    wr = wx or wy
 
 func `and`*(x, y: IntImpl): IntImpl {.inline.}=
   ## `Bitwise and` of numbers x and y
-  m_asWordsZip(result, x, y, ignoreEndianness = true):
-    result = x and y
+  for wr, wx, wy in asWords(result, x, y):
+    wr = wx and wy
 
 func `xor`*(x, y: IntImpl): IntImpl {.inline.}=
   ## `Bitwise xor` of numbers x and y
-  m_asWordsZip(result, x, y, ignoreEndianness = true):
-    result = x xor y
+  for wr, wx, wy in asWords(result, x, y):
+    wr = wx xor wy

@@ -14,14 +14,14 @@ func isZero*(n: SomeSignedInt): bool {.inline.} =
   n == 0
 
 func isZero*(n: IntImpl): bool {.inline.} =
-  asWords(n, ignoreEndianness = true):
-    if n != 0:
+  for word in asWords(n):
+    if word != 0:
       return false
   return true
 
 func isNegative*(n: IntImpl): bool {.inline.} =
   ## Returns true if a number is negative:
-  n.msb.bool
+  n.isMsbSet
 
 func `<`*(x, y: IntImpl): bool {.inline.}=
   # Lower comparison for multi-precision integers
@@ -32,8 +32,8 @@ func `<`*(x, y: IntImpl): bool {.inline.}=
 
 func `==`*(x, y: IntImpl): bool {.inline.}=
   # Equal comparison for multi-precision integers
-  asWordsZip(x, y, ignoreEndianness = true):
-    if x != y:
+  for wx, wy in asWords(x, y):
+    if wx != wy:
       return false
   return true # they're equal
 

@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes, ./conversion, ./as_signed_words
+import  ./datatypes, ./conversion, ./int_comparison
 
 func `+`*(x, y: IntImpl): IntImpl {.inline.}=
   # Addition for multi-precision signed int.
@@ -17,8 +17,8 @@ func `+`*(x, y: IntImpl): IntImpl {.inline.}=
 
   when compileOption("boundChecks"):
     if unlikely(
-      ((result.most_significant_word xor x.most_significant_word) >= 0) or
-      ((result.most_significant_word xor y.most_significant_word) >= 0)
+      not(result.isNegative xor x.isNegative) or
+      not(result.isNegative xor y.isNegative)
     ):
       return
     raise newException(OverflowError, "Addition overflow")
@@ -36,8 +36,8 @@ func `-`*(x, y: IntImpl): IntImpl {.inline.}=
 
   when compileOption("boundChecks"):
     if unlikely(
-      ((result.most_significant_word xor x.most_significant_word) >= 0) or
-      ((result.most_significant_word xor (not y).most_significant_word) >= 0)
+      not(result.isNegative xor x.isNegative) or
+      not(result.isNegative xor y.isNegative.not)
     ):
       return
     raise newException(OverflowError, "Substraction underflow")
