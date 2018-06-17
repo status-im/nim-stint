@@ -14,7 +14,7 @@ import  ./datatypes, macros
 
 proc asWordsImpl(x: NimNode, current_path: NimNode, result: var NimNode) =
   ## Transforms an UintImpl/IntImpl into an array of words
-  ## at compile-time. Recursve implementation.
+  ## at compile-time. Recursive implementation.
   ## Result is from most significant word to least significant
 
   let node = x.getTypeInst

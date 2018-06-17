@@ -1,4 +1,4 @@
-import ../stint/mpint, times
+import ../stint, times
 
 
 # Warmup on normal int
@@ -18,10 +18,10 @@ echo "Warmup: " & $(stop - start) & "s"
 
 start = cpuTime()
 block:
-  var foo = 123.u(256)
+  var foo = 123.u256
   for i in 0 ..< 10_000_000:
-    foo += i.u(256) * i.u(256) mod 456.u(256)
-    foo = foo mod 789.u(256)
+    foo += i.u256 * i.u256 mod 456.u256
+    foo = foo mod 789.u256
 
 stop = cpuTime()
 echo "Library: " & $(stop - start) & "s"
@@ -47,3 +47,9 @@ when defined(bench_ttmath):
 # Warmup: 0.04060799999999999s
 # Library: 0.9576759999999999s
 # TTMath: 0.758443s
+
+
+# After PR #54 for compile-time evaluation
+# which includes loop unrolling but may bloat the code
+# Warmup: 0.03993500000000001s
+# Library: 0.848464s
