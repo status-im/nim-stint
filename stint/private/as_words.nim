@@ -79,40 +79,9 @@ proc replaceNodes*(ast: NimNode, replacing: NimNode, to_replace: NimNode): NimNo
       return rTree
   result = inspect(ast)
 
-### TODO: We can't use varargs[typed] without losing type info - https://github.com/nim-lang/Nim/issues/7737
-### So we need a workaround we define it for a fixed 3 args and will just ignore what is not used
-
-# macro asWordsIterate(wordsIdents: untyped, stintsIdents: varargs[typed], loopBody: untyped): untyped =
-#
-#   assert wordsIdents.len == stintsIdents.len
-#
-#   result = newStmtList()
-#
-#   # 1. Get the words of each stint
-#   var words = nnkBracket.newTree
-#   for ident in stintsIdents:
-#     var wordList = nnkBracket.newTree
-#     asWordsImpl(ident, ident, wordList)
-#     words.add wordList
-#
-#   # 2. Construct an unrolled loop
-#   # We replace each occurence of each words
-#   # in the original loop by how to access it.
-#   let
-#     NbStints = wordsIdents.len
-#     NbWords  = words[0].len
-#
-#   for currDepth in 0 ..< NbWords:
-#     var replacing = nnkBracket.newTree
-#     for currStint in 0 ..< NbStints:
-#       replacing.add words[currStint][currDepth]
-#
-#     let body = replaceNodes(loopBody, replacing, to_replace = wordsIdents)
-#     result.add quote do:
-#       block: `body`
-
 macro asWordsIterate(wordsIdents: untyped, sid0, sid1, sid2: typed, loopBody: untyped): untyped =
-
+  # TODO: We can't use varargs[typed] without losing type info - https://github.com/nim-lang/Nim/issues/7737
+  # So we need a workaround we accept fixed 3 args sid0, sid1, sid2 and will just ignore what is not used
   result = newStmtList()
   let NbStints = wordsIdents.len
 
@@ -185,7 +154,7 @@ macro asWords*(x: ForLoopStmt): untyped =
   assert wordsIdents.len == stintsIdents.len, "The number of loop variables and multiprecision integers t iterate on must be the same"
 
   # 3. Get the body and pass the bucket to a typed macro
-  #    + Workaround https://github.com/nim-lang/Nim/issues/7737
+  #    + unroll varargs[typed] manually as workaround for https://github.com/nim-lang/Nim/issues/7737
   var body = x[x.len - 1]
   let sid0 = stintsIdents[0]
   let sid1 = if stintsIdents.len > 1: stintsIdents[1] else: newEmptyNode()
