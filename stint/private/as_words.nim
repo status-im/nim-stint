@@ -9,33 +9,52 @@
 
 import  ./datatypes, macros
 
-proc optimUint(x: NimNode): NimNode =
-  let size = getSize(x)
+# #########################################################################
+# Multi-precision ints to compile-time array of words
 
-  if size > 64:
-    result = quote do:
-      array[`size` div 64, uint64]
-  elif size == 64:
-    result = quote do:
-      uint64
-  elif size == 32:
-    result = quote do:
-      uint32
-  elif size == 16:
-    result = quote do:
-      uint16
-  elif size == 8:
-    result = quote do:
-      uint8
+proc asWordsImpl(x: NimNode, current_path: NimNode, result: var NimNode) =
+  ## Transforms an UintImpl/IntImpl into an array of words
+  ## at compile-time. Recursive implementation.
+  ## Result is from most significant word to least significant
+
+  let node = x.getTypeInst
+
+  if node.kind == nnkBracketExpr:
+    assert eqIdent(node[0], "UintImpl") or eqIdent(node[0], "IntImpl")
+
+    let hi = nnkDotExpr.newTree(current_path, newIdentNode("hi"))
+    let lo = nnkDotExpr.newTree(current_path, newIdentNode("lo"))
+    asWordsImpl(node[1], hi, result)
+    asWordsImpl(node[1], lo, result)
   else:
-    error "Unreachable path reached"
+    result.add current_path
 
-proc isUint(x: NimNode): static[bool] =
-  if eqIdent(x, "uint64"):   true
-  elif eqIdent(x, "uint32"): true
-  elif eqIdent(x, "uint16"): true
-  elif eqIdent(x, "uint8"):  true
-  else: false
+# #########################################################################
+# Accessors
+
+macro asWords(x: UintImpl or IntImpl, idx: static[int]): untyped =
+  ## Access a single element from a multiprecision ints
+  ## as if if was stored as an array
+  ## x.asWords[0] is the most significant word
+  var words = nnkBracket.newTree()
+  asWordsImpl(x, x, words)
+  result = words[idx]
+
+macro most_significant_word*(x: UintImpl or IntImpl): untyped =
+  result = getAST(asWords(x, 0))
+
+macro least_significant_word*(x: UintImpl or IntImpl): untyped =
+  var words = nnkBracket.newTree()
+  asWordsImpl(x, x, words)
+  result = words[words.len - 1]
+
+macro second_least_significant_word*(x: UintImpl or IntImpl): untyped =
+  var words = nnkBracket.newTree()
+  asWordsImpl(x, x, words)
+  result = words[words.len - 2]
+
+# #########################################################################
+# Iteration macros
 
 proc replaceNodes*(ast: NimNode, replacing: NimNode, to_replace: NimNode): NimNode =
   # Args:
@@ -60,263 +79,85 @@ proc replaceNodes*(ast: NimNode, replacing: NimNode, to_replace: NimNode): NimNo
       return rTree
   result = inspect(ast)
 
-proc least_significant_two_words*(x: NimNode): tuple[lo, hi: NimNode] =
-  var node = x.getTypeInst
-  var result_lo = x
+macro asWordsIterate(wordsIdents: untyped, sid0, sid1, sid2: typed, loopBody: untyped): untyped =
+  # TODO: We can't use varargs[typed] without losing type info - https://github.com/nim-lang/Nim/issues/7737
+  # So we need a workaround we accept fixed 3 args sid0, sid1, sid2 and will just ignore what is not used
+  result = newStmtList()
+  let NbStints = wordsIdents.len
 
-  while node.kind == nnkBracketExpr:
-    assert eqIdent(node[0], "UintImpl") or eqIdent(node[0], "IntImpl"), (
-      "least_significant_word only supports primitive integers, Stint and Stuint")
-    result_lo = quote do: `result_lo`.lo
-    node = node[1]
+  # 1. Get the words of each stint
+  # + Workaround varargs[typed] losing type info https://github.com/nim-lang/Nim/issues/7737
+  var words = nnkBracket.newTree
+  block:
+    var wordList = nnkBracket.newTree
+    asWordsImpl(sid0, sid0, wordList)
+    words.add wordList
+  if NbStints > 1:
+    var wordList = nnkBracket.newTree
+    asWordsImpl(sid1, sid1, wordList)
+    words.add wordList
+  if NbStints > 2:
+    var wordList = nnkBracket.newTree
+    asWordsImpl(sid2, sid2, wordList)
+    words.add wordList
 
-  var result_hi = result_lo.copyNimTree # ⚠ Aliasing: NimNodes are ref objects
-  result_hi[1] = newIdentNode("hi")     # replace the last lo by hi
-  result = (result_lo, result_hi)
+  # 2. Construct an unrolled loop
+  # We replace each occurence of each words
+  # in the original loop by how to access it.
+  let NbWords  = words[0].len
 
-macro second_least_significant_word*(x: UintImpl or IntImpl): untyped =
-  result = least_significant_two_words(x).hi
+  for currDepth in 0 ..< NbWords:
+    var replacing = nnkBracket.newTree
+    for currStint in 0 ..< NbStints:
+      replacing.add words[currStint][currDepth]
 
-macro least_significant_word*(x: UintImpl or IntImpl): untyped =
-  result = least_significant_two_words(x).lo
+    let body = replaceNodes(loopBody, replacing, to_replace = wordsIdents)
+    result.add quote do:
+      block: `body`
 
-macro asWords*(n: UintImpl or IntImpl, ignoreEndianness: static[bool], loopBody: untyped): untyped =
-  ## Iterates over n, as an array of words.
-  ## Input:
-  ##   - n: The Multiprecision int
-  ##   - If endianness should be taken into account for iteratio order.
-  ##     If yes, iteration is done from most significant word to least significant.
-  ##     Otherwise it is done in memory layout order.
-  ##   - loopBody: the operation you want to do on each word of n
-  let
-    optim_type = optimUint(n)
-  var
-    inner_n: NimNode
-    to_replace = nnkBracket.newTree
-    replacing  = nnkBracket.newTree
+macro asWords*(x: ForLoopStmt): untyped =
+  ## This unrolls the body of the for loop
+  ## and applies it for each word.
+  ##
+  ## TODO: allow an ignoreEndianness and signed parameter
 
-  if optim_type.isUint:
-    # We directly cast n
-    inner_n = quote do:
-      cast[`optim_type`](`n`)
-  else:
-    # If we have an array of words, inner_n is a loop intermediate variable
-    inner_n = ident("n_asWordsRaw")
+  # ##### Tree representation
+  # for word_a, word_b in asWords(a, b):
+  #   discard
 
-  to_replace.add n
-  replacing.add inner_n
+  # ForStmt
+  #   Ident "word_a"
+  #   Ident "word_b"
+  #   Call
+  #     Ident "asWords"
+  #     Ident "a"
+  #     Ident "b"
+  #   StmtList
+  #     DiscardStmt
+  #       Empty
 
-  let replacedAST = replaceNodes(loopBody, replacing, to_replace)
+  # 1. Get the words variable idents
+  var wordsIdents = nnkBracket.newTree
+  var idx = 0
+  while x[idx].kind == nnkIdent:
+    wordsIdents.add x[idx]
+    inc idx
 
-  if optim_type.isUint:
-    result = replacedAST
-  else:
-    if ignoreEndianness or system.cpuEndian == bigEndian:
-      result = quote do:
-        for `inner_n` in cast[`optim_type`](`n`):
-          `replacedAST`
-    else:
-      assert false, "Not implemented"
+  # 2. Get the multiprecision ints idents
+  var stintsIdents = nnkArgList.newTree # nnkArgList allows to keep the type when passing to varargs[typed]
+                                        # but varargs[typed] has further issues ¯\_(ツ)_/¯
+  idx = 1
+  while idx < x[wordsIdents.len].len and x[wordsIdents.len][idx].kind == nnkIdent:
+    stintsIdents.add x[wordsIdents.len][idx]
+    inc idx
 
-macro asWordsZip*(x, y: UintImpl or IntImpl, ignoreEndianness: static[bool], loopBody: untyped): untyped =
-  ## Iterates over x and y, as an array of words.
-  ## Input:
-  ##   - x, y: The multiprecision ints
-  ##   - If endianness should be taken into account for iteratio order.
-  ##     If yes, iteration is done from most significant word to least significant.
-  ##     Otherwise it is done in memory layout order.
-  ##   - loopBody: the operation you want to do on each word of n
-  let
-    optim_type = optimUint(x)
-    idx = ident("idx_asWordsRawZip")
-  var
-    inner_x, inner_y: NimNode
-    to_replace = nnkBracket.newTree
-    replacing  = nnkBracket.newTree
+  assert wordsIdents.len == stintsIdents.len, "The number of loop variables and multiprecision integers t iterate on must be the same"
 
-  to_replace.add x
-  to_replace.add y
+  # 3. Get the body and pass the bucket to a typed macro
+  #    + unroll varargs[typed] manually as workaround for https://github.com/nim-lang/Nim/issues/7737
+  var body = x[x.len - 1]
+  let sid0 = stintsIdents[0]
+  let sid1 = if stintsIdents.len > 1: stintsIdents[1] else: newEmptyNode()
+  let sid2 = if stintsIdents.len > 2: stintsIdents[2] else: newEmptyNode()
 
-  if optim_type.isUint:
-    # We directly castx and y
-    inner_x = quote do:
-      cast[`optim_type`](`x`)
-    inner_y = quote do:
-      cast[`optim_type`](`y`)
-
-    replacing.add inner_x
-    replacing.add inner_y
-  else:
-    # If we have an array of words, inner_x and inner_y is are loop intermediate variable
-    inner_x = ident("x_asWordsRawZip")
-    inner_y = ident("y_asWordsRawZip")
-
-    # We replace the inner loop with the inner_x[idx]
-    replacing.add quote do:
-      `inner_x`[`idx`]
-    replacing.add quote do:
-      `inner_y`[`idx`]
-
-  let replacedAST = replaceNodes(loopBody, replacing, to_replace)
-
-  if optim_type.isUint:
-    result = replacedAST
-  else:
-    if ignoreEndianness or system.cpuEndian == bigEndian:
-      result = quote do:
-        {.pragma: restrict, codegenDecl: "$# __restrict $#".}
-        let
-          `inner_x`{.restrict.} = cast[ptr `optim_type`](`x`.unsafeaddr)
-          `inner_y`{.restrict.} = cast[ptr `optim_type`](`y`.unsafeaddr)
-        for `idx` in 0 ..< `inner_x`[].len:
-          `replacedAST`
-    else:
-      # Little-Endian, iteration in reverse
-      result = quote do:
-        {.pragma: restrict, codegenDecl: "$# __restrict $#".}
-        let
-          `inner_x`{.restrict.} = cast[ptr `optim_type`](`x`.unsafeaddr)
-          `inner_y`{.restrict.} = cast[ptr `optim_type`](`y`.unsafeaddr)
-        for `idx` in countdown(`inner_x`[].len - 1, 0):
-          `replacedAST`
-
-macro m_asWordsZip*[T: UintImpl or IntImpl](m: var T, x: T,
-  ignoreEndianness: static[bool], loopBody: untyped): untyped =
-  ## Iterates over a mutable int m and x as an array of words.
-  ## returning a !! Pointer !! of the proper type to m.
-  ## Input:
-  ##   - m: A mutable array
-  ##   - x: The multiprecision ints
-  ##   - If endianness should be taken into account for iteratio order.
-  ##     If yes, iteration is done from most significant word to least significant.
-  ##     Otherwise it is done in memory layout order.
-  ##   - loopBody: the operation you want to do on each word of n
-  let
-    optim_type = optimUint(x)
-    idx = ident("idx_asWordsRawZip")
-  var
-    inner_m, inner_x: NimNode
-    to_replace = nnkBracket.newTree
-    replacing  = nnkBracket.newTree
-
-  to_replace.add m
-  to_replace.add x
-
-  if optim_type.isUint:
-    # We directly cast m and x
-    inner_m = quote do:
-      cast[var `optim_type`](`m`.addr)
-    inner_x = quote do:
-      cast[`optim_type`](`x`)
-
-    replacing.add inner_m
-    replacing.add inner_x
-  else:
-    # If we have an array of words, inner_x and inner_y is are loop intermediate variable
-    inner_m = ident("m_asWordsRawZip")
-    inner_x = ident("x_asWordsRawZip")
-
-    # We replace the inner loop with the inner_x[idx]
-    replacing.add quote do:
-      `inner_m`[`idx`]
-    replacing.add quote do:
-      `inner_x`[`idx`]
-
-  let replacedAST = replaceNodes(loopBody, replacing, to_replace)
-
-  if optim_type.isUint:
-    result = replacedAST
-  else:
-    if ignoreEndianness or system.cpuEndian == bigEndian:
-      result = quote do:
-        {.pragma: restrict, codegenDecl: "$# __restrict $#".}
-        let
-          `inner_m`{.restrict.} = cast[ptr `optim_type`](`m`.addr)
-          `inner_x`{.restrict.} = cast[ptr `optim_type`](`x`.unsafeaddr)
-        for `idx` in 0 ..< `inner_x`[].len:
-          `replacedAST`
-    else:
-      # Little-Endian, iteration in reverse
-      result = quote do:
-        {.pragma: restrict, codegenDecl: "$# __restrict $#".}
-        let
-          `inner_m`{.restrict.} = cast[ptr `optim_type`](`m`.addr)
-          `inner_x`{.restrict.} = cast[ptr `optim_type`](`x`.unsafeaddr)
-        for `idx` in countdown(`inner_x`[].len - 1, 0):
-          `replacedAST`
-
-
-macro m_asWordsZip*[T: UintImpl or IntImpl](m: var T, x, y: T,
-  ignoreEndianness: static[bool], loopBody: untyped): untyped =
-  ## Iterates over a mutable int m and x as an array of words.
-  ## returning a !! Pointer !! of the proper type to m.
-  ## Input:
-  ##   - m: A mutable array
-  ##   - x: The multiprecision ints
-  ##   - If endianness should be taken into account for iteratio order.
-  ##     If yes, iteration is done from most significant word to least significant.
-  ##     Otherwise it is done in memory layout order.
-  ##   - loopBody: the operation you want to do on each word of n
-  let
-    optim_type = optimUint(x)
-    idx = ident("idx_asWordsRawZip")
-  var
-    inner_m, inner_x, inner_y: NimNode
-    to_replace = nnkBracket.newTree
-    replacing  = nnkBracket.newTree
-
-  to_replace.add m
-  to_replace.add x
-  to_replace.add y
-
-  if optim_type.isUint:
-    # We directly cast m, x and y
-    inner_m = quote do:
-      cast[var `optim_type`](`m`.addr)
-    inner_x = quote do:
-      cast[`optim_type`](`x`)
-    inner_y = quote do:
-      cast[`optim_type`](`y`)
-
-    replacing.add inner_m
-    replacing.add inner_x
-    replacing.add inner_y
-  else:
-    # If we have an array of words, inner_x and inner_y is are loop intermediate variable
-    inner_m = ident("m_asWordsRawZip")
-    inner_x = ident("x_asWordsRawZip")
-    inner_y = ident("y_asWordsRawZip")
-
-    # We replace the inner loop with the inner_x[idx]
-    replacing.add quote do:
-      `inner_m`[`idx`]
-    replacing.add quote do:
-      `inner_x`[`idx`]
-    replacing.add quote do:
-      `inner_y`[`idx`]
-
-  let replacedAST = replaceNodes(loopBody, replacing, to_replace)
-
-  # Arrays are in the form (`[]`, array, type)
-  if optim_type.isUint:
-    result = replacedAST
-  else:
-    if ignoreEndianness or system.cpuEndian == bigEndian:
-      result = quote do:
-        {.pragma: restrict, codegenDecl: "$# __restrict $#".}
-        let
-          `inner_m`{.restrict.} = cast[ptr `optim_type`](`m`.addr)
-          `inner_x`{.restrict.} = cast[ptr `optim_type`](`x`.unsafeaddr)
-          `inner_y`{.restrict.} = cast[ptr `optim_type`](`y`.unsafeaddr)
-        for `idx` in 0 ..< `inner_x`[].len:
-          `replacedAST`
-    else:
-      # Little-Endian, iteration in reverse
-      result = quote do:
-        {.pragma: restrict, codegenDecl: "$# __restrict $#".}
-        let
-          `inner_m`{.restrict.} = cast[ptr `optim_type`](`m`.addr)
-          `inner_x`{.restrict.} = cast[ptr `optim_type`](`x`.unsafeaddr)
-          `inner_y`{.restrict.} = cast[ptr `optim_type`](`y`.unsafeaddr)
-        for `idx` in countdown(`inner_x`[].len - 1, 0):
-          `replacedAST`
+  result = quote do: asWordsIterate(`wordsIdents`, `sid0`, `sid1`, `sid2`, `body`)

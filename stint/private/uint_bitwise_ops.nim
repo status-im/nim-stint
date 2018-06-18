@@ -12,23 +12,23 @@ import  ./datatypes, ./as_words
 
 func `not`*(x: UintImpl): UintImpl {.inline.}=
   ## Bitwise complement of unsigned integer x
-  m_asWordsZip(result, x, ignoreEndianness = true):
-    result = not x
+  for wr, wx in asWords(result, x):
+    wr = not wx
 
 func `or`*(x, y: UintImpl): UintImpl {.inline.}=
   ## `Bitwise or` of numbers x and y
-  m_asWordsZip(result, x, y, ignoreEndianness = true):
-    result = x or y
+  for wr, wx, wy in asWords(result, x, y):
+    wr = wx or wy
 
 func `and`*(x, y: UintImpl): UintImpl {.inline.}=
   ## `Bitwise and` of numbers x and y
-  m_asWordsZip(result, x, y, ignoreEndianness = true):
-    result = x and y
+  for wr, wx, wy in asWords(result, x, y):
+    wr = wx and wy
 
 func `xor`*(x, y: UintImpl): UintImpl {.inline.}=
   ## `Bitwise xor` of numbers x and y
-  m_asWordsZip(result, x, y, ignoreEndianness = true):
-    result = x xor y
+  for wr, wx, wy in asWords(result, x, y):
+    wr = wx xor wy
 
 func `shr`*(x: UintImpl, y: SomeInteger): UintImpl {.inline.}
   # Forward declaration
@@ -37,8 +37,7 @@ func `shl`*(x: UintImpl, y: SomeInteger): UintImpl {.inline.}=
   ## Compute the `shift left` operation of x and y
   # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
 
-  # TODO: would it be better to reimplement this using an array of bytes/uint64
-  # That opens up to endianness issues.
+  # TODO: would it be better to reimplement this with words iteration?
   const halfSize: type(y) = getSize(x) div 2
 
   if y == 0:
@@ -64,4 +63,3 @@ func `shr`*(x: UintImpl, y: SomeInteger): UintImpl {.inline.}=
     result.hi = x.hi shr y
   else:
     result.lo = x.hi shr (y - halfSize)
-
