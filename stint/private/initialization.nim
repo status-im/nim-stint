@@ -9,7 +9,7 @@
 
 import ./datatypes, ./as_words, typetraits
 
-func zero*[T: BaseUint](_: typedesc[T]): T {.inline.}=
+func zero*(T: typedesc): T {.inline.} =
   discard
 
 func one*(T: typedesc[UintImpl or IntImpl]): T {.inline.} =
