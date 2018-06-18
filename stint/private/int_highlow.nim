@@ -13,7 +13,7 @@ func high*[T](_: typedesc[IntImpl[T]]): IntImpl[T] {.inline.}=
   # The highest signed int has representation
   # 0b0111_1111_1111_1111 ....
   # so we only have to unset the most significant bit.
-  var result = not result
+  result = not result
   most_significant_word(result) = most_significant_word(result) shr 1
 
 func low*[T](_: typedesc[IntImpl[T]]): IntImpl[T] {.inline.}=
