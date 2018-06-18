@@ -29,19 +29,19 @@ func hi(x: uint64): uint64 {.inline.} =
   result = x shr p
 
 # No generic, somehow Nim is given ambiguous call with the T: UintImpl overload
-func extPrecMul*(result: var UintImpl[uint8], x, y: uint8) =
+func extPrecMul*(result: var UintImpl[uint8], x, y: uint8) {.inline.}=
   ## Extended precision multiplication
   result = cast[type result](x.asDoubleUint * y.asDoubleUint)
 
-func extPrecMul*(result: var UintImpl[uint16], x, y: uint16) =
+func extPrecMul*(result: var UintImpl[uint16], x, y: uint16) {.inline.}=
   ## Extended precision multiplication
   result = cast[type result](x.asDoubleUint * y.asDoubleUint)
 
-func extPrecMul*(result: var UintImpl[uint32], x, y: uint32) =
+func extPrecMul*(result: var UintImpl[uint32], x, y: uint32) {.inline.}=
   ## Extended precision multiplication
   result = cast[type result](x.asDoubleUint * y.asDoubleUint)
 
-func extPrecAddMul[T: uint8 or uint16 or uint32](result: var UintImpl[T], x, y: T) =
+func extPrecAddMul[T: uint8 or uint16 or uint32](result: var UintImpl[T], x, y: T) {.inline.}=
   ## Extended precision fused in-place addition & multiplication
   result += cast[type result](x.asDoubleUint * y.asDoubleUint)
 

@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes, macros
+import  ./datatypes, ./conversion, macros
 
 # #########################################################################
 # Multi-precision ints to compile-time array of words
@@ -79,7 +79,7 @@ proc replaceNodes*(ast: NimNode, replacing: NimNode, to_replace: NimNode): NimNo
       return rTree
   result = inspect(ast)
 
-macro asWordsIterate(wordsIdents: untyped, sid0, sid1, sid2: typed, loopBody: untyped): untyped =
+macro asWordsIterate(wordsIdents: untyped, sid0, sid1, sid2: typed, signed: static[bool], loopBody: untyped): untyped =
   # TODO: We can't use varargs[typed] without losing type info - https://github.com/nim-lang/Nim/issues/7737
   # So we need a workaround we accept fixed 3 args sid0, sid1, sid2 and will just ignore what is not used
   result = newStmtList()
@@ -109,18 +109,19 @@ macro asWordsIterate(wordsIdents: untyped, sid0, sid1, sid2: typed, loopBody: un
   for currDepth in 0 ..< NbWords:
     var replacing = nnkBracket.newTree
     for currStint in 0 ..< NbStints:
-      replacing.add words[currStint][currDepth]
+      var w = words[currStint][currDepth]
+
+      if currDepth == 0 and signed:
+        let toInt = bindSym"toInt"
+        w = quote do: `toInt`(`w`)
+
+      replacing.add w
 
     let body = replaceNodes(loopBody, replacing, to_replace = wordsIdents)
     result.add quote do:
       block: `body`
 
-macro asWords*(x: ForLoopStmt): untyped =
-  ## This unrolls the body of the for loop
-  ## and applies it for each word.
-  ##
-  ## TODO: allow an ignoreEndianness and signed parameter
-
+template asWordsParse(): untyped {.dirty.}=
   # ##### Tree representation
   # for word_a, word_b in asWords(a, b):
   #   discard
@@ -160,4 +161,15 @@ macro asWords*(x: ForLoopStmt): untyped =
   let sid1 = if stintsIdents.len > 1: stintsIdents[1] else: newEmptyNode()
   let sid2 = if stintsIdents.len > 2: stintsIdents[2] else: newEmptyNode()
 
-  result = quote do: asWordsIterate(`wordsIdents`, `sid0`, `sid1`, `sid2`, `body`)
+macro asWords*(x: ForLoopStmt): untyped =
+  ## This unrolls the body of the for loop and applies it for each word.
+  ## Words are processed from most significant word to least significant.
+  asWordsParse()
+  result = quote do: asWordsIterate(`wordsIdents`, `sid0`, `sid1`, `sid2`, false, `body`)
+
+macro asSignedWords*(x: ForLoopStmt): untyped =
+  ## This unrolls the body of the for loop and applies it for each word.
+  ## Words are processed from most significant word to least significant.
+  ## The most significant word is returned signed for proper comparison.
+  asWordsParse()
+  result = quote do: asWordsIterate(`wordsIdents`, `sid0`, `sid1`, `sid2`, true, `body`)
