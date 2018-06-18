@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes, ./bithacks, ./as_words, ./as_signed_words,
+import  ./datatypes, ./bithacks, ./as_words,
         ./bithacks
 
 func isZero*(n: SomeSignedInt): bool {.inline.} =
@@ -25,9 +25,9 @@ func isNegative*(n: IntImpl): bool {.inline.} =
 
 func `<`*(x, y: IntImpl): bool {.inline.}=
   # Lower comparison for multi-precision integers
-  asSignedWordsZip(x, y):
-    if x != y:
-      return x < y
+  for wx, wy in asSignedWords(x, y):
+    if wx != wy:
+      return wx < wy
   return false # they're equal
 
 func `==`*(x, y: IntImpl): bool {.inline.}=
@@ -39,9 +39,9 @@ func `==`*(x, y: IntImpl): bool {.inline.}=
 
 func `<=`*(x, y: IntImpl): bool {.inline.}=
   # Lower or equal comparison for multi-precision integers
-  asSignedWordsZip(x, y):
-    if x != y:
-      return x < y
+  for wx, wy in asSignedWords(x, y):
+    if wx != wy:
+      return wx < wy
   return true # they're equal
 
 func isOdd*(x: IntImpl): bool {.inline.}=

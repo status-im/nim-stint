@@ -16,9 +16,8 @@ func toSubtype*[T: UintImpl](b: bool, _: typedesc[T]): T {.inline.}=
   type SubTy = type result.lo
   result.lo = toSubtype(b, SubTy)
 
-func toUint*(n: UintImpl): auto {.inline.}=
+func toUint*(n: UintImpl or IntImpl): auto {.inline.}=
   ## Casts an unsigned integer to an uint of the same size
-
   # TODO: uint128 support
   when n.sizeof > 8:
     raise newException("Unreachable. You are trying to cast a StUint with more than 64-bit of precision")
@@ -29,7 +28,7 @@ func toUint*(n: UintImpl): auto {.inline.}=
   elif n.sizeof == 2:
     cast[uint16](n)
   else:
-    raise newException("Unreachable. StUint must be 16-bit minimum and a power of 2")
+    cast[uint8](n)
 
 func toUint*(n: SomeUnsignedInt): SomeUnsignedInt {.inline.}=
   ## No-op overload of multi-precision int casting
@@ -45,3 +44,17 @@ func asDoubleUint*(n: BaseUint): auto {.inline.} =
   )
 
   n.toUint.Double
+
+func toInt*(n: UintImpl or IntImpl or SomeInteger): auto {.inline.}=
+  ## Casts an unsigned integer to an uint of the same size
+  # TODO: uint128 support
+  when n.sizeof > 8:
+    raise newException("Unreachable. You are trying to cast a StUint with more than 64-bit of precision")
+  elif n.sizeof == 8:
+    cast[int64](n)
+  elif n.sizeof == 4:
+    cast[int32](n)
+  elif n.sizeof == 2:
+    cast[int16](n)
+  else:
+    cast[int8](n)
