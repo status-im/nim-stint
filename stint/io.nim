@@ -56,13 +56,22 @@ func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
 
   when result.data is IntImpl:
     static_check_size(T, bits)
-    if n < 0:
-      assign_least_significant_words(result, -n)
-      result = -result
+    when T is SomeSignedInt:
+      if n < 0:
+        assign_least_significant_words(result, -n)
+        result = -result
+      else:
+        assign_least_significant_words(result, n)
     else:
       assign_least_significant_words(result, n)
   else:
     result.data = (type result.data)(n)
+
+func to*(x: SomeInteger, T: typedesc[Stint]): T =
+  stint(x, result.bits)
+
+func to*(x: SomeUnsignedInt, T: typedesc[StUint]): T =
+  stuint(x, result.bits)
 
 func toInt*(num: Stint or StUint): int {.inline.}=
   # Returns as int. Result is modulo 2^(sizeof(int)

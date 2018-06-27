@@ -113,6 +113,17 @@ suite "Testing conversion functions: Hex, Bytes, Endianness using secp256k1 curv
     SECPK1_N = "115792089237316195423570985008687907852837564279074904382605163141518161494337".u256
     SECPK1_N_BYTES = [byte(255), 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 254, 186, 174, 220, 230, 175, 72, 160, 59, 191, 210, 94, 140, 208, 54, 65, 65]
 
+  test "explicit conversions from basic types":
+    type
+      UInt256 = Stuint[256]
+      Int128 = Stint[128]
+
+    let x = 10.uint16
+
+    check:
+      x.to(UInt256).bits == 256
+      x.to(Int128).bits == 128
+
   test "hex -> uint256":
     check: SECPK1_N_HEX.parse(Stuint[256], base = 16) == SECPK1_N
 
