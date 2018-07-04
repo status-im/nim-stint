@@ -182,6 +182,10 @@ func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]|Stuint[bit
   #       "Cannot evaluate at compile-time" in several places (2018-04-26).
   parse(input, T, 10)
 
+func fromHex*(T: type StUint, s: string): T {.inline.} =
+  ## Convert an hex string to the corresponding unsigned integer
+  parse(s, type result, base = 16)
+
 func hexToUint*[bits: static[int]](hexString: string): Stuint[bits] {.inline.} =
   ## Convert an hex string to the corresponding unsigned integer
   parse(hexString, type result, base = 16)
