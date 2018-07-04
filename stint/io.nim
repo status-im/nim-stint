@@ -333,6 +333,15 @@ proc initFromBytesBE*[bits: static[int]](val: var Stuint[bits], ba: openarray[by
     else:
       for i, b in ba: r_ptr[N-1 - i] = b
 
+func significantBytesBE*(val: openarray[byte]): int =
+  ## Returns the number of significant trailing bytes in a big endian
+  ## representation of a number.
+  for i in 0 ..< val.len:
+    if val[i] != 0:
+      return val.len - i
+
+  return 1
+
 func fromBytesBE*(T: type Stuint, ba: openarray[byte],
                   allowPadding: static[bool] = true): T =
   ## This function provides a convenience wrapper around `initFromBytesBE`.

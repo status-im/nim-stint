@@ -133,6 +133,18 @@ suite "Testing conversion functions: Hex, Bytes, Endianness using secp256k1 curv
   test "hex -> big-endian array -> uint256":
     check: readUintBE[256](SECPK1_N_BYTES) == SECPK1_N
 
+  test "uint256 -> minimal big-endian array -> uint256":
+    # test drive the conversion logic by testing the first 25 factorials:
+    var f = 1.stuint(256)
+    for i in 2 .. 25:
+      f = f * i.stuint(256)
+      let
+        bytes = f.toByteArrayBE
+        nonZeroBytes = significantBytesBE(bytes)
+        fRestored = Uint256.fromBytesBE(bytes.toOpenArray(bytes.len - nonZeroBytes,
+                                                          bytes.len - 1))
+      check f == fRestored
+
   test "uint256 -> big-endian array -> hex":
     check: SECPK1_N.toByteArrayBE == SECPK1_N_BYTES
 
