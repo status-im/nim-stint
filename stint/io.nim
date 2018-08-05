@@ -90,6 +90,9 @@ func skipPrefixes(current_idx: var int, str: string, base: range[2..16]) {.inlin
   ## Returns the index of the first meaningful char in `hexStr` by skipping
   ## "0x" prefix
 
+  if str.len < 2:
+    return
+
   assert current_idx == 0, "skipPrefixes only works for prefixes (position 0 and 1 of the string)"
   if str[0] == '0':
     if str[1] in {'x', 'X'}:
