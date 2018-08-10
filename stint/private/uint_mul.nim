@@ -48,7 +48,7 @@ func extPrecAddMul[T: uint8 or uint16 or uint32](result: var UintImpl[T], x, y: 
 template extPrecMulImpl(result: var UintImpl[uint64], op: untyped, u, v: uint64) =
   const
     p = 64 div 2
-    base = 1 shl p
+    base: uint64 = 1 shl p
 
   var
     x0, x1, x2, x3: uint64
