@@ -8,6 +8,7 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import ../stint, unittest, strutils
+{.experimental: "forLoopMacros".}
 
 suite "Testing input and output procedures":
   test "Creation from decimal strings":

@@ -8,7 +8,7 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import ../stint, unittest
-
+{.experimental: "forLoopMacros".}
 suite "Testing unsigned int bitwise operations":
   let a = 100'i16.stuint(16)
 

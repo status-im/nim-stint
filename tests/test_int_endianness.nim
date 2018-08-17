@@ -8,6 +8,7 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import ../stint, unittest
+{.experimental: "forLoopMacros".}
 
 suite "Testing signed int byte representation":
   test "Byte representation conforms to the platform endianness":

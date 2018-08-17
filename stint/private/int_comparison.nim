@@ -9,6 +9,7 @@
 
 import  ./datatypes, ./bithacks, ./as_words,
         ./bithacks
+# {.experimental: "ForLoopMacros".}
 
 func isZero*(n: SomeSignedInt): bool {.inline.} =
   n == 0

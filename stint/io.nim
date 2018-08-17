@@ -14,6 +14,8 @@ import
   ./int_public, ./uint_public,
   typetraits, algorithm
 
+# {.experimental: "forLoopMacros".}
+
 template static_check_size(T: typedesc[SomeInteger], bits: static[int]) =
   # To avoid a costly runtime check, we refuse storing into StUint types smaller
   # than the input type.
