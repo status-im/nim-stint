@@ -12,6 +12,8 @@ import  ./datatypes, ./conversion, macros
 # #########################################################################
 # Multi-precision ints to compile-time array of words
 
+{.experimental: "ForLoopMacros".}
+
 proc asWordsImpl(x: NimNode, current_path: NimNode, result: var NimNode) =
   ## Transforms an UintImpl/IntImpl into an array of words
   ## at compile-time. Recursive implementation.
