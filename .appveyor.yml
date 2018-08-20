@@ -36,7 +36,7 @@ install:
   - cd csources
   - IF "%PLATFORM%" == "x64" ( build64.bat ) else ( build.bat )
   - cd ..
-  - bin\nim c koch --skipProjCfg --skipParentCfg # Don't use stint's nim.cfg to compile koch
+  - bin\nim --skipProjCfg --skipParentCfg c koch # Don't use stint's nim.cfg to compile koch
   - koch boot -d:release
   - koch nimble
 build_script:
