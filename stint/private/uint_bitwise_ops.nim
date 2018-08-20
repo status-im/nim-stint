@@ -9,7 +9,6 @@
 
 import  ./datatypes, ./as_words
 
-
 func `not`*(x: UintImpl): UintImpl {.inline.}=
   ## Bitwise complement of unsigned integer x
   for wr, wx in asWords(result, x):
