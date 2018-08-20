@@ -10,8 +10,6 @@
 import stint/[uint_public, int_public, io, modular_arithmetic, literals_stint]
 export uint_public, int_public, io, modular_arithmetic, literals_stint
 
-{.experimental: "forLoopMacros".}
-
 type
   Int128* = Stint[128]
   Int256* = Stint[256]

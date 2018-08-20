@@ -10,8 +10,6 @@
 import ./private/datatypes, macros
 export StInt, IntImpl, intImpl # TODO remove the need to export intImpl and this macro
 
-# {.experimental: "forLoopMacros".}
-
 template make_unary(op, ResultTy): untyped =
   func `op`*(x: Stint): ResultTy {.inline.} =
     when ResultTy is Stint:

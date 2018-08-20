@@ -10,8 +10,6 @@
 import ./private/datatypes, macros
 export StUint, UintImpl, uintImpl # TODO remove the need to export UintImpl and this macro
 
-# {.experimental: "forLoopMacros".}
-
 template make_unary(op, ResultTy): untyped =
   func `op`*(x: StUint): ResultTy {.inline.} =
     when ResultTy is StUint:

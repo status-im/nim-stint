@@ -8,7 +8,6 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import  ./datatypes, ./as_words
-# {.experimental: "forLoopMacros".}
 
 func `not`*(x: UintImpl): UintImpl {.inline.}=
   ## Bitwise complement of unsigned integer x

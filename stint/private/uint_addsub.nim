@@ -11,7 +11,7 @@ import  ./bithacks, ./conversion, ./initialization,
         ./datatypes,
         ./uint_comparison,
         ./uint_bitwise_ops
-# {.experimental: "forLoopMacros".}
+
 # ############ Addition & Substraction ############ #
 
 proc `+=`*(x: var UintImpl, y: UintImpl) {.noSideEffect, inline.}=

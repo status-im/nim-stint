@@ -8,7 +8,6 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import  ./datatypes, ./as_words
-# {.experimental: "forLoopMacros".}
 
 func isZero*(n: SomeUnsignedInt): bool {.inline.} =
   n == 0
