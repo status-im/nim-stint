@@ -37,8 +37,8 @@ install:
   - IF "%PLATFORM%" == "x64" ( build64.bat ) else ( build.bat )
   - cd ..
   - bin\nim --skipProjCfg --skipParentCfg c koch # Don't use stint's nim.cfg to compile koch
-  - koch boot -d:release
-  - koch nimble
+  - koch boot --skipProjCfg --skipParentCfg -d:release
+  - koch --skipProjCfg --skipParentCfg nimble
 build_script:
   - cd C:\projects\%APPVEYOR_PROJECT_SLUG%
   - nimble install -y
