@@ -31,8 +31,8 @@ matrix:
         - cd ..
         - export PATH=$PWD/bin:$PATH
         - nim --skipProjCfg --skipParentCfg c koch # Don't use stint's nim.cfg to compile koch
-        - ./koch boot --skipProjCfg --skipParentCfg -d:release
-        - ./koch --skipProjCfg --skipParentCfg nimble
+        - ./koch boot -d:release
+        - ./koch nimble
         - cd ..
 
       script:
