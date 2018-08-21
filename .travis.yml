@@ -30,7 +30,7 @@ matrix:
         - sh build.sh
         - cd ..
         - export PATH=$PWD/bin:$PATH
-        - nim --skipProjCfg --skipParentCfg c koch # Don't use stint's nim.cfg to compile koch
+        - nim c koch
         - ./koch boot -d:release
         - ./koch nimble
         - cd ..
