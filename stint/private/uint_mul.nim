@@ -82,7 +82,7 @@ func extPrecAddMul(result: var UintImpl[uint64], u, v: uint64) =
 
 macro eqSym(x, y: untyped): untyped =
   let eq = $x == $y # Unfortunately eqIdent compares to string.
-  result = quote do: `eq`
+  result = newLit eq
 
 func extPrecAddMul[T](result: var UintImpl[UintImpl[T]], u, v: UintImpl[T])
 func extPrecMul*[T](result: var UintImpl[UintImpl[T]], u, v: UintImpl[T])
