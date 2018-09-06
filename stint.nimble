@@ -17,7 +17,6 @@ proc test(name: string, lang: string = "c") =
   --run
   --nimcache: "nimcache"
   switch("out", ("./build/" & name))
-  switch("experimental", "ForLoopMacros")
   setCommand lang, "tests/" & name & ".nim"
 
 task test_internal_debug, "Run tests for internal procs - test implementation (StUint[64] = 2x uint32":
