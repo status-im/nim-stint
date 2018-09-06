@@ -14,9 +14,11 @@ func isZero*(n: SomeSignedInt): bool {.inline.} =
   n == 0
 
 func isZero*(n: IntImpl): bool {.inline.} =
+  {.push experimental: "forLoopMacros".}
   for word in asWords(n):
     if word != 0:
       return false
+  {.pop.}
   return true
 
 func isNegative*(n: IntImpl): bool {.inline.} =
@@ -25,23 +27,29 @@ func isNegative*(n: IntImpl): bool {.inline.} =
 
 func `<`*(x, y: IntImpl): bool {.inline.}=
   # Lower comparison for multi-precision integers
+  {.push experimental: "forLoopMacros".}
   for wx, wy in asSignedWords(x, y):
     if wx != wy:
       return wx < wy
+  {.pop.}
   return false # they're equal
 
 func `==`*(x, y: IntImpl): bool {.inline.}=
   # Equal comparison for multi-precision integers
+  {.push experimental: "forLoopMacros".}
   for wx, wy in asWords(x, y):
     if wx != wy:
       return false
+  {.pop.}
   return true # they're equal
 
 func `<=`*(x, y: IntImpl): bool {.inline.}=
   # Lower or equal comparison for multi-precision integers
+  {.push experimental: "forLoopMacros".}
   for wx, wy in asSignedWords(x, y):
     if wx != wy:
       return wx < wy
+  {.pop.}
   return true # they're equal
 
 func isOdd*(x: IntImpl): bool {.inline.}=
