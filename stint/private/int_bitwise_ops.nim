@@ -11,20 +11,28 @@ import  ./datatypes, ./as_words
 
 func `not`*(x: IntImpl): IntImpl {.inline.}=
   ## Bitwise complement of unsigned integer x
+  {.push experimental: "forLoopMacros".}
   for wr, wx in asWords(result, x):
     wr = not wx
+  {.pop.}
 
 func `or`*(x, y: IntImpl): IntImpl {.inline.}=
   ## `Bitwise or` of numbers x and y
+  {.push experimental: "forLoopMacros".}
   for wr, wx, wy in asWords(result, x, y):
     wr = wx or wy
+  {.pop.}
 
 func `and`*(x, y: IntImpl): IntImpl {.inline.}=
   ## `Bitwise and` of numbers x and y
+  {.push experimental: "forLoopMacros".}
   for wr, wx, wy in asWords(result, x, y):
     wr = wx and wy
+  {.pop.}
 
 func `xor`*(x, y: IntImpl): IntImpl {.inline.}=
   ## `Bitwise xor` of numbers x and y
+  {.push experimental: "forLoopMacros".}
   for wr, wx, wy in asWords(result, x, y):
     wr = wx xor wy
+  {.pop.}
