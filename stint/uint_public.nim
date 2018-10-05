@@ -12,35 +12,35 @@ export StUint, UintImpl, uintImpl # TODO remove the need to export UintImpl and 
 
 import ./private/uint_addsub
 
-func `+`(x, y: Stuint): Stuint {.inline.} =
+func `+`*(x, y: Stuint): Stuint {.inline.} =
   ## Unsigned integer addition
-  x.data + y.data
-func `+=`(x: var Stuint, y: Stuint) {.inline.} =
+  result.data = x.data + y.data
+func `+=`*(x: var Stuint, y: Stuint) {.inline.} =
   ## Unsigned integer addition
   x.data += y.data
-func `-`(x, y: Stuint): Stuint {.inline.} =
+func `-`*(x, y: Stuint): Stuint {.inline.} =
   ## Unsigned integer substraction
-  x.data - y.data
-func `-=`(x: var Stuint, y: Stuint) {.inline.} =
+  result.data = x.data - y.data
+func `-=`*(x: var Stuint, y: Stuint) {.inline.} =
   ## Unsigned integer substraction
   x.data -= y.data
 
 import ./private/uint_mul
 
-func `*`(x, y: Stuint): Stuint {.inline.} =
+func `*`*(x, y: Stuint): Stuint {.inline.} =
   ## Unsigned integer multiplication
-  x.data * y.data
+  result.data = x.data * y.data
 
 import ./private/uint_div
 
-func `div`(x, y: Stuint): Stuint {.inline.} =
+func `div`*(x, y: Stuint): Stuint {.inline.} =
   ## Unsigned integer division
-  x.data div y.data
-func `mod`(x, y: Stuint): Stuint {.inline.} =
+  result.data = x.data div y.data
+func `mod`*(x, y: Stuint): Stuint {.inline.} =
   ## Unsigned integer modulo
   ## This returns the remainder of x / y.
   ## i.e. x = y * quotient + remainder
-  x.data mod y.data
+  result.data = x.data mod y.data
 func divmod*(x, y: StUint): tuple[quot, rem: StUint] {.inline.} =
   ## Fused unsigned integer division and modulo
   ## Return both the quotient and remainder
@@ -49,43 +49,43 @@ func divmod*(x, y: StUint): tuple[quot, rem: StUint] {.inline.} =
 
 import ./private/uint_comparison
 
-func `<`(x, y: Stuint): bool {.inline.} =
+func `<`*(x, y: Stuint): bool {.inline.} =
   ## Unsigned `less than` comparison
   x.data < y.data
-func `<=`(x, y: Stuint): bool {.inline.} =
+func `<=`*(x, y: Stuint): bool {.inline.} =
   ## Unsigned `less or equal` comparison
   x.data <= y.data
-func `==`(x, y: Stuint): bool {.inline.} =
+func `==`*(x, y: Stuint): bool {.inline.} =
   ## Unsigned `equal` comparison
   x.data == y.data
-func isZero(x: Stuint): bool {.inline.} =
+func isZero*(x: Stuint): bool {.inline.} =
   ## Returns true if input is zero
   ## false otherwise
   x.data.isZero
 
-func isOdd(x: Stuint): bool {.inline.}=
+func isOdd*(x: Stuint): bool {.inline.}=
   ## Returns true if input is odd
   ## false otherwise
   x.data.isOdd
-func isEven(x: Stuint): bool {.inline.}=
+func isEven*(x: Stuint): bool {.inline.}=
   ## Returns true if input is even
   ## false otherwise
   x.data.isEven
 
 import ./private/uint_bitwise_ops
 
-func `not`(x: Stuint): Stuint {.inline.}=
+func `not`*(x: Stuint): Stuint {.inline.}=
   ## Bitwise `not` i.e. flips all bits of the input
-  x.data.not
-func `or`(x, y: Stuint): Stuint {.inline.}=
+  result.data = x.data.not
+func `or`*(x, y: Stuint): Stuint {.inline.}=
   ## Bitwise `or`
-  x.data or y.data
-func `and`(x, y: Stuint): Stuint {.inline.}=
+  result.data = x.data or y.data
+func `and`*(x, y: Stuint): Stuint {.inline.}=
   ## Bitwise `and`
-  x.data and y.data
-func `xor`(x, y: Stuint): Stuint {.inline.}=
+  result.data = x.data and y.data
+func `xor`*(x, y: Stuint): Stuint {.inline.}=
   ## Bitwise `xor`
-  x.data xor y.data
+  result.data = x.data xor y.data
 
 func `shr`*(x: StUint, y: SomeInteger): StUint {.inline.} =
   ## Logical shift right
