@@ -10,103 +10,130 @@
 import ./private/datatypes, macros
 export StUint, UintImpl, uintImpl # TODO remove the need to export UintImpl and this macro
 
-template make_unary(op, ResultTy): untyped =
-  func `op`*(x: StUint): ResultTy {.inline.} =
-    when ResultTy is StUint:
-      result.data = op(x.data)
-    else:
-      op(x.data)
-  export op
-
-template make_binary(op, ResultTy): untyped =
-  func `op`*(x, y: StUint): ResultTy {.inline.} =
-    when ResultTy is StUint:
-      result.data = op(x.data, y.data)
-    else:
-      op(x.data, y.data)
-  export `op`
-
-template make_binary_inplace(op): untyped =
-  func `op`*(x: var StUint, y: StUint) {.inline.} =
-    op(x.data, y.data)
-  export op
-
 import ./private/uint_addsub
 
-make_binary(`+`, StUint)
-make_binary_inplace(`+=`)
-make_binary(`-`, StUint)
-make_binary_inplace(`-=`)
+func `+`(x, y: Stuint): Stuint {.inline.} =
+  ## Unsigned integer addition
+  x.data + y.data
+func `+=`(x: var Stuint, y: Stuint) {.inline.} =
+  ## Unsigned integer addition
+  x.data += y.data
+func `-`(x, y: Stuint): Stuint {.inline.} =
+  ## Unsigned integer substraction
+  x.data - y.data
+func `-=`(x: var Stuint, y: Stuint) {.inline.} =
+  ## Unsigned integer substraction
+  x.data -= y.data
 
 import ./private/uint_mul
-make_binary(`*`, StUint)
+
+func `*`(x, y: Stuint): Stuint {.inline.} =
+  ## Unsigned integer multiplication
+  x.data * y.data
 
 import ./private/uint_div
 
-make_binary(`div`, StUint)
-make_binary(`mod`, StUint)
+func `div`(x, y: Stuint): Stuint {.inline.} =
+  ## Unsigned integer division
+  x.data div y.data
+func `mod`(x, y: Stuint): Stuint {.inline.} =
+  ## Unsigned integer modulo
+  ## This returns the remainder of x / y.
+  ## i.e. x = y * quotient + remainder
+  x.data mod y.data
 func divmod*(x, y: StUint): tuple[quot, rem: StUint] {.inline.} =
+  ## Fused unsigned integer division and modulo
+  ## Return both the quotient and remainder
+  ## of x / y
   (result.quot.data, result.rem.data) = divmod(x.data, y.data)
 
 import ./private/uint_comparison
 
-make_binary(`<`, bool)
-make_binary(`<=`, bool)
-make_binary(`==`, bool)
-make_unary(isZero, bool)
+func `<`(x, y: Stuint): bool {.inline.} =
+  ## Unsigned `less than` comparison
+  x.data < y.data
+func `<=`(x, y: Stuint): bool {.inline.} =
+  ## Unsigned `less or equal` comparison
+  x.data <= y.data
+func `==`(x, y: Stuint): bool {.inline.} =
+  ## Unsigned `equal` comparison
+  x.data == y.data
+func isZero(x: Stuint): bool {.inline.} =
+  ## Returns true if input is zero
+  ## false otherwise
+  x.data.isZero
 
-func isOdd(x: SomeUnsignedInt): bool {.inline.}=
-  # internal
-  bool(x and 1)
-
-func isEven(x: SomeUnsignedInt): bool {.inline.}=
-  # internal
-  not x.isOdd
-
-make_unary(isOdd, bool)
-make_unary(isEven, bool)
+func isOdd(x: Stuint): bool {.inline.}=
+  ## Returns true if input is odd
+  ## false otherwise
+  x.data.isOdd
+func isEven(x: Stuint): bool {.inline.}=
+  ## Returns true if input is even
+  ## false otherwise
+  x.data.isEven
 
 import ./private/uint_bitwise_ops
 
-make_unary(`not`, StUint)
-make_binary(`or`, StUint)
-make_binary(`and`, StUint)
-make_binary(`xor`, StUint)
+func `not`(x: Stuint): Stuint {.inline.}=
+  ## Bitwise `not` i.e. flips all bits of the input
+  x.data.not
+func `or`(x, y: Stuint): Stuint {.inline.}=
+  ## Bitwise `or`
+  x.data or y.data
+func `and`(x, y: Stuint): Stuint {.inline.}=
+  ## Bitwise `and`
+  x.data and y.data
+func `xor`(x, y: Stuint): Stuint {.inline.}=
+  ## Bitwise `xor`
+  x.data xor y.data
+
 func `shr`*(x: StUint, y: SomeInteger): StUint {.inline.} =
+  ## Logical shift right
   result.data = x.data shr y
 func `shl`*(x: StUint, y: SomeInteger): StUint {.inline.} =
+  ## Logical shift right
   result.data = x.data shl y
 
 import ./private/uint_highlow
 
 func high*[bits: static[int]](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.} =
+  ## Returns the highest unsigned int of this size. I.e. bits are all ones.
   result.data = high(type result.data)
 
 func low*[bits: static[int]](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.} =
+  ## Returns the lowest unsigned int of this size. This is always 0.
   result.data = low(type result.data)
 
 import ./private/bithacks
 
-func countLeadingZeroBits*(x: StUint): int {.inline.} =
+func countLeadingZeroBits*(x: Stuint): int {.inline.} =
+  ## Logical count of leading zeros
+  ## This corresponds to the number of zero bits of the input in
+  ## its big endian representation.
+  ## If input is zero, the number of bits of the number is returned.
   x.data.countLeadingZeroBits
 
 import ./private/initialization
 
 func zero*[bits: static[int]](T: typedesc[Stuint[bits] or Stint[bits]]): T {.inline.} =
+  ## Returns the zero of the input type
   discard
 
 func one*[bits: static[int]](T: typedesc[Stuint[bits]]): T {.inline.} =
+  ## Returns the one of the input type
   result.data = one(type result.data)
 
 import ./private/uint_exp, math
 
 func pow*(x: StUint, y: Natural): StUint {.inline.} =
+  ## Returns x raised at the power of y
   when x.data is UintImpl:
     result.data = x.data.pow(y)
   else:
     result.data = x.data ^ y
 
 func pow*(x: StUint, y: StUint): StUint {.inline.} =
+  ## Returns x raised at the power of y
   when x.data is UintImpl:
     result.data = x.data.pow(y.data)
   else:
