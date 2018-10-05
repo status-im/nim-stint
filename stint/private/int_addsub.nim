@@ -7,7 +7,9 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes, ./conversion, ./int_comparison
+import
+  ./datatypes, ./conversion, ./int_comparison,
+  ./uint_addsub, ./uint_comparison
 
 func `+`*(x, y: IntImpl): IntImpl {.inline.}=
   # Addition for multi-precision signed int.
