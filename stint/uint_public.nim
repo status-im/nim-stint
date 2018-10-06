@@ -104,6 +104,8 @@ func `shr`*(x: StUint, y: SomeInteger): StUint {.inline.} =
   result.data = x.data shr y
 func `shl`*(x: StUint, y: SomeInteger): StUint {.inline.} =
   ## Logical shift right
+  ## Similar to C standard, result is undefined if y is bigger
+  ## than the number of bits in x.
   result.data = x.data shl y
 
 import ./private/uint_highlow
