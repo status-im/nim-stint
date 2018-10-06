@@ -53,6 +53,11 @@ macro second_least_significant_word*(x: UintImpl or IntImpl): untyped =
   asWordsImpl(x, x, words)
   result = words[words.len - 2]
 
+macro least_significant_two_words*(x: UintImpl or IntImpl): untyped =
+  var words = nnkBracket.newTree()
+  asWordsImpl(x, x, words)
+  result = nnkBracket.newTree(words[words.len - 2], words[words.len - 1])
+
 # #########################################################################
 # Iteration macros
 

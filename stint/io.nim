@@ -75,11 +75,25 @@ func to*(x: SomeUnsignedInt, T: typedesc[StUint]): T =
 
 func toInt*(num: Stint or StUint): int {.inline.}=
   # Returns as int. Result is modulo 2^(sizeof(int)
-  num.data.least_significant_word.int
+  cast[int](num.data.least_significant_word)
 
 func toUint*(num: Stint or StUint): uint {.inline.}=
   # Returns as int. Result is modulo 2^(sizeof(int)
   num.data.least_significant_word
+
+func toInt64*(num: Stint or StUint): int64 {.inline.}=
+  # Returns as int64. Result is modulo 2^(sizeof(int)
+  when sizeof(uint) == 8:
+    cast[int64](num.data.least_significant_word)
+  else:
+    cast[int64](num.data.least_significant_two_words)
+
+func toUint64*(num: Stint or StUint): uint64 {.inline.}=
+  # Returns as int. Result is modulo 2^(sizeof(int)
+  when sizeof(uint) == 8:
+    num.data.least_significant_word.uint64
+  else:
+    cast[uint64](num.data.least_significant_two_words)
 
 func readHexChar(c: char): int8 {.inline.}=
   ## Converts an hex char to an int
