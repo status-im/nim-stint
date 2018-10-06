@@ -36,7 +36,6 @@ func toUint*(n: SomeUnsignedInt): SomeUnsignedInt {.inline.}=
 
 func asDoubleUint*(n: BaseUint): auto {.inline.} =
   ## Convert an integer or StUint to an uint with double the size
-
   type Double = (
     when n.sizeof == 4: uint64
     elif n.sizeof == 2: uint32

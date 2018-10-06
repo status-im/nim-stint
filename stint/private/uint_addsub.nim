@@ -19,7 +19,6 @@ func `+`*(x, y: UintImpl): UintImpl {.inline.}
 
 func `+=`*(x: var UintImpl, y: UintImpl) {.inline.}=
   ## In-place addition for multi-precision unsigned int
-
   type SubTy = type x.lo
   x.lo += y.lo
   x.hi += (x.lo < y.lo).toSubtype(SubTy) + y.hi # This helps the compiler produce ADC (add with carry)
@@ -31,7 +30,6 @@ func `+`*(x, y: UintImpl): UintImpl {.inline.}=
 
 func `-`*(x, y: UintImpl): UintImpl {.inline.}=
   # Substraction for multi-precision unsigned int
-
   type SubTy = type x.lo
   result.lo = x.lo - y.lo
   result.hi = x.hi - y.hi - (x.lo < y.lo).toSubtype(SubTy) # This might (?) help the compiler produce SBB (sub with borrow)

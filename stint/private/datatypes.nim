@@ -10,10 +10,9 @@
 # TODO: test if GCC/Clang support uint128 natively
 
 import macros
-
 # The macro uintImpl must be exported
 
-when defined(mpint_test):
+when defined(stint_test):
   macro uintImpl*(bits: static[int]): untyped =
     # Test version, StUint[64] = 2 uint32. Test the logic of the library
     assert (bits and (bits-1)) == 0, $bits & " is not a power of 2"
@@ -34,7 +33,7 @@ when defined(mpint_test):
   macro intImpl*(bits: static[int]): untyped =
     # Test version, StInt[64] = 2 uint32. Test the logic of the library
     # Note that ints are implemented in terms of unsigned ints
-    # Signed operatiosn will be built on top of that.
+    # Signed operations will be built on top of that.
     assert (bits and (bits-1)) == 0, $bits & " is not a power of 2"
     assert bits >= 16, "The number of bits in a should be greater or equal to 16"
 
@@ -90,9 +89,7 @@ else:
       error "Fatal: unreachable"
 
 proc getSize*(x: NimNode): static[int] =
-
-  # Size of doesn't always work at compile-time, pending PR https://github.com/nim-lang/Nim/pull/5664
-
+  # Default Nim's `sizeof` doesn't always work at compile-time, pending PR https://github.com/nim-lang/Nim/pull/5664
   var multiplier = 1
   var node = x.getTypeInst
 
@@ -137,7 +134,6 @@ type
       lo*, hi*: BaseUint
     else:
       hi*, lo*: BaseUint
-
   # ### Private ### #
 
   StUint*[bits: static[int]] = object
