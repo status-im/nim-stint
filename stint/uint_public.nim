@@ -8,7 +8,9 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import ./private/datatypes, macros
-export StUint, UintImpl, uintImpl # TODO remove the need to export UintImpl and this macro
+
+export StUint
+export UintImpl, uintImpl # TODO: remove the need to export those
 
 import ./private/uint_addsub
 
@@ -58,11 +60,21 @@ func `<=`*(x, y: Stuint): bool {.inline.} =
 func `==`*(x, y: Stuint): bool {.inline.} =
   ## Unsigned `equal` comparison
   x.data == y.data
+export `<`, `<=`, `==` # Address Generic Instantiation too nested: https://github.com/status-im/nim-stint/pull/66#issuecomment-427557655
+
 func isZero*(x: Stuint): bool {.inline.} =
   ## Returns true if input is zero
   ## false otherwise
   x.data.isZero
 
+func isOdd*(x: SomeUnSignedInt): bool {.inline.}=
+  ## Returns true if input is odd
+  ## false otherwise
+  bool(x and 1)
+func isEven*(x: SomeUnSignedInt): bool {.inline.}=
+  ## Returns true if input is even
+  ## false otherwise
+  not x.isOdd
 func isOdd*(x: Stuint): bool {.inline.}=
   ## Returns true if input is odd
   ## false otherwise

@@ -8,13 +8,17 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import  test_uint_endianness,
-        # test_uint_comparison,
+        test_uint_comparison,
         test_uint_bitwise,
-        test_uint_addsub
-        # test_uint_muldiv
+        test_uint_addsub,
+        test_uint_muldiv,
+        test_uint_exp
+        # test_uint_modular_arithmetic
 
 import  test_int_endianness,
-        # test_int_comparison,
-        test_int_addsub
+        test_int_comparison,
+        test_int_addsub,
+        test_int_muldiv,
+        test_int_boundchecks
 
-# import  test_io
+import  test_io
