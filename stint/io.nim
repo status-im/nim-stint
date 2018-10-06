@@ -77,6 +77,10 @@ func toInt*(num: Stint or StUint): int {.inline.}=
   # Returns as int. Result is modulo 2^(sizeof(int)
   num.data.least_significant_word.int
 
+func toUint*(num: Stint or StUint): uint {.inline.}=
+  # Returns as int. Result is modulo 2^(sizeof(int)
+  num.data.least_significant_word
+
 func readHexChar(c: char): int8 {.inline.}=
   ## Converts an hex char to an int
   case c
