@@ -111,7 +111,7 @@ proc div3n2n[T: SomeUnsignedInt](
   let ca0 = UintImpl[T](hi: c, lo: a0)
   r = ca0 - d
 
-  if  (not carry) and d > ca0:
+  if (not carry) and d > ca0:
     dec q
     r += b
 
