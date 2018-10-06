@@ -59,6 +59,8 @@ func `shl`*(x: UintImpl, y: SomeInteger): UintImpl {.inline.}=
 
 func `shr`*(x: UintImpl, y: SomeInteger): UintImpl {.inline.}=
   ## Compute the `shift right` operation of x and y
+  ## Similar to C standard, result is undefined if y is bigger
+  ## than the number of bits in x.
   const halfSize: type(y) = getSize(x) div 2
 
   if y == 0:
