@@ -17,14 +17,14 @@ proc test(name: string, lang: string = "c") =
   setCommand lang, "tests/" & name & ".nim"
 
 task test_internal_debug, "Run tests for internal procs - test implementation (StUint[64] = 2x uint32":
-  switch("define", "mpint_test")
+  switch("define", "stint_test")
   test "internal"
 
 task test_internal_release, "Run tests for internal procs - prod implementation (StUint[64] = uint64":
   test "internal"
 
 task test_debug, "Run all tests - test implementation (StUint[64] = 2x uint32":
-  switch("define", "mpint_test")
+  switch("define", "stint_test")
   test "all_tests"
 
 task test_release, "Run all tests - prod implementation (StUint[64] = uint64":
@@ -32,12 +32,12 @@ task test_release, "Run all tests - prod implementation (StUint[64] = uint64":
 
 task test_property_debug, "Run random tests (debug mode) - test implementation (StUint[64] = 2x uint32)":
   requires "https://github.com/alehander42/nim-quicktest >= 0.18.0"
-  switch("define", "mpint_test")
+  switch("define", "stint_test")
   test "property_based"
 
 task test_property_release, "Run random tests (release mode) - test implementation (StUint[64] = 2x uint32)":
   requires "https://github.com/alehander42/nim-quicktest >= 0.18.0"
-  switch("define", "mpint_test")
+  switch("define", "stint_test")
   switch("define", "release")
   test "property_based"
 
