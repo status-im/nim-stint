@@ -137,7 +137,7 @@ func readDecChar(c: range['0'..'9']): int {.inline.}=
   # specialization without branching for base <= 10.
   ord(c) - ord('0')
 
-func parse*[bits: static[int]](input: string, T: typedesc[Stuint[bits]], base: static[uint8]): T =
+func parse*[bits: static[int]](input: string, T: typedesc[Stuint[bits]], base: static[uint8] = 10): T =
   ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
 
   static: assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
@@ -158,7 +158,7 @@ func parse*[bits: static[int]](input: string, T: typedesc[Stuint[bits]], base: s
       result = result * radix + input[curr].readHexChar.stuint(bits)
     nextNonBlank(curr, input)
 
-func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], base: static[int8]): T =
+func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], base: static[int8] = 10): T =
   ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
 
   static: assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
@@ -196,13 +196,6 @@ func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], base: st
   else:
     result = cast[Stint[bits]](no_overflow)
 
-func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]|Stuint[bits]]): T {.inline.}=
-  ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
-  ## Input is considered a decimal string.
-  # TODO: Have a default static argument in the previous proc. Currently we get
-  #       "Cannot evaluate at compile-time" in several places (2018-04-26).
-  parse(input, T, 10)
-
 func fromHex*(T: type StUint, s: string): T {.inline.} =
   ## Convert an hex string to the corresponding unsigned integer
   parse(s, type result, base = 16)
@@ -211,7 +204,7 @@ func hexToUint*[bits: static[int]](hexString: string): Stuint[bits] {.inline.} =
   ## Convert an hex string to the corresponding unsigned integer
   parse(hexString, type result, base = 16)
 
-func toString*[bits: static[int]](num: StUint[bits], base: static[uint8]): string =
+func toString*[bits: static[int]](num: StUint[bits], base: static[uint8] = 10): string =
   ## Convert a Stint or Stuint to string.
   ## In case of negative numbers:
   ##   - they are prefixed with "-" for base 10.
@@ -234,7 +227,7 @@ func toString*[bits: static[int]](num: StUint[bits], base: static[uint8]): strin
 
   reverse(result)
 
-func toString*[bits: static[int]](num: Stint[bits], base: static[int8]): string =
+func toString*[bits: static[int]](num: Stint[bits], base: static[int8] = 10): string =
   ## Convert a Stint or Stuint to string.
   ## In case of negative numbers:
   ##   - they are prefixed with "-" for base 10.
@@ -265,17 +258,6 @@ func toString*[bits: static[int]](num: Stint[bits], base: static[int8]): string 
 
   reverse(result)
 
-func toString*[bits: static[int]](num: Stint[bits] or StUint[bits]): string {.inline.}=
-  ## Convert to a string.
-  ## Output is considered a decimal string.
-  #
-  # TODO: Have a default static argument in the previous proc. Currently we get
-  #       "Error: type mismatch: got <int, type StInt[128]>, required type static[int]"
-  when num.data is SomeInteger:
-    $num.data
-  else:
-    toString(num, 10)
-
 func `$`*(num: Stint or StUint): string {.inline.}=
   when num.data is SomeInteger:
     $num.data
@@ -288,7 +270,7 @@ func toHex*[bits: static[int]](num: Stint[bits] or StUint[bits]): string {.inlin
   ## Leading zeros are stripped. Use dumpHex instead if you need the in-memory representation
   toString(num, 16)
 
-func dumpHex*(x: Stint or StUint, order: static[Endianness]): string =
+func dumpHex*(x: Stint or StUint, order: static[Endianness] = bigEndian): string =
   ## Stringify an int to hex.
   ## Note. Leading zeros are not removed. Use toString(n, base = 16)/toHex instead.
   ##
@@ -317,13 +299,6 @@ func dumpHex*(x: Stint or StUint, order: static[Endianness]): string =
     else:
       result[2*i] = hexChars[int bytes[bytes[].high - i] shr 4 and 0xF]
       result[2*i+1] = hexChars[int bytes[bytes[].high - i] and 0xF]
-
-func dumpHex*(x: Stint or StUint): string {.inline.}=
-  ## Stringify an int to hex.
-  ## By default, dump is done in bigEndian order.
-  dumpHex(x, bigEndian)
-  # TODO: Have a default static argument in the previous proc. Currently we get
-  #       "Cannot evaluate at compile-time".
 
 proc initFromBytesBE*[bits: static[int]](val: var Stuint[bits], ba: openarray[byte], allowPadding: static[bool] = true) =
   ## Initializes a UInt[bits] value from a byte buffer storing a big-endian
@@ -358,13 +333,13 @@ proc initFromBytesBE*[bits: static[int]](val: var Stuint[bits], ba: openarray[by
     else:
       for i, b in ba: r_ptr[N-1 - i] = b
 
-func significantBytesBE*(val: openarray[byte]): int =
+func significantBytesBE*(val: openarray[byte]): int {.deprecated.}=
   ## Returns the number of significant trailing bytes in a big endian
   ## representation of a number.
+  # TODO: move that in https://github.com/status-im/nim-byteutils
   for i in 0 ..< val.len:
     if val[i] != 0:
       return val.len - i
-
   return 1
 
 func fromBytesBE*(T: type Stuint, ba: openarray[byte],
