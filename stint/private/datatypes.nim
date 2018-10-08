@@ -73,6 +73,26 @@ import macros
 #
 # Iterations over the whole integers, for example for `==` is always unrolled.
 # Due to being on the stack, any optimizing compiler should compile that to efficient memcmp
+#
+# When not to use Stint:
+#
+# 1. Constant-time arithmetics
+#    - Do not use Stint if you need side-channels resistance,
+#      This requires to avoid all branches (i.e. no booleans)
+# 2. Arbitrary-precision with lots of small-values
+#    - If you need arbitrary precision but most of the time you store mall values
+#      you will waste a lot of memory unless you use an object variant of various Stint sizes.
+#      type MyUint = object
+#        case kind: int
+#        of 0..64: uint64
+#        of 66..128: ref Stuint[128]
+#        of 129..256: ref Stuint[256]
+#        ...
+#
+# Note: if you work with huge size, you can allocate stints on the heap with
+#       for example `type HeapInt8192 = ref Stint[8192].
+#       If you have a lot of computations and intermediate variables it's probably worthwhile
+#       to explore creating an object pool to reuse the memory buffers.
 
 when not defined(stint_test):
   macro uintImpl*(bits: static[int]): untyped =
