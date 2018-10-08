@@ -34,14 +34,14 @@ suite "Testing input and output procedures":
 
   test "Creation from hex strings":
     block:
-      let a = "0xFF".parse(Stint[64], base = 16)
+      let a = "0xFF".parse(Stint[64], radix = 16)
       let b = 255.stint(64)
 
       check: a == b
       check: 255'i64 == cast[int64](a)
 
     block:
-      let a = "0xFF".parse(Stuint[64], base = 16)
+      let a = "0xFF".parse(Stuint[64], radix = 16)
       let b = 255.stuint(64)
 
       check: a == b
@@ -158,7 +158,7 @@ suite "Testing conversion functions: Hex, Bytes, Endianness using secp256k1 curv
       x.to(Int128).bits == 128
 
   test "hex -> uint256":
-    check: SECPK1_N_HEX.parse(Stuint[256], base = 16) == SECPK1_N
+    check: SECPK1_N_HEX.parse(Stuint[256], radix = 16) == SECPK1_N
 
   test "uint256 -> hex":
     check: SECPK1_N.dumpHex == SECPK1_N_HEX

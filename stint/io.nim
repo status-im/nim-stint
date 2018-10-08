@@ -106,7 +106,7 @@ func readHexChar(c: char): int8 {.inline.}=
   else:
     raise newException(ValueError, $c & "is not a hexadecimal character")
 
-func skipPrefixes(current_idx: var int, str: string, base: range[2..16]) {.inline.} =
+func skipPrefixes(current_idx: var int, str: string, radix: range[2..16]) {.inline.} =
   ## Returns the index of the first meaningful char in `hexStr` by skipping
   ## "0x" prefix
 
@@ -116,13 +116,13 @@ func skipPrefixes(current_idx: var int, str: string, base: range[2..16]) {.inlin
   assert current_idx == 0, "skipPrefixes only works for prefixes (position 0 and 1 of the string)"
   if str[0] == '0':
     if str[1] in {'x', 'X'}:
-      assert base == 16, "Parsing mismatch, 0x prefix is only valid for a hexadecimal number (base 16)"
+      assert radix == 16, "Parsing mismatch, 0x prefix is only valid for a hexadecimal number (base 16)"
       current_idx = 2
     elif str[1] in {'o', 'O'}:
-      assert base == 8, "Parsing mismatch, 0o prefix is only valid for an octal number (base 8)"
+      assert radix == 8, "Parsing mismatch, 0o prefix is only valid for an octal number (base 8)"
       current_idx = 2
     elif str[1] in {'b', 'B'}:
-      assert base == 2, "Parsing mismatch, 0b prefix is only valid for a binary number (base 2)"
+      assert radix == 2, "Parsing mismatch, 0b prefix is only valid for a binary number (base 2)"
       current_idx = 2
 
 func nextNonBlank(current_idx: var int, s: string) {.inline.} =
@@ -139,38 +139,38 @@ func readDecChar(c: range['0'..'9']): int {.inline.}=
   # specialization without branching for base <= 10.
   ord(c) - ord('0')
 
-func parse*[bits: static[int]](input: string, T: typedesc[Stuint[bits]], base: static[uint8] = 10): T =
+func parse*[bits: static[int]](input: string, T: typedesc[Stuint[bits]], radix: static[uint8] = 10): T =
   ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
 
-  static: assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
+  static: assert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
 
   # TODO: we can special case hex result/input as an array of bytes
   #       and be much faster
 
-  const radix = base.uint8.stuint(bits)
+  const base = radix.uint8.stuint(bits)
   var curr = 0 # Current index in the string
-  skipPrefixes(curr, input, base)
+  skipPrefixes(curr, input, radix)
 
   while curr < input.len:
     # TODO: overflow detection
-    when base <= 10:
-      result = result * radix + input[curr].readDecChar.stuint(bits)
+    when radix <= 10:
+      result = result * base + input[curr].readDecChar.stuint(bits)
     else:
-      result = result * radix + input[curr].readHexChar.stuint(bits)
+      result = result * base + input[curr].readHexChar.stuint(bits)
     nextNonBlank(curr, input)
 
-func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], base: static[int8] = 10): T =
+func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], radix: static[int8] = 10): T =
   ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
 
-  static: assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
+  static: assert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
 
   # TODO: we can special case hex result/input as an array of bytes
   #       and be much faster
 
   # For conversion we require overflowing operations (for example for negative hex numbers)
-  const radix = base.int8.stuint(bits)
+  const base = radix.int8.stuint(bits)
 
   var
     curr = 0 # Current index in the string
@@ -178,18 +178,18 @@ func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], base: st
     no_overflow: Stuint[bits]
 
   if input[curr] == '-':
-    assert base == 10, "Negative numbers are only supported with base 10 input."
+    assert radix == 10, "Negative numbers are only supported with base 10 input."
     isNeg = true
     inc curr
   else:
-    skipPrefixes(curr, input, base)
+    skipPrefixes(curr, input, radix)
 
   while curr < input.len:
     # TODO: overflow detection
-    when base <= 10:
-      no_overflow = no_overflow * radix + input[curr].readDecChar.stuint(bits)
+    when radix <= 10:
+      no_overflow = no_overflow * base + input[curr].readDecChar.stuint(bits)
     else:
-      no_overflow = no_overflow * radix + input[curr].readHexChar.stuint(bits)
+      no_overflow = no_overflow * base + input[curr].readHexChar.stuint(bits)
     nextNonBlank(curr, input)
 
   # TODO: we can't create the lowest int this way
@@ -200,60 +200,60 @@ func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], base: st
 
 func fromHex*(T: type StUint, s: string): T {.inline.} =
   ## Convert an hex string to the corresponding unsigned integer
-  parse(s, type result, base = 16)
+  parse(s, type result, radix = 16)
 
 func hexToUint*[bits: static[int]](hexString: string): Stuint[bits] {.inline.} =
   ## Convert an hex string to the corresponding unsigned integer
-  parse(hexString, type result, base = 16)
+  parse(hexString, type result, radix = 16)
 
-func toString*[bits: static[int]](num: StUint[bits], base: static[uint8] = 10): string =
+func toString*[bits: static[int]](num: StUint[bits], radix: static[uint8] = 10): string =
   ## Convert a Stint or Stuint to string.
   ## In case of negative numbers:
   ##   - they are prefixed with "-" for base 10.
   ##   - if not base 10, they are returned raw in two-complement form.
 
-  static: assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
+  static: assert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
 
   const hexChars = "0123456789abcdef"
-  const radix = base.uint8.stuint(bits)
+  const base = radix.uint8.stuint(bits)
 
   result = ""
-  var (q, r) = divmod(num, radix)
+  var (q, r) = divmod(num, base)
 
   while true:
     result.add hexChars[r.toInt]
     if q.isZero:
       break
-    (q, r) = divmod(q, radix)
+    (q, r) = divmod(q, base)
 
   reverse(result)
 
-func toString*[bits: static[int]](num: Stint[bits], base: static[int8] = 10): string =
+func toString*[bits: static[int]](num: Stint[bits], radix: static[int8] = 10): string =
   ## Convert a Stint or Stuint to string.
   ## In case of negative numbers:
   ##   - they are prefixed with "-" for base 10.
   ##   - if not base 10, they are returned raw in two-complement form.
 
-  static: assert (base >= 2) and base <= 16, "Only base from 2..16 are supported"
+  static: assert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
 
   const hexChars = "0123456789abcdef"
-  const radix = base.int8.stint(bits)
+  const base = radix.int8.stint(bits)
 
   result = ""
 
   let isNeg = num.isNegative
-  let num = if base == 10 and isNeg: -num
+  let num = if radix == 10 and isNeg: -num
             else: num
 
-  var (q, r) = divmod(num, radix)
+  var (q, r) = divmod(num, base)
 
   while true:
     result.add hexChars[r.toInt]
     if q.isZero:
       break
-    (q, r) = divmod(q, radix)
+    (q, r) = divmod(q, base)
 
   if isNeg:
     result.add '-'
