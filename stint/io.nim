@@ -24,9 +24,9 @@ template static_check_size(T: typedesc[SomeInteger], bits: static[int]) =
             "\nUse a smaller input type instead. This is a compile-time check" &
             " to avoid a costly run-time bit_length check at each StUint initialization."
 
-template assign_least_significant_words[T: SomeInteger](result: var (Stuint|Stint), n: T) =
-  template lsw_result: untyped = least_significant_word(result.data)
-  template slsw_result: untyped = second_least_significant_word(result.data)
+template assign_leastSignificantWords[T: SomeInteger](result: var (Stuint|Stint), n: T) =
+  template lsw_result: untyped = leastSignificantWord(result.data)
+  template slsw_result: untyped = secondLeastSignificantWord(result.data)
 
   const wordSize = lsw_result.getSize
   when sizeof(T) * 8 <= wordSize:
@@ -47,7 +47,7 @@ func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
   assert n >= 0.T
   when result.data is UintImpl:
     static_check_size(T, bits)
-    assign_least_significant_words(result, n)
+    assign_leastSignificantWords(result, n)
   else:
     result.data = (type result.data)(n)
 
@@ -58,12 +58,12 @@ func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
     static_check_size(T, bits)
     when T is SomeSignedInt:
       if n < 0:
-        assign_least_significant_words(result, -n)
+        assign_leastSignificantWords(result, -n)
         result = -result
       else:
-        assign_least_significant_words(result, n)
+        assign_leastSignificantWords(result, n)
     else:
-      assign_least_significant_words(result, n)
+      assign_leastSignificantWords(result, n)
   else:
     result.data = (type result.data)(n)
 
@@ -76,26 +76,26 @@ func to*(x: SomeUnsignedInt, T: typedesc[StUint]): T =
 func toInt*(num: Stint or StUint): int {.inline.}=
   ## Returns as int.
   ## Result is undefined if input does not fit in an int64
-  cast[int](num.data.least_significant_word)
+  cast[int](num.data.leastSignificantWord)
 
 func toUint*(num: Stint or StUint): uint {.inline.}=
   ## Returns as uint. Result is modulo 2^(sizeof(uint))
-  num.data.least_significant_word.uint
+  num.data.leastSignificantWord.uint
 
 func toInt64*(num: Stint or StUint): int64 {.inline.}=
   ## Returns as int64.
   ## Result is undefined if input does not fit in an int64
   when sizeof(uint) == 8:
-    cast[int64](num.data.least_significant_word)
+    cast[int64](num.data.leastSignificantWord)
   else:
-    cast[int64](num.data.least_significant_two_words)
+    cast[int64](num.data.leastSignificantTwoWords)
 
 func toUint64*(num: Stint or StUint): uint64 {.inline.}=
   ## Returns as uint64. Result is modulo 2^64.
   when sizeof(uint) == 8:
-    num.data.least_significant_word.uint64
+    num.data.leastSignificantWord.uint64
   else:
-    cast[uint64](num.data.least_significant_two_words)
+    cast[uint64](num.data.leastSignificantTwoWords)
 
 func readHexChar(c: char): int8 {.inline.}=
   ## Converts an hex char to an int

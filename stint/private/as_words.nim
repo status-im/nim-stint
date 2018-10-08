@@ -43,17 +43,17 @@ macro asWords(x: UintImpl or IntImpl, idx: static[int]): untyped =
 macro most_significant_word*(x: UintImpl or IntImpl): untyped =
   result = getAST(asWords(x, 0))
 
-macro least_significant_word*(x: UintImpl or IntImpl): untyped =
+macro leastSignificantWord*(x: UintImpl or IntImpl): untyped =
   var words = nnkBracket.newTree()
   asWordsImpl(x, x, words)
   result = words[words.len - 1]
 
-macro second_least_significant_word*(x: UintImpl or IntImpl): untyped =
+macro secondLeastSignificantWord*(x: UintImpl or IntImpl): untyped =
   var words = nnkBracket.newTree()
   asWordsImpl(x, x, words)
   result = words[words.len - 2]
 
-macro least_significant_two_words*(x: UintImpl or IntImpl): untyped =
+macro leastSignificantTwoWords*(x: UintImpl or IntImpl): untyped =
   var words = nnkBracket.newTree()
   asWordsImpl(x, x, words)
   when system.cpuEndian == bigEndian:

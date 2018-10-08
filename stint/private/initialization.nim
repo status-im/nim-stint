@@ -13,7 +13,7 @@ func zero*(T: typedesc): T {.inline.} =
   discard
 
 func one*(T: typedesc[UintImpl or IntImpl]): T {.inline.} =
-  least_significant_word(result) = 1
+  leastSignificantWord(result) = 1
 
 func one*(T: typedesc[SomeInteger]): T {.inline.} =
   1

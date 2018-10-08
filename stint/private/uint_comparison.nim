@@ -48,7 +48,7 @@ func `<=`*(x, y: UintImpl): bool {.inline.}=
   return true # they're equal
 
 func isOdd*(x: UintImpl): bool {.inline.}=
-  bool(x.least_significant_word and 1)
+  bool(x.leastSignificantWord and 1)
 
 func isEven*(x: UintImpl): bool {.inline.}=
   not x.isOdd
