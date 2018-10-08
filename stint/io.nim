@@ -74,24 +74,24 @@ func to*(x: SomeUnsignedInt, T: typedesc[StUint]): T =
   stuint(x, result.bits)
 
 func toInt*(num: Stint or StUint): int {.inline.}=
-  # Returns as int.
-  # Result is undefined if input does not fit in an int64
+  ## Returns as int.
+  ## Result is undefined if input does not fit in an int64
   cast[int](num.data.least_significant_word)
 
 func toUint*(num: Stint or StUint): uint {.inline.}=
-  # Returns as uint. Result is modulo 2^(sizeof(uint))
+  ## Returns as uint. Result is modulo 2^(sizeof(uint))
   num.data.least_significant_word.uint
 
 func toInt64*(num: Stint or StUint): int64 {.inline.}=
-  # Returns as int64.
-  # Result is undefined if input does not fit in an int64
+  ## Returns as int64.
+  ## Result is undefined if input does not fit in an int64
   when sizeof(uint) == 8:
     cast[int64](num.data.least_significant_word)
   else:
     cast[int64](num.data.least_significant_two_words)
 
 func toUint64*(num: Stint or StUint): uint64 {.inline.}=
-  # Returns as uint64. Result is modulo 2^64.
+  ## Returns as uint64. Result is modulo 2^64.
   when sizeof(uint) == 8:
     num.data.least_significant_word.uint64
   else:
