@@ -56,7 +56,10 @@ macro second_least_significant_word*(x: UintImpl or IntImpl): untyped =
 macro least_significant_two_words*(x: UintImpl or IntImpl): untyped =
   var words = nnkBracket.newTree()
   asWordsImpl(x, x, words)
-  result = nnkBracket.newTree(words[words.len - 2], words[words.len - 1])
+  when system.cpuEndian == bigEndian:
+    result = nnkBracket.newTree(words[words.len - 2], words[words.len - 1])
+  else:
+    result = nnkBracket.newTree(words[words.len - 1], words[words.len - 2])
 
 # #########################################################################
 # Iteration macros
