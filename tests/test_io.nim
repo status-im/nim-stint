@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, strutils
+import ../stint, unittest, strutils, math
 
 suite "Testing input and output procedures":
   test "Creation from decimal strings":
@@ -105,6 +105,39 @@ suite "Testing input and output procedures":
       let a = parse(s, StUInt[512])
       check: a.toString == s
       check: $a == s
+
+  test "toInt, toInt64, toUint, toUint64":
+    block:
+      let x = 100.stuint(128)
+      check:
+        x.toInt == 100
+        x.toInt64 == 100'i64
+        x.toUint64 == 100'u64
+        x.toUint == 100'u
+    block:
+      let x = pow(2.stuint(128), 64) + 1
+      check:
+        # x.toInt == 1 # This is undefined
+        # x.toInt64 == 1'i64 # This is undefined
+        x.toUint64 == 1'u64
+        x.toUint == 1'u
+
+  test "toInt, toInt64, toUint, toUint64 - word size (32/64-it) specific":
+    when not defined(stint_test):
+      # stint_test forces word size of 32-bit
+      # while stint uses uint64 by default.
+      block:
+        let x = pow(2.stuint(128), 32) + 1
+        when sizeof(int) == 4: # 32-bit machines
+          check:
+            x.toUint == 1'u
+            x.toUint64 == 2'u64^32 + 1
+        else:
+          check:
+            x.toUint == 2'u^32 + 1
+            x.toUint64 == 2'u64^32 + 1
+    else:
+      echo "         Skipped when Stint forces uint32 backend in test mode"
 
 suite "Testing conversion functions: Hex, Bytes, Endianness using secp256k1 curve":
 

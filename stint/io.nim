@@ -80,7 +80,7 @@ func toInt*(num: Stint or StUint): int {.inline.}=
 
 func toUint*(num: Stint or StUint): uint {.inline.}=
   # Returns as uint. Result is modulo 2^(sizeof(uint))
-  num.data.least_significant_word
+  num.data.least_significant_word.uint
 
 func toInt64*(num: Stint or StUint): int64 {.inline.}=
   # Returns as int64.
