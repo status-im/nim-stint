@@ -137,7 +137,7 @@ suite "Testing input and output procedures":
             x.toUint == 2'u^32 + 1
             x.toUint64 == 2'u64^32 + 1
     else:
-      echo "         Skipped when Stint forces uint32 backend in test mode"
+      echo "Next test skipped when Stint forces uint32 backend in test mode"
 
 suite "Testing conversion functions: Hex, Bytes, Endianness using secp256k1 curve":
 
