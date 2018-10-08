@@ -73,29 +73,22 @@ func to*(x: SomeInteger, T: typedesc[Stint]): T =
 func to*(x: SomeUnsignedInt, T: typedesc[StUint]): T =
   stuint(x, result.bits)
 
-func toInt*(num: Stint or StUint): int {.inline.}=
-  ## Returns as int.
-  ## Result is undefined if input does not fit in an int64
-  cast[int](num.data.leastSignificantWord)
+func truncate*(num: Stint or StUint, T: typedesc[int or uint or int64 or uint64]): T {.inline.}=
+  ## Extract the int, uint, int64 or uint64 portion of a multi-precision integer.
+  ## Note that int and uint are 32-bit on 32-bit platform.
+  ## For unsigned result type, result is modulo 2^(sizeof T in bit)
+  ## For signed result type, result is undefined if input does not fit in the target type.
+  when T is int:            cast[int](num.data.leastSignificantWord)
+  elif T is uint:           uint num.data.leastSignificantWord
+  elif T is int64:
+    when sizeof(uint) == 8: cast[int64](num.data.leastSignificantWord)
+    else:                   cast[int64](num.data.leastSignificantTwoWords)
+  elif T is uint64:
+    when sizeof(uint) == 8: uint64 num.data.leastSignificantWord
+    else:                   cast[uint64](num.data.leastSignificantTwoWords)
 
-func toUint*(num: Stint or StUint): uint {.inline.}=
-  ## Returns as uint. Result is modulo 2^(sizeof(uint))
-  num.data.leastSignificantWord.uint
-
-func toInt64*(num: Stint or StUint): int64 {.inline.}=
-  ## Returns as int64.
-  ## Result is undefined if input does not fit in an int64
-  when sizeof(uint) == 8:
-    cast[int64](num.data.leastSignificantWord)
-  else:
-    cast[int64](num.data.leastSignificantTwoWords)
-
-func toUint64*(num: Stint or StUint): uint64 {.inline.}=
-  ## Returns as uint64. Result is modulo 2^64.
-  when sizeof(uint) == 8:
-    num.data.leastSignificantWord.uint64
-  else:
-    cast[uint64](num.data.leastSignificantTwoWords)
+func toInt*(num: Stint or StUint): int {.inline, deprecated:"Use num.truncate(int) instead".}=
+  num.truncate(int)
 
 func readHexChar(c: char): int8 {.inline.}=
   ## Converts an hex char to an int
@@ -222,7 +215,7 @@ func toString*[bits: static[int]](num: StUint[bits], radix: static[uint8] = 10):
   var (q, r) = divmod(num, base)
 
   while true:
-    result.add hexChars[r.toInt]
+    result.add hexChars[r.truncate(int)]
     if q.isZero:
       break
     (q, r) = divmod(q, base)
@@ -250,7 +243,7 @@ func toString*[bits: static[int]](num: Stint[bits], radix: static[int8] = 10): s
   var (q, r) = divmod(num, base)
 
   while true:
-    result.add hexChars[r.toInt]
+    result.add hexChars[r.truncate(int)]
     if q.isZero:
       break
     (q, r) = divmod(q, base)

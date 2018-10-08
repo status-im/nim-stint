@@ -106,21 +106,21 @@ suite "Testing input and output procedures":
       check: a.toString == s
       check: $a == s
 
-  test "toInt, toInt64, toUint, toUint64":
+  test "Truncate: int, int64, uint, uint64":
     block:
       let x = 100.stuint(128)
       check:
-        x.toInt == 100
-        x.toInt64 == 100'i64
-        x.toUint64 == 100'u64
-        x.toUint == 100'u
+        x.truncate(int) == 100
+        x.truncate(int64) == 100'i64
+        x.truncate(uint64) == 100'u64
+        x.truncate(uint) == 100'u
     block:
       let x = pow(2.stuint(128), 64) + 1
       check:
-        # x.toInt == 1 # This is undefined
-        # x.toInt64 == 1'i64 # This is undefined
-        x.toUint64 == 1'u64
-        x.toUint == 1'u
+        # x.truncate(int) == 1 # This is undefined
+        # x.truncate(int64) == 1'i64 # This is undefined
+        x.truncate(uint64) == 1'u64
+        x.truncate(uint) == 1'u
 
   test "toInt, toInt64, toUint, toUint64 - word size (32/64-it) specific":
     when not defined(stint_test):
@@ -130,12 +130,12 @@ suite "Testing input and output procedures":
         let x = pow(2.stuint(128), 32) + 1
         when sizeof(int) == 4: # 32-bit machines
           check:
-            x.toUint == 1'u
-            x.toUint64 == 2'u64^32 + 1
+            x.truncate(uint) == 1'u
+            x.truncate(uint64) == 2'u64^32 + 1
         else:
           check:
-            x.toUint == 2'u^32 + 1
-            x.toUint64 == 2'u64^32 + 1
+            x.truncate(uint) == 2'u^32 + 1
+            x.truncate(uint64) == 2'u64^32 + 1
     else:
       echo "Next test skipped when Stint forces uint32 backend in test mode"
 
