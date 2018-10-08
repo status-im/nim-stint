@@ -120,8 +120,7 @@ macro asWordsIterate(wordsIdents: untyped, sid0, sid1, sid2: typed, signed: stat
       var w = words[currStint][currDepth]
 
       if currDepth == 0 and signed:
-        let toInt = bindSym"toInt"
-        w = quote do: `toInt`(`w`)
+        w = quote do: toInt(`w`)
 
       replacing.add w
 
