@@ -36,12 +36,12 @@ func divmod*(x, y: SomeSignedInt): tuple[quot, rem: SomeSignedInt] {.inline.}=
   # hopefully the compiler fuse that in a single op
   (x div y, x mod y)
 
-proc divmod*[T](x, y: IntImpl[T]): tuple[quot, rem: IntImpl[T]] =
+proc divmod*[T, T2](x, y: IntImpl[T, T2]): tuple[quot, rem: IntImpl[T, T2]] =
   ## Divmod operation for multi-precision signed integer
 
   result = cast[type result](divmod(
-    cast[UintImpl[T]](x.abs),
-    cast[UintImpl[T]](y.abs)
+    cast[UintImpl[T2]](x.abs),
+    cast[UintImpl[T2]](y.abs)
     ))
 
   if (x.isNegative xor y.isNegative):

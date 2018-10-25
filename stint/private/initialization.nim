@@ -7,13 +7,13 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ./datatypes, ./as_words, typetraits
+import ./datatypes
 
 func zero*(T: typedesc): T {.inline.} =
   discard
 
-func one*(T: typedesc[UintImpl or IntImpl]): T {.inline.} =
-  leastSignificantWord(result) = 1
-
 func one*(T: typedesc[SomeInteger]): T {.inline.} =
   1
+
+func one*(T: typedesc[UintImpl or IntImpl]): T {.inline.} =
+  result.lo = one(type result.lo)

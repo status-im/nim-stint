@@ -7,35 +7,23 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes, ./as_words
+import  ./datatypes
 
 func `not`*(x: UintImpl): UintImpl {.inline.}=
   ## Bitwise complement of unsigned integer x
-  {.push experimental: "forLoopMacros".}
-  for wr, wx in asWords(result, x):
-    wr = not wx
-  {.pop.}
+  applyHiLo(x, `not`)
 
 func `or`*(x, y: UintImpl): UintImpl {.inline.}=
   ## `Bitwise or` of numbers x and y
-  {.push experimental: "forLoopMacros".}
-  for wr, wx, wy in asWords(result, x, y):
-    wr = wx or wy
-  {.pop.}
+  applyHiLo(x, y, `or`)
 
 func `and`*(x, y: UintImpl): UintImpl {.inline.}=
   ## `Bitwise and` of numbers x and y
-  {.push experimental: "forLoopMacros".}
-  for wr, wx, wy in asWords(result, x, y):
-    wr = wx and wy
-  {.pop.}
+  applyHiLo(x, y, `and`)
 
 func `xor`*(x, y: UintImpl): UintImpl {.inline.}=
   ## `Bitwise xor` of numbers x and y
-  {.push experimental: "forLoopMacros".}
-  for wr, wx, wy in asWords(result, x, y):
-    wr = wx xor wy
-  {.pop.}
+  applyHiLo(x, y, `xor`)
 
 func `shr`*(x: UintImpl, y: SomeInteger): UintImpl {.inline.}
   # Forward declaration
@@ -45,7 +33,7 @@ func `shl`*(x: UintImpl, y: SomeInteger): UintImpl {.inline.}=
   # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
 
   # TODO: would it be better to reimplement this with words iteration?
-  const halfSize: type(y) = getSize(x) div 2
+  const halfSize: type(y) = bitsof(x) div 2
 
   if y == 0:
     return x
@@ -61,7 +49,7 @@ func `shr`*(x: UintImpl, y: SomeInteger): UintImpl {.inline.}=
   ## Compute the `shift right` operation of x and y
   ## Similar to C standard, result is undefined if y is bigger
   ## than the number of bits in x.
-  const halfSize: type(y) = getSize(x) div 2
+  const halfSize: type(y) = bitsof(x) div 2
 
   if y == 0:
     return x

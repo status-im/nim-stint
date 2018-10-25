@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ./private/datatypes, macros
+import ./private/datatypes
 
 export StUint
 export UintImpl, uintImpl # TODO: remove the need to export those
@@ -67,22 +67,15 @@ func isZero*(x: Stuint): bool {.inline.} =
   ## false otherwise
   x.data.isZero
 
-func isOdd*(x: SomeUnSignedInt): bool {.inline.}=
-  ## Returns true if input is odd
-  ## false otherwise
-  bool(x and 1)
-func isEven*(x: SomeUnSignedInt): bool {.inline.}=
-  ## Returns true if input is even
-  ## false otherwise
-  not x.isOdd
-func isOdd*(x: Stuint): bool {.inline.}=
-  ## Returns true if input is odd
-  ## false otherwise
-  x.data.isOdd
+export isEven, isOdd
 func isEven*(x: Stuint): bool {.inline.}=
   ## Returns true if input is even
   ## false otherwise
   x.data.isEven
+func isOdd*(x: Stuint): bool {.inline.}=
+  ## Returns true if input is odd
+  ## false otherwise
+  not x.isEven
 
 import ./private/uint_bitwise_ops
 

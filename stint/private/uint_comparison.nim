@@ -7,48 +7,36 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes, ./as_words
+import  ./datatypes
 
 func isZero*(n: SomeUnsignedInt): bool {.inline.} =
   n == 0
 
 func isZero*(n: UintImpl): bool {.inline.} =
-  {.push experimental: "forLoopMacros".}
-  for word in asWords(n):
-    if word != 0:
-      return false
-  {.pop.}
-  return true
+  n.hi.isZero and n.lo.isZero
 
 func `<`*(x, y: UintImpl): bool {.inline.}=
   # Lower comparison for multi-precision integers
-  {.push experimental: "forLoopMacros".}
-  for wx, wy in asWords(x, y):
-    if wx != wy:
-      return wx < wy
-  {.pop.}
-  return false # they're equal
+  x.hi < y.hi or
+    (x.hi == y.hi and x.lo < y.lo)
 
 func `==`*(x, y: UintImpl): bool {.inline.}=
   # Equal comparison for multi-precision integers
-  {.push experimental: "forLoopMacros".}
-  for wx, wy in asWords(x, y):
-    if wx != wy:
-      return false
-  {.pop.}
-  return true # they're equal
+  x.hi == y.hi and x.lo == y.lo
 
 func `<=`*(x, y: UintImpl): bool {.inline.}=
   # Lower or equal comparison for multi-precision integers
-  {.push experimental: "forLoopMacros".}
-  for wx, wy in asWords(x, y):
-    if wx != wy:
-      return wx < wy
-  {.pop.}
-  return true # they're equal
+  x.hi < y.hi or
+    (x.hi == y.hi and x.lo <= y.lo)
 
-func isOdd*(x: UintImpl): bool {.inline.}=
-  bool(x.leastSignificantWord and 1)
+func isEven*(x: SomeUnsignedInt): bool {.inline.} =
+  (x and 1) == 0
 
 func isEven*(x: UintImpl): bool {.inline.}=
-  not x.isOdd
+  x.lo.isEven
+
+func isOdd*(x: SomeUnsignedInt): bool {.inline.} =
+  not x.isEven
+
+func isOdd*(x: UintImpl): bool {.inline.}=
+  not x.isEven

@@ -133,7 +133,7 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
   # assert countLeadingZeroBits(d) == 0, "Divisor was not normalized"
 
   const
-    size = getSize(q)
+    size = bitsof(q)
     halfSize = size div 2
     halfMask = (1.T shl halfSize) - 1.T
 
@@ -238,7 +238,7 @@ func divmod*[T](x, y: UintImpl[T]): tuple[quot, rem: UintImpl[T]]=
   # TODO: Constant-time division
   if unlikely(y.isZero):
     raise newException(DivByZeroError, "You attempted to divide by zero")
-  elif y_clz == (getSize(y) - 1):
+  elif y_clz == (bitsof(y) - 1):
     # y is one
     result.quot = x
   elif (x.hi or y.hi).isZero:
@@ -249,7 +249,7 @@ func divmod*[T](x, y: UintImpl[T]): tuple[quot, rem: UintImpl[T]]=
     # TODO. Would it be faster to use countTrailingZero (ctz) + clz == size(y) - 1?
     #       Especially because we shift by ctz after.
     #       It is a bit tricky with recursive types. An empty n.lo means 0 or sizeof(n.lo)
-    let y_ctz = getSize(y) - y_clz - 1
+    let y_ctz = bitsof(y) - y_clz - 1
     result.quot = x shr y_ctz
     result.rem = x and (y - one(type y))
   elif x == y:
