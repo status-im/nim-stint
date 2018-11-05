@@ -13,7 +13,7 @@ import
 
 func `+`*(x, y: IntImpl): IntImpl {.inline.}=
   # Addition for multi-precision signed int.
-  type SubTy = type x.lo
+  type SubTy = type x.hi
   result.lo = x.lo + y.lo
   result.hi = (result.lo < y.lo).toSubtype(SubTy) + x.hi + y.hi
 
@@ -32,7 +32,7 @@ func `+=`*(x: var IntImpl, y: IntImpl) {.inline.}=
 func `-`*(x, y: IntImpl): IntImpl {.inline.}=
   # Substraction for multi-precision signed int.
 
-  type SubTy = type x.lo
+  type SubTy = type x.hi
   result.lo = x.lo - y.lo
   result.hi = x.hi - y.hi - (x.lo < y.lo).toSubtype(SubTy)
 

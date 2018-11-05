@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes, ./conversion, stdlib_bitops, as_words
+import  ./datatypes, ./conversion, stdlib_bitops
 export stdlib_bitops
 
 # We reuse bitops from Nim standard lib, and expand it for multi-precision int.
@@ -17,19 +17,10 @@ export stdlib_bitops
 func countLeadingZeroBits*(n: UintImpl): int {.inline.} =
   ## Returns the number of leading zero bits in integer.
 
-  const maxHalfRepr = getSize(n) div 2
+  const maxHalfRepr = bitsof(n) div 2
 
   let hi_clz = n.hi.countLeadingZeroBits
 
   result =  if hi_clz == maxHalfRepr:
               n.lo.countLeadingZeroBits + maxHalfRepr
             else: hi_clz
-
-func isMsbSet*[T: SomeInteger](n: T): bool {.inline.}=
-  ## Returns the most significant bit of an integer.
-  const msb_pos = sizeof(T) * 8 - 1
-  result = bool(n.toUint shr msb_pos)
-
-func isMsbSet*(n: UintImpl or IntImpl): bool {.inline.}=
-  ## Returns the most significant bit of an arbitrary precision integer.
-  result = isMsbSet most_significant_word(n)

@@ -12,15 +12,15 @@ import
   ./initialization, ./int_highlow,
   ./int_addsub, ./int_comparison
 
-func `-`*[T: IntImpl](x: T): T {.inline.}=
+func `-`*(x: IntImpl): IntImpl {.inline.}=
   # Negate a multi-precision signed int.
 
   when compileOption("boundChecks"):
-    if unlikely(x == low(T)):
+    if unlikely(x == low(type x)):
       raise newException(OverflowError, "The lowest negative number cannot be negated")
 
   result = not x
-  result += one(T)
+  result += one(type x)
 
 func abs*[T: IntImpl](x: T): T {.inline.}=
   ## Returns the absolute value of a signed int.

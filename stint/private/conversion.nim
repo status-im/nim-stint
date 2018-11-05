@@ -12,11 +12,11 @@ import  ./datatypes
 func toSubtype*[T: SomeInteger](b: bool, _: typedesc[T]): T {.inline.}=
   b.T
 
-func toSubtype*[T: UintImpl](b: bool, _: typedesc[T]): T {.inline.}=
+func toSubtype*[T: UintImpl | IntImpl](b: bool, _: typedesc[T]): T {.inline.}=
   type SubTy = type result.lo
   result.lo = toSubtype(b, SubTy)
 
-func toUint*(n: UintImpl or IntImpl): auto {.inline.}=
+func toUint*(n: UintImpl or IntImpl or SomeSignedInt): auto {.inline.}=
   ## Casts an unsigned integer to an uint of the same size
   # TODO: uint128 support
   when n.sizeof > 8:
@@ -34,7 +34,7 @@ func toUint*(n: SomeUnsignedInt): SomeUnsignedInt {.inline.}=
   ## No-op overload of multi-precision int casting
   n
 
-func asDoubleUint*(n: BaseUint): auto {.inline.} =
+func asDoubleUint*(n: UintImpl | SomeUnsignedInt): auto {.inline.} =
   ## Convert an integer or StUint to an uint with double the size
   type Double = (
     when n.sizeof == 4: uint64

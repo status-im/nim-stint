@@ -7,32 +7,20 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes, ./as_words
+import  ./datatypes, ./uint_bitwise_ops
 
 func `not`*(x: IntImpl): IntImpl {.inline.}=
   ## Bitwise complement of unsigned integer x
-  {.push experimental: "forLoopMacros".}
-  for wr, wx in asWords(result, x):
-    wr = not wx
-  {.pop.}
+  applyHiLo(x, `not`)
 
 func `or`*(x, y: IntImpl): IntImpl {.inline.}=
   ## `Bitwise or` of numbers x and y
-  {.push experimental: "forLoopMacros".}
-  for wr, wx, wy in asWords(result, x, y):
-    wr = wx or wy
-  {.pop.}
+  applyHiLo(x, y, `or`)
 
 func `and`*(x, y: IntImpl): IntImpl {.inline.}=
   ## `Bitwise and` of numbers x and y
-  {.push experimental: "forLoopMacros".}
-  for wr, wx, wy in asWords(result, x, y):
-    wr = wx and wy
-  {.pop.}
+  applyHiLo(x, y, `and`)
 
 func `xor`*(x, y: IntImpl): IntImpl {.inline.}=
   ## `Bitwise xor` of numbers x and y
-  {.push experimental: "forLoopMacros".}
-  for wr, wx, wy in asWords(result, x, y):
-    wr = wx xor wy
-  {.pop.}
+  applyHiLo(x, y, `xor`)

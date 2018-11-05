@@ -9,9 +9,6 @@
 
 # TODO: test if GCC/Clang support uint128 natively
 
-import macros
-# The macro uintImpl must be exported
-
 # #### Overview
 #
 # Stint extends the default uint8, uint16, uint32, uint64 with power of 2 integers.
@@ -52,7 +49,7 @@ import macros
 #       - a root + intermediate nodes + leaves (uint256)
 #     should be enough to ensure they work at all sizes, edge cases included.
 #   - Adding a new backend like uint128 (GCC/Clang) or uint256 (LLVM instrinsics only) is just adding
-#     a new case in the `uintImpl` macro.
+#     a new case in the `uintImpl` template.
 #   - All math implementations of the operations have a straightforward translation
 #     to a high-low structure, including the fastest Karatsuba multiplication
 #     and co-recursive division algorithm by Burnikel and Ziegler.
@@ -94,127 +91,70 @@ import macros
 #       If you have a lot of computations and intermediate variables it's probably worthwhile
 #       to explore creating an object pool to reuse the memory buffers.
 
-when not defined(stint_test):
-  macro uintImpl*(bits: static[int]): untyped =
-    # Release version, word size is uint64 (even on 32-bit arch).
-    assert (bits and (bits-1)) == 0, $bits & " is not a power of 2"
-    assert bits >= 8, "The number of bits in a should be greater or equal to 8"
+template checkDiv2(bits: static[int]): untyped =
+  static:
+    doAssert (bits and (bits-1)) == 0, $bits & " is not a power of 2"
+    doAssert bits >= 8, "The number of bits in a should be greater or equal to 8"
+  bits div 2
 
-    if bits >= 128:
-      let inner = getAST(uintImpl(bits div 2))
-      result = newTree(nnkBracketExpr, ident("UintImpl"), inner)
-    elif bits == 64:
-      result = ident("uint64")
-    elif bits == 32:
-      result = ident("uint32")
-    elif bits == 16:
-      result = ident("uint16")
-    elif bits == 8:
-      result = ident("uint8")
-    else:
-      error "Fatal: unreachable"
+when defined(mpint_test):
+  template uintImpl*(bits: static[int]): untyped =
+    # Test version, StUint[64] = 2 uint32. Test the logic of the library
 
-  macro intImpl*(bits: static[int]): untyped =
-    # Release version, word size is uint64 (even on 32-bit arch).
-    # Note that int of size 128+ are implemented in terms of unsigned ints
-    # Signed operations are built on top of that.
+    when bits >= 128: UintImpl[uintImpl(checkDiv2(bits))]
+    elif bits == 64: UintImpl[uint32]
+    elif bits == 32: UintImpl[uint16]
+    elif bits == 16: UintImpl[uint8]
+    else: {.fatal: "Only power-of-2 >=16 supported when testing" .}
 
-    if bits >= 128:
-      let inner = getAST(uintImpl(bits div 2))
-      result = newTree(nnkBracketExpr, ident("IntImpl"), inner)
-    elif bits == 64:
-      result = ident("int64")
-    elif bits == 32:
-      result = ident("int32")
-    elif bits == 16:
-      result = ident("int16")
-    elif bits == 8:
-      result = ident("int8")
-    else:
-      error "Fatal: unreachable"
+  template intImpl*(bits: static[int]): untyped =
+    # Test version, StInt[64] = 2 uint32. Test the logic of the library
+    # int is implemented using a signed hi part and an unsigned lo part, given
+    # that the sign resides in hi
+
+    when bits >= 128: IntImpl[intImpl(checkDiv2(bits)), uintImpl(checkDiv2(bits))]
+    elif bits == 64: IntImpl[int32, uint32]
+    elif bits == 32: IntImpl[int16, uint16]
+    elif bits == 16: IntImpl[int8, uint8]
+    else: {.fatal: "Only power-of-2 >=16 supported when testing" .}
+
 else:
-  macro uintImpl*(bits: static[int]): untyped =
-    # Test version, word size is uint32. Test the logic of the library.
-    assert (bits and (bits-1)) == 0, $bits & " is not a power of 2"
-    assert bits >= 16, "The number of bits in a should be greater or equal to 16"
+  template uintImpl*(bits: static[int]): untyped =
+    when bits >= 128: UintImpl[uintImpl(checkDiv2(bits))]
+    elif bits == 64: uint64
+    elif bits == 32: uint32
+    elif bits == 16: uint16
+    elif bits == 8: uint8
+    else: {.fatal: "Only power-of-2 >=8 supported" .}
 
-    if bits >= 128:
-      let inner = getAST(uintImpl(bits div 2))
-      result = newTree(nnkBracketExpr, ident("UintImpl"), inner)
-    elif bits == 64:
-      result = newTree(nnkBracketExpr, ident("UintImpl"), ident("uint32"))
-    elif bits == 32:
-      result = newTree(nnkBracketExpr, ident("UintImpl"), ident("uint16"))
-    elif bits == 16:
-      result = newTree(nnkBracketExpr, ident("UintImpl"), ident("uint8"))
-    else:
-      error "Fatal: unreachable"
+  template intImpl*(bits: static[int]): untyped =
+    # int is implemented using a signed hi part and an unsigned lo part, given
+    # that the sign resides in hi
 
-  macro intImpl*(bits: static[int]): untyped =
-    # Test version, word size is uint32. Test the logic of the library.
-    # Note that ints are implemented in terms of unsigned ints
-    # Signed operations will be built on top of that.
-    assert (bits and (bits-1)) == 0, $bits & " is not a power of 2"
-    assert bits >= 16, "The number of bits in a should be greater or equal to 16"
-
-    if bits >= 128:
-      let inner = getAST(uintImpl(bits div 2)) # IntImpl is built on top of UintImpl
-      result = newTree(nnkBracketExpr, ident("IntImpl"), inner)
-    elif bits == 64:
-      result = newTree(nnkBracketExpr, ident("IntImpl"), ident("uint32"))
-    elif bits == 32:
-      result = newTree(nnkBracketExpr, ident("IntImpl"), ident("uint16"))
-    elif bits == 16:
-      result = newTree(nnkBracketExpr, ident("IntImpl"), ident("uint8"))
-    else:
-      error "Fatal: unreachable"
-
-proc getSize*(x: NimNode): static[int] =
-  # Default Nim's `sizeof` doesn't always work at compile-time, pending PR https://github.com/nim-lang/Nim/pull/5664
-  var multiplier = 1
-  var node = x.getTypeInst
-
-  while node.kind == nnkBracketExpr:
-    assert eqIdent(node[0], "UintImpl") or eqIdent(node[0], "IntImpl"), (
-      "getSize only supports primitive integers, Stint and Stuint")
-    multiplier *= 2
-    node = node[1]
-
-  # node[1] has the type
-  # size(node[1]) * multiplier is the size in byte
-
-  # For optimization we cast to the biggest possible uint
-  result =  if eqIdent(node, "uint64") or eqIdent(node, "int64"): multiplier * 64
-            elif eqIdent(node, "uint32") or eqIdent(node, "int32"): multiplier * 32
-            elif eqIdent(node, "uint16") or eqIdent(node, "int16"): multiplier * 16
-            elif eqIdent(node, "uint8") or eqIdent(node, "int8"): multiplier * 8
-            elif eqIdent(node, "int") or eqIdent(node, "uint"):
-              multiplier * 8 * sizeof(int)
-            else:
-              assert false, "Error when computing the size. Found: " & $node
-              0
-
-macro getSize*(x: typed): untyped =
-  let size = getSize(x)
-  result = quote do:
-    `size`
+    when bits >= 128: IntImpl[intImpl(checkDiv2(bits)), uintImpl(checkDiv2(bits))]
+    elif bits == 64: int64
+    elif bits == 32: int32
+    elif bits == 16: int16
+    elif bits == 8: int8
+    else: {.fatal: "Only power-of-2 >=8 supported" .}
 
 type
   # ### Private ### #
-  BaseUint* = UintImpl or SomeUnsignedInt
-
-  UintImpl*[Baseuint] = object
+  UintImpl*[BaseUint] = object
     when system.cpuEndian == littleEndian:
       lo*, hi*: BaseUint
     else:
       hi*, lo*: BaseUint
 
-  IntImpl*[Baseuint] = object
+  IntImpl*[BaseInt, BaseUint] = object
     # Ints are implemented in terms of uints
     when system.cpuEndian == littleEndian:
-      lo*, hi*: BaseUint
+      lo*: BaseUint
+      hi*: BaseInt
     else:
-      hi*, lo*: BaseUint
+      hi*: BaseInt
+      lo*: BaseUint
+
   # ### Private ### #
 
   StUint*[bits: static[int]] = object
@@ -222,3 +162,42 @@ type
 
   StInt*[bits: static[int]] = object
     data*: intImpl(bits)
+
+template bitsof*(x: SomeInteger): int = sizeof(x) * 8
+
+# XXX: https://github.com/nim-lang/Nim/issues/9494 - the extra overloads
+#      can eventually be collapsed to one..
+template bitsof*(x: UintImpl[SomeInteger]): untyped =
+  2 * bitsof(x.lo)
+template bitsof*(x: UintImpl[UintImpl[SomeInteger]]): untyped =
+  2 * bitsof(x.lo)
+template bitsof*(x: UintImpl[UintImpl[UintImpl[SomeInteger]]]): untyped =
+  2 * bitsof(x.lo)
+template bitsof*(x: UintImpl[UintImpl[UintImpl[UintImpl[SomeInteger]]]]): untyped =
+  2 * bitsof(x.lo)
+
+template applyHiLo*(a: UintImpl | IntImpl, c: untyped): untyped =
+  ## Apply `c` to each of `hi` and `lo`
+  var res: type a
+  res.hi = c(a.hi)
+  res.lo = c(a.lo)
+  res
+
+template applyHiLo*(a, b: UintImpl | IntImpl, c: untyped): untyped =
+  ## Apply `c` to each of `hi` and `lo`
+  var res: type a
+  res.hi = c(a.hi, b.hi)
+  res.lo = c(a.lo, b.lo)
+  res
+
+func leastSignificantWord*(num: UintImpl | IntImpl): auto {.inline.} =
+  when num.lo is UintImpl:
+    num.lo.leastSignificantWord
+  else:
+    num.lo
+
+func mostSignificantWord*(num: UintImpl | IntImpl): auto {.inline.} =
+  when num.hi is (UintImpl | IntImpl):
+    num.hi.mostSignificantWord
+  else:
+    num.hi

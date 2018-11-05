@@ -10,7 +10,6 @@
 import
   ./private/datatypes,
   ./private/int_negabs,
-  ./private/as_words,
   ./int_public, ./uint_public,
   typetraits, algorithm
 
@@ -24,22 +23,11 @@ template static_check_size(T: typedesc[SomeInteger], bits: static[int]) =
             "\nUse a smaller input type instead. This is a compile-time check" &
             " to avoid a costly run-time bit_length check at each StUint initialization."
 
-template assign_leastSignificantWords[T: SomeInteger](result: var (Stuint|Stint), n: T) =
-  template lsw_result: untyped = leastSignificantWord(result.data)
-  template slsw_result: untyped = secondLeastSignificantWord(result.data)
-
-  const wordSize = lsw_result.getSize
-  when sizeof(T) * 8 <= wordSize:
-    lsw_result = (type lsw_result)(n)
-  else: # We try to store an int64 in 2 x uint32 or 4 x uint16
-        # For now we only support assignation from 64 to 2x32 bit
-    const
-      size = getSize(T)
-      halfSize = size div 2
-      halfMask = (1.T shl halfSize) - 1.T
-
-    lsw_result = (type lsw_result)(n and halfMask)
-    slsw_result = (type slsw_result)(n shr halfSize)
+func assignLo(result: var (UintImpl | IntImpl), n: SomeInteger) {.inline.} =
+  when result.lo is UintImpl:
+    assignLo(result.lo, n)
+  else:
+    result.lo = (type result.lo)(n)
 
 func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
   ## Converts an integer to an arbitrary precision integer.
@@ -47,7 +35,7 @@ func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
   assert n >= 0.T
   when result.data is UintImpl:
     static_check_size(T, bits)
-    assign_leastSignificantWords(result, n)
+    assignLo(result.data, n)
   else:
     result.data = (type result.data)(n)
 
@@ -58,12 +46,12 @@ func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
     static_check_size(T, bits)
     when T is SomeSignedInt:
       if n < 0:
-        assign_leastSignificantWords(result, -n)
+        assignLo(result.data, -n)
         result = -result
       else:
-        assign_leastSignificantWords(result, n)
+        assignLo(result.data, n)
     else:
-      assign_leastSignificantWords(result, n)
+      assignLo(result.data, n)
   else:
     result.data = (type result.data)(n)
 
@@ -78,14 +66,7 @@ func truncate*(num: Stint or StUint, T: typedesc[int or uint or int64 or uint64]
   ## Note that int and uint are 32-bit on 32-bit platform.
   ## For unsigned result type, result is modulo 2^(sizeof T in bit)
   ## For signed result type, result is undefined if input does not fit in the target type.
-  when T is int:            cast[int](num.data.leastSignificantWord)
-  elif T is uint:           uint num.data.leastSignificantWord
-  elif T is int64:
-    when sizeof(uint) == 8: cast[int64](num.data.leastSignificantWord)
-    else:                   cast[int64](num.data.leastSignificantTwoWords)
-  elif T is uint64:
-    when sizeof(uint) == 8: uint64 num.data.leastSignificantWord
-    else:                   cast[uint64](num.data.leastSignificantTwoWords)
+  cast[T](num.data.leastSignificantWord)
 
 func toInt*(num: Stint or StUint): int {.inline, deprecated:"Use num.truncate(int) instead".}=
   num.truncate(int)
@@ -280,7 +261,7 @@ func dumpHex*(x: Stint or StUint, order: static[Endianness] = bigEndian): string
 
   const
     hexChars = "0123456789abcdef"
-    size = getSize(x.data) div 8
+    size = bitsof(x.data) div 8
 
   {.pragma: restrict, codegenDecl: "$# __restrict $#".}
   let bytes {.restrict.}= cast[ptr array[size, byte]](x.unsafeaddr)

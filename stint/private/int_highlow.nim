@@ -7,17 +7,21 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ./datatypes, ./int_bitwise_ops, ./as_words, ./initialization
+import ./datatypes, ./int_bitwise_ops, ./initialization, ./uint_highlow
 
-func high*[T](_: typedesc[IntImpl[T]]): IntImpl[T] {.inline.}=
+# XXX There's some Araq reason why this isn't part of the std lib..
+func high(_: typedesc[SomeUnsignedInt]): SomeUnsignedInt =
+  not SomeUnsignedInt(0'u8)
+
+func high*[T, T2](_: typedesc[IntImpl[T, T2]]): IntImpl[T, T2] {.inline.}=
   # The highest signed int has representation
   # 0b0111_1111_1111_1111 ....
   # so we only have to unset the most significant bit.
-  result = not result
-  most_significant_word(result) = most_significant_word(result) shr 1
+  result.hi = high(type result.hi)
+  result.lo = high(type result.lo)
 
-func low*[T](_: typedesc[IntImpl[T]]): IntImpl[T] {.inline.}=
+func low*[T, T2](_: typedesc[IntImpl[T, T2]]): IntImpl[T, T2] {.inline.}=
   # The lowest signed int has representation
   # 0b1000_0000_0000_0000 ....
   # so we only have to set the most significant bit.
-  not high(IntImpl[T])
+  not high(IntImpl[T, T2])
