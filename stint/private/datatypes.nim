@@ -175,6 +175,10 @@ template bitsof*(x: UintImpl[UintImpl[UintImpl[SomeInteger]]]): untyped =
   2 * bitsof(x.lo)
 template bitsof*(x: UintImpl[UintImpl[UintImpl[UintImpl[SomeInteger]]]]): untyped =
   2 * bitsof(x.lo)
+template bitsof*(x: UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[SomeInteger]]]]]): untyped =
+  2 * bitsof(x.lo)
+template bitsof*(x: UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[SomeInteger]]]]]]): untyped =
+  2 * bitsof(x.lo)
 
 template applyHiLo*(a: UintImpl | IntImpl, c: untyped): untyped =
   ## Apply `c` to each of `hi` and `lo`
