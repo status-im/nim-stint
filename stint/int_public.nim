@@ -8,7 +8,8 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import ./private/datatypes, macros
-export StInt, IntImpl, intImpl # TODO remove the need to export intImpl and this macro
+export StInt
+export IntImpl, intImpl # TODO remove the need to export these
 
 template make_unary(op, ResultTy): untyped =
   func `op`*(x: Stint): ResultTy {.inline.} =

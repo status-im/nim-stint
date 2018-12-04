@@ -92,12 +92,15 @@
 #       to explore creating an object pool to reuse the memory buffers.
 
 template checkDiv2(bits: static[int]): untyped =
+  # TODO: There is no need to check if power of 2 at each uintImpl instantiation, it slows compilation.
+  #       However we easily get into nested templates instantiation if we use another
+  #       template that first checks power-of-two and then calls the recursive uintImpl
   static:
     doAssert (bits and (bits-1)) == 0, $bits & " is not a power of 2"
     doAssert bits >= 8, "The number of bits in a should be greater or equal to 8"
   bits div 2
 
-when defined(mpint_test):
+when defined(mpint_test): # TODO stint_test
   template uintImpl*(bits: static[int]): untyped =
     # Test version, StUint[64] = 2 uint32. Test the logic of the library
 
@@ -182,6 +185,12 @@ template bitsof*(x: UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[SomeIn
   2 * bitsof(x.lo)
 template bitsof*(x: UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[SomeInteger]]]]]]]): untyped =
   # Uint4096 - modExp in Nimbus
+  2 * bitsof(x.lo)
+template bitsof*(x: UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[SomeInteger]]]]]]]]): untyped =
+  # Uint8192 - modExp in Nimbus
+  2 * bitsof(x.lo)
+
+template bitsof*(x: IntImpl): untyped =
   2 * bitsof(x.lo)
 
 template applyHiLo*(a: UintImpl | IntImpl, c: untyped): untyped =
