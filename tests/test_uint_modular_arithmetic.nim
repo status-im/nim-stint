@@ -37,10 +37,30 @@ suite "Modular arithmetic":
     check: mulmod(a, b, m) == 345_679_002'u64.stuint(64)
 
   test "Modular exponentiation":
-    # https://www.khanacademy.org/computing/computer-science/cryptography/modarithmetic/a/fast-modular-exponentiation
-    check:
-      powmod(5'u16.stuint(16), 117'u16.stuint(16), 19'u16.stuint(16)) == 1'u16.stuint(16)
-      powmod(3'u16.stuint(16), 1993'u16.stuint(16), 17'u16.stuint(16)) == 14'u16.stuint(16)
+    block: # https://www.khanacademy.org/computing/computer-science/cryptography/modarithmetic/a/fast-modular-exponentiation
+      check:
+        powmod(5'u16.stuint(16), 117'u16.stuint(16), 19'u16.stuint(16)) == 1'u16.stuint(16)
+        powmod(3'u16.stuint(16), 1993'u16.stuint(16), 17'u16.stuint(16)) == 14'u16.stuint(16)
 
-    check:
-      powmod(12.stuint(256), 34.stuint(256), high(UInt256)) == "4922235242952026704037113243122008064".u256
+      check:
+        powmod(12.stuint(256), 34.stuint(256), high(UInt256)) == "4922235242952026704037113243122008064".u256
+
+    block: # Little Fermat theorem
+      # https://programmingpraxis.com/2014/08/08/big-modular-exponentiation/
+      let P = "34534985349875439875439875349875".u256
+      let Q = "93475349759384754395743975349573495".u256
+      let M = 10.u256.pow(9) + 7 # 1000000007
+      let expected = 735851262.u256
+
+      check:
+        powmod(P, Q, M) == expected
+
+    block: # Little Fermat theorem
+      # https://www.hackerrank.com/challenges/power-of-large-numbers/problem
+      let P = "34543987529435983745230948023948".u256
+      let Q = "3498573497543987543985743989120393097595572309482304".u256
+      let M = 10.u256.pow(9) + 7 # 1000000007
+      let expected = 985546465.u256
+
+      check:
+        powmod(P, Q, M) == expected
