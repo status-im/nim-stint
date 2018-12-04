@@ -178,6 +178,10 @@ template bitsof*(x: UintImpl[UintImpl[UintImpl[UintImpl[SomeInteger]]]]): untype
 template bitsof*(x: UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[SomeInteger]]]]]): untyped =
   2 * bitsof(x.lo)
 template bitsof*(x: UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[SomeInteger]]]]]]): untyped =
+  # Uint2048 - eth-bloom
+  2 * bitsof(x.lo)
+template bitsof*(x: UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[SomeInteger]]]]]]]): untyped =
+  # Uint4096 - modExp in Nimbus
   2 * bitsof(x.lo)
 
 template applyHiLo*(a: UintImpl | IntImpl, c: untyped): untyped =
