@@ -141,7 +141,7 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
 
     var (q, r) = divmod(n_hi, d_hi)
     let m = q * d_lo
-    var r = (r shl halfSize) or n_lo
+    r = (r shl halfSize) or n_lo
 
     # Fix the reminder, we're at most 2 iterations off
     if r < m:
