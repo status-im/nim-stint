@@ -9,7 +9,7 @@
 
 import ./private/datatypes, macros
 export StInt
-export IntImpl, intImpl # TODO remove the need to export these
+export IntImpl, intImpl, bitsof # TODO remove the need to export these
 
 template make_unary(op, ResultTy): untyped =
   func `op`*(x: Stint): ResultTy {.inline.} =

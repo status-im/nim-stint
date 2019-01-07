@@ -10,7 +10,7 @@
 import ./private/datatypes
 
 export StUint
-export UintImpl, uintImpl # TODO: remove the need to export those
+export UintImpl, uintImpl, bitsof # TODO: remove the need to export those
 
 import ./private/uint_addsub
 
