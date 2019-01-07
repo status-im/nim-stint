@@ -166,32 +166,13 @@ type
   StInt*[bits: static[int]] = object
     data*: intImpl(bits)
 
-template bitsof*(x: SomeInteger): int = sizeof(x) * 8
 
-# XXX: https://github.com/nim-lang/Nim/issues/9494 - the extra overloads
-#      can eventually be collapsed to one..
-template bitsof*(x: UintImpl[SomeInteger]): untyped =
-  2 * bitsof(x.lo)
-template bitsof*(x: UintImpl[UintImpl[SomeInteger]]): untyped =
-  2 * bitsof(x.lo)
-template bitsof*(x: UintImpl[UintImpl[UintImpl[SomeInteger]]]): untyped =
-  2 * bitsof(x.lo)
-template bitsof*(x: UintImpl[UintImpl[UintImpl[UintImpl[SomeInteger]]]]): untyped =
-  2 * bitsof(x.lo)
-template bitsof*(x: UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[SomeInteger]]]]]): untyped =
-  2 * bitsof(x.lo)
-template bitsof*(x: UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[SomeInteger]]]]]]): untyped =
-  # Uint2048 - eth-bloom
-  2 * bitsof(x.lo)
-template bitsof*(x: UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[SomeInteger]]]]]]]): untyped =
-  # Uint4096 - modExp in Nimbus
-  2 * bitsof(x.lo)
-template bitsof*(x: UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[UintImpl[SomeInteger]]]]]]]]): untyped =
-  # Uint8192 - modExp in Nimbus
-  2 * bitsof(x.lo)
-
-template bitsof*(x: IntImpl): untyped =
-  2 * bitsof(x.lo)
+template bitsof*(x: SomeInteger): untyped =
+  sizeof(x) * 8
+template bitsof*(x: UintImpl|IntImpl): untyped =
+  # XXX: https://github.com/nim-lang/Nim/issues/9494
+  mixin bitsof
+  bitsof(x.lo) * 2
 
 template applyHiLo*(a: UintImpl | IntImpl, c: untyped): untyped =
   ## Apply `c` to each of `hi` and `lo`
