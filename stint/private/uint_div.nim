@@ -122,7 +122,7 @@ proc div3n2n[T: SomeUnsignedInt](
 
 func div2n1n(q, r: var UintImpl, ah, al, b: UintImpl) =
 
-  # assert countLeadingZeroBits(b) == 0, "Divisor was not normalized"
+  # doAssert countLeadingZeroBits(b) == 0, "Divisor was not normalized"
 
   var s: UintImpl
   div3n2n(q.hi, s, ah.hi, ah.lo, al.hi, b)
@@ -130,7 +130,7 @@ func div2n1n(q, r: var UintImpl, ah, al, b: UintImpl) =
 
 func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
 
-  # assert countLeadingZeroBits(d) == 0, "Divisor was not normalized"
+  # doAssert countLeadingZeroBits(d) == 0, "Divisor was not normalized"
 
   const
     size = bitsof(q)
@@ -170,7 +170,7 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
 
 func divmodBZ[T](x, y: UintImpl[T], q, r: var UintImpl[T])=
 
-  assert y.isZero.not() # This should be checked on release mode in the divmod caller proc
+  doAssert y.isZero.not() # This should be checked on release mode in the divmod caller proc
 
   if y.hi.isZero:
     # Shortcut if divisor is smaller than half the size of the type
@@ -207,7 +207,7 @@ func divmodBS(x, y: UintImpl, q, r: var UintImpl) =
   ## Division for multi-precision unsigned uint
   ## Implementation through binary shift division
 
-  assert y.isZero.not() # This should be checked on release mode in the divmod caller proc
+  doAssert y.isZero.not() # This should be checked on release mode in the divmod caller proc
 
   type SubTy = type x.lo
 

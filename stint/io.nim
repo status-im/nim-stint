@@ -17,7 +17,7 @@ template static_check_size(T: typedesc[SomeInteger], bits: static[int]) =
   # To avoid a costly runtime check, we refuse storing into StUint types smaller
   # than the input type.
 
-  static: assert sizeof(T) * 8 <= bits, "Input type (" & $T &
+  static: doAssert sizeof(T) * 8 <= bits, "Input type (" & $T &
             ") cannot be stored in a multi-precision " &
             $bits & "-bit integer." &
             "\nUse a smaller input type instead. This is a compile-time check" &
@@ -32,7 +32,7 @@ func assignLo(result: var (UintImpl | IntImpl), n: SomeInteger) {.inline.} =
 func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
   ## Converts an integer to an arbitrary precision integer.
 
-  assert n >= 0.T
+  doAssert n >= 0.T
   when result.data is UintImpl:
     static_check_size(T, bits)
     assignLo(result.data, n)
@@ -87,16 +87,16 @@ func skipPrefixes(current_idx: var int, str: string, radix: range[2..16]) {.inli
   if str.len < 2:
     return
 
-  assert current_idx == 0, "skipPrefixes only works for prefixes (position 0 and 1 of the string)"
+  doAssert current_idx == 0, "skipPrefixes only works for prefixes (position 0 and 1 of the string)"
   if str[0] == '0':
     if str[1] in {'x', 'X'}:
-      assert radix == 16, "Parsing mismatch, 0x prefix is only valid for a hexadecimal number (base 16)"
+      doAssert radix == 16, "Parsing mismatch, 0x prefix is only valid for a hexadecimal number (base 16)"
       current_idx = 2
     elif str[1] in {'o', 'O'}:
-      assert radix == 8, "Parsing mismatch, 0o prefix is only valid for an octal number (base 8)"
+      doAssert radix == 8, "Parsing mismatch, 0o prefix is only valid for an octal number (base 8)"
       current_idx = 2
     elif str[1] in {'b', 'B'}:
-      assert radix == 2, "Parsing mismatch, 0b prefix is only valid for a binary number (base 2)"
+      doAssert radix == 2, "Parsing mismatch, 0b prefix is only valid for a binary number (base 2)"
       current_idx = 2
 
 func nextNonBlank(current_idx: var int, s: string) {.inline.} =
@@ -116,7 +116,7 @@ func readDecChar(c: range['0'..'9']): int {.inline.}=
 func parse*[bits: static[int]](input: string, T: typedesc[Stuint[bits]], radix: static[uint8] = 10): T =
   ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
 
-  static: assert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
+  static: doAssert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
 
   # TODO: we can special case hex result/input as an array of bytes
@@ -137,7 +137,7 @@ func parse*[bits: static[int]](input: string, T: typedesc[Stuint[bits]], radix: 
 func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], radix: static[int8] = 10): T =
   ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
 
-  static: assert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
+  static: doAssert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
 
   # TODO: we can special case hex result/input as an array of bytes
@@ -152,7 +152,7 @@ func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], radix: s
     no_overflow: Stuint[bits]
 
   if input[curr] == '-':
-    assert radix == 10, "Negative numbers are only supported with base 10 input."
+    doAssert radix == 10, "Negative numbers are only supported with base 10 input."
     isNeg = true
     inc curr
   else:
@@ -186,7 +186,7 @@ func toString*[bits: static[int]](num: StUint[bits], radix: static[uint8] = 10):
   ##   - they are prefixed with "-" for base 10.
   ##   - if not base 10, they are returned raw in two-complement form.
 
-  static: assert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
+  static: doAssert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
 
   const hexChars = "0123456789abcdef"
@@ -209,7 +209,7 @@ func toString*[bits: static[int]](num: Stint[bits], radix: static[int8] = 10): s
   ##   - they are prefixed with "-" for base 10.
   ##   - if not base 10, they are returned raw in two-complement form.
 
-  static: assert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
+  static: doAssert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
 
   const hexChars = "0123456789abcdef"
@@ -287,9 +287,9 @@ proc initFromBytesBE*[bits: static[int]](val: var Stuint[bits], ba: openarray[by
   const N = bits div 8
 
   when not allowPadding:
-    assert(ba.len == N)
+    doAssert(ba.len == N)
   else:
-    assert ba.len <= N
+    doAssert ba.len <= N
 
   {.pragma: restrict, codegenDecl: "$# __restrict $#".}
   let r_ptr {.restrict.} = cast[ptr array[N, byte]](val.addr)

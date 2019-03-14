@@ -14,7 +14,7 @@ suite "Testing unsigned int bitwise operations":
 
   let b = a * a
   let z = 10000'u16
-  assert cast[uint16](b) == z, "Test cannot proceed, something is wrong with the multiplication implementation"
+  doAssert cast[uint16](b) == z, "Test cannot proceed, something is wrong with the multiplication implementation"
 
 
   let u = 10000.stuint(64)

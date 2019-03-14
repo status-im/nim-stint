@@ -200,7 +200,7 @@ suite "Testing conversion functions: Hex, Bytes, Endianness using secp256k1 curv
   #     sig = ecc.sign(msghash)
   #     print("    sig='{}',".format(encode_hex(sig)))
   #     print("    raw_sig='{}')".format(crypto._decode_sig(sig)))
-  #     assert crypto.ecdsa_recover(msghash, sig) == pubkey
+  #     doAssert crypto.ecdsa_recover(msghash, sig) == pubkey
   # """
 
   type

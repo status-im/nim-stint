@@ -13,8 +13,8 @@ func addmod_internal(a, b, m: Stuint): Stuint {.inline.}=
   ## Modular addition
   ## ⚠⚠ Assume a < m and b < m
 
-  assert a < m
-  assert b < m
+  doAssert a < m
+  doAssert b < m
 
   # We don't do a_m + b_m directly to avoid overflows
   let b_from_m = m - b
@@ -27,8 +27,8 @@ func submod_internal(a, b, m: Stuint): Stuint {.inline.}=
   ## Modular substraction
   ## ⚠⚠ Assume a < m and b < m
 
-  assert a < m
-  assert b < m
+  doAssert a < m
+  doAssert b < m
 
   # We don't do a_m - b_m directly to avoid underflows
   if a >= b:
@@ -40,7 +40,7 @@ func doublemod_internal(a, m: Stuint): Stuint {.inline.}=
   ## Double a modulo m. Assume a < m
   ## Internal proc - used in mulmod
 
-  assert a < m
+  doAssert a < m
 
   result = a
   if a >= m - a:
@@ -51,8 +51,8 @@ func mulmod_internal(a, b, m: Stuint): Stuint {.inline.}=
   ## Does (a * b) mod m. Assume a < m and b < m
   ## Internal proc - used in powmod
 
-  assert a < m
-  assert b < m
+  doAssert a < m
+  doAssert b < m
 
   var (a, b) = (a, b)
 
@@ -69,7 +69,7 @@ func powmod_internal(a, b, m: Stuint): Stuint {.inline.}=
   ## Compute ``(a ^ b) mod m``, assume a < m
   ## Internal proc
 
-  assert a < m
+  doAssert a < m
 
   var (a, b) = (a, b)
   result = one(type a)
