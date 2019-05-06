@@ -12,35 +12,33 @@ import ../stint, unittest
 suite "Testing signed int bitwise operations":
   test "Shift Left":
     var y = 1.u256
-    var x = 1.i256
-    for _ in 1..255:
+    for i in 1..255:
+      let x = 1.i256 shl i
       y = y shl 1
-      x = x shl 1
       check cast[Uint256](x) == y
 
   test "Shift Right":
+    const leftMost = 1.i256 shl 255
     var y = 1.u256 shl 255
-    var x = 1.i256 shl 255
-    for _ in 1..255:
+    for i in 1..255:
+      let x = leftMost shr i
       y = y shr 1
-      x = x shr 1
       check cast[Uint256](x) == y
 
   test "ashr on positive int":
+    const leftMost = 1.i256 shl 254
     var y = 1.u256 shl 254
-    var x = cast[Int256](y)
-
-    for _ in 1..255:
-      x = ashr(x, 1)
+    for i in 1..255:
+      let x = ashr(leftMost, i)
       y = y shr 1
       check x == cast[Int256](y)
 
   test "ashr on negative int":
-    const leftMost = 1.u256 shl 255
-    var y = 1.u256 shl 255
-    var x = cast[Int256](y)
-
-    for _ in 1..255:
-      x = ashr(x, 1)
-      y = (y shr 1) or leftMost
+    const
+      leftMostPlus = 1.u256 shl 255
+      leftMostMin = 1.i256 shl 255
+    var y = leftMostPlus
+    for i in 1..255:
+      let x = ashr(leftMostMin, i)
+      y = (y shr 1) or leftMostPlus
       check x == cast[Int256](y)

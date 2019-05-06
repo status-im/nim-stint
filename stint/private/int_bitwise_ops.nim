@@ -28,6 +28,28 @@ func `xor`*(x, y: IntImpl): IntImpl {.inline.}=
 func `shr`*(x: IntImpl, y: SomeInteger): IntImpl {.inline.}
   # Forward declaration
 
+func convertImpl[T: SomeUnsignedInt](x: SomeSignedInt): T =
+  cast[T](x)
+
+func convertImpl[T: SomeSignedInt](x: SomeUnsignedInt): T =
+  cast[T](x)
+
+func convertImpl[T: UintImpl](x: IntImpl): T =
+  result.hi = convertImpl[type(result.lo)](x.hi)
+  result.lo = x.lo
+
+func convertImpl[T: IntImpl](x: UintImpl): T =
+  result.hi = convertImpl[type(result.hi)](x.hi)
+  result.lo = x.lo
+
+template convert[T](x: UintImpl|IntImpl|SomeInteger): T =
+  when nimvm:
+    # this is a workaround Nim VM inability to cast
+    # something non integer
+    convertImpl[T](x)
+  else:
+    cast[T](x)
+
 func `shl`*(x: IntImpl, y: SomeInteger): IntImpl {.inline.}=
   ## Compute the `shift left` operation of x and y
   # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
@@ -39,12 +61,12 @@ func `shl`*(x: IntImpl, y: SomeInteger): IntImpl {.inline.}=
   if y == 0:
     return x
   elif y == halfSize:
-    result.hi = cast[HiType](x.lo)
+    result.hi = convert[HiType](x.lo)
   elif y < halfSize:
-    result.hi = (x.hi shl y) or cast[HiType](x.lo shr (halfSize - y))
+    result.hi = (x.hi shl y) or convert[HiType](x.lo shr (halfSize - y))
     result.lo = x.lo shl y
   else:
-    result.hi = cast[HiType](x.lo shl (y - halfSize))
+    result.hi = convert[HiType](x.lo shl (y - halfSize))
 
 func `shr`*(x: IntImpl, y: SomeInteger): IntImpl {.inline.}=
   ## Compute the `shift right` operation of x and y
@@ -56,12 +78,12 @@ func `shr`*(x: IntImpl, y: SomeInteger): IntImpl {.inline.}=
   if y == 0:
     return x
   elif y == halfSize:
-    result.lo = cast[LoType](x.hi)
+    result.lo = convert[LoType](x.hi)
   elif y < halfSize:
-    result.lo = (x.lo shr y) or cast[LoType](x.hi shl (halfSize - y))
+    result.lo = (x.lo shr y) or convert[LoType](x.hi shl (halfSize - y))
     result.hi = x.hi shr y
   else:
-    result.lo = cast[LoType](x.hi shr (y - halfSize))
+    result.lo = convert[LoType](x.hi shr (y - halfSize))
 
 func ashr*(x: IntImpl, y: SomeInteger): IntImpl {.inline.}=
   ## Compute the `arithmetic shift right` operation of x and y
@@ -69,15 +91,14 @@ func ashr*(x: IntImpl, y: SomeInteger): IntImpl {.inline.}=
   ## than the number of bits in x.
   const halfSize: type(y) = bitsof(x) div 2
   type LoType = type(result.lo)
-
   if y == 0:
     return x
   elif y == halfSize:
-    result.lo = cast[LoType](x.hi)
-    result.hi = ashr(x.hi, halfSize)
+    result.lo = convert[LoType](x.hi)
+    result.hi = ashr(x.hi, halfSize-1)
   elif y < halfSize:
-    result.lo = (x.lo shr y) or cast[LoType](x.hi shl (halfSize - y))
+    result.lo = (x.lo shr y) or convert[LoType](x.hi shl (halfSize - y))
     result.hi = ashr(x.hi, y)
   else:
-    result.lo = cast[LoType](ashr(x.hi, (y - halfSize)))
-    result.hi = ashr(x.hi, halfSize)
+    result.lo = convert[LoType](ashr(x.hi, (y - halfSize)))
+    result.hi = ashr(x.hi, halfSize-1)
