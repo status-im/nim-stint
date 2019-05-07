@@ -111,14 +111,13 @@ func low*[bits: static[int]](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.}
   ## Returns the lowest unsigned int of this size. This is always 0.
   result.data = low(type result.data)
 
-import ./private/bithacks
+import ./private/bitops2
 
-func countLeadingZeroBits*(x: Stuint): int {.inline.} =
-  ## Logical count of leading zeros
-  ## This corresponds to the number of zero bits of the input in
-  ## its big endian representation.
-  ## If input is zero, the number of bits of the number is returned.
-  x.data.countLeadingZeroBits
+func countOnes*(x: StUint): int {.inline.} = countOnes(x.data)
+func parity*(x: StUint): int {.inline.} = parity(x.data)
+func firstOne*(x: StUint): int {.inline.} = firstOne(x.data)
+func leadingZeros*(x: StUint): int {.inline.} = leadingZeros(x.data)
+func trailingZeros*(x: StUint): int {.inline.} = trailingZeros(x.data)
 
 import ./private/initialization
 

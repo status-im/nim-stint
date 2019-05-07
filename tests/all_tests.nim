@@ -7,7 +7,8 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  test_uint_endianness,
+import  test_uint_bitops2,
+        test_uint_endianness,
         test_uint_comparison,
         test_uint_bitwise,
         test_uint_addsub,

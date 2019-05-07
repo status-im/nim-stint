@@ -20,7 +20,7 @@ func toUint*(n: UintImpl or IntImpl or SomeSignedInt): auto {.inline.}=
   ## Casts an unsigned integer to an uint of the same size
   # TODO: uint128 support
   when n.sizeof > 8:
-    raise newException("Unreachable. You are trying to cast a StUint with more than 64-bit of precision")
+    {.fatal: "Unreachable. You are trying to cast a StUint with more than 64-bit of precision" .}
   elif n.sizeof == 8:
     cast[uint64](n)
   elif n.sizeof == 4:
@@ -48,7 +48,7 @@ func toInt*(n: UintImpl or IntImpl or SomeInteger): auto {.inline.}=
   ## Casts an unsigned integer to an uint of the same size
   # TODO: uint128 support
   when n.sizeof > 8:
-    raise newException("Unreachable. You are trying to cast a StUint with more than 64-bit of precision")
+    {.fatal: "Unreachable. You are trying to cast a StUint with more than 64-bit of precision" .}
   elif n.sizeof == 8:
     cast[int64](n)
   elif n.sizeof == 4:
