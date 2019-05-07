@@ -35,10 +35,27 @@ suite "Testing signed int bitwise operations":
 
   test "ashr on negative int":
     const
-      leftMostPlus = 1.u256 shl 255
-      leftMostMin = 1.i256 shl 255
-    var y = leftMostPlus
+      leftMostU = 1.u256 shl 255
+      leftMostI = 1.i256 shl 255
+    var y = leftMostU
     for i in 1..255:
-      let x = ashr(leftMostMin, i)
-      y = (y shr 1) or leftMostPlus
+      let x = ashr(leftMostI, i)
+      y = (y shr 1) or leftMostU
       check x == cast[Int256](y)
+
+  test "Compile time shift":
+    const
+      # set all bits
+      x = high(Int256) or (1.i256 shl 255)
+      y = not 0.i256
+
+    check x == y
+
+    const
+      a = (high(Int256) shl 10) shr 10
+      b = (high(Uint256) shl 10) shr 10
+      c = ashr(high(Int256) shl 10, 10)
+
+    check a == cast[Int256](b)
+    check c != cast[Int256](b)
+    check c != a
