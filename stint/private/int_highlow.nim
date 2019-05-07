@@ -7,11 +7,11 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ./datatypes, ./int_bitwise_ops, ./initialization, ./uint_highlow
+import ./datatypes, ./int_bitwise_ops, ./initialization, ./uint_highlow, typetraits
 
 # XXX There's some Araq reason why this isn't part of the std lib..
-func high(_: typedesc[SomeUnsignedInt]): SomeUnsignedInt =
-  not SomeUnsignedInt(0'u8)
+func high(T: typedesc[SomeUnsignedInt]): T =
+  not T(0)
 
 func high*[T, T2](_: typedesc[IntImpl[T, T2]]): IntImpl[T, T2] {.inline.}=
   # The highest signed int has representation
