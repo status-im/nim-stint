@@ -28,17 +28,10 @@ func `xor`*(x, y: IntImpl): IntImpl {.inline.}=
 func `shr`*(x: IntImpl, y: SomeInteger): IntImpl {.inline.}
   # Forward declaration
 
-func convertImpl[T: SomeUnsignedInt](x: SomeSignedInt): T =
+func convertImpl[T: SomeInteger](x: SomeInteger): T {.compileTime.} =
   cast[T](x)
 
-func convertImpl[T: SomeSignedInt](x: SomeUnsignedInt): T =
-  cast[T](x)
-
-func convertImpl[T: UintImpl](x: IntImpl): T =
-  result.hi = convertImpl[type(result.lo)](x.hi)
-  result.lo = x.lo
-
-func convertImpl[T: IntImpl](x: UintImpl): T =
+func convertImpl[T: IntImpl|UintImpl](x: IntImpl|UintImpl): T {.compileTime.} =
   result.hi = convertImpl[type(result.hi)](x.hi)
   result.lo = x.lo
 
