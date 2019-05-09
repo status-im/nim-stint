@@ -52,9 +52,3 @@ suite "Testing unsigned int bitwise operations":
   test "Shift right - by half the size of the integer":
     check: cast[uint16](b) == z # Sanity check
     check: cast[uint16](b shr 8) == z shr 8
-
-  test "leading zero bits":
-    var x: StUint[2048]
-    check: x.countLeadingZeroBits() == 2048
-    x = StUint[2048].one()
-    check: x.countLeadingZeroBits() == 2047

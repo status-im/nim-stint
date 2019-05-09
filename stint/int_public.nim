@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ./private/datatypes, macros
+import ./private/datatypes
 export StInt
 export IntImpl, intImpl, bitsof # TODO remove the need to export these
 

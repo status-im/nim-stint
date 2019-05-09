@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./bithacks, ./conversion, ./initialization,
+import  ./bitops2, ./conversion, ./initialization,
         ./datatypes,
         ./uint_comparison,
         ./uint_bitwise_ops,
@@ -122,7 +122,7 @@ proc div3n2n[T: SomeUnsignedInt](
 
 func div2n1n(q, r: var UintImpl, ah, al, b: UintImpl) =
 
-  # doAssert countLeadingZeroBits(b) == 0, "Divisor was not normalized"
+  # doAssert leadingZeros(b) == 0, "Divisor was not normalized"
 
   var s: UintImpl
   div3n2n(q.hi, s, ah.hi, ah.lo, al.hi, b)
@@ -130,7 +130,7 @@ func div2n1n(q, r: var UintImpl, ah, al, b: UintImpl) =
 
 func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
 
-  # doAssert countLeadingZeroBits(d) == 0, "Divisor was not normalized"
+  # doAssert leadingZeros(d) == 0, "Divisor was not normalized"
 
   const
     size = bitsof(q)
@@ -177,7 +177,7 @@ func divmodBZ[T](x, y: UintImpl[T], q, r: var UintImpl[T])=
     if x.hi < y.lo:
       # Normalize
       let
-        clz = countLeadingZeroBits(y.lo)
+        clz = leadingZeros(y.lo)
         xx = x shl clz
         yy = y.lo shl clz
 
@@ -191,7 +191,7 @@ func divmodBZ[T](x, y: UintImpl[T], q, r: var UintImpl[T])=
   # General case
 
   # Normalization
-  let clz = countLeadingZeroBits(y)
+  let clz = leadingZeros(y)
 
   let
     xx = UintImpl[type x](lo: x) shl clz
@@ -212,7 +212,7 @@ func divmodBS(x, y: UintImpl, q, r: var UintImpl) =
   type SubTy = type x.lo
 
   var
-    shift = y.countLeadingZeroBits - x.countLeadingZeroBits
+    shift = y.leadingZeros - x.leadingZeros
     d = y shl shift
 
   r = x
@@ -231,8 +231,8 @@ const BinaryShiftThreshold = 8  # If the difference in bit-length is below 8
 
 func divmod*[T](x, y: UintImpl[T]): tuple[quot, rem: UintImpl[T]]=
 
-  let x_clz = x.countLeadingZeroBits
-  let y_clz = y.countLeadingZeroBits
+  let x_clz = x.leadingZeros
+  let y_clz = y.leadingZeros
 
   # We short-circuit division depending on special-cases.
   # TODO: Constant-time division

@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes, ./bithacks, ./uint_comparison
+import  ./datatypes, ./uint_comparison
 
 func isZero*(n: SomeSignedInt): bool {.inline.} =
   n == 0
