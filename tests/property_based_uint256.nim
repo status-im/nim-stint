@@ -25,16 +25,16 @@ suite "Property-based testing (testing with random inputs) of Uint256":
   else:
     echo "(StUint[64] = uint64)"
 
-  let hi = 1'u shl (sizeof(uint)*7)
+  let hi = 1'u shl (sizeof(uint64)*7)
 
-  quicktest "`or`", itercount do(x0: uint(min=0, max=hi),
-                                x1: uint(min=0, max=hi),
-                                x2: uint(min=0, max=hi),
-                                x3: uint(min=0, max=hi),
-                                y0: uint(min=0, max=hi),
-                                y1: uint(min=0, max=hi),
-                                y2: uint(min=0, max=hi),
-                                y3: uint(min=0, max=hi)):
+  quicktest "`or`", itercount do(x0: uint64(min=0, max=hi),
+                                x1: uint64(min=0, max=hi),
+                                x2: uint64(min=0, max=hi),
+                                x3: uint64(min=0, max=hi),
+                                y0: uint64(min=0, max=hi),
+                                y1: uint64(min=0, max=hi),
+                                y2: uint64(min=0, max=hi),
+                                y3: uint64(min=0, max=hi)):
 
     let
       x = [x0, x1, x2, x3]
@@ -51,14 +51,14 @@ suite "Property-based testing (testing with random inputs) of Uint256":
 
     check ttm_z.asSt == mp_z
 
-  quicktest "`and`", itercount do(x0: uint(min=0, max=hi),
-                                x1: uint(min=0, max=hi),
-                                x2: uint(min=0, max=hi),
-                                x3: uint(min=0, max=hi),
-                                y0: uint(min=0, max=hi),
-                                y1: uint(min=0, max=hi),
-                                y2: uint(min=0, max=hi),
-                                y3: uint(min=0, max=hi)):
+  quicktest "`and`", itercount do(x0: uint64(min=0, max=hi),
+                                x1: uint64(min=0, max=hi),
+                                x2: uint64(min=0, max=hi),
+                                x3: uint64(min=0, max=hi),
+                                y0: uint64(min=0, max=hi),
+                                y1: uint64(min=0, max=hi),
+                                y2: uint64(min=0, max=hi),
+                                y3: uint64(min=0, max=hi)):
 
     let
       x = [x0, x1, x2, x3]
@@ -75,14 +75,14 @@ suite "Property-based testing (testing with random inputs) of Uint256":
 
     check ttm_z.asSt == mp_z
 
-  quicktest "`xor`", itercount do(x0: uint(min=0, max=hi),
-                                x1: uint(min=0, max=hi),
-                                x2: uint(min=0, max=hi),
-                                x3: uint(min=0, max=hi),
-                                y0: uint(min=0, max=hi),
-                                y1: uint(min=0, max=hi),
-                                y2: uint(min=0, max=hi),
-                                y3: uint(min=0, max=hi)):
+  quicktest "`xor`", itercount do(x0: uint64(min=0, max=hi),
+                                x1: uint64(min=0, max=hi),
+                                x2: uint64(min=0, max=hi),
+                                x3: uint64(min=0, max=hi),
+                                y0: uint64(min=0, max=hi),
+                                y1: uint64(min=0, max=hi),
+                                y2: uint64(min=0, max=hi),
+                                y3: uint64(min=0, max=hi)):
 
     let
       x = [x0, x1, x2, x3]
@@ -100,10 +100,10 @@ suite "Property-based testing (testing with random inputs) of Uint256":
     check ttm_z.asSt == mp_z
 
   # Not defined for ttmath
-  # quicktest "`not`", itercount do(x0: uint(min=0, max=hi),
-  #                               x1: uint(min=0, max=hi),
-  #                               x2: uint(min=0, max=hi),
-  #                               x3: uint(min=0, max=hi):
+  # quicktest "`not`", itercount do(x0: uint64(min=0, max=hi),
+  #                               x1: uint64(min=0, max=hi),
+  #                               x2: uint64(min=0, max=hi),
+  #                               x3: uint64(min=0, max=hi):
 
   #   let
   #     x = [x0, x1, x2, x3]
@@ -118,14 +118,14 @@ suite "Property-based testing (testing with random inputs) of Uint256":
 
   #   check(cast[array[4, uint64]](ttm_z) == cast[array[4, uint64]](mp_z))
 
-  quicktest "`<`", itercount do(x0: uint(min=0, max=hi),
-                                x1: uint(min=0, max=hi),
-                                x2: uint(min=0, max=hi),
-                                x3: uint(min=0, max=hi),
-                                y0: uint(min=0, max=hi),
-                                y1: uint(min=0, max=hi),
-                                y2: uint(min=0, max=hi),
-                                y3: uint(min=0, max=hi)):
+  quicktest "`<`", itercount do(x0: uint64(min=0, max=hi),
+                                x1: uint64(min=0, max=hi),
+                                x2: uint64(min=0, max=hi),
+                                x3: uint64(min=0, max=hi),
+                                y0: uint64(min=0, max=hi),
+                                y1: uint64(min=0, max=hi),
+                                y2: uint64(min=0, max=hi),
+                                y3: uint64(min=0, max=hi)):
 
     let
       x = [x0, x1, x2, x3]
@@ -143,14 +143,14 @@ suite "Property-based testing (testing with random inputs) of Uint256":
     check(ttm_z == mp_z)
 
 
-  quicktest "`<=`", itercount do(x0: uint(min=0, max=hi),
-                                x1: uint(min=0, max=hi),
-                                x2: uint(min=0, max=hi),
-                                x3: uint(min=0, max=hi),
-                                y0: uint(min=0, max=hi),
-                                y1: uint(min=0, max=hi),
-                                y2: uint(min=0, max=hi),
-                                y3: uint(min=0, max=hi)):
+  quicktest "`<=`", itercount do(x0: uint64(min=0, max=hi),
+                                x1: uint64(min=0, max=hi),
+                                x2: uint64(min=0, max=hi),
+                                x3: uint64(min=0, max=hi),
+                                y0: uint64(min=0, max=hi),
+                                y1: uint64(min=0, max=hi),
+                                y2: uint64(min=0, max=hi),
+                                y3: uint64(min=0, max=hi)):
 
     let
       x = [x0, x1, x2, x3]
@@ -167,14 +167,14 @@ suite "Property-based testing (testing with random inputs) of Uint256":
 
     check(ttm_z == mp_z)
 
-  quicktest "`+`", itercount do(x0: uint(min=0, max=hi),
-                                x1: uint(min=0, max=hi),
-                                x2: uint(min=0, max=hi),
-                                x3: uint(min=0, max=hi),
-                                y0: uint(min=0, max=hi),
-                                y1: uint(min=0, max=hi),
-                                y2: uint(min=0, max=hi),
-                                y3: uint(min=0, max=hi)):
+  quicktest "`+`", itercount do(x0: uint64(min=0, max=hi),
+                                x1: uint64(min=0, max=hi),
+                                x2: uint64(min=0, max=hi),
+                                x3: uint64(min=0, max=hi),
+                                y0: uint64(min=0, max=hi),
+                                y1: uint64(min=0, max=hi),
+                                y2: uint64(min=0, max=hi),
+                                y3: uint64(min=0, max=hi)):
 
     let
       x = [x0, x1, x2, x3]
@@ -191,14 +191,14 @@ suite "Property-based testing (testing with random inputs) of Uint256":
 
     check ttm_z.asSt == mp_z
 
-  quicktest "`-`", itercount do(x0: uint(min=0, max=hi),
-                                x1: uint(min=0, max=hi),
-                                x2: uint(min=0, max=hi),
-                                x3: uint(min=0, max=hi),
-                                y0: uint(min=0, max=hi),
-                                y1: uint(min=0, max=hi),
-                                y2: uint(min=0, max=hi),
-                                y3: uint(min=0, max=hi)):
+  quicktest "`-`", itercount do(x0: uint64(min=0, max=hi),
+                                x1: uint64(min=0, max=hi),
+                                x2: uint64(min=0, max=hi),
+                                x3: uint64(min=0, max=hi),
+                                y0: uint64(min=0, max=hi),
+                                y1: uint64(min=0, max=hi),
+                                y2: uint64(min=0, max=hi),
+                                y3: uint64(min=0, max=hi)):
 
     let
       x = [x0, x1, x2, x3]
@@ -215,14 +215,14 @@ suite "Property-based testing (testing with random inputs) of Uint256":
 
     check ttm_z.asSt == mp_z
 
-  quicktest "`*`", itercount do(x0: uint(min=0, max=hi),
-                                x1: uint(min=0, max=hi),
-                                x2: uint(min=0, max=hi),
-                                x3: uint(min=0, max=hi),
-                                y0: uint(min=0, max=hi),
-                                y1: uint(min=0, max=hi),
-                                y2: uint(min=0, max=hi),
-                                y3: uint(min=0, max=hi)):
+  quicktest "`*`", itercount do(x0: uint64(min=0, max=hi),
+                                x1: uint64(min=0, max=hi),
+                                x2: uint64(min=0, max=hi),
+                                x3: uint64(min=0, max=hi),
+                                y0: uint64(min=0, max=hi),
+                                y1: uint64(min=0, max=hi),
+                                y2: uint64(min=0, max=hi),
+                                y3: uint64(min=0, max=hi)):
 
     let
       x = [x0, x1, x2, x3]
@@ -239,10 +239,10 @@ suite "Property-based testing (testing with random inputs) of Uint256":
 
     check ttm_z.asSt == mp_z
 
-  quicktest "`shl`", itercount do(x0: uint(min=0, max=hi),
-                                x1: uint(min=0, max=hi),
-                                x2: uint(min=0, max=hi),
-                                x3: uint(min=0, max=hi),
+  quicktest "`shl`", itercount do(x0: uint64(min=0, max=hi),
+                                x1: uint64(min=0, max=hi),
+                                x2: uint64(min=0, max=hi),
+                                x3: uint64(min=0, max=hi),
                                 y: int(min = 0, max=(255))):
 
     let
@@ -257,10 +257,10 @@ suite "Property-based testing (testing with random inputs) of Uint256":
 
     check ttm_z.asSt == mp_z
 
-  quicktest "`shr`", itercount do(x0: uint(min=0, max=hi),
-                                x1: uint(min=0, max=hi),
-                                x2: uint(min=0, max=hi),
-                                x3: uint(min=0, max=hi),
+  quicktest "`shr`", itercount do(x0: uint64(min=0, max=hi),
+                                x1: uint64(min=0, max=hi),
+                                x2: uint64(min=0, max=hi),
+                                x3: uint64(min=0, max=hi),
                                 y: int(min = 0, max=(255))):
 
     let
@@ -275,14 +275,14 @@ suite "Property-based testing (testing with random inputs) of Uint256":
 
     check ttm_z.asSt == mp_z
 
-  quicktest "`mod`", itercount do(x0: uint(min=0, max=hi),
-                                x1: uint(min=0, max=hi),
-                                x2: uint(min=0, max=hi),
-                                x3: uint(min=0, max=hi),
-                                y0: uint(min=0, max=hi),
-                                y1: uint(min=0, max=hi),
-                                y2: uint(min=0, max=hi),
-                                y3: uint(min=0, max=hi)):
+  quicktest "`mod`", itercount do(x0: uint64(min=0, max=hi),
+                                x1: uint64(min=0, max=hi),
+                                x2: uint64(min=0, max=hi),
+                                x3: uint64(min=0, max=hi),
+                                y0: uint64(min=0, max=hi),
+                                y1: uint64(min=0, max=hi),
+                                y2: uint64(min=0, max=hi),
+                                y3: uint64(min=0, max=hi)):
 
     let
       x = [x0, x1, x2, x3]
@@ -299,14 +299,14 @@ suite "Property-based testing (testing with random inputs) of Uint256":
 
     check ttm_z.asSt == mp_z
 
-  quicktest "`div`", itercount do(x0: uint(min=0, max=hi),
-                                x1: uint(min=0, max=hi),
-                                x2: uint(min=0, max=hi),
-                                x3: uint(min=0, max=hi),
-                                y0: uint(min=0, max=hi),
-                                y1: uint(min=0, max=hi),
-                                y2: uint(min=0, max=hi),
-                                y3: uint(min=0, max=hi)):
+  quicktest "`div`", itercount do(x0: uint64(min=0, max=hi),
+                                x1: uint64(min=0, max=hi),
+                                x2: uint64(min=0, max=hi),
+                                x3: uint64(min=0, max=hi),
+                                y0: uint64(min=0, max=hi),
+                                y1: uint64(min=0, max=hi),
+                                y2: uint64(min=0, max=hi),
+                                y3: uint64(min=0, max=hi)):
 
     let
       x = [x0, x1, x2, x3]
@@ -323,10 +323,10 @@ suite "Property-based testing (testing with random inputs) of Uint256":
 
     check ttm_z.asSt == mp_z
 
-  quicktest "pow", itercount do(x0: uint(min=0, max=hi),
-                                x1: uint(min=0, max=hi),
-                                x2: uint(min=0, max=hi),
-                                x3: uint(min=0, max=hi),
+  quicktest "pow", itercount do(x0: uint64(min=0, max=hi),
+                                x1: uint64(min=0, max=hi),
+                                x2: uint64(min=0, max=hi),
+                                x3: uint64(min=0, max=hi),
                                 y : int(min=0, max=high(int))):
 
     let
