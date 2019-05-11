@@ -20,6 +20,7 @@ import  test_int_endianness,
         test_int_comparison,
         test_int_addsub,
         test_int_muldiv,
-        test_int_boundchecks
+        test_int_boundchecks,
+        test_int_bitwise
 
 import  test_io

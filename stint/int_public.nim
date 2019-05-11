@@ -78,10 +78,12 @@ make_unary(`not`, Stint)
 make_binary(`or`, Stint)
 make_binary(`and`, Stint)
 make_binary(`xor`, Stint)
-# proc `shr`*(x: Stint, y: SomeInteger): Stint {.inline, noSideEffect.} =
-#   result.data = x.data shr y
-# proc `shl`*(x: Stint, y: SomeInteger): Stint {.inline, noSideEffect.} =
-#   result.data = x.data shl y
+func `shr`*(x: Stint, y: SomeInteger): Stint {.inline.} =
+  result.data = x.data shr y
+func `shl`*(x: Stint, y: SomeInteger): Stint {.inline.} =
+  result.data = x.data shl y
+func ashr*(x: Stint, y: SomeInteger): Stint {.inline.} =
+  result.data = ashr(x.data, y)
 
 import ./private/int_highlow
 
