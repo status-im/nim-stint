@@ -8,7 +8,7 @@ skipDirs      = @["tests", "benchmarks"]
 
 # TODO test only requirements don't work: https://github.com/nim-lang/nimble/issues/482
 requires "nim >= 0.19",
-         "std_shims"
+         "stew"
  #, "https://github.com/alehander42/nim-quicktest >= 0.18.0", "https://github.com/status-im/nim-ttmath"
 
 proc test(name: string, lang: string = "c") =

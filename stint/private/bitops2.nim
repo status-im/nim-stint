@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes, ./conversion, std_shims/support/bitops2
+import  ./datatypes, ./conversion, stew/bitops2
 export bitops2
 
 # Bitops from support library
