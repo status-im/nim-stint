@@ -36,6 +36,12 @@ func `<=`*(x, y: IntImpl): bool {.inline.}=
   x.hi < y.hi or
     (x.hi == y.hi and x.lo <= y.lo)
 
+func isOdd*(x: SomeSignedInt): bool {.inline.}=
+  bool(x and 1)
+
+func isEven*(x: SomeSignedInt): bool {.inline.}=
+  not x.isOdd
+
 func isEven*(x: IntImpl): bool {.inline.}=
   x.lo.isEven
 

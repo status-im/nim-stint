@@ -10,7 +10,7 @@
 import
   ./private/datatypes,
   ./private/int_negabs,
-  ./int_public, ./uint_public,
+  ./intops,
   typetraits, algorithm
 
 template static_check_size(T: typedesc[SomeInteger], bits: static[int]) =
