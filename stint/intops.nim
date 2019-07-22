@@ -86,6 +86,9 @@ func `==`*(x, y: SomeBigInteger): bool {.inline.} =
   x.data == y.data
 export `<`, `<=`, `==` # Address Generic Instantiation too nested: https://github.com/status-im/nim-stint/pull/66#issuecomment-427557655
 
+# TODO these exports are needed for the SomeInteger versions - move to stew?
+export isZero, isOdd, isEven, isNegative
+
 func isZero*(x: SomeBigInteger): bool {.inline.} =
   ## Returns true if input is zero
   ## false otherwise
