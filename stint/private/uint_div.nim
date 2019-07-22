@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./bitops2, ./conversion, ./initialization,
+import  ./bitops2_priv, ./conversion, ./initialization,
         ./datatypes,
         ./uint_comparison,
         ./uint_bitwise_ops,

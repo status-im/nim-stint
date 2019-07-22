@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ./uint_public
+import ./intops
 
 func addmod_internal(a, b, m: Stuint): Stuint {.inline.}=
   ## Modular addition

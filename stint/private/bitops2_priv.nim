@@ -12,8 +12,26 @@ export bitops2
 
 # Bitops from support library
 
+template bitsof*(x: UintImpl): int =
+  # XXX: https://github.com/nim-lang/Nim/issues/9494
+  mixin bitsof
+  bitsof(x.lo) * 2
+
+template bitsof*(x: IntImpl): int =
+  # XXX: https://github.com/nim-lang/Nim/issues/9494
+  mixin bitsof
+  bitsof(x.lo) * 2
+
+template bitsof*(x: typedesc[UintImpl]): int =
+  # XXX: https://github.com/nim-lang/Nim/issues/9494
+  mixin bitsof
+  bitsof(x.lo) * 2
+
 func countOnes*(x: UintImpl): int {.inline.} =
   countOnes(x.lo) + countOnes(x.hi)
+
+func countZeros*(x: UintImpl): int {.inline.} =
+  countZeros(x.lo) + countOnes(x.hi)
 
 func parity*(x: UintImpl): int {.inline.} =
   parity(x.lo) xor parity(x.hi)

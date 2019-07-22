@@ -166,14 +166,6 @@ type
   StInt*[bits: static[int]] = object
     data*: intImpl(bits)
 
-
-template bitsof*(x: SomeInteger): untyped =
-  sizeof(x) * 8
-template bitsof*(x: UintImpl|IntImpl): untyped =
-  # XXX: https://github.com/nim-lang/Nim/issues/9494
-  mixin bitsof
-  bitsof(x.lo) * 2
-
 template applyHiLo*(a: UintImpl | IntImpl, c: untyped): untyped =
   ## Apply `c` to each of `hi` and `lo`
   var res: type a
