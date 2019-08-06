@@ -25,9 +25,6 @@ func `xor`*(x, y: IntImpl): IntImpl {.inline.}=
   ## `Bitwise xor` of numbers x and y
   applyHiLo(x, y, `xor`)
 
-func `shr`*(x: IntImpl, y: SomeInteger): IntImpl {.inline.}
-  # Forward declaration
-
 func convertImpl[T: SomeInteger](x: SomeInteger): T {.compileTime.} =
   cast[T](x)
 
@@ -56,42 +53,46 @@ func `shl`*(x: IntImpl, y: SomeInteger): IntImpl {.inline.}=
   elif y == halfSize:
     result.hi = convert[HiType](x.lo)
   elif y < halfSize:
+    # `shr` in this equation uses uint version
     result.hi = (x.hi shl y) or convert[HiType](x.lo shr (halfSize - y))
     result.lo = x.lo shl y
   else:
     result.hi = convert[HiType](x.lo shl (y - halfSize))
 
-func `shr`*(x: IntImpl, y: SomeInteger): IntImpl {.inline.}=
-  ## Compute the `shift right` operation of x and y
-  ## Similar to C standard, result is undefined if y is bigger
-  ## than the number of bits in x.
-  const halfSize: type(y) = bitsof(x) div 2
-  type LoType = type(result.lo)
+template createShr(name, operator: untyped) =
+  template name(x, y: SomeInteger): auto =
+    operator(x, y)
 
-  if y == 0:
-    return x
-  elif y == halfSize:
-    result.lo = convert[LoType](x.hi)
-  elif y < halfSize:
-    result.lo = (x.lo shr y) or convert[LoType](x.hi shl (halfSize - y))
-    result.hi = x.hi shr y
-  else:
-    result.lo = convert[LoType](x.hi shr (y - halfSize))
+  func name*(x: IntImpl, y: SomeInteger): IntImpl {.inline.}=
+    ## Compute the `arithmetic shift right` operation of x and y
+    ## Similar to C standard, result is undefined if y is bigger
+    ## than the number of bits in x.
+    const halfSize: type(y) = bitsof(x) div 2
+    type LoType = type(result.lo)
+    if y == 0:
+      return x
+    elif y == halfSize:
+      result.lo = convert[LoType](x.hi)
+      result.hi = name(x.hi, halfSize-1)
+    elif y < halfSize:
+      result.lo = (x.lo shr y) or convert[LoType](x.hi shl (halfSize - y))
+      result.hi = name(x.hi, y)
+    else:
+      result.lo = convert[LoType](name(x.hi, (y - halfSize)))
+      result.hi = name(x.hi, halfSize-1)
 
-func ashr*(x: IntImpl, y: SomeInteger): IntImpl {.inline.}=
-  ## Compute the `arithmetic shift right` operation of x and y
-  ## Similar to C standard, result is undefined if y is bigger
-  ## than the number of bits in x.
-  const halfSize: type(y) = bitsof(x) div 2
-  type LoType = type(result.lo)
-  if y == 0:
-    return x
-  elif y == halfSize:
-    result.lo = convert[LoType](x.hi)
-    result.hi = ashr(x.hi, halfSize-1)
-  elif y < halfSize:
-    result.lo = (x.lo shr y) or convert[LoType](x.hi shl (halfSize - y))
-    result.hi = ashr(x.hi, y)
-  else:
-    result.lo = convert[LoType](ashr(x.hi, (y - halfSize)))
-    result.hi = ashr(x.hi, halfSize-1)
+template nimVersionIs(comparator: untyped, major, minor, patch: int): bool =
+  comparator(NimMajor * 100 + NimMinor * 10 + NimPatch, major * 100 + minor * 10 + patch)
+
+when nimVersionIs(`>=`, 0, 20, 0):
+  createShr(shrOfShr, `shr`)
+elif nimVersionIs(`<`, 0, 20, 0) and defined(nimAshr):
+  createShr(shrOfAshr, ashr)
+else:
+  {.error: "arithmetic right shift is not defined for this Nim version".}
+
+template `shr`*(a, b: typed): untyped =
+  when nimVersionIs(`>=`, 0, 20, 0):
+    shrOfShr(a, b)
+  elif nimVersionIs(`<`, 0, 20, 0) and defined(nimAshr):
+    shrOfAShr(a, b)

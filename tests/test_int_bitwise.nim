@@ -28,29 +28,21 @@ suite "Testing signed int bitwise operations":
       y = y shl 1
       check cast[stint.Uint256](x) == y
 
-  test "Shift Right":
-    const leftMost = 1.i256 shl 255
-    var y = 1.u256 shl 255
-    for i in 1..255:
-      let x = leftMost shr i
-      y = y shr 1
-      check cast[stint.Uint256](x) == y
-
-  test "ashr on positive int":
+  test "Shift Right on positive int":
     const leftMost = 1.i256 shl 254
     var y = 1.u256 shl 254
     for i in 1..255:
-      let x = ashr(leftMost, i)
+      let x = leftMost shr i
       y = y shr 1
       check x == cast[stint.Int256](y)
 
-  test "ashr on negative int":
+  test "Shift Right on negative int":
     const
       leftMostU = 1.u256 shl 255
       leftMostI = 1.i256 shl 255
     var y = leftMostU
     for i in 1..255:
-      let x = ashr(leftMostI, i)
+      let x = leftMostI shr i
       y = (y shr 1) or leftMostU
       check x == cast[stint.Int256](y)
 
@@ -65,11 +57,11 @@ suite "Testing signed int bitwise operations":
     const
       a = (high(stint.Int256) shl 10) shr 10
       b = (high(stint.Uint256) shl 10) shr 10
-      c = ashr(high(stint.Int256) shl 10, 10)
+      c = (high(stint.Int256) shl 10) shr 10
 
-    check a == cast[stint.Int256](b)
+    check a != cast[stint.Int256](b)
     check c != cast[stint.Int256](b)
-    check c != a
+    check c == a
 
   when defined(cpp):
     quicktest "signed int `shl` vs ttmath", itercount do(x0: int64(min=lo, max=hi),
@@ -90,24 +82,6 @@ suite "Testing signed int bitwise operations":
 
       check ttm_z.asSt == mp_z
 
-    quicktest "signed int `shr` vs ttmath", itercount do(x0: int64(min=lo, max=hi),
-                                  x1: int64(min=0, max=hi),
-                                  x2: int64(min=0, max=hi),
-                                  x3: int64(min=0, max=hi),
-                                  y: int(min=0, max=(255))):
-
-      let
-        x = [cast[uint64](x0), cast[uint64](x1), cast[uint64](x2), cast[uint64](x3)]
-
-        ttm_x = x.asTT
-        mp_x  = cast[stint.Int256](x)
-
-      let
-        ttm_z = ttm_x shr y.uint
-        mp_z  = mp_x shr y
-
-      check cast[stint.Int256](ttm_z.asSt) == mp_z
-
     quicktest "arithmetic shift right vs ttmath", itercount do(x0: int64(min=lo, max=hi),
                                   x1: int64(min=0, max=hi),
                                   x2: int64(min=0, max=hi),
@@ -122,6 +96,6 @@ suite "Testing signed int bitwise operations":
 
       let
         ttm_z = ttm_x shr y # C/CPP usually implement `shr` as `ashr` a.k.a. `sar`
-        mp_z  = ashr(mp_x, y)
+        mp_z  = mp_x shr y
 
       check ttm_z.asSt == mp_z
