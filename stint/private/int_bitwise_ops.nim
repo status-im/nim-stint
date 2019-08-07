@@ -81,18 +81,15 @@ template createShr(name, operator: untyped) =
       result.lo = convert[LoType](name(x.hi, (y - halfSize)))
       result.hi = name(x.hi, halfSize-1)
 
-template nimVersionIs(comparator: untyped, major, minor, patch: int): bool =
-  comparator(NimMajor * 100 + NimMinor * 10 + NimPatch, major * 100 + minor * 10 + patch)
-
-when nimVersionIs(`>=`, 0, 20, 0):
+when (NimMajor, NimMinor, NimPatch) >= (0, 20, 0):
   createShr(shrOfShr, `shr`)
-elif nimVersionIs(`<`, 0, 20, 0) and defined(nimAshr):
+elif (NimMajor, NimMinor, NimPatch) < (0, 20, 0) and defined(nimAshr):
   createShr(shrOfAshr, ashr)
 else:
   {.error: "arithmetic right shift is not defined for this Nim version".}
 
 template `shr`*(a, b: typed): untyped =
-  when nimVersionIs(`>=`, 0, 20, 0):
+  when (NimMajor, NimMinor, NimPatch) >= (0, 20, 0):
     shrOfShr(a, b)
-  elif nimVersionIs(`<`, 0, 20, 0) and defined(nimAshr):
+  elif (NimMajor, NimMinor, NimPatch) < (0, 20, 0) and defined(nimAshr):
     shrOfAShr(a, b)
