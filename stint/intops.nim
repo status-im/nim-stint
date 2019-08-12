@@ -130,8 +130,6 @@ func `shr`*(x: SomeBigInteger, y: SomeInteger): SomeBigInteger {.inline.} =
   result.data = x.data shr y
 func `shl`*(x: SomeBigInteger, y: SomeInteger): SomeBigInteger {.inline.} =
   result.data = x.data shl y
-func ashr*(x: Stint, y: SomeInteger): Stint {.inline.} =
-  result.data = ashr(x.data, y)
 
 import ./private/[int_highlow, uint_highlow]
 
