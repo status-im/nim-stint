@@ -60,7 +60,7 @@ func `shl`*(x: IntImpl, y: SomeInteger): IntImpl {.inline.}=
     result.hi = convert[HiType](x.lo shl (y - halfSize))
 
 template createShr(name, operator: untyped) =
-  template name(x, y: SomeInteger): auto =
+  template name(x, y: distinct SomeInteger): auto =
     operator(x, y)
 
   func name*(x: IntImpl, y: SomeInteger): IntImpl {.inline.}=
