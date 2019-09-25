@@ -85,6 +85,15 @@ suite "Testing input and output procedures":
     # TODO: negative hex
 
   test "Hex dump":
+
+    block:
+      let a = 0x1234567890ABCDEF.stint(128)
+      check: a.dumpHex(bigEndian).toUpperAscii == "00000000000000001234567890ABCDEF"
+
+    block:
+      let a = 0x1234567890ABCDEF.stuint(128)
+      check: a.dumpHex(bigEndian).toUpperAscii == "00000000000000001234567890ABCDEF"
+
     block:
       let a = 0x1234'i32.stint(32)
       check: a.dumpHex(bigEndian).toUpperAscii == "00001234"
