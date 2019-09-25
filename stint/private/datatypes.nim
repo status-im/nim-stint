@@ -100,7 +100,7 @@ template checkDiv2(bits: static[int]): untyped =
     doAssert bits >= 8, "The number of bits in a should be greater or equal to 8"
   bits div 2
 
-when defined(mpint_test): # TODO stint_test
+when defined(stint_test): # TODO stint_test
   template uintImpl*(bits: static[int]): untyped =
     # Test version, StUint[64] = 2 uint32. Test the logic of the library
 
