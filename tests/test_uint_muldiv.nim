@@ -30,8 +30,16 @@ suite "Testing unsigned int multiplication implementation":
     let b = 1_000_000_000.stuint(64)
     let c = 1_000.stuint(64)
 
-    check: cast[uint64](a*b*c) == 1_000_000_000_000_000_000_000'u64 # need 70-bits
+    let x = 1_000_000_000'u64
+    let y = 1_000_000_000'u64
+    let z = 1_000'u64
 
+    {.push overflowChecks: off.}
+    let w = x*y*z
+    {.pop.}
+
+    #check: cast[uint64](a*b*c) == 1_000_000_000_000_000_000_000'u64 # need 70-bits
+    check: cast[uint64](a*b*c) == w
 
 suite "Testing unsigned int division and modulo implementation":
   test "Divmod(100, 13) returns the correct result":
