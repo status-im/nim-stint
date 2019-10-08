@@ -179,6 +179,9 @@ template applyHiLo*(a, b: UintImpl | IntImpl, c: untyped): untyped =
   res.hi = c(a.hi, b.hi)
   res.lo = c(a.lo, b.lo)
   res
+  
+template leastSignificantWord*(num: SomeInteger): auto =
+  num
 
 func leastSignificantWord*(num: UintImpl | IntImpl): auto {.inline.} =
   when num.lo is UintImpl:

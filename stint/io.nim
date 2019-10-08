@@ -10,6 +10,7 @@
 import
   ./private/datatypes,
   ./private/int_negabs,
+  ./private/[int_bitwise_ops, uint_bitwise_ops],
   ./intops,
   typetraits, algorithm
 
@@ -61,12 +62,30 @@ func to*(x: SomeInteger, T: typedesc[Stint]): T =
 func to*(x: SomeUnsignedInt, T: typedesc[StUint]): T =
   stuint(x, result.bits)
 
-func truncate*(num: Stint or StUint, T: typedesc[int or uint or int64 or uint64]): T {.inline.}=
-  ## Extract the int, uint, int64 or uint64 portion of a multi-precision integer.
+func truncate*(num: Stint or StUint, T: typedesc[SomeInteger]): T {.inline.}=
+  ## Extract the int, uint, int8-int64 or uint8-uint64 portion of a multi-precision integer.
   ## Note that int and uint are 32-bit on 32-bit platform.
   ## For unsigned result type, result is modulo 2^(sizeof T in bit)
   ## For signed result type, result is undefined if input does not fit in the target type.
-  cast[T](num.data.leastSignificantWord)
+  static:
+    doAssert bitsof(T) <= bitsof(num.data.leastSignificantWord)
+
+  when nimvm:
+    const bits = bitsof(T)
+    let data = num.data.leastSignificantWord
+    type DT = type data
+
+    # we use esoteric type juggling here to trick the Nim VM
+    when bits == 64:
+      cast[T](uint64(data and 0xFFFFFFFF_FFFFFFFF.DT))
+    elif bits == 32:
+      cast[T](uint32(data and 0xFFFFFFFF.DT))
+    elif bits == 16:
+      cast[T](uint16(data and 0xFFFF.DT))
+    else:
+      cast[T](uint8(data and 0xFF.DT))
+  else:
+    cast[T](num.data.leastSignificantWord)
 
 func toInt*(num: Stint or StUint): int {.inline, deprecated:"Use num.truncate(int) instead".}=
   num.truncate(int)
@@ -246,7 +265,7 @@ func toHex*[bits: static[int]](num: Stint[bits] or StUint[bits]): string {.inlin
   ## Leading zeros are stripped. Use dumpHex instead if you need the in-memory representation
   toString(num, 16)
 
-func dumpHex*(x: Stint or StUint, order: static[Endianness] = bigEndian): string =
+proc dumpHex*(x: Stint or StUint, order: static[Endianness] = bigEndian): string =
   ## Stringify an int to hex.
   ## Note. Leading zeros are not removed. Use toString(n, base = 16)/toHex instead.
   ##
@@ -263,18 +282,29 @@ func dumpHex*(x: Stint or StUint, order: static[Endianness] = bigEndian): string
     hexChars = "0123456789abcdef"
     size = bitsof(x.data) div 8
 
-  {.pragma: restrict, codegenDecl: "$# __restrict $#".}
-  let bytes {.restrict.}= cast[ptr array[size, byte]](x.unsafeaddr)
-
   result = newString(2*size)
 
-  for i in 0 ..< size:
-    when order == system.cpuEndian:
-      result[2*i] = hexChars[int bytes[i] shr 4 and 0xF]
-      result[2*i+1] = hexChars[int bytes[i] and 0xF]
-    else:
-      result[2*i] = hexChars[int bytes[bytes[].high - i] shr 4 and 0xF]
-      result[2*i+1] = hexChars[int bytes[bytes[].high - i] and 0xF]
+  when nimvm:
+    type DT = type x.data.leastSignificantWord
+    for i in 0 ..< size:
+      when order == system.cpuEndian:
+        let pos = (i * 8)
+      else:
+        let pos = ((size - (i + 1)) * 8)
+      let byte = (x.data shr pos).leastSignificantWord and 0xFF.DT
+      result[2*i] = hexChars[int byte shr 4 and 0xF]
+      result[2*i+1] = hexChars[int byte and 0xF]
+  else:
+    {.pragma: restrict, codegenDecl: "$# __restrict $#".}
+    let bytes {.restrict.}= cast[ptr array[size, byte]](x.unsafeaddr)
+
+    for i in 0 ..< size:
+      when order == system.cpuEndian:
+        result[2*i] = hexChars[int bytes[i] shr 4 and 0xF]
+        result[2*i+1] = hexChars[int bytes[i] and 0xF]
+      else:
+        result[2*i] = hexChars[int bytes[bytes[].high - i] shr 4 and 0xF]
+        result[2*i+1] = hexChars[int bytes[bytes[].high - i] and 0xF]
 
 proc initFromBytesBE*[bits: static[int]](val: var Stuint[bits], ba: openarray[byte], allowPadding: static[bool] = true) =
   ## Initializes a UInt[bits] value from a byte buffer storing a big-endian
