@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import private/[bitops2_priv, endians2_priv, datatypes]
+import private/[bitops2_priv, endians2_priv, datatypes, compiletime_helpers]
 
 import stew/endians2
 export endians2
@@ -30,8 +30,11 @@ func fromBytes*[bits: static int](
     T: typedesc[StUint[bits]],
     x: array[bits div 8, byte],
     endian: Endianness = system.cpuEndian): T {.inline, noinit.} =
-  # TODO compile-time version
-  copyMem(addr result, unsafeAddr x[0], bits div 8)
+
+  when nimvm:
+    copyFromArray(result.data, x)
+  else:
+    copyMem(addr result, unsafeAddr x[0], bits div 8)
 
   if endian != system.cpuEndian:
     result = swapBytes(result)
