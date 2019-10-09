@@ -8,7 +8,7 @@ func swapBytes*(x: UintImpl): UintImpl {.inline.} =
 
   UintImpl(hi: hi, lo: lo)
 
-func copyMem(x: UintImpl, ret: var openArray[byte]) {.compileTime.} =
+func copyMem*(x: UintImpl, ret: var openArray[byte]) {.compileTime.} =
   const size = bitsof(x) div 8
   type DT = type x.leastSignificantWord
   for i in 0 ..< size:

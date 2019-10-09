@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes, ./bitops2_priv, ./uint_bitwise_ops
+import  ./datatypes, ./bitops2_priv, ./uint_bitwise_ops, ./compiletime_helpers
 
 func `not`*(x: IntImpl): IntImpl {.inline.}=
   ## Bitwise complement of unsigned integer x
@@ -24,21 +24,6 @@ func `and`*(x, y: IntImpl): IntImpl {.inline.}=
 func `xor`*(x, y: IntImpl): IntImpl {.inline.}=
   ## `Bitwise xor` of numbers x and y
   applyHiLo(x, y, `xor`)
-
-func convertImpl[T: SomeInteger](x: SomeInteger): T {.compileTime.} =
-  cast[T](x)
-
-func convertImpl[T: IntImpl|UintImpl](x: IntImpl|UintImpl): T {.compileTime.} =
-  result.hi = convertImpl[type(result.hi)](x.hi)
-  result.lo = x.lo
-
-template convert[T](x: UintImpl|IntImpl|SomeInteger): T =
-  when nimvm:
-    # this is a workaround Nim VM inability to cast
-    # something non integer
-    convertImpl[T](x)
-  else:
-    cast[T](x)
 
 func `shl`*(x: IntImpl, y: SomeInteger): IntImpl {.inline.}=
   ## Compute the `shift left` operation of x and y
