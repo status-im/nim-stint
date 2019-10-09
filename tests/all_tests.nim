@@ -14,7 +14,8 @@ import  test_uint_bitops2,
         test_uint_addsub,
         test_uint_muldiv,
         test_uint_exp,
-        test_uint_modular_arithmetic
+        test_uint_modular_arithmetic,
+        test_uint_endians2
 
 import  test_int_endianness,
         test_int_comparison,
