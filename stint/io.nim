@@ -10,7 +10,7 @@
 import
   ./private/datatypes,
   ./private/int_negabs,
-  ./private/[int_bitwise_ops, uint_bitwise_ops],
+  ./private/compiletime_helpers,
   ./intops,
   typetraits, algorithm
 
@@ -285,13 +285,11 @@ proc dumpHex*(x: Stint or StUint, order: static[Endianness] = bigEndian): string
   result = newString(2*size)
 
   when nimvm:
-    type DT = type x.data.leastSignificantWord
     for i in 0 ..< size:
       when order == system.cpuEndian:
-        let pos = (i * 8)
+        let byte = x.data.getByte(i)
       else:
-        let pos = ((size - (i + 1)) * 8)
-      let byte = (x.data shr pos).leastSignificantWord and 0xFF.DT
+        let byte = x.data.getByte(size - 1 - i)
       result[2*i] = hexChars[int byte shr 4 and 0xF]
       result[2*i+1] = hexChars[int byte and 0xF]
   else:
