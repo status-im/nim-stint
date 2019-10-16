@@ -7,7 +7,10 @@ func convertImpl[T: IntImpl|UintImpl](x: IntImpl|UintImpl): T {.compileTime.} =
   result.hi = convertImpl[type(result.hi)](x.hi)
   result.lo = x.lo
 
-template convert*[T](x: UintImpl|IntImpl|SomeInteger): T =
+func convertImpl[T: Stuint|Stint](x: StUint|StInt): T {.compileTime.} =
+  result.data = convertImpl[type(result.data)](x.data)
+
+template convert*[T](x: Stuint|Stint|UintImpl|IntImpl|SomeInteger): T =
   when nimvm:
     # this is a workaround Nim VM inability to cast
     # something non integer
@@ -17,11 +20,17 @@ template convert*[T](x: UintImpl|IntImpl|SomeInteger): T =
 
 func getByte*(x: SomeInteger, pos: int): byte {.compileTime.} =
   type DT = type x
-  byte((x shr (pos * 8)) and 0xFF.DT)
+  when bitsof(DT) == 8:
+    cast[byte](x)
+  else:
+    byte((x shr (pos * 8)) and 0xFF.DT)
 
 func getByte*(x: UintImpl | IntImpl, pos: int): byte {.compileTime.} =
   type DT = type x.leastSignificantWord
-  byte((x shr (pos * 8)).leastSignificantWord and 0xFF.DT)
+  when bitsof(DT) == 8:
+    cast[byte](x.leastSignificantWord)
+  else:
+    byte((x shr (pos * 8)).leastSignificantWord and 0xFF.DT)
 
 proc setByte*(x: var SomeInteger, pos: int, b: byte) {.compileTime.} =
   type DT = type x
@@ -57,3 +66,31 @@ func copyFromArray*(x: var SomeInteger, data: openArray[byte]) {.compileTime.} =
   doAssert data.len >= size
   for i in 0 ..< size:
     x.setByte(i, data[i])
+
+template vmIntCast*[T](data: SomeInteger): T =
+  type DT = type data
+  const
+    bits = bitsof(T)
+    DTbits = bitsof(DT)
+
+  # we use esoteric type juggling here to trick the Nim VM
+  when bits == 64:
+    when DTbits == 64:
+      cast[T](data)
+    else:
+      cast[T](uint64(data and DT(0xFFFFFFFF_FFFFFFFF)))
+  elif bits == 32:
+    when DTbits == 32:
+      cast[T](data)
+    else:
+      cast[T](uint32(data and DT(0xFFFFFFFF)))
+  elif bits == 16:
+    when DTbits == 16:
+      cast[T](data)
+    else:
+      cast[T](uint16(data and DT(0xFFFF)))
+  else:
+    when DTBits == 8:
+      cast[T](data)
+    else:
+      cast[T](uint8(data and DT(0xFF)))
