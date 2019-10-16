@@ -173,8 +173,9 @@ template testIO(chk, tst: untyped) =
     nativeStuint(chk, high(int64), 64)
 
     when sizeof(uint) == 4:
-      nativeStuint(chk, high(uint), 32)
-      nativeStuint(chk, low(uint), 32)
+      when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
+        nativeStuint(chk, high(uint), 32)
+        nativeStuint(chk, low(uint), 32)
       nativeStuint(chk, high(int), 32)
     else:
       when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
@@ -254,7 +255,8 @@ template testIO(chk, tst: untyped) =
     when sizeof(uint) == 4:
       nativeStint(chk, high(int), 32)
       nativeStint(chk, low(int), 32)
-      nativeStint(chk, low(uint), 32)
+      when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
+        nativeStint(chk, low(uint), 32)
     else:
       nativeStint(chk, high(int), 64)
       nativeStint(chk, low(int), 64)
