@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ./datatypes, ./int_negabs, ./uint_div, ./int_comparison
+import ./datatypes, ./int_negabs, ./uint_div, ./int_comparison, ./compiletime_helpers
 
 # Here are the expected signs for division/modulo by opposite signs and both negative numbers
 #   in EVM
@@ -39,10 +39,17 @@ func divmod*(x, y: SomeSignedInt): tuple[quot, rem: SomeSignedInt] {.inline.}=
 proc divmod*[T, T2](x, y: IntImpl[T, T2]): tuple[quot, rem: IntImpl[T, T2]] =
   ## Divmod operation for multi-precision signed integer
 
-  result = cast[type result](divmod(
-    cast[UintImpl[T2]](x.abs),
-    cast[UintImpl[T2]](y.abs)
-    ))
+  when nimvm:
+    let res = divmod(
+      convert[UintImpl[T2]](x.abs),
+      convert[UintImpl[T2]](y.abs))
+    result.quot = convert[type result.quot](res.quot)
+    result.rem  = convert[type result.rem](res.rem)
+  else:
+    result = cast[type result](divmod(
+      cast[UintImpl[T2]](x.abs),
+      cast[UintImpl[T2]](y.abs)
+      ))
 
   if (x.isNegative xor y.isNegative):
     # If opposite signs

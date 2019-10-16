@@ -47,6 +47,9 @@ func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
     static_check_size(T, bits)
     when T is SomeSignedInt:
       if n < 0:
+        # TODO: when bits >= 128, cannot create from
+        # low(int8-64)
+        # see: status-im/nim-stint/issues/92
         assignLo(result.data, -n)
         result = -result
       else:
@@ -71,19 +74,8 @@ func truncate*(num: Stint or StUint, T: typedesc[SomeInteger]): T {.inline.}=
     doAssert bitsof(T) <= bitsof(num.data.leastSignificantWord)
 
   when nimvm:
-    const bits = bitsof(T)
     let data = num.data.leastSignificantWord
-    type DT = type data
-
-    # we use esoteric type juggling here to trick the Nim VM
-    when bits == 64:
-      cast[T](uint64(data and 0xFFFFFFFF_FFFFFFFF.DT))
-    elif bits == 32:
-      cast[T](uint32(data and 0xFFFFFFFF.DT))
-    elif bits == 16:
-      cast[T](uint16(data and 0xFFFF.DT))
-    else:
-      cast[T](uint8(data and 0xFF.DT))
+    vmIntCast[T](data)
   else:
     cast[T](num.data.leastSignificantWord)
 
@@ -187,9 +179,9 @@ func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], radix: s
 
   # TODO: we can't create the lowest int this way
   if isNeg:
-    result = -cast[Stint[bits]](no_overflow)
+    result = -convert[T](no_overflow)
   else:
-    result = cast[Stint[bits]](no_overflow)
+    result = convert[T](no_overflow)
 
 func fromHex*(T: type StUint, s: string): T {.inline.} =
   ## Convert an hex string to the corresponding unsigned integer
@@ -215,7 +207,10 @@ func toString*[bits: static[int]](num: StUint[bits], radix: static[uint8] = 10):
   var (q, r) = divmod(num, base)
 
   while true:
-    result.add hexChars[r.truncate(int)]
+    when bitsof(r.data) <= 64:
+      result.add hexChars[r.data.int]
+    else:
+      result.add hexChars[r.truncate(int)]
     if q.isZero:
       break
     (q, r) = divmod(q, base)
@@ -232,23 +227,27 @@ func toString*[bits: static[int]](num: Stint[bits], radix: static[int8] = 10): s
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
 
   const hexChars = "0123456789abcdef"
-  const base = radix.int8.stint(bits)
+  const base = radix.int8.stuint(bits)
 
   result = ""
 
+  type T = Stuint[bits]
   let isNeg = num.isNegative
-  let num = if radix == 10 and isNeg: -num
-            else: num
+  let num = convert[T](if radix == 10 and isNeg: -num
+            else: num)
 
   var (q, r) = divmod(num, base)
 
   while true:
-    result.add hexChars[r.truncate(int)]
+    when bitsof(r.data) <= 64:
+      result.add hexChars[r.data.int]
+    else:
+      result.add hexChars[r.truncate(int)]
     if q.isZero:
       break
     (q, r) = divmod(q, base)
 
-  if isNeg:
+  if isNeg and radix == 10:
     result.add '-'
 
   reverse(result)
@@ -318,24 +317,38 @@ proc initFromBytesBE*[bits: static[int]](val: var Stuint[bits], ba: openarray[by
     doAssert(ba.len == N)
   else:
     doAssert ba.len <= N
-
-  {.pragma: restrict, codegenDecl: "$# __restrict $#".}
-  let r_ptr {.restrict.} = cast[ptr array[N, byte]](val.addr)
-
-  when system.cpuEndian == bigEndian:
-    # TODO: due to https://github.com/status-im/nim-stint/issues/38
-    # We can't cast a stack byte array to stuint with a convenient proc signature.
-    when allowPadding:
+    when system.cpuEndian == bigEndian:
       let baseIdx = N - val.len
-      for i, b in ba: r_ptr[baseIdx + i] = b
     else:
-      for i, b in ba: r_ptr[i] = b
-  else:
-    when allowPadding:
       let baseIdx = ba.len - 1
-      for i, b in ba: r_ptr[baseIdx - i] = b
+
+  when nimvm:
+    when system.cpuEndian == bigEndian:
+      when allowPadding:
+        for i, b in ba: val.data.setByte(baseIdx + i, b)
+      else:
+        for i, b in ba: val.data.setByte(i, b)
     else:
-      for i, b in ba: r_ptr[N-1 - i] = b
+      when allowPadding:
+        for i, b in ba: val.data.setByte(baseIdx - i, b)
+      else:
+        for i, b in ba: val.data.setByte(N-1 - i, b)
+  else:
+    {.pragma: restrict, codegenDecl: "$# __restrict $#".}
+    let r_ptr {.restrict.} = cast[ptr array[N, byte]](val.addr)
+
+    when system.cpuEndian == bigEndian:
+      # TODO: due to https://github.com/status-im/nim-stint/issues/38
+      # We can't cast a stack byte array to stuint with a convenient proc signature.
+      when allowPadding:
+        for i, b in ba: r_ptr[baseIdx + i] = b
+      else:
+        for i, b in ba: r_ptr[i] = b
+    else:
+      when allowPadding:
+        for i, b in ba: r_ptr[baseIdx - i] = b
+      else:
+        for i, b in ba: r_ptr[N-1 - i] = b
 
 func significantBytesBE*(val: openarray[byte]): int {.deprecated.}=
   ## Returns the number of significant trailing bytes in a big endian
@@ -370,10 +383,17 @@ func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte]
 
   const N = bits div 8
 
-  when system.cpuEndian == bigEndian:
-    result = cast[type result](n)
-  else:
-    {.pragma: restrict, codegenDecl: "$# __restrict $#".}
-    let n_ptr {.restrict.} = cast[ptr array[N, byte]](n.unsafeAddr)
+  when nimvm:
     for i in 0 ..< N:
-      result[N-1 - i] = n_ptr[i]
+      when system.cpuEndian == bigEndian:
+        result[i] = n.data.getByte(i)
+      else:
+        result[i] = n.data.getByte(N - 1 - i)
+  else:
+    when system.cpuEndian == bigEndian:
+      result = cast[type result](n)
+    else:
+      {.pragma: restrict, codegenDecl: "$# __restrict $#".}
+      let n_ptr {.restrict.} = cast[ptr array[N, byte]](n.unsafeAddr)
+      for i in 0 ..< N:
+        result[N-1 - i] = n_ptr[i]
