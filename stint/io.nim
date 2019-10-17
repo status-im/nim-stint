@@ -264,7 +264,7 @@ func toHex*[bits: static[int]](num: Stint[bits] or StUint[bits]): string {.inlin
   ## Leading zeros are stripped. Use dumpHex instead if you need the in-memory representation
   toString(num, 16)
 
-proc dumpHex*(x: Stint or StUint, order: static[Endianness] = bigEndian): string =
+func dumpHex*(x: Stint or StUint, order: static[Endianness] = bigEndian): string =
   ## Stringify an int to hex.
   ## Note. Leading zeros are not removed. Use toString(n, base = 16)/toHex instead.
   ##
