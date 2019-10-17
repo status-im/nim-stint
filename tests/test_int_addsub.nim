@@ -288,7 +288,7 @@ template testAddSub(chk, tst: untyped) =
 static:
   testAddSub(doAssert, ctTest)
 
-suite "Wider signed int coverage":
+suite "Wider signed int addsub coverage":
   testAddSub(check, test)
 
 suite "Testing signed addition implementation":

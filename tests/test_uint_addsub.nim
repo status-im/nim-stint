@@ -205,7 +205,7 @@ template testAddSub(chk, tst: untyped) =
 static:
   testAddSub(doAssert, ctTest)
 
-suite "Wider unsigned int coverage":
+suite "Wider unsigned int addsub coverage":
   testAddSub(check, test)
 
 suite "Testing unsigned int addition implementation":
