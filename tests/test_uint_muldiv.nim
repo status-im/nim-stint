@@ -32,6 +32,10 @@ suite "Testing unsigned int multiplication implementation":
 
     check: cast[uint64](a*b*c) == 1_000_000_000_000_000_000_000'u64 # need 70-bits
 
+  test "Nim v1.0.2 32 bit type inference rule changed":
+    let x = 9975492817.stuint(256)
+    let y = 16.stuint(256)
+    check x * y == 159607885072.stuint(256)
 
 suite "Testing unsigned int division and modulo implementation":
   test "Divmod(100, 13) returns the correct result":
