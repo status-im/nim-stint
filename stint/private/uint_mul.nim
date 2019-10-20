@@ -19,7 +19,7 @@ import  macros,
 func lo(x: uint64): uint64 {.inline.} =
   const
     p: uint64 = 32
-    base: uint64 = 1 shl p
+    base: uint64 = 1'u64 shl p
     mask: uint64 = base - 1
   result = x and mask
 
