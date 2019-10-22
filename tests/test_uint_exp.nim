@@ -9,6 +9,65 @@
 
 import ../stint, unittest, math
 
+template chkPow(chk: untyped, a, b, c: string, bits: int) =
+  chk pow(fromHex(Stuint[bits], a), fromHex(Stuint[bits], b)) == fromHex(Stuint[bits], c)
+
+template chkPow(chk: untyped, a: string, b: SomeInteger, c: string, bits: int) =
+  chk pow(fromHex(Stuint[bits], a), b) == fromHex(Stuint[bits], c)
+
+template ctTest(name: string, body: untyped) =
+  body
+  echo "[OK] compile time ", name
+
+template testExp(chk, tst: untyped) =
+  tst "BigInt BigInt Pow":
+    chkPow(chk, "F", "2", "E1", 8)
+
+    chkPow(chk, "F", "2", "E1", 16)
+    chkPow(chk, "FF", "2", "FE01", 16)
+
+    chkPow(chk, "F", "2", "E1", 32)
+    chkPow(chk, "FF", "2", "FE01", 32)
+    chkPow(chk, "FF", "3", "FD02FF", 32)
+
+    chkPow(chk, "F", "2", "E1", 64)
+    chkPow(chk, "FF", "2", "FE01", 64)
+    chkPow(chk, "FF", "3", "FD02FF", 64)
+    chkPow(chk, "FFF", "3", "FFD002FFF", 64)
+
+    chkPow(chk, "F", "2", "E1", 128)
+    chkPow(chk, "FF", "2", "FE01", 128)
+    chkPow(chk, "FF", "3", "FD02FF", 128)
+    chkPow(chk, "FFF", "3", "FFD002FFF", 128)
+    chkPow(chk, "FFFFF", "3", "ffffd00002fffff", 128)
+
+  tst "BigInt Natural Pow":
+    chkPow(chk, "F", 2, "E1", 8)
+
+    chkPow(chk, "F", 2, "E1", 16)
+    chkPow(chk, "FF", 2, "FE01", 16)
+
+    chkPow(chk, "F", 2, "E1", 32)
+    chkPow(chk, "FF", 2, "FE01", 32)
+    chkPow(chk, "FF", 3, "FD02FF", 32)
+
+    chkPow(chk, "F", 2, "E1", 64)
+    chkPow(chk, "FF", 2, "FE01", 64)
+    chkPow(chk, "FF", 3, "FD02FF", 64)
+    chkPow(chk, "FFF", 3, "FFD002FFF", 64)
+
+    chkPow(chk, "F", 2, "E1", 128)
+    chkPow(chk, "FF", 2, "FE01", 128)
+    chkPow(chk, "FF", 3, "FD02FF", 128)
+    chkPow(chk, "FFF", 3, "FFD002FFF", 128)
+    chkPow(chk, "FFFFF", 3, "ffffd00002fffff", 128)
+
+static:
+  testExp(doAssert, ctTest)
+
+suite "Wider unsigned int exp coverage":
+  testExp(check, test)
+
 suite "Testing unsigned exponentiation":
   test "Simple exponentiation 5^3":
 
