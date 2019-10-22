@@ -9,6 +9,143 @@
 
 import ../stint, unittest, math
 
+template chkAddmod(chk: untyped, a, b, m, c: string, bits: int) =
+  chk addmod(fromHex(Stuint[bits], a), fromHex(Stuint[bits], b),  fromHex(Stuint[bits], m)) == fromHex(Stuint[bits], c)
+
+template chkSubmod(chk: untyped, a, b, m, c: string, bits: int) =
+  chk submod(fromHex(Stuint[bits], a), fromHex(Stuint[bits], b),  fromHex(Stuint[bits], m)) == fromHex(Stuint[bits], c)
+
+template chkMulmod(chk: untyped, a, b, m, c: string, bits: int) =
+  chk mulmod(fromHex(Stuint[bits], a), fromHex(Stuint[bits], b),  fromHex(Stuint[bits], m)) == fromHex(Stuint[bits], c)
+
+template chkPowmod(chk: untyped, a, b, m, c: string, bits: int) =
+  chk powmod(fromHex(Stuint[bits], a), fromHex(Stuint[bits], b),  fromHex(Stuint[bits], m)) == fromHex(Stuint[bits], c)
+
+template ctTest(name: string, body: untyped) =
+  body
+  echo "[OK] compile time ", name
+
+template testModArith(chk, tst: untyped) =
+  tst "addmod":
+    chkAddMod(chk, "F", "F", "7", "2", 8)
+    chkAddMod(chk, "AAAA", "AA", "F", "0", 16)
+    chkAddMod(chk, "BBBB", "AAAA", "9", "3", 16)
+
+    chkAddMod(chk, "F", "F", "7", "2", 32)
+    chkAddMod(chk, "AAAA", "AA", "F", "0", 32)
+    chkAddMod(chk, "BBBB", "AAAA", "9", "3", 32)
+    chkAddMod(chk, "BBBBBBBB", "AAAAAAAA", "9", "6", 32)
+
+    chkAddMod(chk, "F", "F", "7", "2", 64)
+    chkAddMod(chk, "AAAA", "AA", "F", "0", 64)
+    chkAddMod(chk, "BBBB", "AAAA", "9", "3", 64)
+    chkAddMod(chk, "BBBBBBBB", "AAAAAAAA", "9", "6", 64)
+    chkAddMod(chk, "BBBBBBBBBBBBBBBB", "AAAAAAAAAAAAAAAA", "9", "3", 64)
+
+    chkAddMod(chk, "F", "F", "7", "2", 128)
+    chkAddMod(chk, "AAAA", "AA", "F", "0", 128)
+    chkAddMod(chk, "BBBB", "AAAA", "9", "3", 128)
+    chkAddMod(chk, "BBBBBBBB", "AAAAAAAA", "9", "6", 128)
+    chkAddMod(chk, "BBBBBBBBBBBBBBBB", "AAAAAAAAAAAAAAAA", "9", "3", 128)
+    chkAddMod(chk, "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "9", "6", 128)
+
+
+  tst "submod":
+    chkSubMod(chk, "C", "3", "C", "9", 8)
+    chkSubMod(chk, "1", "3", "C", "A", 8)
+    chkSubMod(chk, "1", "FF", "C", "A", 8)
+
+    chkSubMod(chk, "C", "3", "C", "9", 16)
+    chkSubMod(chk, "1", "3", "C", "A", 16)
+    chkSubMod(chk, "1", "FFFF", "C", "A", 32)
+
+    chkSubMod(chk, "C", "3", "C", "9", 32)
+    chkSubMod(chk, "1", "3", "C", "A", 32)
+    chkSubMod(chk, "1", "FFFF", "C", "A", 32)
+    chkSubMod(chk, "1", "FFFFFFFF", "C", "A", 32)
+
+    chkSubMod(chk, "C", "3", "C", "9", 64)
+    chkSubMod(chk, "1", "3", "C", "A", 64)
+    chkSubMod(chk, "1", "FFFF", "C", "A", 64)
+    chkSubMod(chk, "1", "FFFFFFFF", "C", "A", 64)
+    chkSubMod(chk, "1", "FFFFFFFFFFFFFFFF", "C", "A", 64)
+
+    chkSubMod(chk, "C", "3", "C", "9", 128)
+    chkSubMod(chk, "1", "3", "C", "A", 128)
+    chkSubMod(chk, "1", "FFFF", "C", "A", 128)
+    chkSubMod(chk, "1", "FFFFFFFF", "C", "A", 128)
+    chkSubMod(chk, "1", "FFFFFFFFFFFFFFFF", "C", "A", 128)
+    chkSubMod(chk, "1", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "C", "A", 128)
+
+  tst "mulmod":
+    chkMulMod(chk, "C", "3", "C", "0", 8)
+    chkMulMod(chk, "1", "3", "C", "3", 8)
+    chkMulMod(chk, "1", "FF", "C", "3", 8)
+
+    chkMulMod(chk, "C", "3", "C", "0", 16)
+    chkMulMod(chk, "1", "3", "C", "3", 16)
+    chkMulMod(chk, "1", "FFFF", "C", "3", 16)
+
+    chkMulMod(chk, "C", "3", "C", "0", 32)
+    chkMulMod(chk, "1", "3", "C", "3", 32)
+    chkMulMod(chk, "1", "FFFF", "C", "3", 32)
+    chkMulMod(chk, "1", "FFFFFFFF", "C", "3", 32)
+
+    chkMulMod(chk, "C", "3", "C", "0", 64)
+    chkMulMod(chk, "1", "3", "C", "3", 64)
+    chkMulMod(chk, "1", "FFFF", "C", "3", 64)
+    chkMulMod(chk, "1", "FFFFFFFF", "C", "3", 64)
+    chkMulMod(chk, "1", "FFFFFFFFFFFFFFFF", "C", "3", 64)
+
+    chkMulMod(chk, "C", "3", "C", "0", 128)
+    chkMulMod(chk, "1", "3", "C", "3", 128)
+    chkMulMod(chk, "1", "FFFF", "C", "3", 128)
+    chkMulMod(chk, "1", "FFFFFFFF", "C", "3", 128)
+    chkMulMod(chk, "1", "FFFFFFFFFFFFFFFF", "C", "3", 128)
+    chkMulMod(chk, "1", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "C", "3", 128)
+
+  tst "powmod":
+    chkPowMod(chk, "C", "3", "C", "0", 8)
+    chkPowMod(chk, "1", "3", "C", "1", 8)
+    chkPowMod(chk, "1", "FF", "C", "1", 8)
+    chkPowMod(chk, "FF", "3", "C", "3", 8)
+
+    chkPowMod(chk, "C", "3", "C", "0", 16)
+    chkPowMod(chk, "1", "3", "C", "1", 16)
+    chkPowMod(chk, "1", "FF", "C", "1", 16)
+    chkPowMod(chk, "FF", "3", "C", "3", 16)
+    chkPowMod(chk, "FFFF", "3", "C", "3", 16)
+
+    chkPowMod(chk, "C", "3", "C", "0", 32)
+    chkPowMod(chk, "1", "3", "C", "1", 32)
+    chkPowMod(chk, "1", "FF", "C", "1", 32)
+    chkPowMod(chk, "FF", "3", "C", "3", 32)
+    chkPowMod(chk, "FFFF", "3", "C", "3", 32)
+    chkPowMod(chk, "FFFFFFFF", "3", "C", "3", 32)
+
+    chkPowMod(chk, "C", "3", "C", "0", 64)
+    chkPowMod(chk, "1", "3", "C", "1", 64)
+    chkPowMod(chk, "1", "FF", "C", "1", 64)
+    chkPowMod(chk, "FF", "3", "C", "3", 64)
+    chkPowMod(chk, "FFFF", "3", "C", "3", 64)
+    chkPowMod(chk, "FFFFFFFF", "3", "C", "3", 64)
+    chkPowMod(chk, "FFFFFFFFFFFFFFFF", "3", "C", "3", 64)
+
+    chkPowMod(chk, "C", "3", "C", "0", 128)
+    chkPowMod(chk, "1", "3", "C", "1", 128)
+    chkPowMod(chk, "1", "FF", "C", "1", 128)
+    chkPowMod(chk, "FF", "3", "C", "3", 128)
+    chkPowMod(chk, "FFFF", "3", "C", "3", 128)
+    chkPowMod(chk, "FFFFFFFF", "3", "C", "3", 128)
+    chkPowMod(chk, "FFFFFFFFFFFFFFFF", "3", "C", "3", 128)
+    chkPowMod(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "3", "C", "3", 128)
+
+static:
+  testModArith(doAssert, ctTest)
+
+suite "Wider unsigned Modular arithmetic coverage":
+  testModArith(check, test)
+
 suite "Modular arithmetic":
   test "Modular addition":
 
