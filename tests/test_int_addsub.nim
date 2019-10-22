@@ -202,13 +202,13 @@ template testAddSub(chk, tst: untyped) =
 
   tst "negation":
     chkNegation(chk, 0, 0, 8)
-    # chkNegation(chk, 128, -128, 8) # TODO: bug #93
+    # chkNegation(chk, 128, -128, 8) # TODO: bug #92
     chkNegation(chk, 127, -127, 8)
 
     chkNegation(chk, 0, 0, 16)
     chkNegation(chk, 128, -128, 16)
     chkNegation(chk, 127, -127, 16)
-    #chkNegation(chk, 32768, -32768, 16) # TODO: bug #93
+    #chkNegation(chk, 32768, -32768, 16) # TODO: bug #92
     chkNegation(chk, 32767, -32767, 16)
 
     chkNegation(chk, 0, 0, 32)
@@ -216,7 +216,7 @@ template testAddSub(chk, tst: untyped) =
     chkNegation(chk, 127, -127, 32)
     chkNegation(chk, 32768, -32768, 32)
     chkNegation(chk, 32767, -32767, 32)
-    #chkNegation(chk, high(int32)+1, low(int32), 32) # TODO: bug #93
+    #chkNegation(chk, high(int32)+1, low(int32), 32) # TODO: bug #92
 
     chkNegation(chk, 0, 0, 64)
     chkNegation(chk, 128, -128, 64)
@@ -225,7 +225,7 @@ template testAddSub(chk, tst: untyped) =
     chkNegation(chk, 32767, -32767, 64)
     chkNegation(chk, 2147483648, -2147483648, 64)
     chkNegation(chk, 2147483647, -2147483647, 64)
-    #chkNegation(chk, 9223372036854775808, -9223372036854775808, 64) # TODO: bug #93
+    #chkNegation(chk, 9223372036854775808, -9223372036854775808, 64) # TODO: bug #92
 
     chkNegation(chk, 0, 0, 128)
     chkNegation(chk, 128, -128, 128)
@@ -234,7 +234,7 @@ template testAddSub(chk, tst: untyped) =
     chkNegation(chk, 32767, -32767, 128)
     chkNegation(chk, 2147483648, -2147483648, 128)
     chkNegation(chk, 2147483647, -2147483647, 128)
-    #chkNegation(chk, 9223372036854775808, -9223372036854775808, 128) # TODO: bug #93
+    #chkNegation(chk, 9223372036854775808, -9223372036854775808, 128) # TODO: bug #92
 
   tst "absolute integer":
     chkAbs(chk, 0, 0, 8)
@@ -245,7 +245,7 @@ template testAddSub(chk, tst: untyped) =
 
     chkAbs(chk, 0, 0, 16)
     chkAbs(chk, -127, 127, 16)
-    chkNegation(chk, -32767, 32767, 16)
+    chkAbs(chk, -32767, 32767, 16)
     chkAbs(chk, -1, 1, 16)
     chkAbs(chk, 1, 1, 16)
     chkAbs(chk, 127, 127, 16)
