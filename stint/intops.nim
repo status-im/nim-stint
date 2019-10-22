@@ -94,7 +94,7 @@ func isZero*(x: SomeBigInteger): bool {.inline.} =
   ## false otherwise
   x.data.isZero
 
-func isNegative*(x: SomeBigInteger): bool {.inline.} =
+func isNegative*(x: Stint): bool {.inline.} =
   ## Returns true if input is negative (< 0)
   ## false otherwise
   x.data.isNegative
