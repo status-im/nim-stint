@@ -183,7 +183,7 @@ func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], radix: s
   else:
     result = convert[T](no_overflow)
 
-func fromHex*(T: type StUint, s: string): T {.inline.} =
+func fromHex*(T: typedesc[StUint|Stint], s: string): T {.inline.} =
   ## Convert an hex string to the corresponding unsigned integer
   parse(s, type result, radix = 16)
 
