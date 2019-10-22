@@ -7,11 +7,11 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ./datatypes, ./uint_mul
+import ./datatypes, ./uint_mul, ./compiletime_helpers
 
 func `*`*[T, T2](x, y: IntImpl[T, T2]): IntImpl[T, T2] {.inline.}=
   ## Multiplication for multi-precision signed integers
   # For 2-complement representation this is the exact same
   # as unsigned multiplication. We don't need to deal with the sign
   # TODO: overflow detection.
-  cast[type result](cast[UIntImpl[T2]](x) * cast[UIntImpl[T2]](y))
+  convert[type result](convert[UIntImpl[T2]](x) * convert[UIntImpl[T2]](y))
