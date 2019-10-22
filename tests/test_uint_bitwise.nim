@@ -87,7 +87,8 @@ template testBitwise(chk, tst: untyped) =
     chkNot(chk, high(uint8), not uint64(high(uint8)), 64)
     chkNot(chk, high(uint16), not uint64(high(uint16)), 64)
     chkNot(chk, high(uint32), not uint64(high(uint32)), 64)
-    chkNot(chk, high(uint64), not high(uint64), 64)
+    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
+      chkNot(chk, high(uint64), not high(uint64), 64)
 
     chkNot(chk, "0", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", 128)
     chkNot(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "0", 128)
