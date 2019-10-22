@@ -127,7 +127,16 @@ func `xor`*(x, y: SomeBigInteger): SomeBigInteger {.inline.}=
   result.data = x.data xor y.data
 
 func `shr`*(x: SomeBigInteger, y: SomeInteger): SomeBigInteger {.inline.} =
-  result.data = x.data shr y
+  when x.data is SomeSignedInt:
+    when (NimMajor, NimMinor, NimPatch) >= (0, 20, 0):
+      result.data = x.data shr y
+    elif (NimMajor, NimMinor, NimPatch) < (0, 20, 0) and defined(nimAshr):
+      result.data = ashr(x.data, y)
+    else:
+      {.error: "arithmetic right shift is not defined for this Nim version".}
+  else:
+    result.data = x.data shr y
+
 func `shl`*(x: SomeBigInteger, y: SomeInteger): SomeBigInteger {.inline.} =
   result.data = x.data shl y
 
