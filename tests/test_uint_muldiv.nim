@@ -9,6 +9,32 @@
 
 import ../stint, unittest
 
+template chkMul(chk: untyped, a, b, c: string, bits: int) =
+  chk (fromHex(Stuint[bits], a) * fromHex(Stuint[bits], b)) == fromHex(Stuint[bits], c)
+
+template chkDiv(chk: untyped, a, b, c: string, bits: int) =
+  chk (fromHex(Stuint[bits], a) div fromHex(Stuint[bits], b)) == fromHex(Stuint[bits], c)
+  
+template chkMod(chk: untyped, a, b, c: string, bits: int) =
+  chk (fromHex(Stuint[bits], a) mod fromHex(Stuint[bits], b)) == fromHex(Stuint[bits], c)
+
+template chkDivMod(chk: untyped, a, b, c, d: string, bits: int) =
+  chk (fromHex(Stuint[bits], a) divmod fromHex(Stuint[bits], b)) == (fromHex(Stuint[bits], c), fromHex(Stuint[bits], d))
+  
+template testMuldiv(chk, tst: untyped) =
+  tst "operator `mul`":
+    chkMul(chk, "0", "3", "0", 8)
+    
+  #tst "operator `div`":
+  #tst "operator `mod`":
+  #tst "operator `divmod`":
+  
+static:
+  testMuldiv(doAssert, ctTest)
+
+suite "Wider unsigned int muldiv coverage":
+  testMuldiv(check, test)
+  
 suite "Testing unsigned int multiplication implementation":
   test "Multiplication with result fitting in low half":
 

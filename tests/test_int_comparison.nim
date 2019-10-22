@@ -13,31 +13,31 @@ template chkLT(chk: untyped, a, b: string, bits: int) =
   chk fromHex(Stint[bits], a) < fromHex(Stint[bits], b)
 
 template chknotLT(chk: untyped, a, b: string, bits: int) =
-  chk not(fromHex(Stint[bits], b) < fromHex(Stint[bits], a))
+  chk (not(fromHex(Stint[bits], b) < fromHex(Stint[bits], a)))
 
 template chkLTE(chk: untyped, a, b: string, bits: int) =
   chk fromHex(Stint[bits], a) <= fromHex(Stint[bits], b)
 
 template chknotLTE(chk: untyped, a, b: string, bits: int) =
-  chk not(fromHex(Stint[bits], b) <= fromHex(Stint[bits], a))
+  chk (not(fromHex(Stint[bits], b) <= fromHex(Stint[bits], a)))
 
 template chkEQ(chk: untyped, a, b: string, bits: int) =
   chk fromHex(Stint[bits], a) == fromHex(Stint[bits], b)
 
 template chknotEQ(chk: untyped, a, b: string, bits: int) =
-  chk not(fromHex(Stint[bits], a) == fromHex(Stint[bits], b))
+  chk (not(fromHex(Stint[bits], a) == fromHex(Stint[bits], b)))
 
 template chkisZero(chk: untyped, a: string, bits: int) =
   chk fromHex(Stint[bits], a).isZero()
 
 template chknotisZero(chk: untyped, a: string, bits: int) =
-  chk not fromHex(Stint[bits], a).isZero()
+  chk (not fromHex(Stint[bits], a).isZero())
 
 template chkisNegative(chk: untyped, a: string, bits: int) =
   chk fromHex(Stint[bits], a).isNegative()
 
 template chknotisNegative(chk: untyped, a: string, bits: int) =
-  chk not fromHex(Stint[bits], a).isNegative()
+  chk (not fromHex(Stint[bits], a).isNegative())
 
 template chkisOdd(chk: untyped, a: string, bits: int) =
   chk fromHex(Stint[bits], a).isOdd()
@@ -49,7 +49,7 @@ template chkisEven(chk: untyped, a: string, bits: int) =
   chk fromHex(Stint[bits], a).isEven()
 
 template chknotisEven(chk: untyped, a: string, bits: int) =
-  chk not fromHex(Stint[bits], a).isEven()
+  chk (not fromHex(Stint[bits], a).isEven())
 
 template ctTest(name: string, body: untyped) =
   body
