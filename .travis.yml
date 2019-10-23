@@ -1,7 +1,5 @@
 language: c
 
-#dist: bionic
-
 # https://docs.travis-ci.com/user/caching/
 cache:
   directories:
@@ -24,7 +22,6 @@ install:
   - export PATH=$PWD/Nim/bin:$PATH
 
 script:
-  - ls -l ~/.cache/nim
   - nimble install -y
   - nimble test
 
