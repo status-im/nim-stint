@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes, ./bitops2_priv, ./uint_bitwise_ops, ./compiletime_helpers
+import  ./datatypes, ./bitops2_priv, ./uint_bitwise_ops, ./compiletime_cast
 
 func `not`*(x: IntImpl): IntImpl {.inline.}=
   ## Bitwise complement of unsigned integer x

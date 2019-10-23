@@ -97,10 +97,17 @@ template chkCTvsRT(chk: untyped, num: untyped, bits: int) =
     const yy = toByteArrayBE(xx)
     chk y == yy
 
-template chkDumpHex(chk: untyped, BE, LE: string, bits: int) =
+template chkDumpHexStuint(chk: untyped, BE, LE: string, bits: int) =
   block:
     let data = BE
     let x = fromHex(Stuint[bits], data)
+    chk dumpHex(x, bigEndian) == data
+    chk dumpHex(x, littleEndian) == LE
+
+template chkDumpHexStint(chk: untyped, BE, LE: string, bits: int) =
+  block:
+    let data = BE
+    let x = fromHex(Stint[bits], data)
     chk dumpHex(x, bigEndian) == data
     chk dumpHex(x, littleEndian) == LE
 
@@ -1002,19 +1009,33 @@ template testIO(chk, tst: untyped) =
     chkRoundtripBE(chk, "xyzwabcd12345678", 128)
     chkRoundtripBE(chk, "xyzwabcd12345678kilimanjarohello", 256)
 
-  tst "dumpHex":
-    chkDumpHex(chk, "ab", "ab", 8)
+  tst "[stuint] dumpHex":
+    chkDumpHexStuint(chk, "ab", "ab", 8)
 
-    chkDumpHex(chk, "00ab", "ab00", 16)
-    chkDumpHex(chk, "abcd", "cdab", 16)
+    chkDumpHexStuint(chk, "00ab", "ab00", 16)
+    chkDumpHexStuint(chk, "abcd", "cdab", 16)
 
-    chkDumpHex(chk, "000000ab", "ab000000", 32)
-    chkDumpHex(chk, "3412abcd", "cdab1234", 32)
+    chkDumpHexStuint(chk, "000000ab", "ab000000", 32)
+    chkDumpHexStuint(chk, "3412abcd", "cdab1234", 32)
 
-    chkDumpHex(chk, "00000000000000ab", "ab00000000000000", 64)
-    chkDumpHex(chk, "abcdef0012345678", "7856341200efcdab", 64)
+    chkDumpHexStuint(chk, "00000000000000ab", "ab00000000000000", 64)
+    chkDumpHexStuint(chk, "abcdef0012345678", "7856341200efcdab", 64)
 
-    chkDumpHex(chk, "abcdef0012345678abcdef1122334455", "5544332211efcdab7856341200efcdab", 128)
+    chkDumpHexStuint(chk, "abcdef0012345678abcdef1122334455", "5544332211efcdab7856341200efcdab", 128)
+
+  tst "[stint] dumpHex":
+    chkDumpHexStint(chk, "ab", "ab", 8)
+
+    chkDumpHexStint(chk, "00ab", "ab00", 16)
+    chkDumpHexStint(chk, "abcd", "cdab", 16)
+
+    chkDumpHexStint(chk, "000000ab", "ab000000", 32)
+    chkDumpHexStint(chk, "3412abcd", "cdab1234", 32)
+
+    chkDumpHexStint(chk, "00000000000000ab", "ab00000000000000", 64)
+    chkDumpHexStint(chk, "abcdef0012345678", "7856341200efcdab", 64)
+
+    chkDumpHexStint(chk, "abcdef0012345678abcdef1122334455", "5544332211efcdab7856341200efcdab", 128)
 
 static:
   testIO(ctCheck, ctTest)
