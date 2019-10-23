@@ -7,17 +7,13 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, math
+import ../stint, unittest, math, test_helpers
 
 template chkPow(chk: untyped, a, b, c: string, bits: int) =
   chk pow(fromHex(Stuint[bits], a), fromHex(Stuint[bits], b)) == fromHex(Stuint[bits], c)
 
 template chkPow(chk: untyped, a: string, b: SomeInteger, c: string, bits: int) =
   chk pow(fromHex(Stuint[bits], a), b) == fromHex(Stuint[bits], c)
-
-template ctTest(name: string, body: untyped) =
-  body
-  echo "[OK] compile time ", name
 
 template testExp(chk, tst: untyped) =
   tst "BigInt BigInt Pow":
@@ -63,7 +59,7 @@ template testExp(chk, tst: untyped) =
     chkPow(chk, "FFFFF", 3, "ffffd00002fffff", 128)
 
 static:
-  testExp(doAssert, ctTest)
+  testExp(ctCheck, ctTest)
 
 suite "Wider unsigned int exp coverage":
   testExp(check, test)

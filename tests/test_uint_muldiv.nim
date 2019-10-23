@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest
+import ../stint, unittest, test_helpers
 
 template chkMul(chk: untyped, a, b, c: string, bits: int) =
   chk (fromHex(Stuint[bits], a) * fromHex(Stuint[bits], b)) == fromHex(Stuint[bits], c)
@@ -20,10 +20,6 @@ template chkMod(chk: untyped, a, b, c: string, bits: int) =
 
 template chkDivMod(chk: untyped, a, b, c, d: string, bits: int) =
   chk divmod(fromHex(Stuint[bits], a), fromHex(Stuint[bits], b)) == (fromHex(Stuint[bits], c), fromHex(Stuint[bits], d))
-
-template ctTest(name: string, body: untyped) =
-  body
-  echo "[OK] compile time ", name
 
 template testMuldiv(chk, tst: untyped) =
   tst "operator `mul`":
@@ -216,7 +212,7 @@ template testMuldiv(chk, tst: untyped) =
     chkDivMod(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "27", "6906906906906906906906906906906", "15", 128)
 
 static:
-  testMuldiv(doAssert, ctTest)
+  testMuldiv(ctCheck, ctTest)
 
 suite "Wider unsigned int muldiv coverage":
   testMuldiv(check, test)

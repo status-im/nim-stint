@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest
+import ../stint, unittest, test_helpers
 
 template chkAddition(chk, a, b, c, bits: untyped) =
   block:
@@ -38,10 +38,6 @@ template chkNegation(chk, a, b, bits: untyped) =
 
 template chkAbs(chk, a, b, bits: untyped) =
   chk stint(a, bits).abs() == stint(b, bits)
-
-template ctTest(name: string, body: untyped) =
-  body
-  echo "[OK] compile time ", name
 
 template testAddSub(chk, tst: untyped) =
   tst "addition":
@@ -286,7 +282,7 @@ template testAddSub(chk, tst: untyped) =
     chkAbs(chk, 9223372036854775807, 9223372036854775807, 128)
 
 static:
-  testAddSub(doAssert, ctTest)
+  testAddSub(ctCheck, ctTest)
 
 suite "Wider signed int addsub coverage":
   testAddSub(check, test)

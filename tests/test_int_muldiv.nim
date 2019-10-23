@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest
+import ../stint, unittest, test_helpers
 
 template chkMul(chk: untyped, a, b, c: string, bits: int) =
   chk (fromHex(Stint[bits], a) * fromHex(Stint[bits], b)) == fromHex(Stint[bits], c)
@@ -20,10 +20,6 @@ template chkMod(chk: untyped, a, b, c: string, bits: int) =
 
 template chkDivMod(chk: untyped, a, b, c, d: string, bits: int) =
   chk divmod(fromHex(Stint[bits], a), fromHex(Stint[bits], b)) == (fromHex(Stint[bits], c), fromHex(Stint[bits], d))
-
-template ctTest(name: string, body: untyped) =
-  body
-  echo "[OK] compile time ", name
 
 template testMuldiv(chk, tst: untyped) =
   tst "operator `mul`":
@@ -209,11 +205,11 @@ template testMuldiv(chk, tst: untyped) =
     chkDivMod(chk, "0F", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD", "3", 128)
 
 static:
-  testMuldiv(doAssert, ctTest)
+  testMuldiv(ctCheck, ctTest)
 
 suite "Wider signed int muldiv coverage":
   testMuldiv(check, test)
-#[
+
 suite "Testing signed int multiplication implementation":
   test "Multiplication with result fitting in low half":
 
@@ -324,4 +320,3 @@ suite "Testing signed int division and modulo implementation":
 
     check: q == 123456789123456789'i64
     check: r == 0'i64
-]#

@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest
+import ../stint, unittest, test_helpers
 
 template chkLT(chk: untyped, a, b: string, bits: int) =
   chk fromHex(Stint[bits], a) < fromHex(Stint[bits], b)
@@ -50,10 +50,6 @@ template chkisEven(chk: untyped, a: string, bits: int) =
 
 template chknotisEven(chk: untyped, a: string, bits: int) =
   chk (not fromHex(Stint[bits], a).isEven())
-
-template ctTest(name: string, body: untyped) =
-  body
-  echo "[OK] compile time ", name
 
 template testComparison(chk, tst: untyped) =
   tst "operator `LT`":
@@ -377,7 +373,7 @@ template testComparison(chk, tst: untyped) =
     chkIsOdd(chk, "FFFFFFFFFFFFFFFFFF", 256)
 
 static:
-  testComparison(doAssert, ctTest)
+  testComparison(ctCheck, ctTest)
 
 suite "Wider signed int comparison coverage":
   testComparison(check, test)

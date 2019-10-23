@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, strutils, math
+import ../stint, unittest, strutils, math, test_helpers
 
 template nativeStuint(chk, nint: untyped, bits: int) =
   chk $(nint.stuint(bits)) == $(nint)
@@ -103,10 +103,6 @@ template chkDumpHex(chk: untyped, BE, LE: string, bits: int) =
     let x = fromHex(Stuint[bits], data)
     chk dumpHex(x, bigEndian) == data
     chk dumpHex(x, littleEndian) == LE
-
-template ctTest(name: string, body: untyped) =
-  body
-  echo "[OK] compile time ", name
 
 template testIO(chk, tst: untyped) =
   tst "[stuint] Creation from native ints":
@@ -559,6 +555,67 @@ template testIO(chk, tst: untyped) =
     chkTruncateStint(chk, high(int64), int64, 64)
     chkTruncateStint(chk, low(int64), uint64, "0x8000000000000000", 64)
 
+    chkTruncateStint(chk, low(uint8), uint8, 128)
+    #chkTruncateStint(chk, low(int8), int8, 128) # TODO: bug #92
+    chkTruncateStint(chk, high(int8), uint8, 128)
+    chkTruncateStint(chk, high(int8), int8, 128)
+    #chkTruncateStint(chk, low(int8), uint8, "0x80", 128) # TODO: bug #92
+
+    chkTruncateStint(chk, low(uint8), uint16, 128)
+    #chkTruncateStint(chk, low(int8), int16, 128) # TODO: bug #92
+    chkTruncateStint(chk, high(int8), uint16, 128)
+    chkTruncateStint(chk, high(int8), int16, 128)
+    #chkTruncateStint(chk, low(int8), uint16, "0xFF80", 128) # TODO: bug #92
+
+    chkTruncateStint(chk, low(uint16), uint16, 128)
+    #chkTruncateStint(chk, low(int16), int16, 128) # TODO: bug #92
+    chkTruncateStint(chk, high(int16), uint16, 128)
+    chkTruncateStint(chk, high(int16), int16, 128)
+    #chkTruncateStint(chk, low(int16), uint16, "0x8000", 128) # TODO: bug #92
+
+    chkTruncateStint(chk, low(uint8), uint32, 128)
+    #chkTruncateStint(chk, low(int8), int32, 128) # TODO: bug #92
+    chkTruncateStint(chk, high(int8), uint32, 128)
+    chkTruncateStint(chk, high(int8), int32, 128)
+    #chkTruncateStint(chk, low(int8), uint32, "0xFFFFFF80", 128) # TODO: bug #92
+
+    chkTruncateStint(chk, low(uint16), uint32, 128)
+    #chkTruncateStint(chk, low(int16), int32, 128) # TODO: bug #92
+    chkTruncateStint(chk, high(int16), uint32, 128)
+    chkTruncateStint(chk, high(int16), int32, 128)
+    #chkTruncateStint(chk, low(int16), uint32, "0xFFFF8000", 128) # TODO: bug #92
+
+    chkTruncateStint(chk, low(uint32), uint32, 128)
+    #chkTruncateStint(chk, low(int32), int32, 128) # TODO: bug #92
+    chkTruncateStint(chk, high(int32), uint32, 128)
+    chkTruncateStint(chk, high(int32), int32, 128)
+    #chkTruncateStint(chk, low(int32), uint32, "0x80000000", 128) # TODO: bug #92
+
+    chkTruncateStint(chk, low(uint8), uint64, 128)
+    #chkTruncateStint(chk, low(int8), int64, 128) # TODO: bug #92
+    chkTruncateStint(chk, high(int8), uint64, 128)
+    chkTruncateStint(chk, high(int8), int64, 128)
+    #chkTruncateStint(chk, low(int8), uint64, "0xFFFFFFFFFFFFFF80", 128) # TODO: bug #92
+
+    chkTruncateStint(chk, low(uint16), uint64, 128)
+    #chkTruncateStint(chk, low(int16), int64, 128) # TODO: bug #92
+    chkTruncateStint(chk, high(int16), uint64, 128)
+    chkTruncateStint(chk, high(int16), int64, 128)
+    #chkTruncateStint(chk, low(int16), uint64, "0xFFFFFFFFFFFF8000", 128) # TODO: bug #92
+
+    chkTruncateStint(chk, low(uint32), uint64, 128)
+    #chkTruncateStint(chk, low(int32), int64, 128) # TODO: bug #92
+    chkTruncateStint(chk, high(int32), uint64, 128)
+    chkTruncateStint(chk, high(int32), int64, 128)
+    #chkTruncateStint(chk, low(int32), uint64, "0xFFFFFFFF80000000", 128) # TODO: bug #92
+
+    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
+      chkTruncateStint(chk, low(uint64), uint64, 128)
+    #chkTruncateStint(chk, low(int64), int64, 128) # TODO: bug #92
+    chkTruncateStint(chk, high(int64), uint64, 128)
+    chkTruncateStint(chk, high(int64), int64, 128)
+    #chkTruncateStint(chk, low(int64), uint64, "0x8000000000000000", 128) # TODO: bug #92
+
   tst "[stuint] parse - toString roundtrip":
     chkRoundTripBin(chk, chkRoundTripStuint, 8, 1)
 
@@ -960,7 +1017,7 @@ template testIO(chk, tst: untyped) =
     chkDumpHex(chk, "abcdef0012345678abcdef1122334455", "5544332211efcdab7856341200efcdab", 128)
 
 static:
-  testIO(doAssert, ctTest)
+  testIO(ctCheck, ctTest)
 
 proc main() =
   # Nim GC protests we are using too much global variables
