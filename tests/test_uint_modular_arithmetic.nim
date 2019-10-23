@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, math
+import ../stint, unittest, math, test_helpers
 
 template chkAddmod(chk: untyped, a, b, m, c: string, bits: int) =
   chk addmod(fromHex(Stuint[bits], a), fromHex(Stuint[bits], b),  fromHex(Stuint[bits], m)) == fromHex(Stuint[bits], c)
@@ -20,10 +20,6 @@ template chkMulmod(chk: untyped, a, b, m, c: string, bits: int) =
 
 template chkPowmod(chk: untyped, a, b, m, c: string, bits: int) =
   chk powmod(fromHex(Stuint[bits], a), fromHex(Stuint[bits], b),  fromHex(Stuint[bits], m)) == fromHex(Stuint[bits], c)
-
-template ctTest(name: string, body: untyped) =
-  body
-  echo "[OK] compile time ", name
 
 template testModArith(chk, tst: untyped) =
   tst "addmod":
@@ -141,7 +137,7 @@ template testModArith(chk, tst: untyped) =
     chkPowMod(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "3", "C", "3", 128)
 
 static:
-  testModArith(doAssert, ctTest)
+  testModArith(ctCheck, ctTest)
 
 suite "Wider unsigned Modular arithmetic coverage":
   testModArith(check, test)

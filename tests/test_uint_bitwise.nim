@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest
+import ../stint, unittest, test_helpers
 
 template chkNot(chk: untyped, a, b: distinct SomeInteger, bits: int) =
   chk stuint(a, bits).not() == stuint(b, bits)
@@ -29,10 +29,6 @@ template chkShl(chk: untyped, a: string, b: SomeInteger, c: string, bits: int) =
 
 template chkShr(chk: untyped, a: string, b: SomeInteger, c: string, bits: int) =
   chk (fromHex(Stuint[bits], a) shr b) == fromHex(Stuint[bits], c)
-
-template ctTest(name: string, body: untyped) =
-  body
-  echo "[OK] compile time ", name
 
 template testBitwise(chk, tst: untyped) =
 
@@ -311,7 +307,7 @@ template testBitwise(chk, tst: untyped) =
     chkShr(chk, "F000000000000000000000000000000000000000000000000000000000000000", 233, "780000", 256)
 
 static:
-  testBitwise(doAssert, ctTest)
+  testBitwise(ctCheck, ctTest)
 
 suite "Wider unsigned int bitwise coverage":
   testBitwise(check, test)

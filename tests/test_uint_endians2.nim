@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, stew/byteutils
+import ../stint, unittest, stew/byteutils, test_helpers
 
 template chkSwapBytes(chk: untyped, bits: int, hex: string) =
   # dumpHex already do the job to swap the output if
@@ -73,12 +73,8 @@ template testEndians(chkFunc, tst: untyped) =
   chkEndians(chkFunc, tst, chkFromToLE)
   chkEndians(chkFunc, tst, chkFromToBE)
 
-template ctTest(name: string, body: untyped) =
-  body
-  echo "[OK] compile time ", name
-
 static:
-  testEndians(doAssert, ctTest)
+  testEndians(ctCheck, ctTest)
 
 suite "Testing endians":
   test "Endians give sane results":

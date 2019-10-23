@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest
+import ../stint, unittest, test_helpers
 
 template chkCountOnes(chk: untyped, bits: int) =
   block:
@@ -61,10 +61,6 @@ template chkTrailingZeros(chk: untyped, bits: int) =
     for i in 1 .. bits:
       x = x shl 1
       chk x.trailingZeros == i
-
-template ctTest(name: string, body: untyped) =
-  body
-  echo "[OK] compile time ", name
 
 template testBitOps(chk, tst: untyped) =
   tst "countOnes":
@@ -218,7 +214,7 @@ template testBitOps(chk, tst: untyped) =
     chkTrailingZeros(chk, 256)
 
 static:
-  testBitOps(doAssert, ctTest)
+  testBitOps(ctCheck, ctTest)
 
 suite "Testing bitops2":
   testBitOps(check, test)
