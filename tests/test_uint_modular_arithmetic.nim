@@ -100,41 +100,46 @@ template testModArith(chk, tst: untyped) =
     chkMulMod(chk, "1", "FFFFFFFFFFFFFFFF", "C", "3", 128)
     chkMulMod(chk, "1", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "C", "3", 128)
 
-  tst "powmod":
-    chkPowMod(chk, "C", "3", "C", "0", 8)
-    chkPowMod(chk, "1", "3", "C", "1", 8)
-    chkPowMod(chk, "1", "FF", "C", "1", 8)
-    chkPowMod(chk, "FF", "3", "C", "3", 8)
+  # TODO: bug #98
+  when nimvm:
+    # this ugly branch needed due to nim-lang/Nim#12518
+    discard
+  else:
+    tst "powmod":
+      chkPowMod(chk, "C", "3", "C", "0", 8)
+      chkPowMod(chk, "1", "3", "C", "1", 8)
+      chkPowMod(chk, "1", "FF", "C", "1", 8)
+      chkPowMod(chk, "FF", "3", "C", "3", 8)
 
-    chkPowMod(chk, "C", "3", "C", "0", 16)
-    chkPowMod(chk, "1", "3", "C", "1", 16)
-    chkPowMod(chk, "1", "FF", "C", "1", 16)
-    chkPowMod(chk, "FF", "3", "C", "3", 16)
-    chkPowMod(chk, "FFFF", "3", "C", "3", 16)
+      chkPowMod(chk, "C", "3", "C", "0", 16)
+      chkPowMod(chk, "1", "3", "C", "1", 16)
+      chkPowMod(chk, "1", "FF", "C", "1", 16)
+      chkPowMod(chk, "FF", "3", "C", "3", 16)
+      chkPowMod(chk, "FFFF", "3", "C", "3", 16)
 
-    chkPowMod(chk, "C", "3", "C", "0", 32)
-    chkPowMod(chk, "1", "3", "C", "1", 32)
-    chkPowMod(chk, "1", "FF", "C", "1", 32)
-    chkPowMod(chk, "FF", "3", "C", "3", 32)
-    chkPowMod(chk, "FFFF", "3", "C", "3", 32)
-    chkPowMod(chk, "FFFFFFFF", "3", "C", "3", 32)
+      chkPowMod(chk, "C", "3", "C", "0", 32)
+      chkPowMod(chk, "1", "3", "C", "1", 32)
+      chkPowMod(chk, "1", "FF", "C", "1", 32)
+      chkPowMod(chk, "FF", "3", "C", "3", 32)
+      chkPowMod(chk, "FFFF", "3", "C", "3", 32)
+      chkPowMod(chk, "FFFFFFFF", "3", "C", "3", 32)
 
-    chkPowMod(chk, "C", "3", "C", "0", 64)
-    chkPowMod(chk, "1", "3", "C", "1", 64)
-    chkPowMod(chk, "1", "FF", "C", "1", 64)
-    chkPowMod(chk, "FF", "3", "C", "3", 64)
-    chkPowMod(chk, "FFFF", "3", "C", "3", 64)
-    chkPowMod(chk, "FFFFFFFF", "3", "C", "3", 64)
-    chkPowMod(chk, "FFFFFFFFFFFFFFFF", "3", "C", "3", 64)
+      chkPowMod(chk, "C", "3", "C", "0", 64)
+      chkPowMod(chk, "1", "3", "C", "1", 64)
+      chkPowMod(chk, "1", "FF", "C", "1", 64)
+      chkPowMod(chk, "FF", "3", "C", "3", 64)
+      chkPowMod(chk, "FFFF", "3", "C", "3", 64)
+      chkPowMod(chk, "FFFFFFFF", "3", "C", "3", 64)
+      chkPowMod(chk, "FFFFFFFFFFFFFFFF", "3", "C", "3", 64)
 
-    chkPowMod(chk, "C", "3", "C", "0", 128)
-    chkPowMod(chk, "1", "3", "C", "1", 128)
-    chkPowMod(chk, "1", "FF", "C", "1", 128)
-    chkPowMod(chk, "FF", "3", "C", "3", 128)
-    chkPowMod(chk, "FFFF", "3", "C", "3", 128)
-    chkPowMod(chk, "FFFFFFFF", "3", "C", "3", 128)
-    chkPowMod(chk, "FFFFFFFFFFFFFFFF", "3", "C", "3", 128)
-    chkPowMod(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "3", "C", "3", 128)
+      chkPowMod(chk, "C", "3", "C", "0", 128)
+      chkPowMod(chk, "1", "3", "C", "1", 128)
+      chkPowMod(chk, "1", "FF", "C", "1", 128)
+      chkPowMod(chk, "FF", "3", "C", "3", 128)
+      chkPowMod(chk, "FFFF", "3", "C", "3", 128)
+      chkPowMod(chk, "FFFFFFFF", "3", "C", "3", 128)
+      chkPowMod(chk, "FFFFFFFFFFFFFFFF", "3", "C", "3", 128)
+      chkPowMod(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "3", "C", "3", 128)
 
 static:
   testModArith(ctCheck, ctTest)
