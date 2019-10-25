@@ -110,7 +110,7 @@ func mulmod*(a, b, m: Stuint): Stuint =
 
   result = mulmod_internal(a_m, b_m, m)
 
-func powmod*[T](a, b, m: T): T =
+func powmod*(a, b, m: Stuint): Stuint =
   ## Modular exponentiation
 
   when nimvm:
