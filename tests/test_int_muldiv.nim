@@ -18,6 +18,9 @@ template chkDiv(chk: untyped, a, b, c: string, bits: int) =
 template chkMod(chk: untyped, a, b, c: string, bits: int) =
   chk (fromHex(Stint[bits], a) mod fromHex(Stint[bits], b)) == fromHex(Stint[bits], c)
 
+template chkMod(chk: untyped, a, b, c: int, bits: int) =
+  chk (stint(a, bits) mod stint(b, bits)) == stint(c, bits)
+
 template chkDivMod(chk: untyped, a, b, c, d: string, bits: int) =
   chk divmod(fromHex(Stint[bits], a), fromHex(Stint[bits], b)) == (fromHex(Stint[bits], c), fromHex(Stint[bits], d))
 
@@ -204,6 +207,13 @@ template testMuldiv(chk, tst: untyped) =
     chkDivMod(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "1", "0", 128)
     chkDivMod(chk, "0F", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD", "3", 128)
 
+  tst "issues with Nim v1.0.2":
+    block:
+      let x = -2.stint(256)
+      let y = 3200566678774828.stint(256)
+      let z = -6401133357549656.stint(256)
+      chk x * y == z
+
 static:
   testMuldiv(ctCheck, ctTest)
 
@@ -320,3 +330,4 @@ suite "Testing signed int division and modulo implementation":
 
     check: q == 123456789123456789'i64
     check: r == 0'i64
+
