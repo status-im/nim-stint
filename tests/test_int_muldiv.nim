@@ -214,6 +214,19 @@ template testMuldiv(chk, tst: untyped) =
       let z = -6401133357549656.stint(256)
       chk x * y == z
 
+    chkMod(chk, -3, 7, -3, 64)
+    chkMod(chk, -3, 5, -3, 64)
+    chkMod(chk, -13, 5, -3, 64)
+    chkMod(chk, 7, 5, 2, 64)
+    chkMod(chk, -7, 5, -2, 64)
+    chkMod(chk, 7, -5, 2, 64)
+    chkMod(chk, -7, -5, -2, 64)
+
+    chkMod(chk, 2, 5, 2, 64)
+    chkMod(chk, -2, 5, -2, 64)
+    chkMod(chk, 2, -5, 2, 64)
+    chkMod(chk, -2, -5, -2, 64)
+
 static:
   testMuldiv(ctCheck, ctTest)
 
