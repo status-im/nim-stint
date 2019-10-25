@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ./intops
+import ./intops, private/datatypes
 
 func addmod_internal(a, b, m: Stuint): Stuint {.inline.}=
   ## Modular addition
@@ -90,7 +90,7 @@ func addmod*(a, b, m: Stuint): Stuint =
 
   result = addmod_internal(a_m, b_m, m)
 
-proc submod*(a, b, m: Stuint): Stuint =
+func submod*(a, b, m: Stuint): Stuint =
   ## Modular substraction
 
   let a_m = if a < m: a
@@ -110,8 +110,15 @@ func mulmod*(a, b, m: Stuint): Stuint =
 
   result = mulmod_internal(a_m, b_m, m)
 
-proc powmod*(a, b, m: Stuint): Stuint =
+func powmod*[T](a, b, m: T): T =
   ## Modular exponentiation
+
+  when nimvm:
+    doAssert false, "cannot use powmod at compile-time"
+  else:
+    # we need this ugly branch
+    # because of nim-lang/Nim#12517
+    discard
 
   let a_m = if a < m: a
             else: a mod m
