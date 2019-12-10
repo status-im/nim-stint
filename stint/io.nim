@@ -82,6 +82,118 @@ func truncate*(num: Stint or StUint, T: typedesc[SomeInteger]): T {.inline.}=
 func toInt*(num: Stint or StUint): int {.inline, deprecated:"Use num.truncate(int) instead".}=
   num.truncate(int)
 
+func bigToSmall(result: var (UintImpl | IntImpl), x: auto) {.inline.} =
+  when bitsof(x) == bitsof(result):
+    when type(result) is type(x):
+      result = x
+    else:
+      result = convert[type(result)](x)
+  else:
+    bigToSmall(result, x.lo)
+
+func smallToBig(result: var (UintImpl | IntImpl), x: auto) {.inline.} =
+  when bitsof(x) == bitsof(result):
+    when type(result) is type(x):
+      result = x
+    else:
+      result = convert[type(result)](x)
+  else:
+    smallToBig(result.lo, x)
+
+func stuint*(x: StUint, bits: static[int]): StUint[bits] {.inline.} =
+  ## unsigned int to unsigned int conversion
+  ## smaller to bigger bits conversion will have the same value
+  ## bigger to smaller bits conversion, the result is truncated
+  const N = bitsof(x.data)
+  when N < bits:
+    when N <= 64:
+      result = stuint(x.data, bits)
+    else:
+      smallToBig(result.data, x.data)
+  elif N > bits:
+    when bits <= 64:
+      result = stuint(x.truncate(type(result.data)), bits)
+    else:
+      bigToSmall(result.data, x.data)
+  else:
+    result = x
+
+func stuint*(x: StInt, bits: static[int]): StUint[bits] {.inline.} =
+  ## signed int to unsigned int conversion
+  ## current behavior is cast-like, copying bit pattern
+  ## or truncating if input does not fit into destination
+  const N = bitsof(x.data)
+  when N < bits:
+    when N <= 64:
+      type T = StUint[N]
+      result = stuint(convert[T](x).data, bits)
+    else:
+      smallToBig(result.data, x.data)
+  elif N > bits:
+    when bits <= 64:
+      result = stuint(x.truncate(type(result.data)), bits)
+    else:
+      bigToSmall(result.data, x.data)
+  else:
+    result = convert[type(result)](x)
+
+func stint*(x: StInt, bits: static[int]): StInt[bits] {.inline.} =
+  ## signed int to signed int conversion
+  ## will raise exception if input does not fit into destination
+  const N = bitsof(x.data)
+  when N < bits:
+    when N <= 64:
+      result = stint(x.data, bits)
+    else:
+      if x.isNegative:
+        smallToBig(result.data, (-x).data)
+        result = -result
+      else:
+        smallToBig(result.data, x.data)
+  elif N > bits:
+    const dmax = stint((type result).high, N)
+    # due to bug #92, we skip negative range check
+    #const dmin = stint((type result).low, N)
+    #template checkNegativeRange() =
+    #  if x < dmin: raise newException(RangeError, "value out of range")
+    template checkPositiveRange() =
+      if x > dmax: raise newException(RangeError, "value out of range")
+    when bits <= 64:
+      if x.isNegative:
+        #checkNegativeRange()
+        result = stint((-x).truncate(type(result.data)), bits)
+        result = -result
+      else:
+        checkPositiveRange()
+        result = stint(x.truncate(type(result.data)), bits)
+    else:
+      if x.isNegative:
+        #checkNegativeRange()
+        bigToSmall(result.data, (-x).data)
+        result = -result
+      else:
+        checkPositiveRange()
+        bigToSmall(result.data, x.data)
+  else:
+    result = x
+
+func stint*(x: StUint, bits: static[int]): StInt[bits] {.inline.} =
+  const N = bitsof(x.data)
+  const dmax = stuint((type result).high, N)
+  if x > dmax: raise newException(RangeError, "value out of range")
+  when N < bits:
+    when N <= 64:
+      result = stint(x.data, bits)
+    else:
+      smallToBig(result.data, x.data)
+  elif N > bits:
+    when bits <= 64:
+      result = stint(x.truncate(type(result.data)), bits)
+    else:
+      bigToSmall(result.data, x.data)
+  else:
+    result = convert[type(result)](x)
+
 func readHexChar(c: char): int8 {.inline.}=
   ## Converts an hex char to an int
   case c

@@ -284,46 +284,51 @@ template testAddSub(chk, tst: untyped) =
 static:
   testAddSub(ctCheck, ctTest)
 
-suite "Wider signed int addsub coverage":
-  testAddSub(check, test)
+proc main() =
+  # Nim GC protests we are using too much global variables
+  # so put it in a proc
+  suite "Wider signed int addsub coverage":
+    testAddSub(check, test)
 
-suite "Testing signed addition implementation":
-  test "In-place addition gives expected result":
+  suite "Testing signed addition implementation":
+    test "In-place addition gives expected result":
 
-    var a = 20182018.stint(64)
-    let b = 20172017.stint(64)
+      var a = 20182018.stint(64)
+      let b = 20172017.stint(64)
 
-    a += b
+      a += b
 
-    check: cast[int64](a) == 20182018'i64 + 20172017'i64
+      check: cast[int64](a) == 20182018'i64 + 20172017'i64
 
-  test "Addition gives expected result":
+    test "Addition gives expected result":
 
-    let a = 20182018.stint(64)
-    let b = 20172017.stint(64)
+      let a = 20182018.stint(64)
+      let b = 20172017.stint(64)
 
-    check: cast[int64](a+b) == 20182018'i64 + 20172017'i64
+      check: cast[int64](a+b) == 20182018'i64 + 20172017'i64
 
-  test "When the low half overflows, it is properly carried":
-    # uint8 (low half) overflow at 255
-    let a = 100'i16.stint(16)
-    let b = 100'i16.stint(16)
+    test "When the low half overflows, it is properly carried":
+      # uint8 (low half) overflow at 255
+      let a = 100'i16.stint(16)
+      let b = 100'i16.stint(16)
 
-    check: cast[int16](a+b) == 200
+      check: cast[int16](a+b) == 200
 
-suite "Testing signed substraction implementation":
-  test "In-place substraction gives expected result":
+  suite "Testing signed substraction implementation":
+    test "In-place substraction gives expected result":
 
-    var a = 20182018.stint(64)
-    let b = 20172017.stint(64)
+      var a = 20182018.stint(64)
+      let b = 20172017.stint(64)
 
-    a -= b
+      a -= b
 
-    check: cast[int64](a) == 20182018'i64 - 20172017'i64
+      check: cast[int64](a) == 20182018'i64 - 20172017'i64
 
-  test "Substraction gives expected result":
+    test "Substraction gives expected result":
 
-    let a = 20182018.stint(64)
-    let b = 20172017.stint(64)
+      let a = 20182018.stint(64)
+      let b = 20172017.stint(64)
 
-    check: cast[int64](a-b) == 20182018'i64 - 20172017'i64
+      check: cast[int64](a-b) == 20182018'i64 - 20172017'i64
+
+main()
