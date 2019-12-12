@@ -151,16 +151,19 @@ func stint*(x: StInt, bits: static[int]): StInt[bits] {.inline.} =
       else:
         smallToBig(result.data, x.data)
   elif N > bits:
-    const dmax = stint((type result).high, N)
-    # due to bug #92, we skip negative range check
-    #const dmin = stint((type result).low, N)
-    #template checkNegativeRange() =
-    #  if x < dmin: raise newException(RangeError, "value out of range")
+    template checkNegativeRange() =
+      # due to bug #92, we skip negative range check
+      when false:
+        const dmin = stint((type result).low, N)
+        if x < dmin: raise newException(RangeError, "value out of range")
+
     template checkPositiveRange() =
+      const dmax = stint((type result).high, N)
       if x > dmax: raise newException(RangeError, "value out of range")
+
     when bits <= 64:
       if x.isNegative:
-        #checkNegativeRange()
+        checkNegativeRange()
         result = stint((-x).truncate(type(result.data)), bits)
         result = -result
       else:
@@ -168,7 +171,7 @@ func stint*(x: StInt, bits: static[int]): StInt[bits] {.inline.} =
         result = stint(x.truncate(type(result.data)), bits)
     else:
       if x.isNegative:
-        #checkNegativeRange()
+        checkNegativeRange()
         bigToSmall(result.data, (-x).data)
         result = -result
       else:
