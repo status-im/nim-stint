@@ -12,7 +12,7 @@ import
   ./private/int_negabs,
   ./private/compiletime_helpers,
   ./intops,
-  typetraits, algorithm
+  typetraits, algorithm, hashes
 
 template static_check_size(T: typedesc[SomeInteger], bits: static[int]) =
   # To avoid a costly runtime check, we refuse storing into StUint types smaller
@@ -512,3 +512,11 @@ func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte]
       let n_ptr {.restrict.} = cast[ptr array[N, byte]](n.unsafeAddr)
       for i in 0 ..< N:
         result[N-1 - i] = n_ptr[i]
+
+func hash*(num: UintImpl|IntImpl): Hash =
+  mixin hash
+  hash(num.hi) xor hash(num.lo)
+
+template hash*(num: StUint|StInt): Hash =
+  hash(num.data)
+
