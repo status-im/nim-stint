@@ -514,5 +514,8 @@ func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte]
         result[N-1 - i] = n_ptr[i]
 
 template hash*(num: StUint|StInt): Hash =
+  # TODO:
+  # `hashData` is not particularly efficient.
+  # Explore better hashing solutions in nim-stew.
   hashData(unsafeAddr num, sizeof num)
 
