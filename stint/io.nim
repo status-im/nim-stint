@@ -513,10 +513,6 @@ func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte]
       for i in 0 ..< N:
         result[N-1 - i] = n_ptr[i]
 
-func hash*(num: UintImpl|IntImpl): Hash =
-  mixin hash
-  hash(num.hi) xor hash(num.lo)
-
 template hash*(num: StUint|StInt): Hash =
-  hash(num.data)
+  hashData(unsafeAddr num, sizeof num)
 
