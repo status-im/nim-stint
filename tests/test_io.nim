@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, strutils, math, test_helpers
+import ../stint, unittest, strutils, math, test_helpers, tables
 
 template nativeStuint(chk, nint: untyped, bits: int) =
   chk $(nint.stuint(bits)) == $(nint)
@@ -1313,5 +1313,39 @@ proc main() =
     test "Eve signature":
       check: eve.raw_sig.r.parse(Stuint[256], 16) == "84467545608142925331782333363288012579669270632210954476013542647119929595395".u256
       check: eve.raw_sig.s.parse(Stuint[256], 16) == "43529886636775750164425297556346136250671451061152161143648812009114516499167".u256
+
+    test "Using stint values in a hash table":
+      block:
+        var t = initTable[UInt128, string]()
+
+        var numbers = @[
+          parse("0", UInt128),
+          parse("122342408432", UInt128),
+          parse("23853895230124238754328", UInt128),
+          parse("4539086493082871342142388475734534753453", UInt128),
+        ]
+
+        for n in numbers:
+          t[n] = $n
+
+        for n in numbers:
+          check t[n] == $n
+
+      block:
+        var t = initTable[Int256, string]()
+
+        var numbers = @[
+          parse("0", Int256),
+          parse("-1", Int256),
+          parse("-12315123298", Int256),
+          parse("23853895230124238754328", Int256),
+          parse("-3429023852897428742874325245342129842", Int256),
+        ]
+
+        for n in numbers:
+          t[n] = $n
+
+        for n in numbers:
+          check t[n] == $n
 
 main()
