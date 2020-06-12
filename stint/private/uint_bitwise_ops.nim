@@ -7,56 +7,52 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes, ./bitops2_priv
+import  ./datatypes
 
-func `not`*(x: UintImpl): UintImpl {.inline.}=
+func `not`*(x: Limbs): Limbs {.inline.}=
   ## Bitwise complement of unsigned integer x
-  applyHiLo(x, `not`)
+  for wr, wx in leastToMostSig(result, x):
+    wr = not wx
 
-func `or`*(x, y: UintImpl): UintImpl {.inline.}=
+func `or`*(x, y: Limbs): Limbs {.inline.}=
   ## `Bitwise or` of numbers x and y
-  applyHiLo(x, y, `or`)
+  for wr, wx, wy in leastToMostSig(result, x, y):
+    wr = wx or wy
 
-func `and`*(x, y: UintImpl): UintImpl {.inline.}=
+func `and`*(x, y: Limbs): Limbs {.inline.}=
   ## `Bitwise and` of numbers x and y
-  applyHiLo(x, y, `and`)
+  for wr, wx, wy in leastToMostSig(result, x, y):
+    wr = wx and wy
 
-func `xor`*(x, y: UintImpl): UintImpl {.inline.}=
+func `xor`*(x, y: Limbs): Limbs {.inline.}=
   ## `Bitwise xor` of numbers x and y
-  applyHiLo(x, y, `xor`)
+  for wr, wx, wy in leastToMostSig(result, x, y):
+    wr = wx xor wy
 
-func `shr`*(x: UintImpl, y: SomeInteger): UintImpl {.inline.}
-  # Forward declaration
-
-func `shl`*(x: UintImpl, y: SomeInteger): UintImpl {.inline.}=
-  ## Compute the `shift left` operation of x and y
-  # Note: inlining this poses codegen/aliasing issue when doing `x = x shl 1`
-
-  # TODO: would it be better to reimplement this with words iteration?
-  const halfSize: type(y) = bitsof(x) div 2
-
-  if y == 0:
-    return x
-  elif y == halfSize:
-    result.hi = x.lo
-  elif y < halfSize:
-    result.hi = (x.hi shl y) or (x.lo shr (halfSize - y))
-    result.lo = x.lo shl y
+func `shr`*(x: Limbs, k: SomeInteger): Limbs {.inline.} =
+  ## Shift right by k.
+  ##
+  ## k MUST be less than the base word size (2^32 or 2^64)
+  # Note: for speed, loading a[i] and a[i+1]
+  #       instead of a[i-1] and a[i]
+  #       is probably easier to parallelize for the compiler
+  #       (antidependence WAR vs loop-carried dependence RAW)
+  when cpuEndian == littleEndian:
+    for i in 0 ..< x.len-1:
+      result[i] = (x[i] shr k) or (x[i+1] shl (WordBitWidth - k))
+    result[^1] = x[^1] shr k
   else:
-    result.hi = x.lo shl (y - halfSize)
+    for i in countdown(x.len-1, 1):
+      result[i] = (x[i] shr k) or (x[i-1] shl (WordBitWidth - k))
+    result[0] = x[0] shr k
 
-func `shr`*(x: UintImpl, y: SomeInteger): UintImpl {.inline.}=
-  ## Compute the `shift right` operation of x and y
-  ## Similar to C standard, result is undefined if y is bigger
-  ## than the number of bits in x.
-  const halfSize: type(y) = bitsof(x) div 2
-
-  if y == 0:
-    return x
-  elif y == halfSize:
-    result.lo = x.hi
-  elif y < halfSize:
-    result.lo = (x.lo shr y) or (x.hi shl (halfSize - y))
-    result.hi = x.hi shr y
+func `shl`*(x: Limbs, k: SomeInteger): Limbs {.inline.}=
+  ## Compute the `shift left` operation of x and k
+  when cpuEndian == littleEndian:
+    result[0] = x[0] shl k
+    for i in 1 ..< x.len:
+      result[i] = (x[i] shl k) or (x[i-1] shr (WordBitWidth - k))
   else:
-    result.lo = x.hi shr (y - halfSize)
+    result[^1] = x[^1] shl k
+    for i in countdown(x.len-2, 0):
+      result[i] = (x[i] shl k) or (x[i+1] shr (WordBitWidth - k))
