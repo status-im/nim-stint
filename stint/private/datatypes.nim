@@ -16,7 +16,7 @@ when sizeof(int) == 8 and not defined(Stint32):
 else:
   type Word* = uint32
 
-type Word* = uint32
+const WordBitWidth = sizeof(Word) * 8
 
 func wordsRequired*(bits: int): int {.compileTime.} =
   ## Compute the number of limbs required
@@ -24,7 +24,7 @@ func wordsRequired*(bits: int): int {.compileTime.} =
   (bits + WordBitWidth - 1) div WordBitWidth
 
 type
-  Limbs*[N: static int] = array[N, BaseUint]
+  Limbs*[N: static int] = array[N, Word]
 
   StUint*[bits: static[int]] = object
     ## Stack-based integer
@@ -60,3 +60,39 @@ func mostSignificantWord*(limbs: Limbs): auto {.inline.} =
     limbs[^1]
   else:
     limbs[0]
+
+iterator leastToMostSig*(limbs: Limbs): Word =
+  ## Iterate from least to most significant word
+  when cpuEndian == littleEndian:
+    for i in 0 ..< limbs.len:
+      yield limbs[i]
+  else:
+    for i in countdown(limbs.len-1, 0):
+      yield limbs[i]
+
+iterator leastToMostSig*(limbs: var Limbs): var Word =
+  ## Iterate from least to most significant word
+  when cpuEndian == littleEndian:
+    for i in 0 ..< limbs.len:
+      yield limbs[i]
+  else:
+    for i in countdown(limbs.len-1, 0):
+      yield limbs[i]
+
+iterator leastToMostSig*(aLimbs, bLimbs: Limbs): (Word, Word) =
+  ## Iterate from least to most significant word
+  when cpuEndian == littleEndian:
+    for i in 0 ..< limbs.len:
+      yield (aLimbs[i], bLimbs[i])
+  else:
+    for i in countdown(limbs.len-1, 0):
+      yield (aLimbs[i], bLimbs[i])
+
+iterator leastToMostSig*(aLimbs: var Limbs, bLimbs: Limbs): (var Word, Word) =
+  ## Iterate from least to most significant word
+  when cpuEndian == littleEndian:
+    for i in 0 ..< limbs.len:
+      yield (aLimbs[i], bLimbs[i])
+  else:
+    for i in countdown(limbs.len-1, 0):
+      yield (aLimbs[i], bLimbs[i])

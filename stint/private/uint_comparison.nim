@@ -7,36 +7,46 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  ./datatypes
+import
+  ./datatypes,
+  ./primitives/addcarry_subborrow
 
 func isZero*(n: SomeUnsignedInt): bool {.inline.} =
   n == 0
 
-func isZero*(n: UintImpl): bool {.inline.} =
-  n.hi.isZero and n.lo.isZero
+func isZero*(limbs: Limbs): bool {.inline.} =
+  for word in limbs:
+    if not word.isZero():
+      return false
+  return true
 
-func `<`*(x, y: UintImpl): bool {.inline.}=
+func `<`*(x, y: Limbs): bool {.inline.}=
   # Lower comparison for multi-precision integers
-  x.hi < y.hi or
-    (x.hi == y.hi and x.lo < y.lo)
+  var diff: Word
+  var borrow: Borrow
+  for wx, wy in leastToMostSig(x, y):
+    subB(borrow, diff, wx, wy, borrow)
+  return bool(borrow)
 
-func `==`*(x, y: UintImpl): bool {.inline.}=
+func `==`*(x, y: Limbs): bool {.inline.}=
   # Equal comparison for multi-precision integers
-  x.hi == y.hi and x.lo == y.lo
+  for wx, wy in leastToMostSig(x, y):
+    if wx != wy:
+      return false
+  return true
 
-func `<=`*(x, y: UintImpl): bool {.inline.}=
+func `<=`*(x, y: Limbs): bool {.inline.}=
   # Lower or equal comparison for multi-precision integers
-  x.hi < y.hi or
-    (x.hi == y.hi and x.lo <= y.lo)
+  not(y < x)
 
 func isEven*(x: SomeUnsignedInt): bool {.inline.} =
   (x and 1) == 0
 
-func isEven*(x: UintImpl): bool {.inline.}=
-  x.lo.isEven
+func isEven*(x: Limbs): bool {.inline.}=
+  x.leastSignificantWord.isEven
 
 func isOdd*(x: SomeUnsignedInt): bool {.inline.} =
   not x.isEven
 
-func isOdd*(x: UintImpl): bool {.inline.}=
+func isOdd*(x: Limbs): bool {.inline.}=
   not x.isEven
