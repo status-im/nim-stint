@@ -39,6 +39,8 @@ type
   Carry* = uint8  # distinct range[0'u8 .. 1]
   Borrow* = uint8 # distinct range[0'u8 .. 1]
 
+  SomeBigInteger*[bits: static[int]] = Stuint[bits]|Stint[bits]
+
 const GCC_Compatible* = defined(gcc) or defined(clang) or defined(llvm_gcc)
 const X86* = defined(amd64) or defined(i386)
 
@@ -46,65 +48,80 @@ when sizeof(int) == 8 and GCC_Compatible:
   type
     uint128*{.importc: "unsigned __int128".} = object
 
+# Accessors
+# --------------------------------------------------------
+
 template leastSignificantWord*(num: SomeInteger): auto =
   num
 
-func leastSignificantWord*(limbs: Limbs): auto {.inline.} =
+func leastSignificantWord*(a: SomeBigInteger): auto {.inline.} =
   when cpuEndian == littleEndian:
-    limbs[0]
+    a.limbs[0]
   else:
-    limbs[^1]
+    a.limbs[^1]
 
-func mostSignificantWord*(limbs: Limbs): auto {.inline.} =
+func mostSignificantWord*(a: SomeBigInteger): auto {.inline.} =
   when cpuEndian == littleEndian:
-    limbs[^1]
+    a.limbs[^1]
   else:
-    limbs[0]
+    a.limbs[0]
 
-iterator leastToMostSig*(limbs: Limbs): Word =
+# Iterations
+# --------------------------------------------------------
+
+iterator leastToMostSig*(a: SomeBigInteger): Word =
   ## Iterate from least to most significant word
   when cpuEndian == littleEndian:
-    for i in 0 ..< limbs.len:
-      yield limbs[i]
+    for i in 0 ..< a.limbs.len:
+      yield a.limbs[i]
   else:
-    for i in countdown(limbs.len-1, 0):
-      yield limbs[i]
+    for i in countdown(a.limbs.len-1, 0):
+      yield a.limbs[i]
 
-iterator leastToMostSig*(limbs: var Limbs): var Word =
+iterator leastToMostSig*(a: var SomeBigInteger): var Word =
   ## Iterate from least to most significant word
   when cpuEndian == littleEndian:
-    for i in 0 ..< limbs.len:
-      yield limbs[i]
+    for i in 0 ..< a.limbs.len:
+      yield a.limbs[i]
   else:
-    for i in countdown(limbs.len-1, 0):
-      yield limbs[i]
+    for i in countdown(a.limbs.len-1, 0):
+      yield a.limbs[i]
 
-iterator leastToMostSig*(aLimbs, bLimbs: Limbs): (Word, Word) =
+iterator leastToMostSig*(a, b: SomeBigInteger): (Word, Word) =
   ## Iterate from least to most significant word
   when cpuEndian == littleEndian:
-    for i in 0 ..< aLimbs.len:
-      yield (aLimbs[i], bLimbs[i])
+    for i in 0 ..< a.limbs.len:
+      yield (a.limbs[i], b.limbs[i])
   else:
-    for i in countdown(aLimbs.len-1, 0):
-      yield (aLimbs[i], bLimbs[i])
+    for i in countdown(a.limbs.len-1, 0):
+      yield (a.limbs[i], b.limbs[i])
 
-iterator leastToMostSig*(aLimbs: var Limbs, bLimbs: Limbs): (var Word, Word) =
+iterator leastToMostSig*[aBits, bBits](a: var SomeBigInteger[aBits], b: SomeBigInteger[bBits]): (var Word, Word) =
   ## Iterate from least to most significant word
   when cpuEndian == littleEndian:
-    for i in 0 ..< aLimbs.len:
-      yield (aLimbs[i], bLimbs[i])
+    for i in 0 ..< min(a.limbs.len, b.limbs.len):
+      yield (a.limbs[i], b.limbs[i])
   else:
-    for i in countdown(aLimbs.len-1, 0):
-      yield (aLimbs[i], bLimbs[i])
+    for i in countdown(min(aLimbs.len, b.limbs.len)-1, 0):
+      yield (a.limbs[i], b.limbs[i])
 
-iterator leastToMostSig*(cLimbs: var Limbs, aLimbs: Limbs, bLimbs: Limbs): (var Word, Word, Word) =
+iterator leastToMostSig*(c: var SomeBigInteger, a, b: SomeBigInteger): (var Word, Word, Word) =
   ## Iterate from least to most significant word
   when cpuEndian == littleEndian:
-    for i in 0 ..< aLimbs.len:
-      yield (cLimbs[i], aLimbs[i], bLimbs[i])
+    for i in 0 ..< a.limbs.len:
+      yield (c.limbs[i], a.limbs[i], b.limbs[i])
   else:
-    for i in countdown(aLimbs.len-1, 0):
-      yield (cLimbs[i], aLimbs[i], bLimbs[i])
+    for i in countdown(a.limbs.len-1, 0):
+      yield (c.limbs[i], a.limbs[i], b.limbs[i])
+
+iterator mostToLeastSig*(a: SomeBigInteger): Word =
+  ## Iterate from most to least significant word
+  when cpuEndian == bigEndian:
+    for i in 0 ..< a.limbs.len:
+      yield a.limbs[i]
+  else:
+    for i in countdown(a.limbs.len-1, 0):
+      yield a.limbs[i]
 
 import std/macros
 

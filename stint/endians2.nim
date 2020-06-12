@@ -7,16 +7,21 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import private/[bitops2_priv, endians2_priv, datatypes, compiletime_helpers]
+import private/datatypes
 
 import stew/endians2
 export endians2
 
-func swapBytes*(x: StUint): StUint {.inline.} = StUint(data: swapBytes(x.data))
+{.push raises: [IndexError], noInit, gcsafe.}
 
 func toBytes*[bits: static int](x: StUint[bits], endian: Endianness = system.cpuEndian):
     array[bits div 8, byte] {.inline.} =
-  toBytes(x.data, endian)
+  when endian == system.cpuEndian:
+    for i in 0 ..< x.limbs.len:
+      result[i * sizeof(Word)] = x.limbs[i].toBytes()
+  else:
+    for i in 0 ..< x.limbs.len:
+      result[i * sizeof(Word)] = x.limbs[^i].toBytes()
 
 func toBytesLE*[bits: static int](x: StUint[bits]):
     array[bits div 8, byte] {.inline.} =
@@ -26,83 +31,138 @@ func toBytesBE*[bits: static int](x: StUint[bits]):
     array[bits div 8, byte] {.inline.} =
   toBytes(x, bigEndian)
 
-func fromBytes*[bits: static int](
-    T: typedesc[StUint[bits]],
-    x: array[bits div 8, byte],
-    endian: Endianness = system.cpuEndian): T {.inline, noinit.} =
-
-  when nimvm:
-    copyFromArray(result.data, x)
-  else:
-    copyMem(addr result, unsafeAddr x[0], bits div 8)
-
-  if endian != system.cpuEndian:
-    result = swapBytes(result)
-
-func fromBytes*[bits: static int](
-    T: typedesc[StUint[bits]],
-    x: openArray[byte],
-    endian: Endianness = system.cpuEndian): T {.inline.} =
-  # TODO fromBytesBE in io.nim handles this better, merge the two!
-  var tmp: array[bits div 8, byte]
-  if x.len < tmp.len:
-    let offset = if endian == bigEndian: tmp.len - x.len else: 0
-    for i in 0..<x.len: # Loop since vm can't copymem
-      tmp[i + offset] = x[i]
-  else:
-    for i in 0..<tmp.len: # Loop since vm can't copymem
-      tmp[i] = x[i]
-  fromBytes(T, tmp, endian)
-
 func fromBytesBE*[bits: static int](
     T: typedesc[StUint[bits]],
-    x: array[bits div 8, byte]): T {.inline.} =
-  ## Read big endian bytes and convert to an integer. By default, native
-  ## endianess is used which is not
-  ## portable!
-  fromBytes(T, x, bigEndian)
-
-func fromBytesBE*[bits: static int](
-    T: typedesc[StUint[bits]],
-    x: openArray[byte]): T {.inline.} =
+    x: openArray[byte]): T =
   ## Read big endian bytes and convert to an integer. At runtime, v must contain
-  ## at least sizeof(T) bytes. By default, native endianess is used which is not
-  ## portable!
-  fromBytes(T, x, bigEndian)
+  ## at least sizeof(T) bytes. Native endianess is used which is not
+  ## portable! (i.e. use fixed-endian byte array or hex for serialization)
 
-func toBE*[bits: static int](x: StUint[bits]): StUint[bits] {.inline.} =
+  var accum: Word
+  var accumBits: int
+  var dstIdx: int
+
+  when cpuEndian == littleEndian: # src is bigEndian, CPU is little-endian
+    dstIdx = 0
+
+    for srcIdx in countdown(x.len-1, 0):
+      let srcByte = x[srcIdx]
+
+      accum = accum or (srcByte shl accumBits)
+      accumBits += 8
+
+      if accumBits >= WordBitWidth:
+        result.limbs[dstIdx] = accum
+        inc dstIdx
+        accumBits -= WordBitWidth
+        accum = srcByte shr (8 - accumBits)
+
+    if dstIdx < result.limbs.len:
+      result.limbs[dstIdx] = accum
+      for fillIdx in dstIdx+1 ..< result.limbs.len:
+        result.limbs[fillIdx] = 0
+  else:                          # src and CPU are bigEndian
+    dstIdx = result.limbs.len-1
+
+    for srcIdx in countdown(x.len-1, 0):
+      let srcByte = x[srcIdx]
+
+      accum = accum or (srcByte shl accumBits)
+      accumBits += 8
+
+      if accumBits >= WordBitWidth:
+        result.limbs[dstIdx] = accum
+        dec dstIdx
+        accumBits -= WordBitWidth
+        accum = srcByte shr (8 - accumBits)
+
+    if dstIdx > 0:
+      result.limbs[dstIdx] = accum
+      for fillIdx in 0 ..< dstIdx:
+        result.limbs[fillIdx] = 0
+
+func fromBytesLE*[bits: static int](
+    T: typedesc[StUint[bits]],
+    x: openArray[byte]): T =
+  ## Read little endian bytes and convert to an integer. At runtime, v must
+  ## contain at least sizeof(T) bytes. By default, native endianess is used
+  ## which is not portable! (i.e. use fixed-endian byte array or hex for serialization)
+
+  var accum: Word
+  var accumBits: int
+  var dstIdx: int
+
+  when cpuEndian == littleEndian: # src and CPU are little-endian
+    dstIdx = 0
+
+    for srcIdx in 0 ..< x.len:
+      let srcByte = x[srcIdx]
+
+      accum = accum or (srcByte shl accumBits)
+      accumBits += 8
+
+      if accumBits >= WordBitWidth:
+        result.limbs[dstIdx] = accum
+        inc dstIdx
+        accumBits -= WordBitWidth
+        accum = srcByte shr (8 - accumBits)
+
+    if dstIdx < result.limbs.len:
+      result.limbs[dstIdx] = accum
+      for fillIdx in dstIdx+1 ..< result.limbs.len:
+        result.limbs[fillIdx] = 0
+  else:                          # src is little endian, CPU is bigEndian
+    dstIdx = result.limbs.len-1
+
+    for srcIdx in 0 ..< x.len:
+      let srcByte = x[srcIdx]
+
+      accum = accum or (srcByte shl accumBits)
+      accumBits += 8
+
+      if accumBits >= WordBitWidth:
+        result.limbs[dstIdx] = accum
+        dec dstIdx
+        accumBits -= WordBitWidth
+        accum = srcByte shr (8 - accumBits)
+
+    if dstIdx > 0:
+      result.limbs[dstIdx] = accum
+      for fillIdx in 0 ..< dstIdx:
+        result.limbs[fillIdx] = 0
+
+func fromBytes*[bits: static int](
+    T: typedesc[StUint[bits]],
+    x: openarray[byte],
+    srcEndian: Endianness = system.cpuEndian): T {.inline.} =
+  ## Read an source bytearray with the specified endianness and
+  ## convert it to an integer
+  when srcEndian == littleEndian:
+    result = fromBytesLE(T, x)
+  else:
+    result = fromBytesBE(T, x)
+
+# TODO: What is the use-case for all the procs below?
+# ------------------------------------------------------------------------------------------
+
+func toBE*[bits: static int](x: StUint[bits]): StUint[bits] {.inline, deprecated: "Use toByteArrayBE instead".} =
   ## Convert a native endian value to big endian. Consider toBytesBE instead
   ## which may prevent some confusion.
   if cpuEndian == bigEndian: x
   else: x.swapBytes
 
-func fromBE*[bits: static int](x: StUint[bits]): StUint[bits] {.inline.} =
+func fromBE*[bits: static int](x: StUint[bits]): StUint[bits] {.inline, deprecated: "Use fromBytesBE instead".} =
   ## Read a big endian value and return the corresponding native endian
   # there's no difference between this and toBE, except when reading the code
   toBE(x)
 
-func fromBytesLE*[bits: static int](
-    T: typedesc[StUint[bits]],
-    x: array[bits div 8, byte]): StUint[bits] {.inline.} =
-  ## Read little endian bytes and convert to an integer. By default, native
-  ## endianess is used which is not portable!
-  fromBytes(T, x, littleEndian)
-
-func fromBytesLE*[bits: static int](
-    T: typedesc[StUint[bits]],
-    x: openArray[byte]): StUint[bits] {.inline.} =
-  ## Read little endian bytes and convert to an integer. At runtime, v must
-  ## contain at least sizeof(T) bytes. By default, native endianess is used
-  ## which is not portable!
-  fromBytes(T, x, littleEndian)
-
-func toLE*[bits: static int](x: StUint[bits]): StUint[bits] {.inline.} =
+func toLE*[bits: static int](x: StUint[bits]): StUint[bits] {.inline, deprecated.} =
   ## Convert a native endian value to little endian. Consider toBytesLE instead
   ## which may prevent some confusion.
   if cpuEndian == littleEndian: x
   else: x.swapBytes
 
-func fromLE*[bits: static int](x: StUint[bits]): StUint[bits] {.inline.} =
+func fromLE*[bits: static int](x: StUint[bits]): StUint[bits] {.inline, deprecated: "Use fromBytesLE instead".} =
   ## Read a little endian value and return the corresponding native endian
   # there's no difference between this and toLE, except when reading the code
   toLE(x)

@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018 Status Research & Development GmbH
+# Copyright 2018-Present Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -14,7 +14,7 @@ import
 # ################### Multiplication ################### #
 {.push raises: [], gcsafe.}
 
-func prod*[rLen, aLen, bLen](r: var Limbs[rLen], a: Limbs[aLen], b: Limbs[bLen]) =
+func prod*[rLen, aLen, bLen: static int](r: var Limbs[rLen], a: Limbs[aLen], b: Limbs[bLen]) =
   ## Multi-precision multiplication
   ## r <- a*b
   ##
@@ -25,7 +25,7 @@ func prod*[rLen, aLen, bLen](r: var Limbs[rLen], a: Limbs[aLen], b: Limbs[bLen])
 
   # We use Product Scanning / Comba multiplication
   var t, u, v = Word(0)
-  var z: Limbs[rLen] # zero-init, ensure on stack and removes in-place problems
+  var z: typeof(r) # zero-init, ensure on stack and removes in-place problems
 
   staticFor i, 0, min(a.len+b.len, r.len):
     const ib = min(b.len-1, i)
@@ -36,11 +36,11 @@ func prod*[rLen, aLen, bLen](r: var Limbs[rLen], a: Limbs[aLen], b: Limbs[bLen])
     z[i] = v
     v = u
     u = t
-    t = Word(0)
+    t = 0
 
   r = z
 
-func prod_high_words*[rLen, aLen, bLen](
+func prod_high_words*[rLen, aLen, bLen: static int](
        r: var Limbs[rLen],
        a: Limbs[aLen], b: Limbs[bLen],
        lowestWordIndex: static int) =
