@@ -8,7 +8,7 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import
-  ./datatypes, ./uint_comparison, ./uint_bitwise_ops,
+  ./datatypes,
   ./primitives/addcarry_subborrow
 
 # ############ Addition & Substraction ############ #
