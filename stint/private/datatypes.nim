@@ -82,26 +82,26 @@ iterator leastToMostSig*(limbs: var Limbs): var Word =
 iterator leastToMostSig*(aLimbs, bLimbs: Limbs): (Word, Word) =
   ## Iterate from least to most significant word
   when cpuEndian == littleEndian:
-    for i in 0 ..< limbs.len:
+    for i in 0 ..< aLimbs.len:
       yield (aLimbs[i], bLimbs[i])
   else:
-    for i in countdown(limbs.len-1, 0):
+    for i in countdown(aLimbs.len-1, 0):
       yield (aLimbs[i], bLimbs[i])
 
 iterator leastToMostSig*(aLimbs: var Limbs, bLimbs: Limbs): (var Word, Word) =
   ## Iterate from least to most significant word
   when cpuEndian == littleEndian:
-    for i in 0 ..< limbs.len:
+    for i in 0 ..< aLimbs.len:
       yield (aLimbs[i], bLimbs[i])
   else:
-    for i in countdown(limbs.len-1, 0):
+    for i in countdown(aLimbs.len-1, 0):
       yield (aLimbs[i], bLimbs[i])
 
 iterator leastToMostSig*(cLimbs: var Limbs, aLimbs: Limbs, bLimbs: Limbs): (var Word, Word, Word) =
   ## Iterate from least to most significant word
   when cpuEndian == littleEndian:
-    for i in 0 ..< limbs.len:
+    for i in 0 ..< aLimbs.len:
       yield (cLimbs[i], aLimbs[i], bLimbs[i])
   else:
-    for i in countdown(limbs.len-1, 0):
+    for i in countdown(aLimbs.len-1, 0):
       yield (cLimbs[i], aLimbs[i], bLimbs[i])

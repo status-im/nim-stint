@@ -9,27 +9,29 @@
 
 import  ./datatypes
 
-func `not`*(x: Limbs): Limbs {.inline.}=
+{.push raises: [], inline, noInit, gcsafe.}
+
+func `not`*(x: Limbs): Limbs =
   ## Bitwise complement of unsigned integer x
   for wr, wx in leastToMostSig(result, x):
     wr = not wx
 
-func `or`*(x, y: Limbs): Limbs {.inline.}=
+func `or`*(x, y: Limbs): Limbs =
   ## `Bitwise or` of numbers x and y
   for wr, wx, wy in leastToMostSig(result, x, y):
     wr = wx or wy
 
-func `and`*(x, y: Limbs): Limbs {.inline.}=
+func `and`*(x, y: Limbs): Limbs =
   ## `Bitwise and` of numbers x and y
   for wr, wx, wy in leastToMostSig(result, x, y):
     wr = wx and wy
 
-func `xor`*(x, y: Limbs): Limbs {.inline.}=
+func `xor`*(x, y: Limbs): Limbs =
   ## `Bitwise xor` of numbers x and y
   for wr, wx, wy in leastToMostSig(result, x, y):
     wr = wx xor wy
 
-func `shr`*(x: Limbs, k: SomeInteger): Limbs {.inline.} =
+func `shr`*(x: Limbs, k: SomeInteger): Limbs =
   ## Shift right by k.
   ##
   ## k MUST be less than the base word size (2^32 or 2^64)
@@ -46,7 +48,7 @@ func `shr`*(x: Limbs, k: SomeInteger): Limbs {.inline.} =
       result[i] = (x[i] shr k) or (x[i-1] shl (WordBitWidth - k))
     result[0] = x[0] shr k
 
-func `shl`*(x: Limbs, k: SomeInteger): Limbs {.inline.}=
+func `shl`*(x: Limbs, k: SomeInteger): Limbs =
   ## Compute the `shift left` operation of x and k
   when cpuEndian == littleEndian:
     result[0] = x[0] shl k
