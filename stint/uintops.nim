@@ -78,7 +78,7 @@ func `<`*(a, b: Stuint): bool {.inline.} =
 
 func `<=`*(a, b: Stuint): bool {.inline.} =
   ## Unsigned `less or equal` comparison
-  not(a < b)
+  not(b < a)
 
 func isOdd*(a: Stuint): bool {.inline.} =
   ## Returns true if input is off
