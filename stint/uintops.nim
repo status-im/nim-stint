@@ -166,6 +166,7 @@ func `shr`*(a: Stuint, k: SomeInteger): Stuint {.inline.} =
   if k < WordBitWidth:
     result.limbs.shrSmall(a.limbs, k)
     return
+
   # w = k div WordBitWidth, shift = k mod WordBitWidth
   let w     = k shr static(log2trunc(uint32(WordBitWidth)))
   let shift = k and (WordBitWidth - 1)
@@ -181,6 +182,7 @@ func `shl`*(a: Stuint, k: SomeInteger): Stuint {.inline.} =
     result.limbs.shlSmall(a.limbs, k)
     result.clearExtraBits()
     return
+
   # w = k div WordBitWidth, shift = k mod WordBitWidth
   let w     = k shr static(log2trunc(uint32(WordBitWidth)))
   let shift = k and (WordBitWidth - 1)

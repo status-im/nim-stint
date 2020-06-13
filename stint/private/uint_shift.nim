@@ -40,7 +40,7 @@ func shrLarge*(r: var Limbs, a: Limbs, w, shift: SomeInteger) =
   when cpuEndian == littleEndian:
     for i in w ..< a.len-1:
       r[i-w] = (a[i] shr shift) or (a[i+1] shl (WordBitWidth - shift))
-    r[^w] = a[^1] shr shift
+    r[^(1+w)] = a[^1] shr shift
   else:
     for i in countdown(a.len-1, 1+w):
       r[i-w] = (a[i] shr shift) or (a[i-1] shl (WordBitWidth - k))
