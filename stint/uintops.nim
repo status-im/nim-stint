@@ -128,17 +128,17 @@ func `xor`*(a, b: Stuint): Stuint =
     wr = wa xor wb
   result.clearExtraBits()
 
-func countOnes*(a: Stuint): int {.inline.} =
+func countOnes*(a: Stuint): int =
   result = 0
   for wa in leastToMostSig(a):
     result += countOnes(wa)
 
-func parity*(a: Stuint): int {.inline.} =
+func parity*(a: Stuint): int =
   result = parity(a.limbs[0])
   for i in 1 ..< a.limbs.len:
     result = result xor parity(a.limbs[i])
 
-func leadingZeros*(a: Stuint): int {.inline.} =
+func leadingZeros*(a: Stuint): int =
   result = 0
   for word in mostToLeastSig(a):
     let zeroCount = word.leadingZeros()
@@ -146,7 +146,7 @@ func leadingZeros*(a: Stuint): int {.inline.} =
     if zeroCount != WordBitWidth:
       return
 
-func trailingZeros*(a: Stuint): int {.inline.} =
+func trailingZeros*(a: Stuint): int =
   result = 0
   for word in leastToMostSig(a):
     let zeroCount = word.leadingZeros()
@@ -154,14 +154,17 @@ func trailingZeros*(a: Stuint): int {.inline.} =
     if zeroCount != WordBitWidth:
       return
 
-func firstOne*(a: Stuint): int {.inline.} =
+func firstOne*(a: Stuint): int =
   result = trailingZeros(a)
   if result == a.limbs.len * WordBitWidth:
     result = 0
   else:
     result += 1
 
-func `shr`*(a: Stuint, k: SomeInteger): Stuint {.inline.} =
+{.pop.} # End noInit
+{.push raises: [], inline, gcsafe.}
+
+func `shr`*(a: Stuint, k: SomeInteger): Stuint =
   ## Shift right by k bits
   if k < WordBitWidth:
     result.limbs.shrSmall(a.limbs, k)
@@ -176,7 +179,7 @@ func `shr`*(a: Stuint, k: SomeInteger): Stuint {.inline.} =
   else:
     result.limbs.shrLarge(a.limbs, w, shift)
 
-func `shl`*(a: Stuint, k: SomeInteger): Stuint {.inline.} =
+func `shl`*(a: Stuint, k: SomeInteger): Stuint =
   ## Shift left by k bits
   if k < WordBitWidth:
     result.limbs.shlSmall(a.limbs, k)
@@ -194,7 +197,7 @@ func `shl`*(a: Stuint, k: SomeInteger): Stuint {.inline.} =
 
   result.clearExtraBits()
 
-{.pop.} # End inline
+{.pop.}
 
 # Addsub
 # --------------------------------------------------------
