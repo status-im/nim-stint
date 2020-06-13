@@ -8,12 +8,18 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import
+  # Standard library
+  typetraits, algorithm, hashes,
+  # Status libraries
+  # stew/byteutils,
+  # Internal
   ./private/datatypes,
   # ./private/int_negabs,
   # ./private/compiletime_helpers,
   # ./intops,
-  ./uintops, ./endians2,
-  typetraits, algorithm, hashes
+  ./uintops, ./endians2
+
+from stew/byteutils import toHex # Why are we exporting readHexChar in byteutils?
 
 template static_check_size(T: typedesc[SomeInteger], bits: static[int]) =
   # To avoid a costly runtime check, we refuse storing into StUint types smaller
@@ -356,44 +362,20 @@ func hexToUint*[bits: static[int]](hexString: string): StUint[bits] {.inline.} =
 #   ## Leading zeros are stripped. Use dumpHex instead if you need the in-memory representation
 #   toString(num, 16)
 
-# func dumpHex*(x: Stint or StUint, order: static[Endianness] = bigEndian): string =
-#   ## Stringify an int to hex.
-#   ## Note. Leading zeros are not removed. Use toString(n, base = 16)/toHex instead.
-#   ##
-#   ## You can specify bigEndian or littleEndian order.
-#   ## i.e. in bigEndian:
-#   ## - 1.uint64 will be 00000001
-#   ## - (2.uint128)^64 + 1 will be 0000000100000001
-#   ##
-#   ## in littleEndian:
-#   ## - 1.uint64 will be 01000000
-#   ## - (2.uint128)^64 + 1 will be 0100000001000000
-
-#   const
-#     hexChars = "0123456789abcdef"
-#     size = bitsof(x.data) div 8
-
-#   result = newString(2*size)
-
-#   when nimvm:
-#     for i in 0 ..< size:
-#       when order == system.cpuEndian:
-#         let byte = x.data.getByte(i)
-#       else:
-#         let byte = x.data.getByte(size - 1 - i)
-#       result[2*i] = hexChars[int byte shr 4 and 0xF]
-#       result[2*i+1] = hexChars[int byte and 0xF]
-#   else:
-#     {.pragma: restrict, codegenDecl: "$# __restrict $#".}
-#     let bytes {.restrict.}= cast[ptr array[size, byte]](x.unsafeaddr)
-
-#     for i in 0 ..< size:
-#       when order == system.cpuEndian:
-#         result[2*i] = hexChars[int bytes[i] shr 4 and 0xF]
-#         result[2*i+1] = hexChars[int bytes[i] and 0xF]
-#       else:
-#         result[2*i] = hexChars[int bytes[bytes[].high - i] shr 4 and 0xF]
-#         result[2*i+1] = hexChars[int bytes[bytes[].high - i] and 0xF]
+func dumpHex*(a: Stint or StUint, order: static[Endianness] = bigEndian): string =
+  ## Stringify an int to hex.
+  ## Note. Leading zeros are not removed. Use toString(n, base = 16)/toHex instead.
+  ##
+  ## You can specify bigEndian or littleEndian order.
+  ## i.e. in bigEndian:
+  ## - 1.uint64 will be 00000001
+  ## - (2.uint128)^64 + 1 will be 0000000100000001
+  ##
+  ## in littleEndian:
+  ## - 1.uint64 will be 01000000
+  ## - (2.uint128)^64 + 1 will be 0100000001000000
+  let bytes = a.toBytes(order)
+  result = bytes.toHex()
 
 proc initFromBytesBE*[bits: static[int]](val: var Stuint[bits], 
                       ba: openarray[byte], 

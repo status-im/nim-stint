@@ -12,6 +12,7 @@ import
   stew/bitops2,
   # Internal
   ./private/datatypes,
+  ./private/uint_shift,
   ./private/primitives/addcarry_subborrow
 
 export StUint
@@ -127,69 +128,72 @@ func `xor`*(a, b: Stuint): Stuint =
     wr = wa xor wb
   result.clearExtraBits()
 
-func `shr`*(a: Stuint, k: SomeInteger): Stuint =
-  ## Shift right by k.
-  ##
-  ## k MUST be less than the base word size (2^32 or 2^64)
-  # Note: for speed, loading a[i] and a[i+1]
-  #       instead of a[i-1] and a[i]
-  #       is probably easier to parallelize for the compiler
-  #       (antidependence WAR vs loop-carried dependence RAW)
-  when cpuEndian == littleEndian:
-    for i in 0 ..< a.limbs.len-1:
-      result.limbs[i] = (a.limbs[i] shr k) or (a.limbs[i+1] shl (WordBitWidth - k))
-    result.limbs[^1] = a.limbs[^1] shr k
-  else:
-    for i in countdown(a.limbs.len-1, 1):
-      result.limbs[i] = (a.limbs[i] shr k) or (a.limbs[i-1] shl (WordBitWidth - k))
-    result.limbs[0] = a.limbs[0] shr k
-
-func `shl`*(a: Stuint, k: SomeInteger): Stuint =
-  ## Compute the `shift left` operation of x and k
-  when cpuEndian == littleEndian:
-    result.limbs[0] = a.limbs[0] shl k
-    for i in 1 ..< a.limbs.len:
-      result.limbs[i] = (a.limbs[i] shl k) or (a.limbs[i-1] shr (WordBitWidth - k))
-  else:
-    result.limbs[^1] = a.limbs[^1] shl k
-    for i in countdown(a.limbs.len-2, 0):
-      result.limbs[i] = (a.limbs[i] shl k) or (a.limbs[i+1] shr (WordBitWidth - k))
-  result.clearExtraBits()
-
-func countOnes*(x: Stuint): int {.inline.} =
+func countOnes*(a: Stuint): int {.inline.} =
   result = 0
-  for wx in leastToMostSig(x):
-    result += countOnes(wx)
+  for wa in leastToMostSig(a):
+    result += countOnes(wa)
 
-func parity*(x: Stuint): int {.inline.} =
-  result = parity(x.limbs[0])
-  for i in 1 ..< x.limbs.len:
-    result = result xor parity(x.limbs[i])
+func parity*(a: Stuint): int {.inline.} =
+  result = parity(a.limbs[0])
+  for i in 1 ..< a.limbs.len:
+    result = result xor parity(a.limbs[i])
 
-func leadingZeros*(x: Stuint): int {.inline.} =
+func leadingZeros*(a: Stuint): int {.inline.} =
   result = 0
-  for word in mostToLeastSig(x):
+  for word in mostToLeastSig(a):
     let zeroCount = word.leadingZeros()
     result += zeroCount
     if zeroCount != WordBitWidth:
       return
 
-func trailingZeros*(x: Stuint): int {.inline.} =
+func trailingZeros*(a: Stuint): int {.inline.} =
   result = 0
-  for word in leastToMostSig(x):
+  for word in leastToMostSig(a):
     let zeroCount = word.leadingZeros()
     result += zeroCount
     if zeroCount != WordBitWidth:
       return
 
-func firstOne*(x: Stuint): int {.inline.} =
-  result = trailingZeros(x)
-  if result == x.limbs.len * WordBitWidth:
+func firstOne*(a: Stuint): int {.inline.} =
+  result = trailingZeros(a)
+  if result == a.limbs.len * WordBitWidth:
     result = 0
   else:
     result += 1
 
-{.pop.}
+func `shr`*(a: Stuint, k: SomeInteger): Stuint {.inline.} =
+  ## Shift right by k bits
+  if k < WordBitWidth:
+    result.limbs.shrSmall(a.limbs, k)
+    return
+  # w = k div WordBitWidth, shift = k mod WordBitWidth
+  let w     = k shr static(log2trunc(uint32(WordBitWidth)))
+  let shift = k and (WordBitWidth - 1)
+
+  if shift == 0:
+    result.limbs.shrWords(a.limbs, w)
+  else:
+    result.limbs.shrLarge(a.limbs, w, shift)
+
+func `shl`*(a: Stuint, k: SomeInteger): Stuint {.inline.} =
+  ## Shift left by k bits
+  if k < WordBitWidth:
+    result.limbs.shlSmall(a.limbs, k)
+    result.clearExtraBits()
+    return
+  # w = k div WordBitWidth, shift = k mod WordBitWidth
+  let w     = k shr static(log2trunc(uint32(WordBitWidth)))
+  let shift = k and (WordBitWidth - 1)
+
+  if shift == 0:
+    result.limbs.shlWords(a.limbs, w)
+  else:
+    result.limbs.shlLarge(a.limbs, w, shift)
+
+  result.clearExtraBits()
+
+{.pop.} # End inline
+
 # Addsub
 # --------------------------------------------------------
 {.push raises: [], inline, noInit, gcsafe.}

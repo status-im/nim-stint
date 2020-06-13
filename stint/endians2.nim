@@ -9,27 +9,131 @@
 
 import private/datatypes
 
-import stew/endians2
-export endians2
-
 {.push raises: [IndexError], noInit, gcsafe.}
 
-func toBytes*[bits: static int](x: StUint[bits], endian: Endianness = system.cpuEndian):
-    array[bits div 8, byte] {.inline.} =
-  when endian == system.cpuEndian:
-    for i in 0 ..< x.limbs.len:
-      result[i * sizeof(Word)] = x.limbs[i].toBytes()
+# Serialization
+# ------------------------------------------------------------------------------------------
+
+template toByte(x: SomeUnsignedInt): byte =
+  ## At compile-time, conversion to bytes checks the range
+  ## we want to ensure this is done at the register level
+  ## at runtime in a single "mov byte" instruction
+  when nimvm:
+    byte(x and 0xFF)
   else:
-    for i in 0 ..< x.limbs.len:
-      result[i * sizeof(Word)] = x.limbs[^i].toBytes()
+    byte(x)
 
-func toBytesLE*[bits: static int](x: StUint[bits]):
-    array[bits div 8, byte] {.inline.} =
-  toBytes(x, littleEndian)
+template blobFrom(dst: var openArray[byte], src: SomeUnsignedInt, startIdx: int, endian: static Endianness) =
+  ## Write an integer into a raw binary blob
+  ## Swapping endianness if needed
+  when endian == cpuEndian:
+    for i in 0 ..< sizeof(src):
+      dst[startIdx+i] = toByte((src shr (i * 8)))
+  else:
+    for i in 0 ..< sizeof(src):
+      dst[startIdx+sizeof(src)-1-i] = toByte((src shr (i * 8)))
 
-func toBytesBE*[bits: static int](x: StUint[bits]):
-    array[bits div 8, byte] {.inline.} =
-  toBytes(x, bigEndian)
+func toBytesLE*[bits: static int](src: StUint[bits]): array[bits div 8, byte] =
+  var
+    src_idx, dst_idx = 0
+    acc: Word = 0
+    acc_len = 0
+
+  when cpuEndian == bigEndian:
+    srcIdx = src.limbs.len - 1
+
+  var tail = result.len
+  while tail > 0:
+    when cpuEndian == littleEndian:
+      let w = if src_idx < src.limbs.len: src.limbs[src_idx]
+              else: 0
+      inc src_idx
+    else:
+      let w = if src_idx >= 0: src.limbs[src_idx]
+              else: 0
+      dec src_idx
+
+    if acc_len == 0:
+      # We need to refill the buffer to output 64-bit
+      acc = w
+      acc_len = WordBitWidth
+    else:
+      let lo = acc
+      acc = w
+
+      if tail >= sizeof(Word):
+        # Unrolled copy
+        result.blobFrom(src = lo, dst_idx, littleEndian)
+        dst_idx += sizeof(Word)
+        tail -= sizeof(Word)
+      else:
+        # Process the tail and exit
+        when cpuEndian == littleEndian:
+          # When requesting little-endian on little-endian platform
+          # we can just copy each byte
+          # tail is inclusive
+          for i in 0 ..< tail:
+            result[dst_idx+i] = toByte(lo shr (i*8))
+        else: # TODO check this
+          # We need to copy from the end
+          for i in 0 ..< tail:
+            result[dst_idx+i] = toByte(lo shr ((tail-i)*8))
+        return
+
+func toBytesBE*[bits: static int](src: StUint[bits]): array[bits div 8, byte] {.inline.} =
+  var
+    src_idx = 0
+    acc: Word = 0
+    acc_len = 0
+
+  when cpuEndian == bigEndian:
+    srcIdx = src.limbs.len - 1
+
+  var tail = result.len
+  while tail > 0:
+    when cpuEndian == littleEndian:
+      let w = if src_idx < src.limbs.len: src.limbs[src_idx]
+              else: 0
+      inc src_idx
+    else:
+      let w = if src_idx >= 0: src.limbs[src_idx]
+              else: 0
+      dec src_idx
+
+    if acc_len == 0:
+      # We need to refill the buffer to output 64-bit
+      acc = w
+      acc_len = WordBitWidth
+    else:
+      let lo = acc
+      acc = w
+
+      if tail >= sizeof(Word):
+        # Unrolled copy
+        tail -= sizeof(Word)
+        result.blobFrom(src = lo, tail, bigEndian)
+      else:
+        # Process the tail and exit
+        when cpuEndian == littleEndian:
+          # When requesting little-endian on little-endian platform
+          # we can just copy each byte
+          # tail is inclusive
+          for i in 0 ..< tail:
+            result[tail-1-i] = toByte(lo shr (i*8))
+        else:
+          # We need to copy from the end
+          for i in 0 ..< tail:
+            result[tail-1-i] = toByte(lo shr ((tail-i)*8))
+        return
+
+func toBytes*[bits: static int](x: StUint[bits], endian: Endianness = system.cpuEndian): array[bits div 8, byte] {.inline.} =
+  if endian == littleEndian:
+    result = x.toBytesLE()
+  else:
+    result = x.toBytesBE()
+
+# Deserialization
+# ------------------------------------------------------------------------------------------
 
 func fromBytesBE*[bits: static int](
     T: typedesc[StUint[bits]],

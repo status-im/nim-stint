@@ -11,7 +11,8 @@ import
   ./datatypes,
   ./primitives/extended_precision
 
-# ################### Multiplication ################### #
+# Multiplication
+# --------------------------------------------------------
 {.push raises: [], gcsafe.}
 
 func prod*[rLen, aLen, bLen: static int](r: var Limbs[rLen], a: Limbs[aLen], b: Limbs[bLen]) =
