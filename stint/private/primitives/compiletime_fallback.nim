@@ -11,29 +11,30 @@ import ../datatypes
 
 # ############################################################
 #
-#                     VM fallback
+#                 VM fallback for uint64
 #
 # ############################################################
 
 const
-  HalfWidth = WordBitWidth shr 1
-  HalfBase = (Word(1) shl HalfWidth)
+  uint64BitWidth = 64
+  HalfWidth = uint64BitWidth shr 1
+  HalfBase = 1'u64 shl HalfWidth
   HalfMask = HalfBase - 1
 
-func hi(n: Word): Word =
+func hi(n: uint64): uint64 =
   result = n shr HalfWidth
 
-func lo(n: Word): Word =
+func lo(n: uint64): uint64 =
   result = n and HalfMask
 
-func split(n: Word): tuple[hi, lo: Word] =
+func split(n: uint64): tuple[hi, lo: uint64] =
   result.hi = n.hi
   result.lo = n.lo
 
-func merge(hi, lo: Word): Word =
+func merge(hi, lo: uint64): uint64 =
   (hi shl HalfWidth) or lo
 
-func addC_nim*(cOut: var Carry, sum: var Word, a, b: Word, cIn: Carry) =
+func addC_nim*(cOut: var Carry, sum: var uint64, a, b: uint64, cIn: Carry) =
   # Add with carry, fallback for the Compile-Time VM
   # (CarryOut, Sum) <- a + b + CarryIn
   let (aHi, aLo) = split(a)
@@ -45,22 +46,22 @@ func addC_nim*(cOut: var Carry, sum: var Word, a, b: Word, cIn: Carry) =
   cOut = Carry(cHi)
   sum = merge(rHi, rLo)
 
-func subB_nim*(bOut: var Borrow, diff: var Word, a, b: Word, bIn: Borrow) =
+func subB_nim*(bOut: var Borrow, diff: var uint64, a, b: uint64, bIn: Borrow) =
   # Substract with borrow, fallback for the Compile-Time VM
   # (BorrowOut, Sum) <- a - b - BorrowIn
   let (aHi, aLo) = split(a)
   let (bHi, bLo) = split(b)
   let tLo = HalfBase + aLo - bLo - bIn
   let (noBorrowLo, rLo) = split(tLo)
-  let tHi = HalfBase + aHi - bHi - Word(noBorrowLo == 0)
+  let tHi = HalfBase + aHi - bHi - uint64(noBorrowLo == 0)
   let (noBorrowHi, rHi) = split(tHi)
   bOut = Borrow(noBorrowHi == 0)
   diff = merge(rHi, rLo)
 
-func mul_nim*(hi, lo: var Word, u, v: Word) =
+func mul_nim*(hi, lo: var uint64, u, v: uint64) =
   ## Extended precision multiplication
   ## (hi, lo) <- u * v
-  var x0, x1, x2, x3: Word
+  var x0, x1, x2, x3: uint64
 
   let
     (uh, ul) = u.split()
@@ -79,7 +80,7 @@ func mul_nim*(hi, lo: var Word, u, v: Word) =
   hi = x3 + hi(x1)
   lo = merge(x1, lo(x0))
 
-func muladd1_nim*(hi, lo: var Word, a, b, c: Word) {.inline.} =
+func muladd1*(hi, lo: var uint64, a, b, c: uint64) {.inline.} =
   ## Extended precision multiplication + addition
   ## (hi, lo) <- a*b + c
   ##
@@ -90,7 +91,7 @@ func muladd1_nim*(hi, lo: var Word, a, b, c: Word) {.inline.} =
   addC_nim(carry, lo, lo, c, 0)
   addC_nim(carry, hi, hi, 0, carry)
 
-func muladd2_nim*(hi, lo: var Word, a, b, c1, c2: Word) {.inline.}=
+func muladd2*(hi, lo: var uint64, a, b, c1, c2: uint64) {.inline.}=
   ## Extended precision multiplication + addition + addition
   ## (hi, lo) <- a*b + c1 + c2
   ##

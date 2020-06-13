@@ -25,16 +25,30 @@ func wordsRequired*(bits: int): int {.compileTime.} =
 
 type
   Limbs*[N: static int] = array[N, Word]
+    ## Limbs type
+    ## Large proc like multiplication and division
+    ## should operate at the limb-level
+    ## to avoid duplicate codepaths
+    ## For example for Stuint[16] and Stuint[32]
+    ## or if allowed in the future
+    ## Stuint[254] and Stuint[256]
 
   StUint*[bits: static[int]] = object
     ## Stack-based integer
     ## Unsigned
-    limbs*: Limbs[bits.wordsRequired]
+    limbs*: array[bits.wordsRequired, Word]
+      # TODO: using the limbs type here
+      #       can using StUint[8] of length 2, instead of 1
+      #       in test_uint_bitwise (in the VM)
+      #       unless you put the following instantiation
+      #       at the bottom of this file
+      # static:
+      #   echo StUint[8]()
 
   StInt*[bits: static[int]] = object
     ## Stack-based integer
     ## Signed
-    limbs*: Limbs[bits.wordsRequired]
+    limbs*: array[bits.wordsRequired, Word]
 
   Carry* = uint8  # distinct range[0'u8 .. 1]
   Borrow* = uint8 # distinct range[0'u8 .. 1]
@@ -54,13 +68,13 @@ when sizeof(int) == 8 and GCC_Compatible:
 template leastSignificantWord*(num: SomeInteger): auto =
   num
 
-func leastSignificantWord*(a: SomeBigInteger): auto {.inline.} =
+template leastSignificantWord*(a: SomeBigInteger): auto =
   when cpuEndian == littleEndian:
     a.limbs[0]
   else:
     a.limbs[^1]
 
-func mostSignificantWord*(a: SomeBigInteger): auto {.inline.} =
+template mostSignificantWord*(a: SomeBigInteger): auto =
   when cpuEndian == littleEndian:
     a.limbs[^1]
   else:

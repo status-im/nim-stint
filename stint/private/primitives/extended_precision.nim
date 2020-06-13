@@ -72,16 +72,20 @@ func muladd2*(hi, lo: var uint32, a, b, c1, c2: uint32) {.inline.}=
 #
 # ############################################################
 
-when sizeof(int) == 8:
-  when defined(vcc):
-    from ./extended_precision_x86_64_msvc import div2n1n, mul, muladd1, muladd2
-  elif GCCCompatible:
-    when X86:
-      from ./extended_precision_x86_64_gcc import div2n1n
-      from ./extended_precision_64bit_uint128 import mul, muladd1, muladd2
-    else:
-      from ./extended_precision_64bit_uint128 import div2n1n, mul, muladd1, muladd2
-  export div2n1n, mul, muladd1, muladd2
+when sizeof(int) == 8 and not defined(Stint32):
+  when nimvm:
+    from ./compiletime_fallback import mul_nim, muladd1, muladd2
+  else:
+    when defined(vcc):
+      from ./extended_precision_x86_64_msvc import div2n1n, mul, muladd1, muladd2
+    elif GCCCompatible:
+      when X86:
+        from ./extended_precision_x86_64_gcc import div2n1n
+        from ./extended_precision_64bit_uint128 import mul, muladd1, muladd2
+      else:
+        from ./extended_precision_64bit_uint128 import div2n1n, mul, muladd1, muladd2
+    export div2n1n, mul
+  export muladd1, muladd2
 
 # ############################################################
 #
@@ -124,7 +128,10 @@ func mulAcc*[T: uint32|uint64](t, u, v: var T, a, b: T) {.inline.} =
   ## (t, u, v) <- (t, u, v) + a * b
   var UV: array[2, T]
   var carry: Carry
-  mul(UV[1], UV[0], a, b)
+  when nimvm:
+    mul_nim(UV[1], UV[0], a, b)
+  else:
+    mul(UV[1], UV[0], a, b)
   addC(carry, v, v, UV[0], Carry(0))
   addC(carry, u, u, UV[1], carry)
   t += T(carry)

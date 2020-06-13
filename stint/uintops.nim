@@ -94,11 +94,22 @@ func isEven*(a: Stuint): bool {.inline.} =
 # --------------------------------------------------------
 {.push raises: [], inline, noInit, gcsafe.}
 
+template clearExtraBits(a: var StUint) =
+  ## A Stuint is stored in an array of 32 of 64-bit word
+  ## If we do bit manipulation at the word level,
+  ## for example a 8-bit stuint stored in a 64-bit word
+  ## we need to clear the upper 56-bit
+  when a.bits != a.limbs.len * WordBitWidth:
+    const posExtraBits = a.bits - (a.limbs.len-1) * WordBitWidth
+    const mask = (Word(1) shl posExtraBits) - 1
+    mostSignificantWord(a) = mostSignificantWord(a) and mask
+
 func `not`*(a: Stuint): Stuint =
   ## Bitwise complement of unsigned integer a
   ## i.e. flips all bits of the input
   for wr, wa in leastToMostSig(result, a):
     wr = not wa
+  result.clearExtraBits()
 
 func `or`*(a, b: Stuint): Stuint =
   ## `Bitwise or` of numbers a and b
@@ -114,6 +125,7 @@ func `xor`*(a, b: Stuint): Stuint =
   ## `Bitwise xor` of numbers x and y
   for wr, wa, wb in leastToMostSig(result, a, b):
     wr = wa xor wb
+  result.clearExtraBits()
 
 func `shr`*(a: Stuint, k: SomeInteger): Stuint =
   ## Shift right by k.
@@ -142,6 +154,7 @@ func `shl`*(a: Stuint, k: SomeInteger): Stuint =
     result.limbs[^1] = a.limbs[^1] shl k
     for i in countdown(a.limbs.len-2, 0):
       result.limbs[i] = (a.limbs[i] shl k) or (a.limbs[i+1] shr (WordBitWidth - k))
+  result.clearExtraBits()
 
 func countOnes*(x: Stuint): int {.inline.} =
   result = 0
@@ -186,24 +199,28 @@ func `+`*(a, b: Stuint): Stuint =
   var carry = Carry(0)
   for wr, wa, wb in leastToMostSig(result, a, b):
     addC(carry, wr, wa, wb, carry)
+  result.clearExtraBits()
 
 func `+=`*(a: var Stuint, b: Stuint) =
   ## In-place addition for multi-precision unsigned int
   var carry = Carry(0)
   for wa, wb in leastToMostSig(a, b):
     addC(carry, wa, wa, wb, carry)
+  a.clearExtraBits()
 
 func `-`*(a, b: Stuint): Stuint =
   # Substraction for multi-precision unsigned int
   var borrow = Borrow(0)
   for wr, wa, wb in leastToMostSig(result, a, b):
     subB(borrow, wr, wa, wb, borrow)
+  result.clearExtraBits()
 
 func `-=`*(a: var Stuint, b: Stuint) =
   ## In-place substraction for multi-precision unsigned int
   var borrow = Borrow(0)
   for wa, wb in leastToMostSig(a, b):
     subB(borrow, wa, wa, wb, borrow)
+  a.clearExtraBits()
 
 func inc*(a: var Stuint, w: Word = 1) =
   var carry = Carry(0)
@@ -211,16 +228,23 @@ func inc*(a: var Stuint, w: Word = 1) =
     addC(carry, x.limbs[0], x.limbs[0], w, carry)
     for i in 1 ..< x.len:
       addC(carry, x.limbs[i], x.limbs[i], 0, carry)
+  a.clearExtraBits()
 
 {.pop.}
 # Multiplication
 # --------------------------------------------------------
+# Multiplication is implemented in a separate file at the limb-level
+# - It's too big to be inlined (especially with unrolled loops)
+# - It's implemented at the limb-level so that
+#   in the future Stuint[254] and Stuint256] share a common codepath
+
 import ./private/uint_mul
 {.push raises: [], inline, noInit, gcsafe.}
 
-func `*`*(a, b: Stuint): Stuint {.inline.} =
+func `*`*(a, b: Stuint): Stuint =
   ## Integer multiplication
   result.limbs.prod(a.limbs, b.limbs)
+  result.clearExtraBits()
 
 {.pop.}
 # Division & Modulo
