@@ -9,6 +9,7 @@
 
 import ../stint, unittest, stew/byteutils, test_helpers
 
+
 template chkSwapBytes(chk: untyped, bits: int, hex: string) =
   # dumpHex already do the job to swap the output if
   # we use `littleEndian` on both platform

@@ -23,18 +23,22 @@ export StUint
 
 func setZero*(a: var StUint) =
   ## Set ``a`` to 0
-  zeroMem(a[0].addr, sizeof(a))
+  for i in 0 ..< a.limbs.len:
+    a[i] = 0
+
+func setSmallInt(a: var StUint, k: Word) =
+  ## Set ``a`` to k
+  when cpuEndian == littleEndian:
+    a.limbs[0] = k
+    for i in 1 ..< a.limbs.len:
+      a.limbs[i] = 0
+  else:
+    a.limbs[^1] = k
+    for i in 0 ..< a.limb.len - 1:
+      a.limbs[i] = 0
 
 func setOne*(a: var StUint) =
-  ## Set ``a`` to 1
-  when cpuEndian == littleEndian:
-    a.limbs[0] = 1
-    when a.limbs.len > 1:
-      zeroMem(a.limbs[1].addr, (a.limbs.len - 1) * sizeof(SecretWord))
-  else:
-    a.limbs[^1] = 1
-    when a.limbs.len > 1:
-      zeroMem(a.limbs[0].addr, (a.len - 1) * sizeof(SecretWord))
+  setSmallInt(a, 1)
 
 func zero*[bits: static[int]](T: typedesc[Stuint[bits]]): T {.inline.} =
   ## Returns the zero of the input type
@@ -42,7 +46,7 @@ func zero*[bits: static[int]](T: typedesc[Stuint[bits]]): T {.inline.} =
 
 func one*[bits: static[int]](T: typedesc[Stuint[bits]]): T {.inline.} =
   ## Returns the one of the input type
-  result.limbs.setOne()
+  result.setOne()
 
 func high*[bits](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.} =
   for wr in leastToMostSig(result):
@@ -279,8 +283,52 @@ func `*`*(a, b: Stuint): Stuint =
   result.clearExtraBits()
 
 {.pop.}
-# Division & Modulo
-# --------------------------------------------------------
 
 # Exponentiation
+# --------------------------------------------------------
+
+{.push raises: [], noInit, gcsafe.}
+
+func pow*(a: Stuint, e: Natural): Stuint =
+  ## Compute ``a`` to the power of ``e``,
+  ## ``e`` must be non-negative
+
+  # Implementation uses exponentiation by squaring
+  # See Nim math module: https://github.com/nim-lang/Nim/blob/4ed24aa3eb78ba4ff55aac3008ec3c2427776e50/lib/pure/math.nim#L429
+  # And Eli Bendersky's blog: https://eli.thegreenplace.net/2009/03/21/efficient-integer-exponentiation-algorithms
+
+  var (a, e) = (a, e)
+  result.setOne()
+
+  while true:
+    if bool(e and 1): # if y is odd
+      result = result * a
+    e = e shr 1
+    if e == 0:
+      break
+    a = a * a
+
+func pow*[aBits, eBits](a: Stuint[aBits], e: Stuint[eBits]): Stuint[aBits] =
+  ## Compute ``x`` to the power of ``y``,
+  ## ``x`` must be non-negative
+
+  # Implementation uses exponentiation by squaring
+  # See Nim math module: https://github.com/nim-lang/Nim/blob/4ed24aa3eb78ba4ff55aac3008ec3c2427776e50/lib/pure/math.nim#L429
+  # And Eli Bendersky's blog: https://eli.thegreenplace.net/2009/03/21/efficient-integer-exponentiation-algorithms
+
+  var (a, e) = (a, e)
+  result.setOne()
+
+  while true:
+    if e.isOdd:
+      result = result * a
+    e = e shr 1
+    if e.isZero:
+      break
+    a = a * a
+
+{.pop.}
+
+
+# Division & Modulo
 # --------------------------------------------------------
