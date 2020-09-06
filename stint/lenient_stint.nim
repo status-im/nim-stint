@@ -11,6 +11,8 @@
 
 import ./int_public, ./uint_public, macros
 
+# TODO: deprecate
+
 type Signedness = enum
   BothSigned, IntOnly, UintOnly
 

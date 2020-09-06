@@ -140,19 +140,31 @@ func parity*(a: Stuint): int =
 
 func leadingZeros*(a: Stuint): int =
   result = 0
+
+  # Adjust when we use only part of the word size
+  var extraBits = WordBitWidth * a.limbs.len - a.bits
+
   for word in mostToLeastSig(a):
     let zeroCount = word.leadingZeros()
-    result += zeroCount
+    if extraBits > 0:
+      result += zeroCount - min(extraBits, WordBitWidth)
+      extraBits -= WordBitWidth
+    else:
+      result += zeroCount
     if zeroCount != WordBitWidth:
-      return
+      break
 
 func trailingZeros*(a: Stuint): int =
   result = 0
   for word in leastToMostSig(a):
-    let zeroCount = word.leadingZeros()
+    let zeroCount = word.trailingZeros()
     result += zeroCount
     if zeroCount != WordBitWidth:
-      return
+      break
+
+  when a.limbs.len * WordBitWidth != a.bits:
+    if result > a.bits:
+      result = a.bits
 
 func firstOne*(a: Stuint): int =
   result = trailingZeros(a)
@@ -204,7 +216,7 @@ func `shl`*(a: Stuint, k: SomeInteger): Stuint =
 {.push raises: [], inline, noInit, gcsafe.}
 
 func `+`*(a, b: Stuint): Stuint =
-  # Addition for multi-precision unsigned int
+  ## Addition for multi-precision unsigned int
   var carry = Carry(0)
   for wr, wa, wb in leastToMostSig(result, a, b):
     addC(carry, wr, wa, wb, carry)
@@ -218,7 +230,7 @@ func `+=`*(a: var Stuint, b: Stuint) =
   a.clearExtraBits()
 
 func `-`*(a, b: Stuint): Stuint =
-  # Substraction for multi-precision unsigned int
+  ## Substraction for multi-precision unsigned int
   var borrow = Borrow(0)
   for wr, wa, wb in leastToMostSig(result, a, b):
     subB(borrow, wr, wa, wb, borrow)
@@ -234,10 +246,21 @@ func `-=`*(a: var Stuint, b: Stuint) =
 func inc*(a: var Stuint, w: Word = 1) =
   var carry = Carry(0)
   when cpuEndian == littleEndian:
-    addC(carry, x.limbs[0], x.limbs[0], w, carry)
-    for i in 1 ..< x.len:
-      addC(carry, x.limbs[i], x.limbs[i], 0, carry)
+    addC(carry, a.limbs[0], a.limbs[0], w, carry)
+    for i in 1 ..< a.limbs.len:
+      addC(carry, a.limbs[i], a.limbs[i], 0, carry)
   a.clearExtraBits()
+
+func `+`*(a: Stuint, b: SomeUnsignedInt): Stuint =
+  ## Addition for multi-precision unsigned int
+  ## with an unsigned integer
+  result = a
+  result.inc(Word(b))
+
+func `+=`*(a: var Stuint, b: SomeUnsignedInt) =
+  ## In-place addition for multi-precision unsigned int
+  ## with an unsigned integer
+  a.inc(Word(b))
 
 {.pop.}
 # Multiplication
