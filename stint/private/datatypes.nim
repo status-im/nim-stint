@@ -80,6 +80,16 @@ template mostSignificantWord*(a: SomeBigInteger): auto =
   else:
     a.limbs[0]
 
+template clearExtraBits*(a: var StUint) =
+  ## A Stuint is stored in an array of 32 of 64-bit word
+  ## If we do bit manipulation at the word level,
+  ## for example a 8-bit stuint stored in a 64-bit word
+  ## we need to clear the upper 56-bit
+  when a.bits != a.limbs.len * WordBitWidth:
+    const posExtraBits = a.bits - (a.limbs.len-1) * WordBitWidth
+    const mask = (Word(1) shl posExtraBits) - 1
+    mostSignificantWord(a) = mostSignificantWord(a) and mask
+
 # Iterations
 # --------------------------------------------------------
 

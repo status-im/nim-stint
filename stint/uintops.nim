@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018-2020 Status Research & Development GmbH
+# Copyright 2018-Present Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -8,11 +8,11 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import
-  # Status lib
-  stew/bitops2,
   # Internal
   ./private/datatypes,
+  ./private/uint_bitwise,
   ./private/uint_shift,
+  ./private/uint_addsub,
   ./private/primitives/addcarry_subborrow
 
 export StUint
@@ -99,119 +99,41 @@ func isEven*(a: Stuint): bool {.inline.} =
 # --------------------------------------------------------
 {.push raises: [], inline, noInit, gcsafe.}
 
-template clearExtraBits(a: var StUint) =
-  ## A Stuint is stored in an array of 32 of 64-bit word
-  ## If we do bit manipulation at the word level,
-  ## for example a 8-bit stuint stored in a 64-bit word
-  ## we need to clear the upper 56-bit
-  when a.bits != a.limbs.len * WordBitWidth:
-    const posExtraBits = a.bits - (a.limbs.len-1) * WordBitWidth
-    const mask = (Word(1) shl posExtraBits) - 1
-    mostSignificantWord(a) = mostSignificantWord(a) and mask
-
 func `not`*(a: Stuint): Stuint =
   ## Bitwise complement of unsigned integer a
   ## i.e. flips all bits of the input
-  for wr, wa in leastToMostSig(result, a):
-    wr = not wa
-  result.clearExtraBits()
+  result.bitnot(a)
 
 func `or`*(a, b: Stuint): Stuint =
   ## `Bitwise or` of numbers a and b
-  for wr, wa, wb in leastToMostSig(result, a, b):
-    wr = wa or wb
+  result.bitor(a, b)
 
 func `and`*(a, b: Stuint): Stuint =
   ## `Bitwise and` of numbers a and b
-  for wr, wa, wb in leastToMostSig(result, a, b):
-    wr = wa and wb
+  result.bitand(a, b)
 
 func `xor`*(a, b: Stuint): Stuint =
   ## `Bitwise xor` of numbers x and y
-  for wr, wa, wb in leastToMostSig(result, a, b):
-    wr = wa xor wb
-  result.clearExtraBits()
-
-func countOnes*(a: Stuint): int =
-  result = 0
-  for wa in leastToMostSig(a):
-    result += countOnes(wa)
-
-func parity*(a: Stuint): int =
-  result = parity(a.limbs[0])
-  for i in 1 ..< a.limbs.len:
-    result = result xor parity(a.limbs[i])
-
-func leadingZeros*(a: Stuint): int =
-  result = 0
-
-  # Adjust when we use only part of the word size
-  var extraBits = WordBitWidth * a.limbs.len - a.bits
-
-  for word in mostToLeastSig(a):
-    let zeroCount = word.leadingZeros()
-    if extraBits > 0:
-      result += zeroCount - min(extraBits, WordBitWidth)
-      extraBits -= WordBitWidth
-    else:
-      result += zeroCount
-    if zeroCount != WordBitWidth:
-      break
-
-func trailingZeros*(a: Stuint): int =
-  result = 0
-  for word in leastToMostSig(a):
-    let zeroCount = word.trailingZeros()
-    result += zeroCount
-    if zeroCount != WordBitWidth:
-      break
-
-  when a.limbs.len * WordBitWidth != a.bits:
-    if result > a.bits:
-      result = a.bits
-
-func firstOne*(a: Stuint): int =
-  result = trailingZeros(a)
-  if result == a.limbs.len * WordBitWidth:
-    result = 0
-  else:
-    result += 1
+  result.bitxor(a, b)
 
 {.pop.} # End noInit
+
+export
+  countOnes,
+  parity,
+  leadingZeros,
+  trailingZeros,
+  firstOne
+
 {.push raises: [], inline, gcsafe.}
 
 func `shr`*(a: Stuint, k: SomeInteger): Stuint =
   ## Shift right by k bits
-  if k < WordBitWidth:
-    result.limbs.shrSmall(a.limbs, k)
-    return
-
-  # w = k div WordBitWidth, shift = k mod WordBitWidth
-  let w     = k shr static(log2trunc(uint32(WordBitWidth)))
-  let shift = k and (WordBitWidth - 1)
-
-  if shift == 0:
-    result.limbs.shrWords(a.limbs, w)
-  else:
-    result.limbs.shrLarge(a.limbs, w, shift)
+  result.shiftRight(a, k)
 
 func `shl`*(a: Stuint, k: SomeInteger): Stuint =
   ## Shift left by k bits
-  if k < WordBitWidth:
-    result.limbs.shlSmall(a.limbs, k)
-    result.clearExtraBits()
-    return
-
-  # w = k div WordBitWidth, shift = k mod WordBitWidth
-  let w     = k shr static(log2trunc(uint32(WordBitWidth)))
-  let shift = k and (WordBitWidth - 1)
-
-  if shift == 0:
-    result.limbs.shlWords(a.limbs, w)
-  else:
-    result.limbs.shlLarge(a.limbs, w, shift)
-
-  result.clearExtraBits()
+  result.shiftLeft(a, k)
 
 {.pop.}
 
@@ -221,52 +143,27 @@ func `shl`*(a: Stuint, k: SomeInteger): Stuint =
 
 func `+`*(a, b: Stuint): Stuint =
   ## Addition for multi-precision unsigned int
-  var carry = Carry(0)
-  for wr, wa, wb in leastToMostSig(result, a, b):
-    addC(carry, wr, wa, wb, carry)
-  result.clearExtraBits()
+  result.sum(a, b)
 
-func `+=`*(a: var Stuint, b: Stuint) =
-  ## In-place addition for multi-precision unsigned int
-  var carry = Carry(0)
-  for wa, wb in leastToMostSig(a, b):
-    addC(carry, wa, wa, wb, carry)
-  a.clearExtraBits()
+export `+=`
 
 func `-`*(a, b: Stuint): Stuint =
   ## Substraction for multi-precision unsigned int
-  var borrow = Borrow(0)
-  for wr, wa, wb in leastToMostSig(result, a, b):
-    subB(borrow, wr, wa, wb, borrow)
-  result.clearExtraBits()
+  result.diff(a, b)
 
-func `-=`*(a: var Stuint, b: Stuint) =
-  ## In-place substraction for multi-precision unsigned int
-  var borrow = Borrow(0)
-  for wa, wb in leastToMostSig(a, b):
-    subB(borrow, wa, wa, wb, borrow)
-  a.clearExtraBits()
+export `-=`
 
-func inc*(a: var Stuint, w: Word = 1) =
-  var carry = Carry(0)
-  when cpuEndian == littleEndian:
-    addC(carry, a.limbs[0], a.limbs[0], w, carry)
-    for i in 1 ..< a.limbs.len:
-      addC(carry, a.limbs[i], a.limbs[i], 0, carry)
-  a.clearExtraBits()
+export inc
 
 func `+`*(a: Stuint, b: SomeUnsignedInt): Stuint =
   ## Addition for multi-precision unsigned int
   ## with an unsigned integer
-  result = a
-  result.inc(Word(b))
+  result.sum(a, Word(b))
 
-func `+=`*(a: var Stuint, b: SomeUnsignedInt) =
-  ## In-place addition for multi-precision unsigned int
-  ## with an unsigned integer
-  a.inc(Word(b))
+export `+=`
 
 {.pop.}
+
 # Multiplication
 # --------------------------------------------------------
 # Multiplication is implemented in a separate file at the limb-level
@@ -311,7 +208,6 @@ func pow*(a: Stuint, e: Natural): Stuint =
 func pow*[aBits, eBits](a: Stuint[aBits], e: Stuint[eBits]): Stuint[aBits] =
   ## Compute ``x`` to the power of ``y``,
   ## ``x`` must be non-negative
-
   # Implementation uses exponentiation by squaring
   # See Nim math module: https://github.com/nim-lang/Nim/blob/4ed24aa3eb78ba4ff55aac3008ec3c2427776e50/lib/pure/math.nim#L429
   # And Eli Bendersky's blog: https://eli.thegreenplace.net/2009/03/21/efficient-integer-exponentiation-algorithms
@@ -328,7 +224,6 @@ func pow*[aBits, eBits](a: Stuint[aBits], e: Stuint[eBits]): Stuint[aBits] =
     a = a * a
 
 {.pop.}
-
 
 # Division & Modulo
 # --------------------------------------------------------

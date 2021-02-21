@@ -8,8 +8,11 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import
+  # Status lib
+  stew/bitops2,
+  # Internal
   ./datatypes
-
+  
 # Shifts
 # --------------------------------------------------------
 {.push raises: [], gcsafe.}
@@ -91,3 +94,39 @@ func shlWords*(r: var Limbs, a: Limbs, w: SomeInteger) =
   else:
     for i in countdown(Limbs.len-1, 0):
       r[i] = a[i-w]
+
+# Wrappers
+# --------------------------------------------------------
+
+func shiftRight*(r: var Stuint, a: Stuint, k: SomeInteger) =
+  ## Shift `a` right by k bits and store in `r`
+  if k < WordBitWidth:
+    r.limbs.shrSmall(a.limbs, k)
+    return
+
+  # w = k div WordBitWidth, shift = k mod WordBitWidth
+  let w     = k shr static(log2trunc(uint32(WordBitWidth)))
+  let shift = k and (WordBitWidth - 1)
+
+  if shift == 0:
+    r.limbs.shrWords(a.limbs, w)
+  else:
+    r.limbs.shrLarge(a.limbs, w, shift)
+
+func shiftLeft*(r: var Stuint, a: Stuint, k: SomeInteger) =
+  ## Shift `a` left by k bits and store in `r`
+  if k < WordBitWidth:
+    r.limbs.shlSmall(a.limbs, k)
+    r.clearExtraBits()
+    return
+
+  # w = k div WordBitWidth, shift = k mod WordBitWidth
+  let w     = k shr static(log2trunc(uint32(WordBitWidth)))
+  let shift = k and (WordBitWidth - 1)
+
+  if shift == 0:
+    r.limbs.shlWords(a.limbs, w)
+  else:
+    r.limbs.shlLarge(a.limbs, w, shift)
+
+  r.clearExtraBits()
