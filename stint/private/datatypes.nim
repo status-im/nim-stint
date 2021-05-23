@@ -123,6 +123,7 @@ when defined(mpint_test): # TODO stint_test
 
 else:
   template uintImpl*(bits: static[int]): untyped =
+    mixin UintImpl
     when bits >= 128: UintImpl[uintImpl(checkDiv2(bits))]
     elif bits == 64: uint64
     elif bits == 32: uint32
