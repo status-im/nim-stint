@@ -12,7 +12,7 @@ import
   stew/bitops2,
   # Internal
   ./datatypes
-  
+
 # Shifts
 # --------------------------------------------------------
 {.push raises: [], gcsafe.}
@@ -57,6 +57,29 @@ func shrWords*(r: var Limbs, a: Limbs, w: SomeInteger) =
   else:
     for i in countdown(Limbs.len-w, 0):
       r[i] = a[i+w]
+
+func shlSmallOverflowing*[rLen, aLen: static int](
+       r: var Limbs[rLen], a: Limbs[aLen], k: SomeInteger) =
+  ## Compute the `shift left` operation of x and k
+  ##
+  ## k MUST be less than the base word size (2^32 or 2^64)
+  when cpuEndian == littleEndian:
+    r[0] = a[0] shl k
+    for i in 1 ..< a.len:
+      r[i] = (a[i] shl k) or (a[i-1] shr (WordBitWidth - k))
+    if rLen > aLen:
+      r[aLen] = a[aLen - 1] shr (WordBitWidth - k)
+      for i in aLen+1 ..< rLen:
+        r[i] = 0
+  else:
+    const offset = rLen - aLen
+    r[^1] = a[^1] shl k
+    for i in countdown(a.len-2, 0):
+      r[i+offset] = (a[i] shl k) or (a[i+1] shr (WordBitWidth - k))
+    if rLen > aLen:
+      r[offset-1] = a[0] shr (WordBitWidth - k)
+      for i in 0 ..< offset-1:
+        r[i] = 0
 
 func shlSmall*(r: var Limbs, a: Limbs, k: SomeInteger) =
   ## Compute the `shift left` operation of x and k

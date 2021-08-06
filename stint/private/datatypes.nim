@@ -126,7 +126,7 @@ iterator leastToMostSig*[aBits, bBits](a: var SomeBigInteger[aBits], b: SomeBigI
     for i in 0 ..< min(a.limbs.len, b.limbs.len):
       yield (a.limbs[i], b.limbs[i])
   else:
-    for i in countdown(min(aLimbs.len, b.limbs.len)-1, 0):
+    for i in countdown(min(a.limbs.len, b.limbs.len)-1, 0):
       yield (a.limbs[i], b.limbs[i])
 
 iterator leastToMostSig*(c: var SomeBigInteger, a, b: SomeBigInteger): (var Word, Word, Word) =
@@ -176,3 +176,23 @@ macro staticFor*(idx: untyped{nkIdent}, start, stopEx: static int, body: untyped
       ident("unrolledIter_" & $idx & $i),
       body.replaceNodes(idx, newLit i)
     )
+
+# Copy
+# --------------------------------------------------------
+
+func copyFrom*[dLen, sLen](
+        dst: var SomeBigInteger[dLen],
+        src: SomeBigInteger[sLen]
+      ){.inline.} =
+  ## Copy a BigInteger, truncated to 2^slen if the source
+  ## is larger than the destination
+  when cpuEndian == littleEndian:
+    for i in 0 ..< min(dst.limbs.len, src.limbs.len):
+      dst.limbs[i] = src.limbs[i]
+    for i in src.limbs.len ..< dst.limbs.len:
+      dst.limbs[i] = 0
+  else:
+    for i in countdown(dst.limbs.len-1, src.limbs.len):
+      dst.limbs[i] = 0
+    for i in countdown(src.limbs.len-1, 0):
+      dst.limbs[i] = src.limbs[i]
