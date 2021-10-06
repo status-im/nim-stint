@@ -155,11 +155,11 @@ func stint*(x: StInt, bits: static[int]): StInt[bits] {.inline.} =
       # due to bug #92, we skip negative range check
       when false:
         const dmin = stint((type result).low, N)
-        if x < dmin: raise newException(RangeError, "value out of range")
+        if x < dmin: raise newException(ValueError, "value out of range")
 
     template checkPositiveRange() =
       const dmax = stint((type result).high, N)
-      if x > dmax: raise newException(RangeError, "value out of range")
+      if x > dmax: raise newException(ValueError, "value out of range")
 
     when bits <= 64:
       if x.isNegative:
@@ -183,7 +183,7 @@ func stint*(x: StInt, bits: static[int]): StInt[bits] {.inline.} =
 func stint*(x: StUint, bits: static[int]): StInt[bits] {.inline.} =
   const N = bitsof(x.data)
   const dmax = stuint((type result).high, N)
-  if x > dmax: raise newException(RangeError, "value out of range")
+  if x > dmax: raise newException(ValueError, "value out of range")
   when N < bits:
     when N <= 64:
       result = stint(x.data, bits)
