@@ -1197,6 +1197,12 @@ proc main() =
       else:
         echo "Next test skipped when Stint forces uint32 backend in test mode"
 
+    test "Parsing an unexpected 0x prefix for a decimal string is a CatchableError and not a defect":
+      let s = "0x123456"
+      
+      expect(ValueError):
+        let value = parse(s, StUint[256], 10)
+
   suite "Testing conversion functions: Hex, Bytes, Endianness using secp256k1 curve":
 
     let
