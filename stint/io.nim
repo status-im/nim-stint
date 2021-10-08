@@ -155,11 +155,11 @@ func stint*(x: StInt, bits: static[int]): StInt[bits] {.inline.} =
       # due to bug #92, we skip negative range check
       when false:
         const dmin = stint((type result).low, N)
-        if x < dmin: raise newException(RangeError, "value out of range")
+        if x < dmin: raise newException(ValueError, "value out of range")
 
     template checkPositiveRange() =
       const dmax = stint((type result).high, N)
-      if x > dmax: raise newException(RangeError, "value out of range")
+      if x > dmax: raise newException(ValueError, "value out of range")
 
     when bits <= 64:
       if x.isNegative:
@@ -183,7 +183,7 @@ func stint*(x: StInt, bits: static[int]): StInt[bits] {.inline.} =
 func stint*(x: StUint, bits: static[int]): StInt[bits] {.inline.} =
   const N = bitsof(x.data)
   const dmax = stuint((type result).high, N)
-  if x > dmax: raise newException(RangeError, "value out of range")
+  if x > dmax: raise newException(ValueError, "value out of range")
   when N < bits:
     when N <= 64:
       result = stint(x.data, bits)
@@ -209,6 +209,8 @@ func readHexChar(c: char): int8 {.inline.}=
 func skipPrefixes(current_idx: var int, str: string, radix: range[2..16]) {.inline.} =
   ## Returns the index of the first meaningful char in `hexStr` by skipping
   ## "0x" prefix
+  # Always called from a context where radix is known at compile-time
+  # and checked within 2..16 and so cannot throw a RangeDefect at runtime
 
   if str.len < 2:
     return
@@ -237,9 +239,11 @@ func nextNonBlank(current_idx: var int, s: string) {.inline.} =
   while current_idx < s.len and s[current_idx] in blanks:
     inc current_idx
 
-func readDecChar(c: range['0'..'9']): int {.inline.}=
+func readDecChar(c: char): int {.inline.}=
   ## Converts a decimal char to an int
   # specialization without branching for base <= 10.
+  if c notin {'0'..'9'}:
+    raise newException(ValueError, "Character out of '0'..'9' range")
   ord(c) - ord('0')
 
 func parse*[bits: static[int]](input: string, T: typedesc[Stuint[bits]], radix: static[uint8] = 10): T =

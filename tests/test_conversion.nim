@@ -90,7 +90,7 @@ template chkStuintToStint(chk: untyped, N, bits: static[int]) =
         # expect(...) cannot run in Nim VM
         discard
       else:
-        expect(RangeError):
+        expect(ValueError):
           discard stint(v, bits)
     else:
       let vv = stint(v, bits)
