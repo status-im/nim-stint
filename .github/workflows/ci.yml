@@ -155,6 +155,6 @@ jobs:
           nim --version
           nimble --version
           nimble install -y --depsOnly
-          nimble install -y https://github.com/alehander42/nim-quicktest ttmath
+          #nimble install -y https://github.com/alehander42/nim-quicktest ttmath
           env TEST_LANG="c" nimble test
-          env TEST_LANG="cpp" nimble test
+          #env TEST_LANG="cpp" nimble test
