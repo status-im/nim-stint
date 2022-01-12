@@ -13,6 +13,8 @@ import
   ./private/uint_bitwise,
   ./private/uint_shift,
   ./private/uint_addsub,
+  ./private/uint_mul,
+  ./private/uint_div,
   ./private/primitives/addcarry_subborrow
 
 export StUint
@@ -171,7 +173,6 @@ export `+=`
 # - It's implemented at the limb-level so that
 #   in the future Stuint[254] and Stuint256] share a common codepath
 
-import ./private/uint_mul
 {.push raises: [], inline, noInit, gcsafe.}
 
 func `*`*(a, b: Stuint): Stuint =
@@ -227,3 +228,5 @@ func pow*[aBits, eBits](a: Stuint[aBits], e: Stuint[eBits]): Stuint[aBits] =
 
 # Division & Modulo
 # --------------------------------------------------------
+
+export uint_div

@@ -10,8 +10,8 @@
 # import stint/[bitops2, endians2, intops, io, modular_arithmetic, literals_stint]
 # export bitops2, endians2, intops, io, modular_arithmetic, literals_stint
 
-import stint/[io, uintops, bitops2]
-export io, uintops, bitops2
+import stint/[io, uintops]
+export io, uintops
 
 type
   # Int128* = Stint[128]
