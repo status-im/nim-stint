@@ -63,11 +63,11 @@ func shortDiv*(a: var Limbs, k: Word): Word =
 #     d = d shr 1
 #     dec(shift)
 
-func knuthDivLE[qLen, rLen, uLen, vLen: static int](
-       q: var Limbs[qLen],
-       r: var Limbs[rLen],
-       u: Limbs[uLen],
-       v: Limbs[vLen],
+func knuthDivLE(
+       q: var StUint,
+       r: var StUint,
+       u: StUint,
+       v: StUint,
        needRemainder: bool) =
   ## Compute the quotient and remainder (if needed)
   ## of the division of u by v
@@ -79,6 +79,15 @@ func knuthDivLE[qLen, rLen, uLen, vLen: static int](
   ## For now only LittleEndian is implemented
   #
   # Resources at the bottom of the file
+
+  const
+    qLen = q.limbs.len
+    rLen = r.limbs.len
+    uLen = u.limbs.len
+    vLen = v.limbs.len
+
+  template `[]`(a: Stuint, i: int): Word = a.limbs[i]
+  template `[]=`(a: Stuint, i: int, val: Word) = a.limbs[i] = val
 
   # Find the most significant word with actual set bits
   # and get the leading zero count there
@@ -96,7 +105,7 @@ func knuthDivLE[qLen, rLen, uLen, vLen: static int](
   # Divisor is a single word.
   if divisorLen == 1:
     q.copyFrom(u)
-    r.leastSignificantWord() = q.shortDiv(v.leastSignificantWord())
+    r.leastSignificantWord() = q.limbs.shortDiv(v.leastSignificantWord())
     # zero all but the least significant word
     var lsw = true
     for w in leastToMostSig(r):
@@ -111,8 +120,8 @@ func knuthDivLE[qLen, rLen, uLen, vLen: static int](
 
   # Normalize so that the divisor MSB is set,
   # vn cannot overflow, un can overflowed by 1 word at most, hence uLen+1
-  un.shlSmallOverflowing(u, clz)
-  vn.shlSmall(v, clz)
+  un.shlSmallOverflowing(u.limbs, clz)
+  vn.shlSmall(v.limbs, clz)
 
   static: doAssert cpuEndian == littleEndian, "Currently the division algorithm requires little endian ordering of the limbs"
   # TODO: is it worth it to have the uint be the exact same extended precision representation
@@ -161,24 +170,42 @@ func knuthDivLE[qLen, rLen, uLen, vLen: static int](
       q[j] -= 1
       var carry = Carry(0)
       for i in 0 ..< divisorLen:
-        addC(carry, u[j+i], u[j+i], v[i], carry)
+        addC(carry, un[j+i], un[j+i], v[i], carry)
 
   # Quotient is found, if remainder is needed we need to un-normalize un
   if needRemainder:
-    r.shrSmall(un, clz)
+    # r.limbs.shrSmall(un, clz) - TODO
+    when cpuEndian == littleEndian:
+      # rLen+1 == un.len
+      for i in 0 ..< rLen:
+        r[i] = (un[i] shr clz) or (un[i+1] shl (WordBitWidth - clz))
+    else:
+      {.error: "Not Implemented for bigEndian".}
+
 
 const BinaryShiftThreshold = 8  # If the difference in bit-length is below 8
                                 # binary shift is probably faster
 
 func divmod(q, r: var Stuint,
+<<<<<<< HEAD
     x: Limbs[xLen], y: Limbs[yLen], needRemainder: bool) =
+=======
+            x, y: Stuint, needRemainder: bool) =
+
+>>>>>>> 88858a7 (uint division - compile and pass the single limb tests)
   let x_clz = x.leadingZeros()
   let y_clz = y.leadingZeros()
 
   # We short-circuit division depending on special-cases.
+<<<<<<< HEAD
   if unlikely(y.isZero):
     raise newException(DivByZeroDefect, "You attempted to divide by zero")
   elif y_clz == (bitsof(y) - 1):
+=======
+  if unlikely(y.isZero()):
+    raise newException(DivByZeroError, "You attempted to divide by zero")
+  elif y_clz == (y.bits - 1):
+>>>>>>> 88858a7 (uint division - compile and pass the single limb tests)
     # y is one
     q = x
   # elif (x.hi or y.hi).isZero:
@@ -209,7 +236,7 @@ func `div`*(x, y: Stuint): Stuint {.inline.} =
 func `mod`*(x, y: Stuint): Stuint {.inline.} =
   ## Remainder operation for multi-precision unsigned uint
   var tmp{.noInit.}: Stuint
-  divmod(tmp, result, x,y, needRemainder = true)
+  divmod(tmp, result, x, y, needRemainder = true)
 
 func divmod*(x, y: Stuint): tuple[quot, rem: Stuint] =
   ## Division and remainder operations for multi-precision unsigned uint

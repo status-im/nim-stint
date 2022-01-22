@@ -73,19 +73,57 @@ func muladd2*(hi, lo: var uint32, a, b, c1, c2: uint32) {.inline.}=
 # ############################################################
 
 when sizeof(int) == 8 and not defined(Stint32):
-  when nimvm:
-    from ./compiletime_fallback import mul_nim, muladd1, muladd2
-  else:
-    when defined(vcc):
-      from ./extended_precision_x86_64_msvc import div2n1n, mul, muladd1, muladd2
-    elif GCCCompatible:
-      when X86:
-        from ./extended_precision_x86_64_gcc import div2n1n
-        from ./extended_precision_64bit_uint128 import mul, muladd1, muladd2
-      else:
-        from ./extended_precision_64bit_uint128 import div2n1n, mul, muladd1, muladd2
-    export div2n1n, mul
-  export muladd1, muladd2
+  from ./compiletime_fallback import div2n1n_nim, mul_nim, muladd1_nim, muladd2_nim
+
+  when defined(vcc):
+    from ./extended_precision_x86_64_msvc import div2n1n_128, mul_128, muladd1_128, muladd2_128
+  elif GCCCompatible:
+    when X86:
+      from ./extended_precision_x86_64_gcc import div2n1n_128
+      from ./extended_precision_64bit_uint128 import mul_128, muladd1_128, muladd2_128
+    else:
+      from ./extended_precision_64bit_uint128 import div2n1n_128, mul_128, muladd1_128, muladd2_128
+
+  func mul*(hi, lo: var uint64, u, v: uint64) {.inline.}=
+    ## Extended precision multiplication
+    ## (hi, lo) <- u * v
+    when nimvm:
+      mul_nim(hi, lo, u, v)
+    else:
+      mul_128(hi, lo, u, v)
+
+  func muladd1*(hi, lo: var uint64, a, b, c: uint64) {.inline.}=
+    ## Extended precision multiplication + addition
+    ## (hi, lo) <- a*b + c
+    ##
+    ## Note: 0xFFFFFFFF_FFFFFFFF² -> (hi: 0xFFFFFFFFFFFFFFFE, lo: 0x0000000000000001)
+    ##       so adding any c cannot overflow
+    when nimvm:
+      muladd1_nim(hi, lo, a, b, c)
+    else:
+      muladd1_128(hi, lo, a, b, c)
+
+  func muladd2*(hi, lo: var uint64, a, b, c1, c2: uint64) {.inline.}=
+    ## Extended precision multiplication + addition + addition
+    ## (hi, lo) <- a*b + c1 + c2
+    ##
+    ## Note: 0xFFFFFFFF_FFFFFFFF² -> (hi: 0xFFFFFFFFFFFFFFFE, lo: 0x0000000000000001)
+    ##       so adding 0xFFFFFFFFFFFFFFFF leads to (hi: 0xFFFFFFFFFFFFFFFF, lo: 0x0000000000000000)
+    ##       and we have enough space to add again 0xFFFFFFFFFFFFFFFF without overflowing
+    when nimvm:
+      muladd2_nim(hi, lo, a, b, c1, c2)
+    else:
+      muladd2_128(hi, lo, a, b, c1, c2)
+
+  func div2n1n*(q, r: var uint64, n_hi, n_lo, d: uint64) {.inline.}=
+    ## Division uint128 by uint64
+    ## Warning ⚠️ :
+    ##   - if n_hi == d, quotient does not fit in an uint64 and will throw SIGFPE
+    ##   - if n_hi > d result is undefined
+    when nimvm:
+      div2n1n_nim(q, r, n_hi, n_lo, d)
+    else:
+      div2n1n_128(q, r, n_hi, n_lo, d)
 
 # ############################################################
 #
@@ -128,10 +166,7 @@ func mulAcc*[T: uint32|uint64](t, u, v: var T, a, b: T) {.inline.} =
   ## (t, u, v) <- (t, u, v) + a * b
   var UV: array[2, T]
   var carry: Carry
-  when nimvm:
-    mul_nim(UV[1], UV[0], a, b)
-  else:
-    mul(UV[1], UV[0], a, b)
+  mul(UV[1], UV[0], a, b)
   addC(carry, v, v, UV[0], Carry(0))
   addC(carry, u, u, UV[1], carry)
   t += T(carry)

@@ -19,7 +19,7 @@ static:
   doAssert GCC_Compatible
   doAssert sizeof(int) == 8
 
-func div2n1n*(q, r: var uint64, n_hi, n_lo, d: uint64) {.inline.}=
+func div2n1n_128*(q, r: var uint64, n_hi, n_lo, d: uint64) {.inline.}=
   ## Division uint128 by uint64
   ## Warning ⚠️ :
   ##   - if n_hi == d, quotient does not fit in an uint64 and will throw SIGFPE on some platforms
@@ -35,7 +35,7 @@ func div2n1n*(q, r: var uint64, n_hi, n_lo, d: uint64) {.inline.}=
     {.emit:["*",q, " = (NU64)(", dblPrec," / ", d, ");"].}
     {.emit:["*",r, " = (NU64)(", dblPrec," % ", d, ");"].}
 
-func mul*(hi, lo: var uint64, a, b: uint64) {.inline.} =
+func mul_128*(hi, lo: var uint64, a, b: uint64) {.inline.} =
   ## Extended precision multiplication
   ## (hi, lo) <- a*b
   block:
@@ -50,7 +50,7 @@ func mul*(hi, lo: var uint64, a, b: uint64) {.inline.} =
       {.emit:["*",hi, " = (NU64)(", dblPrec," >> ", 64'u64, ");"].}
       {.emit:["*",lo, " = (NU64)", dblPrec,";"].}
 
-func muladd1*(hi, lo: var uint64, a, b, c: uint64) {.inline.} =
+func muladd1_128*(hi, lo: var uint64, a, b, c: uint64) {.inline.} =
   ## Extended precision multiplication + addition
   ## (hi, lo) <- a*b + c
   ##
@@ -71,7 +71,7 @@ func muladd1*(hi, lo: var uint64, a, b, c: uint64) {.inline.} =
       {.emit:["*",hi, " = (NU64)(", dblPrec," >> ", 64'u64, ");"].}
       {.emit:["*",lo, " = (NU64)", dblPrec,";"].}
 
-func muladd2*(hi, lo: var uint64, a, b, c1, c2: uint64) {.inline.}=
+func muladd2_128*(hi, lo: var uint64, a, b, c1, c2: uint64) {.inline.}=
   ## Extended precision multiplication + addition + addition
   ## This is constant-time on most hardware except some specific one like Cortex M0
   ## (hi, lo) <- a*b + c1 + c2

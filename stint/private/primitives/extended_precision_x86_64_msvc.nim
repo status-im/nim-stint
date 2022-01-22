@@ -38,35 +38,25 @@ func div2n1n*(q, r: var Ct[uint64], n_hi, n_lo, d: Ct[uint64]) {.inline.}=
     ## Warning ⚠️ :
     ##   - if n_hi == d, quotient does not fit in an uint64 and will throw SIGFPE
     ##   - if n_hi > d result is undefined
-    {.warning: "unsafeDiv2n1n is not constant-time at the moment on most hardware".}
-
-    # TODO !!! - Replace by constant-time, portable, non-assembly version
-    #          -> use uint128? Compiler might add unwanted branches
     q = udiv128(n_hi, n_lo, d, r)
 
-func mul*(hi, lo: var Ct[uint64], a, b: Ct[uint64]) {.inline.} =
+func mul_128*(hi, lo: var Ct[uint64], a, b: Ct[uint64]) {.inline.} =
   ## Extended precision multiplication
   ## (hi, lo) <- a*b
-  ##
-  ## This is constant-time on most hardware
-  ## See: https://www.bearssl.org/ctmul.html
   lo = umul128(a, b, hi)
 
-func muladd1*(hi, lo: var Ct[uint64], a, b, c: Ct[uint64]) {.inline.} =
+func muladd1_128*(hi, lo: var Ct[uint64], a, b, c: Ct[uint64]) {.inline.} =
   ## Extended precision multiplication + addition
   ## (hi, lo) <- a*b + c
   ##
   ## Note: 0xFFFFFFFF_FFFFFFFF² -> (hi: 0xFFFFFFFFFFFFFFFE, lo: 0x0000000000000001)
   ##       so adding any c cannot overflow
-  ##
-  ## This is constant-time on most hardware
-  ## See: https://www.bearssl.org/ctmul.html
   var carry: Carry
   lo = umul128(a, b, hi)
   addC(carry, lo, lo, c, Carry(0))
   addC(carry, hi, hi, 0, carry)
 
-func muladd2*(hi, lo: var Ct[uint64], a, b, c1, c2: Ct[uint64]) {.inline.}=
+func muladd2_128*(hi, lo: var Ct[uint64], a, b, c1, c2: Ct[uint64]) {.inline.}=
   ## Extended precision multiplication + addition + addition
   ## This is constant-time on most hardware except some specific one like Cortex M0
   ## (hi, lo) <- a*b + c1 + c2

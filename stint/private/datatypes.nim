@@ -180,9 +180,9 @@ macro staticFor*(idx: untyped{nkIdent}, start, stopEx: static int, body: untyped
 # Copy
 # --------------------------------------------------------
 
-func copyFrom*[dLen, sLen](
-        dst: var SomeBigInteger[dLen],
-        src: SomeBigInteger[sLen]
+func copyFrom*(
+        dst: var SomeBigInteger,
+        src: SomeBigInteger
       ){.inline.} =
   ## Copy a BigInteger, truncated to 2^slen if the source
   ## is larger than the destination

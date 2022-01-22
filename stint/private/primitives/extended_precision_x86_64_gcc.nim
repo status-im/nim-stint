@@ -20,7 +20,7 @@ static:
   doAssert sizeof(int) == 8
   doAssert X86
 
-func div2n1n*(q, r: var uint64, n_hi, n_lo, d: uint64) {.inline.}=
+func div2n1n_128*(q, r: var uint64, n_hi, n_lo, d: uint64) {.inline.}=
   ## Division uint128 by uint64
   ## Warning ⚠️ :
   ##   - if n_hi == d, quotient does not fit in an uint64 and will throw SIGFPE

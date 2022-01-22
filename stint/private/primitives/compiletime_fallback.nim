@@ -80,7 +80,7 @@ func mul_nim*(hi, lo: var uint64, u, v: uint64) =
   hi = x3 + hi(x1)
   lo = merge(x1, lo(x0))
 
-func muladd1*(hi, lo: var uint64, a, b, c: uint64) {.inline.} =
+func muladd1_nim*(hi, lo: var uint64, a, b, c: uint64) {.inline.} =
   ## Extended precision multiplication + addition
   ## (hi, lo) <- a*b + c
   ##
@@ -91,7 +91,7 @@ func muladd1*(hi, lo: var uint64, a, b, c: uint64) {.inline.} =
   addC_nim(carry, lo, lo, c, 0)
   addC_nim(carry, hi, hi, 0, carry)
 
-func muladd2*(hi, lo: var uint64, a, b, c1, c2: uint64) {.inline.}=
+func muladd2_nim*(hi, lo: var uint64, a, b, c1, c2: uint64) {.inline.}=
   ## Extended precision multiplication + addition + addition
   ## (hi, lo) <- a*b + c1 + c2
   ##
@@ -107,3 +107,48 @@ func muladd2*(hi, lo: var uint64, a, b, c1, c2: uint64) {.inline.}=
   # Carry chain 2
   addC_nim(carry2, lo, lo, c2, 0)
   addC_nim(carry2, hi, hi, 0, carry2)
+
+
+func div2n1n_nim*[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
+  ## Division uint128 by uint64
+  ## Warning ⚠️ :
+  ##   - if n_hi == d, quotient does not fit in an uint64 and will throw SIGFPE
+  ##   - if n_hi > d result is undefined
+
+  # doAssert leadingZeros(d) == 0, "Divisor was not normalized"
+
+  const
+    size = sizeof(q) * 8
+    halfSize = size div 2
+    halfMask = (1.T shl halfSize) - 1.T
+
+  template halfQR(n_hi, n_lo, d, d_hi, d_lo: T): tuple[q,r: T] =
+
+    var (q, r) = (n_hi div d_hi, n_hi mod d_hi)
+    let m = q * d_lo
+    r = (r shl halfSize) or n_lo
+
+    # Fix the reminder, we're at most 2 iterations off
+    if r < m:
+      dec q
+      r += d
+      if r >= d and r < m:
+        dec q
+        r += d
+    r -= m
+    (q, r)
+
+  let
+    d_hi = d shr halfSize
+    d_lo = d and halfMask
+    n_lohi = nlo shr halfSize
+    n_lolo = nlo and halfMask
+
+  # First half of the quotient
+  let (q1, r1) = halfQR(n_hi, n_lohi, d, d_hi, d_lo)
+
+  # Second half
+  let (q2, r2) = halfQR(r1, n_lolo, d, d_hi, d_lo)
+
+  q = (q1 shl halfSize) or q2
+  r = r2
