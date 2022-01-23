@@ -20,35 +20,22 @@ const WordBitWidth* = sizeof(Word) * 8
 
 func wordsRequired*(bits: int): int {.compileTime.} =
   ## Compute the number of limbs required
-  ## from the **announced** bit length
+  ## for the **announced** bit length
   (bits + WordBitWidth - 1) div WordBitWidth
 
 type
   Limbs*[N: static int] = array[N, Word]
     ## Limbs type
-    ## Large proc like multiplication and division
-    ## should operate at the limb-level
-    ## to avoid duplicate codepaths
-    ## For example for Stuint[16] and Stuint[32]
-    ## or if allowed in the future
-    ## Stuint[254] and Stuint[256]
 
   StUint*[bits: static[int]] = object
     ## Stack-based integer
     ## Unsigned
     limbs*: array[bits.wordsRequired, Word]
-      # TODO: using the limbs type here
-      #       can using StUint[8] of length 2, instead of 1
-      #       in test_uint_bitwise (in the VM)
-      #       unless you put the following instantiation
-      #       at the bottom of this file
-      # static:
-      #   echo StUint[8]()
+      # Limbs-Endianess is little-endian
 
-  StInt*[bits: static[int]] = object
+  StInt*[bits: static[int]] {.borrow: `.`.} = distinct StUint[bits]
     ## Stack-based integer
     ## Signed
-    limbs*: array[bits.wordsRequired, Word]
 
   Carry* = uint8  # distinct range[0'u8 .. 1]
   Borrow* = uint8 # distinct range[0'u8 .. 1]
@@ -62,25 +49,12 @@ when sizeof(int) == 8 and GCC_Compatible:
   type
     uint128*{.importc: "unsigned __int128".} = object
 
-# Accessors
+# Bithacks
 # --------------------------------------------------------
 
-template leastSignificantWord*(num: SomeInteger): auto =
-  num
+{.push raises: [], inline, noInit, gcsafe.}
 
-template leastSignificantWord*(a: SomeBigInteger): auto =
-  when cpuEndian == littleEndian:
-    a.limbs[0]
-  else:
-    a.limbs[^1]
-
-template mostSignificantWord*(a: SomeBigInteger): auto =
-  when cpuEndian == littleEndian:
-    a.limbs[^1]
-  else:
-    a.limbs[0]
-
-template clearExtraBits*(a: var StUint) =
+template clearExtraBitsOverMSB*(a: var StUint) =
   ## A Stuint is stored in an array of 32 of 64-bit word
   ## If we do bit manipulation at the word level,
   ## for example a 8-bit stuint stored in a 64-bit word
@@ -88,64 +62,34 @@ template clearExtraBits*(a: var StUint) =
   when a.bits != a.limbs.len * WordBitWidth:
     const posExtraBits = a.bits - (a.limbs.len-1) * WordBitWidth
     const mask = (Word(1) shl posExtraBits) - 1
-    mostSignificantWord(a) = mostSignificantWord(a) and mask
+    a[^1] = a[^1] and mask
+
+func usedBitsAndWords*(a: openArray[Word]): tuple[bits, words: int] =
+  ## Returns the number of used words and bits in a bigInt
+  var clz = 0
+  # Count Leading Zeros
+  for i in countdown(a.len-1, 0):
+    let count = log2trunc(a[i])
+    # debugEcho "count: ", count, ", a[", i, "]: ", a[i].toBin(64)
+    if count == -1:
+      clz += WordBitWidth
+    else:
+      clz += WordBitWidth - count - 1
+      return (a.len*WordBitWidth - clz, i+1)
+
+{.pop.}
+
+# Accessors
+# --------------------------------------------------------
+
+template `[]`*(a: SomeBigInteger, i: SomeInteger or BackwardsIndex): Word =
+  a.limbs[i]
+
+template `[]=`*(a: var SomeBigInteger, i: SomeInteger or BackwardsIndex, val: Word) =
+  a.limbs[i] = val
 
 # Iterations
 # --------------------------------------------------------
-
-iterator leastToMostSig*(a: SomeBigInteger): Word =
-  ## Iterate from least to most significant word
-  when cpuEndian == littleEndian:
-    for i in 0 ..< a.limbs.len:
-      yield a.limbs[i]
-  else:
-    for i in countdown(a.limbs.len-1, 0):
-      yield a.limbs[i]
-
-iterator leastToMostSig*(a: var SomeBigInteger): var Word =
-  ## Iterate from least to most significant word
-  when cpuEndian == littleEndian:
-    for i in 0 ..< a.limbs.len:
-      yield a.limbs[i]
-  else:
-    for i in countdown(a.limbs.len-1, 0):
-      yield a.limbs[i]
-
-iterator leastToMostSig*(a, b: SomeBigInteger): (Word, Word) =
-  ## Iterate from least to most significant word
-  when cpuEndian == littleEndian:
-    for i in 0 ..< a.limbs.len:
-      yield (a.limbs[i], b.limbs[i])
-  else:
-    for i in countdown(a.limbs.len-1, 0):
-      yield (a.limbs[i], b.limbs[i])
-
-iterator leastToMostSig*[aBits, bBits](a: var SomeBigInteger[aBits], b: SomeBigInteger[bBits]): (var Word, Word) =
-  ## Iterate from least to most significant word
-  when cpuEndian == littleEndian:
-    for i in 0 ..< min(a.limbs.len, b.limbs.len):
-      yield (a.limbs[i], b.limbs[i])
-  else:
-    for i in countdown(min(a.limbs.len, b.limbs.len)-1, 0):
-      yield (a.limbs[i], b.limbs[i])
-
-iterator leastToMostSig*(c: var SomeBigInteger, a, b: SomeBigInteger): (var Word, Word, Word) =
-  ## Iterate from least to most significant word
-  when cpuEndian == littleEndian:
-    for i in 0 ..< a.limbs.len:
-      yield (c.limbs[i], a.limbs[i], b.limbs[i])
-  else:
-    for i in countdown(a.limbs.len-1, 0):
-      yield (c.limbs[i], a.limbs[i], b.limbs[i])
-
-iterator mostToLeastSig*(a: SomeBigInteger): Word =
-  ## Iterate from most to least significant word
-  when cpuEndian == bigEndian:
-    for i in 0 ..< a.limbs.len:
-      yield a.limbs[i]
-  else:
-    for i in countdown(a.limbs.len-1, 0):
-      yield a.limbs[i]
 
 import std/macros
 
@@ -179,20 +123,15 @@ macro staticFor*(idx: untyped{nkIdent}, start, stopEx: static int, body: untyped
 
 # Copy
 # --------------------------------------------------------
+{.push raises: [], inline, noInit, gcsafe.}
 
-func copyFrom*(
-        dst: var SomeBigInteger,
-        src: SomeBigInteger
-      ){.inline.} =
-  ## Copy a BigInteger, truncated to 2^slen if the source
-  ## is larger than the destination
-  when cpuEndian == littleEndian:
-    for i in 0 ..< min(dst.limbs.len, src.limbs.len):
-      dst.limbs[i] = src.limbs[i]
-    for i in src.limbs.len ..< dst.limbs.len:
-      dst.limbs[i] = 0
-  else:
-    for i in countdown(dst.limbs.len-1, src.limbs.len):
-      dst.limbs[i] = 0
-    for i in countdown(src.limbs.len-1, 0):
-      dst.limbs[i] = src.limbs[i]
+func copyWords*(
+       a: var openArray[Word], startA: int,
+       b: openArray[Word], startB: int,
+       numWords: int) =
+  ## Copy a slice of B into A. This properly deals
+  ## with overlaps when A and B are slices of the same buffer
+  for i in countdown(numWords-1, 0):
+    a[startA+i] = b[startB+i]
+
+{.pop.}

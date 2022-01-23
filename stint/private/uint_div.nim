@@ -15,31 +15,6 @@ import
   ./uint_bitwise,
   ./primitives/[addcarry_subborrow, extended_precision]
 
-# Helpers
-# --------------------------------------------------------
-
-func usedBitsAndWords(a: openArray[Word]): tuple[bits, words: int] {.inline.} =
-  ## Returns the number of used words and bits in a bigInt
-  var clz = 0
-  # Count Leading Zeros
-  for i in countdown(a.len-1, 0):
-    let count = log2trunc(a[i])
-    # debugEcho "count: ", count, ", a[", i, "]: ", a[i].toBin(64)
-    if count == -1:
-      clz += WordBitWidth
-    else:
-      clz += WordBitWidth - count - 1
-      return (a.len*WordBitWidth - clz, i+1)
-
-func copyWords(
-       a: var openArray[Word], startA: int,
-       b: openArray[Word], startB: int,
-       numWords: int) =
-  ## Copy a slice of B into A. This properly deals
-  ## with overlaps when A and B are slices of the same buffer
-  for i in countdown(numWords-1, 0):
-    a[startA+i] = b[startB+i]
-
 # Division
 # --------------------------------------------------------
 
@@ -312,7 +287,7 @@ func shlAddMod(a: var openArray[Word], c: Word,
   else:
     return shlAddMod_multi(a, c, M, mBits)
 
-func divRemImpl(
+func divRem*(
        q, r: var openArray[Word],
        a, b: openArray[Word]
      ) =
@@ -349,20 +324,6 @@ func divRemImpl(
       q[i] = 0
     for i in rLen ..< r.len:
       r[i] = 0
-
-func `div`*(x, y: Stuint): Stuint {.inline.} =
-  ## Division operation for multi-precision unsigned uint
-  var tmp{.noInit.}: Stuint
-  divRemImpl(result.limbs, tmp.limbs, x.limbs, y.limbs)
-
-func `mod`*(x, y: Stuint): Stuint {.inline.} =
-  ## Remainder operation for multi-precision unsigned uint
-  var tmp{.noInit.}: Stuint
-  divRemImpl(tmp.limbs, result.limbs, x.limbs, y.limbs)
-
-func divmod*(x, y: Stuint): tuple[quot, rem: Stuint] =
-  ## Division and remainder operations for multi-precision unsigned uint
-  divRemImpl(result.quot.limbs, result.rem.limbs, x.limbs, y.limbs)
 
 # ######################################################################
 # Division implementations

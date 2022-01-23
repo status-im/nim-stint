@@ -19,40 +19,31 @@ import
 func sum*(r: var Stuint, a, b: Stuint) =
   ## Addition for multi-precision unsigned int
   var carry = Carry(0)
-  for wr, wa, wb in leastToMostSig(r, a, b):
-    addC(carry, wr, wa, wb, carry)
-  r.clearExtraBits()
+  for i in 0 ..< r.limbs.len:
+    addC(carry, r[i], a[i], b[i], carry)
+  r.clearExtraBitsOverMSB()
 
 func `+=`*(a: var Stuint, b: Stuint) =
   ## In-place addition for multi-precision unsigned int
-  var carry = Carry(0)
-  for wa, wb in leastToMostSig(a, b):
-    addC(carry, wa, wa, wb, carry)
-  a.clearExtraBits()
+  a.sum(a, b)
 
 func diff*(r: var Stuint, a, b: Stuint) =
   ## Substraction for multi-precision unsigned int
   var borrow = Borrow(0)
-  for wr, wa, wb in leastToMostSig(r, a, b):
-    subB(borrow, wr, wa, wb, borrow)
-  r.clearExtraBits()
+  for i in 0 ..< r.limbs.len:
+    subB(borrow, r[i], a[i], b[i], borrow)
+  r.clearExtraBitsOverMSB()
 
 func `-=`*(a: var Stuint, b: Stuint) =
   ## In-place substraction for multi-precision unsigned int
-  var borrow = Borrow(0)
-  for wa, wb in leastToMostSig(a, b):
-    subB(borrow, wa, wa, wb, borrow)
-  a.clearExtraBits()
+  a.diff(a, b)
 
 func inc*(a: var Stuint, w: Word = 1) =
   var carry = Carry(0)
-  when cpuEndian == littleEndian:
-    addC(carry, a.limbs[0], a.limbs[0], w, carry)
-    for i in 1 ..< a.limbs.len:
-      addC(carry, a.limbs[i], a.limbs[i], 0, carry)
-  else:
-    {.error: "Not implemented.".}
-  a.clearExtraBits()
+  addC(carry, a.limbs[0], a.limbs[0], w, carry)
+  for i in 1 ..< a.limbs.len:
+    addC(carry, a.limbs[i], a.limbs[i], 0, carry)
+  a.clearExtraBitsOverMSB()
 
 func sum*(r: var Stuint, a: Stuint, b: SomeUnsignedInt) =
   ## Addition for multi-precision unsigned int

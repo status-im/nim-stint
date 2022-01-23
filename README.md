@@ -20,8 +20,7 @@ Main focus:
     - Uint2048 for Ethereum Bloom filters
   - Ease of use:
     - Use traditional `+`, `-`, `+=`, etc operators like on native types
-    - Representation of numbers in memory is the exact same as native types and endianness aware.
-      - In practice that means that interfacing with binary blobs representing numbers from cryptographic    libraries can be done with a `cast` if it represents a Uint256, Uint512, Uint1024, Uint2048.
+    - converting to and from raw byte BigInts (also called octet string in IETF specs)
     - converting to and from Hex
     - converting to and from decimal strings
 

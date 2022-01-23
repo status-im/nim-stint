@@ -20,30 +20,30 @@ import
 func bitnot*(r: var StUint, a: Stuint) =
   ## Bitwise complement of unsigned integer a
   ## i.e. flips all bits of the input
-  for wr, wa in leastToMostSig(r, a):
-    wr = not wa
-  r.clearExtraBits()
+  for i in 0 ..< r.len:
+    r[i] = not a[i]
+  r.clearExtraBitsOverMSB()
 
 func bitor*(r: var Stuint, a, b: Stuint) =
   ## `Bitwise or` of numbers a and b
-  for wr, wa, wb in leastToMostSig(r, a, b):
-    wr = wa or wb
+  for i in 0 ..< r.limbs.len:
+    r[i] = a[i] or b[i]
 
 func bitand*(r: var Stuint, a, b: Stuint) =
   ## `Bitwise and` of numbers a and b
-  for wr, wa, wb in leastToMostSig(r, a, b):
-    wr = wa and wb
+  for i in 0 ..< r.limbs.len:
+    r[i] = a[i] and b[i]
 
 func bitxor*(r: var Stuint, a, b: Stuint) =
   ## `Bitwise xor` of numbers x and y
-  for wr, wa, wb in leastToMostSig(r, a, b):
-    wr = wa xor wb
-  r.clearExtraBits()
+  for i in 0 ..< r.limbs.len:
+    r[i] = a[i] xor b[i]
+  r.clearExtraBitsOverMSB()
 
 func countOnes*(a: Stuint): int =
   result = 0
-  for wa in leastToMostSig(a):
-    result += countOnes(wa)
+  for i in 0 ..< a.limbs.len:
+    result += countOnes(a[i])
 
 func parity*(a: Stuint): int =
   result = parity(a.limbs[0])
@@ -56,8 +56,8 @@ func leadingZeros*(a: Stuint): int =
   # Adjust when we use only part of the word size
   var extraBits = WordBitWidth * a.limbs.len - a.bits
 
-  for word in mostToLeastSig(a):
-    let zeroCount = word.leadingZeros()
+  for i in countdown(a.len-1, 0):
+    let zeroCount = a.limbs[i].leadingZeros()
     if extraBits > 0:
       result += zeroCount - min(extraBits, WordBitWidth)
       extraBits -= WordBitWidth
@@ -68,8 +68,8 @@ func leadingZeros*(a: Stuint): int =
 
 func trailingZeros*(a: Stuint): int =
   result = 0
-  for word in leastToMostSig(a):
-    let zeroCount = word.trailingZeros()
+  for i in 0 ..< a.limbs.len:
+    let zeroCount = a[i].trailingZeros()
     result += zeroCount
     if zeroCount != WordBitWidth:
       break

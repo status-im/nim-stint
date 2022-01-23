@@ -30,14 +30,9 @@ func setZero*(a: var StUint) =
 
 func setSmallInt(a: var StUint, k: Word) =
   ## Set ``a`` to k
-  when cpuEndian == littleEndian:
-    a.limbs[0] = k
-    for i in 1 ..< a.limbs.len:
-      a.limbs[i] = 0
-  else:
-    a.limbs[^1] = k
-    for i in 0 ..< a.limb.len - 1:
-      a.limbs[i] = 0
+  a.limbs[0] = k
+  for i in 1 ..< a.limbs.len:
+    a.limbs[i] = 0
 
 func setOne*(a: var StUint) =
   setSmallInt(a, 1)
@@ -51,8 +46,9 @@ func one*[bits: static[int]](T: typedesc[Stuint[bits]]): T {.inline.} =
   result.setOne()
 
 func high*[bits](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.} =
-  for wr in leastToMostSig(result):
-    wr = high(Word)
+  for i in 0 ..< result.len:
+    result[i] = high(Word)
+
 func low*[bits](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.} =
   discard
 
@@ -62,15 +58,15 @@ func low*[bits](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.} =
 {.push raises: [], inline, noInit, gcsafe.}
 
 func isZero*(a: Stuint): bool =
-  for word in leastToMostSig(a):
-    if word != 0:
+  for i in 0 ..< a.limbs.len:
+    if a[i] != 0:
       return false
   return true
 
 func `==`*(a, b: Stuint): bool {.inline.} =
   ## Unsigned `equal` comparison
-  for wa, wb in leastToMostSig(a, b):
-    if wa != wb:
+  for i in 0 ..< a.limbs.len:
+    if a[i] != b[i]:
       return false
   return true
 
@@ -78,8 +74,8 @@ func `<`*(a, b: Stuint): bool {.inline.} =
   ## Unsigned `less than` comparison
   var diff: Word
   var borrow: Borrow
-  for wa, wb in leastToMostSig(a, b):
-    subB(borrow, diff, wa, wb, borrow)
+  for i in 0 ..< a.limbs.len:
+    subB(borrow, diff, a[i], b[i], borrow)
   return bool(borrow)
 
 func `<=`*(a, b: Stuint): bool {.inline.} =
@@ -89,12 +85,12 @@ func `<=`*(a, b: Stuint): bool {.inline.} =
 func isOdd*(a: Stuint): bool {.inline.} =
   ## Returns true if input is off
   ## false otherwise
-  bool(a.leastSignificantWord and 1)
+  bool(a[0] and 1)
 
 func isEven*(a: Stuint): bool {.inline.} =
   ## Returns true if input is zero
   ## false otherwise
-  not a.isOdd
+  not a.isOdd()
 
 {.pop.}
 # Bitwise operations
@@ -178,7 +174,7 @@ export `+=`
 func `*`*(a, b: Stuint): Stuint =
   ## Integer multiplication
   result.limbs.prod(a.limbs, b.limbs)
-  result.clearExtraBits()
+  result.clearExtraBitsOverMSB()
 
 {.pop.}
 
@@ -228,5 +224,20 @@ func pow*[aBits, eBits](a: Stuint[aBits], e: Stuint[eBits]): Stuint[aBits] =
 
 # Division & Modulo
 # --------------------------------------------------------
+{.push raises: [], inline, noInit, gcsafe.}
 
-export uint_div
+func `div`*(x, y: Stuint): Stuint =
+  ## Division operation for multi-precision unsigned uint
+  var tmp{.noInit.}: Stuint
+  divRem(result.limbs, tmp.limbs, x.limbs, y.limbs)
+
+func `mod`*(x, y: Stuint): Stuint =
+  ## Remainder operation for multi-precision unsigned uint
+  var tmp{.noInit.}: Stuint
+  divRem(tmp.limbs, result.limbs, x.limbs, y.limbs)
+
+func divmod*(x, y: Stuint): tuple[quot, rem: Stuint] =
+  ## Division and remainder operations for multi-precision unsigned uint
+  divRem(result.quot.limbs, result.rem.limbs, x.limbs, y.limbs)
+
+{.pop.}

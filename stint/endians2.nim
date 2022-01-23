@@ -245,28 +245,3 @@ func fromBytes*[bits: static int](
     result = fromBytesLE(T, x)
   else:
     result = fromBytesBE(T, x)
-
-# TODO: What is the use-case for all the procs below?
-# ------------------------------------------------------------------------------------------
-
-func toBE*[bits: static int](x: StUint[bits]): StUint[bits] {.inline, deprecated: "Use toByteArrayBE instead".} =
-  ## Convert a native endian value to big endian. Consider toBytesBE instead
-  ## which may prevent some confusion.
-  if cpuEndian == bigEndian: x
-  else: x.swapBytes
-
-func fromBE*[bits: static int](x: StUint[bits]): StUint[bits] {.inline, deprecated: "Use fromBytesBE instead".} =
-  ## Read a big endian value and return the corresponding native endian
-  # there's no difference between this and toBE, except when reading the code
-  toBE(x)
-
-func toLE*[bits: static int](x: StUint[bits]): StUint[bits] {.inline, deprecated.} =
-  ## Convert a native endian value to little endian. Consider toBytesLE instead
-  ## which may prevent some confusion.
-  if cpuEndian == littleEndian: x
-  else: x.swapBytes
-
-func fromLE*[bits: static int](x: StUint[bits]): StUint[bits] {.inline, deprecated: "Use fromBytesLE instead".} =
-  ## Read a little endian value and return the corresponding native endian
-  # there's no difference between this and toLE, except when reading the code
-  toLE(x)

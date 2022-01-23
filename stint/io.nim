@@ -33,22 +33,10 @@ template static_check_size(T: typedesc[SomeInteger], bits: static[int]) =
 
 func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
   ## Converts an integer to an arbitrary precision integer.
-  when cpuEndian == littleEndian:
-    result.limbs[0] = Word(n)
-    when sizeof(n) > sizeof(Word):
-      result.limbs[1] = Word(n) shr WordBitWidth
-  else:
-    result.limbs[^1] = Word(n)
-    when sizeof(n) > sizeof(Word):
-      result.limbs[^2] = Word(n) shr WordBitWidth
+  result.limbs[0] = Word(n)
+  when sizeof(n) > sizeof(Word):
+    result.limbs[1] = Word(n) shr WordBitWidth
 
-<<<<<<< HEAD
-func to*(x: SomeInteger, T: typedesc[StInt]): T =
-  stint(x, result.bits)
-
-func to*(x: SomeUnsignedInt, T: typedesc[StUint]): T =
-  stuint(x, result.bits)
-=======
 # func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
 #   ## Converts an integer to an arbitrary precision signed integer.
 #
@@ -88,8 +76,8 @@ func stuint*(a: StUint, bits: static[int]): StUint[bits] {.inline.} =
   ## unsigned int to unsigned int conversion
   ## smaller to bigger bits conversion will have the same value
   ## bigger to smaller bits conversion, the result is truncated
-  for wr, wa in leastToMostSig(result, a):
-    wr = wa
+  for i in 0 ..< result.len:
+    result[i] = a[i]
 
 # func stuint*(a: StInt, bits: static[int]): StUint[bits] {.inline.} =
 #   ## signed int to unsigned int conversion
@@ -377,82 +365,13 @@ func dumpHex*(a: Stint or StUint, order: static[Endianness] = bigEndian): string
   let bytes = a.toBytes(order)
   result = bytes.toHex()
 
-proc initFromBytesBE*[bits: static[int]](val: var Stuint[bits], 
-                      ba: openarray[byte], 
-                      allowPadding: static[bool] = true) {.deprecated:"Use fromBytesBE instead".}=
-  ## Initializes a UInt[bits] value from a byte buffer storing a big-endian
-  ## representation of a number.
-  ##
-  ## If `allowPadding` is set to false, the input array must be exactly
-  ## (bits div 8) bytes long. Otherwise, it may be shorter and the remaining
-  ## bytes will be assumed to be zero.
-
-  const N = bits div 8
-
-  when not allowPadding:
-    doAssert(ba.len == N)
-  else:
-    doAssert ba.len <= N
-    when system.cpuEndian == bigEndian:
-      let baseIdx = N - val.len
-    else:
-      let baseIdx = ba.len - 1
-
-  when nimvm:
-    when system.cpuEndian == bigEndian:
-      when allowPadding:
-        for i, b in ba: val.data.setByte(baseIdx + i, b)
-      else:
-        for i, b in ba: val.data.setByte(i, b)
-    else:
-      when allowPadding:
-        for i, b in ba: val.data.setByte(baseIdx - i, b)
-      else:
-        for i, b in ba: val.data.setByte(N-1 - i, b)
-  else:
-    {.pragma: restrict, codegenDecl: "$# __restrict $#".}
-    let r_ptr {.restrict.} = cast[ptr array[N, byte]](val.addr)
-
-    when system.cpuEndian == bigEndian:
-      # TODO: due to https://github.com/status-im/nim-stint/issues/38
-      # We can't cast a stack byte array to stuint with a convenient proc signature.
-      when allowPadding:
-        for i, b in ba: r_ptr[baseIdx + i] = b
-      else:
-        for i, b in ba: r_ptr[i] = b
-    else:
-      when allowPadding:
-        for i, b in ba: r_ptr[baseIdx - i] = b
-      else:
-        for i, b in ba: r_ptr[N-1 - i] = b
-
-func significantBytesBE*(val: openArray[byte]): int {.deprecated.}=
-  ## Returns the number of significant trailing bytes in a big endian
-  ## representation of a number.
-  # TODO: move that in https://github.com/status-im/nim-byteutils
-  for i in 0 ..< val.len:
-    if val[i] != 0:
-      return val.len - i
-  return 1
-
-func fromBytesBE*(T: type Stuint, ba: openarray[byte],
-                  allowPadding: static[bool] = true): T {.noInit, inline.} =
-  ## This function provides a convenience wrapper around `initFromBytesBE`.
-  when not allowPadding:
-    {.deprecated: "fromBytesBE without padding is deprecated".}
-    result.initFromBytesBE(ba, allowPadding)
-  else:
-    result = endians2.fromBytesBE(T, ba)
-
 func readUintBE*[bits: static[int]](ba: openarray[byte]): Stuint[bits] {.noInit, inline.}=
   ## Convert a big-endian array of (bits div 8) Bytes to an UInt[bits] (in native host endianness)
   ## Input:
   ##   - a big-endian openArray of size (bits div 8) at least
   ## Returns:
   ##   - A unsigned integer of the same size with `bits` bits
-  ##
-  ## ⚠ If the openarray length is bigger than bits div 8, part converted is undefined behaviour.
-  result = endians2.fromBytesBE(Stuint[bits], ba)
+  result = (typeof result).fromBytesBE(ba)
 
 func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte] {.noInit, inline.}=
   ## Convert a uint[bits] to to a big-endian array of bits div 8 bytes
@@ -460,7 +379,7 @@ func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte]
   ##   - an unsigned integer
   ## Returns:
   ##   - a big-endian array of the same size
-  result = n.toBytes(bigEndian)
+  result = n.toBytesBE()
 
 template hash*(num: StUint|StInt): Hash =
   # TODO:
