@@ -26,7 +26,7 @@ export StUint
 func setZero*(a: var StUint) =
   ## Set ``a`` to 0
   for i in 0 ..< a.limbs.len:
-    a[i] = 0
+    a.limbs[i] = 0
 
 func setSmallInt(a: var StUint, k: Word) =
   ## Set ``a`` to k

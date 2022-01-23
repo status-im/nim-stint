@@ -15,29 +15,33 @@ echo "Warmup: " & $(stop - start) & "s"
 
 ####################################
 
+let a = [123'u64, 123'u64, 123'u64, 123'u64]
+let m = [456'u64, 456'u64, 456'u64, 45'u64]
+
+let aU256 = cast[Stuint[256]](a)
+let mU256 = cast[Stuint[256]](m)
 
 start = cpuTime()
 block:
-  var foo = 123.u256
+  var foo = aU256
   for i in 0 ..< 10_000_000:
-    foo += i.u256 * i.u256 mod 456.u256
-    foo = foo mod 789.u256
+    foo += (foo * foo) mod mU256
 
 stop = cpuTime()
 echo "Library: " & $(stop - start) & "s"
 
 when defined(bench_ttmath):
   # need C++
-  import ttmath
+  import ttmath, ../tests/ttmath_compat
 
   template tt_u256(a: int): UInt[256] = ttmath.u256(a.uint)
 
   start = cpuTime()
   block:
-    var foo = 123.tt_u256
+    var foo = a.astt()
+    let mU256 = m.astt()
     for i in 0 ..< 10_000_000:
-      foo += i.tt_u256 * i.tt_u256 mod 456.tt_u256
-      foo = foo mod 789.tt_u256
+      foo += (foo * foo) mod mU256
 
   stop = cpuTime()
   echo "TTMath: " & $(stop - start) & "s"

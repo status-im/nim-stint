@@ -54,32 +54,13 @@ func shrWords*(r: var Limbs, a: Limbs, w: SomeInteger) =
   when cpuEndian == littleEndian:
     for i in 0 ..< Limbs.len-w:
       r[i] = a[i+w]
+    for i in Limbs.len-w ..< Limbs.len:
+      r[i] = 0
   else:
+    for i in countdown(Limbs.len-1, Limbs.len-w):
+      r[i] = 0
     for i in countdown(Limbs.len-w, 0):
       r[i] = a[i+w]
-
-func shlSmallOverflowing*[rLen, aLen: static int](
-       r: var Limbs[rLen], a: Limbs[aLen], k: SomeInteger) =
-  ## Compute the `shift left` operation of x and k
-  ##
-  ## k MUST be less than the base word size (2^32 or 2^64)
-  when cpuEndian == littleEndian:
-    r[0] = a[0] shl k
-    for i in 1 ..< a.len:
-      r[i] = (a[i] shl k) or (a[i-1] shr (WordBitWidth - k))
-    if rLen > aLen:
-      r[aLen] = a[aLen - 1] shr (WordBitWidth - k)
-      for i in aLen+1 ..< rLen:
-        r[i] = 0
-  else:
-    const offset = rLen - aLen
-    r[^1] = a[^1] shl k
-    for i in countdown(a.len-2, 0):
-      r[i+offset] = (a[i] shl k) or (a[i+1] shr (WordBitWidth - k))
-    if rLen > aLen:
-      r[offset-1] = a[0] shr (WordBitWidth - k)
-      for i in 0 ..< offset-1:
-        r[i] = 0
 
 func shlSmall*(r: var Limbs, a: Limbs, k: SomeInteger) =
   ## Compute the `shift left` operation of x and k
@@ -112,10 +93,14 @@ func shlLarge*(r: var Limbs, a: Limbs, w, shift: SomeInteger) =
 func shlWords*(r: var Limbs, a: Limbs, w: SomeInteger) =
   ## Shift left by w word
   when cpuEndian == littleEndian:
+    for i in 0 ..< w:
+      r[i] = 0
     for i in 0 ..< Limbs.len-w:
       r[i+w] = a[i]
   else:
-    for i in countdown(Limbs.len-1, 0):
+    for i in countdown(Limbs.len-1, Limbs.len-w):
+      r[i] = 0
+    for i in countdown(Limbs.len-w-1, 0):
       r[i] = a[i-w]
 
 # Wrappers
@@ -123,6 +108,10 @@ func shlWords*(r: var Limbs, a: Limbs, w: SomeInteger) =
 
 func shiftRight*(r: var Stuint, a: Stuint, k: SomeInteger) =
   ## Shift `a` right by k bits and store in `r`
+  if k == 0:
+    r = a
+    return
+  
   if k < WordBitWidth:
     r.limbs.shrSmall(a.limbs, k)
     return
@@ -138,6 +127,10 @@ func shiftRight*(r: var Stuint, a: Stuint, k: SomeInteger) =
 
 func shiftLeft*(r: var Stuint, a: Stuint, k: SomeInteger) =
   ## Shift `a` left by k bits and store in `r`
+  if k == 0:
+    r = a
+    return
+  
   if k < WordBitWidth:
     r.limbs.shlSmall(a.limbs, k)
     r.clearExtraBits()

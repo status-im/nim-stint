@@ -8,8 +8,6 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import
-  # Status lib
-  stew/bitops2,
   # Internal
   ./datatypes,
   ./primitives/addcarry_subborrow
