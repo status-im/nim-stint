@@ -15,7 +15,8 @@ import  test_uint_bitops2,
         test_uint_muldiv,
         test_uint_exp,
         test_uint_modular_arithmetic,
-        test_uint_endians2
+        test_uint_endians2,
+        test_randomized_divmod
 
 import  test_int_endianness,
         test_int_comparison,
@@ -26,3 +27,4 @@ import  test_int_endianness,
 
 import  test_io,
         test_conversion
+

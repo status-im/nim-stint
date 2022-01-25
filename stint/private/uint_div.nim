@@ -29,6 +29,13 @@ func shortDiv*(a: var Limbs, k: Word): Word =
     # dividend = 2^64 * remainder + a[i]
     var hi = result
     var lo = a[i]
+    if hi == 0:
+      if lo < k:
+        a[i] = 0
+      elif lo == k:
+        a[i] = 1
+        result = 0
+      continue
     # Normalize, shifting the remainder by clz(k) cannot overflow.
     hi = (hi shl clz) or (lo shr (WordBitWidth - clz))
     lo = lo shl clz
@@ -216,6 +223,7 @@ func divmod(q, r: var Stuint,
     q = high(Word)                      # quotient = MaxWord (0b1111...1111)
   elif a0 == 0 and a1 < m0:             # elif q == 0, true quotient = 0
     q = 0
+    return q
   else:
     var r: Word
     div2n1n(q, r, a0, a1, m0)           # else instead of being of by 0, 1 or 2
@@ -294,6 +302,9 @@ func divRem*(
   let (aBits, aLen) = usedBitsAndWords(a)
   let (bBits, bLen) = usedBitsAndWords(b)
   let rLen = bLen
+
+  if unlikely(bBits == 0):
+    raise newException(DivByZeroError, "You attempted to divide by zero")
 
   if aBits < bBits:
     # if a uses less bits than b,

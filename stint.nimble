@@ -14,6 +14,7 @@ requires "nim >= 1.6.0",
 proc test(args, path: string) =
   if not dirExists "build":
     mkDir "build"
+
   exec "nim " & getEnv("TEST_LANG", "c") & " " & getEnv("NIMFLAGS") & " " & args &
     " --outdir:build -r --hints:off --warnings:off --skipParentCfg" &
     " --styleCheck:usages --styleCheck:error " & path
@@ -22,23 +23,22 @@ proc test(args, path: string) =
       " --outdir:build -r --mm:refc --hints:off --warnings:off --skipParentCfg" &
       " --styleCheck:usages --styleCheck:error " & path
 
-task test, "Run all tests - test and production implementation":
-  # Run tests for internal procs - test implementation (StUint[64] = 2x uint32
-  test "-d:stint_test", "tests/internal.nim"
-  # Run tests for internal procs - prod implementation (StUint[64] = uint64
-  test "", "tests/internal.nim"
-  # Run all tests - test implementation (StUint[64] = 2x uint32
-  test "-d:stint_test", "tests/all_tests.nim"
-  # Run all tests - prod implementation (StUint[64] = uint64
-  test "--threads:on", "tests/all_tests.nim"
+task test_internal, "Run tests for internal procs":
+  test "internal"
 
-  ## quicktest-0.20.0/quicktest.nim(277, 30) Error: cannot evaluate at compile time: BUILTIN_NAMES
-  ##
-  # # Run random tests (debug mode) - test implementation (StUint[64] = 2x uint32)
-  # test "-d:stint_test", "tests/property_based.nim"
-  # # Run random tests (release mode) - test implementation (StUint[64] = 2x uint32)
-  # test "-d:stint_test -d:release", "tests/property_based.nim"
-  # # Run random tests Uint256 (debug mode) vs TTMath (StUint[256] = 8 x uint32)
-  # test "", "tests/property_based.nim"
-  # # Run random tests Uint256 (release mode) vs TTMath (StUint[256] = 4 x uint64)
-  # test "-d:release", "tests/property_based.nim"
+task test_public_api, "Run all tests - prod implementation (StUint[64] = uint64":
+  test "all_tests"
+
+task test_uint256_ttmath, "Run random tests Uint256 vs TTMath":
+  requires "https://github.com/alehander42/nim-quicktest >= 0.18.0", "https://github.com/status-im/nim-ttmath"
+  switch("define", "release")
+  test "uint256_ttmath", "cpp"
+
+task test, "Run all tests - test and production implementation":
+  exec "nimble test_internal"
+  exec "nimble test_public_api"
+  ## TODO test only requirements don't work: https://github.com/nim-lang/nimble/issues/482
+  # exec "nimble test_property_debug"
+  # exec "nimble test_property_release"
+  # exec "nimble test_property_uint256_debug"
+  # exec "nimble test_property_uint256_release"

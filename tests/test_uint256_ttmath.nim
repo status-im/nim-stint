@@ -20,10 +20,6 @@ suite "Property-based testing (testing with random inputs) of Uint256":
     echo "Testing in release mode with " & $itercount & " random tests for each proc."
   else:
     echo "Testing in debug mode " & $itercount & " random tests for each proc. (StUint[64] = 2x uint32)"
-  when defined(stint_test):
-    echo "(StUint[64] = 2x uint32)"
-  else:
-    echo "(StUint[64] = uint64)"
 
   let hi = 1'u shl (sizeof(uint64)*7)
 

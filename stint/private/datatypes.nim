@@ -66,6 +66,7 @@ template clearExtraBitsOverMSB*(a: var StUint) =
 
 func usedBitsAndWords*(a: openArray[Word]): tuple[bits, words: int] =
   ## Returns the number of used words and bits in a bigInt
+  ## Returns (0, 0) for all-zeros array (even if technically you need 1 bit and 1 word to encode zero)
   var clz = 0
   # Count Leading Zeros
   for i in countdown(a.len-1, 0):
@@ -76,6 +77,7 @@ func usedBitsAndWords*(a: openArray[Word]): tuple[bits, words: int] =
     else:
       clz += WordBitWidth - count - 1
       return (a.len*WordBitWidth - clz, i+1)
+  return (0, 0)
 
 {.pop.}
 
