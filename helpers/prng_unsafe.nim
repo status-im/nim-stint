@@ -172,7 +172,7 @@ func random_long01Seq(rng: var RngState, a: var SomeBigInteger) =
   ## to trigger edge cases
   var buf: array[(a.bits + 7) div 8, byte]
   rng.random_long01Seq(buf)
-  a = (typeof a).fromBytesBE(buf)
+  a = (typeof a).fromBytes(buf, bigEndian)
 
 # Byte sequences
 # ------------------------------------------------------------

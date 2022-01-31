@@ -126,7 +126,8 @@ func toBytesBE*[bits: static int](src: StUint[bits]): array[bits div 8, byte] {.
             result[tail-1-i] = toByte(lo shr ((tail-i)*8))
         return
 
-func toBytes*[bits: static int](x: StUint[bits], endian: Endianness = system.cpuEndian): array[bits div 8, byte] {.inline.} =
+func toBytes*[bits: static int](x: StUint[bits], endian: Endianness = bigEndian): array[bits div 8, byte] {.inline.} =
+  ## Default to bigEndian
   if endian == littleEndian:
     result = x.toBytesLE()
   else:
@@ -238,10 +239,11 @@ func fromBytesLE*[bits: static int](
 func fromBytes*[bits: static int](
     T: typedesc[StUint[bits]],
     x: openarray[byte],
-    srcEndian: Endianness = system.cpuEndian): T {.inline.} =
+    srcEndian: Endianness = bigEndian): T {.inline.} =
   ## Read an source bytearray with the specified endianness and
   ## convert it to an integer
-  when srcEndian == littleEndian:
+  ## Default to bigEndian
+  if srcEndian == littleEndian:
     result = fromBytesLE(T, x)
   else:
     result = fromBytesBE(T, x)

@@ -1,5 +1,5 @@
 packageName   = "stint"
-version       = "0.0.1"
+version       = "2.0.0"
 author        = "Status Research & Development GmbH"
 description   = "Efficient stack-based multiprecision int in Nim"
 license       = "Apache License 2.0 or MIT"
@@ -9,7 +9,6 @@ skipDirs      = @["tests", "benchmarks"]
 # TODO test only requirements don't work: https://github.com/nim-lang/nimble/issues/482
 requires "nim >= 1.6.0",
          "stew"
- #, "https://github.com/alehander42/nim-quicktest >= 0.18.0", "https://github.com/status-im/nim-ttmath"
 
 proc test(args, path: string) =
   if not dirExists "build":
@@ -34,11 +33,6 @@ task test_uint256_ttmath, "Run random tests Uint256 vs TTMath":
   switch("define", "release")
   test "uint256_ttmath", "cpp"
 
-task test, "Run all tests - test and production implementation":
+task test, "Run all tests":
   exec "nimble test_internal"
   exec "nimble test_public_api"
-  ## TODO test only requirements don't work: https://github.com/nim-lang/nimble/issues/482
-  # exec "nimble test_property_debug"
-  # exec "nimble test_property_release"
-  # exec "nimble test_property_uint256_debug"
-  # exec "nimble test_property_uint256_release"
