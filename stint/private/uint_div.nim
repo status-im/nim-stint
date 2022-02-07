@@ -237,7 +237,7 @@ func divmod*[T](x, y: UintImpl[T]): tuple[quot, rem: UintImpl[T]]=
   # We short-circuit division depending on special-cases.
   # TODO: Constant-time division
   if unlikely(y.isZero):
-    raise newException(DivByZeroError, "You attempted to divide by zero")
+    raise newException(DivByZeroDefect, "You attempted to divide by zero")
   elif y_clz == (bitsof(y) - 1):
     # y is one
     result.quot = x
