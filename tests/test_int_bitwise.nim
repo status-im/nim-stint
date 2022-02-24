@@ -13,22 +13,22 @@ template chkNot(chk: untyped, a, b: distinct SomeInteger, bits: int) =
   chk stint(a, bits).not() == stint(b, bits)
 
 template chkNot(chk: untyped, a, b: string, bits: int) =
-  chk fromHex(Stint[bits], a).not() == fromHex(Stint[bits], b)
+  chk fromHex(StInt[bits], a).not() == fromHex(StInt[bits], b)
 
 template chkOr(chk: untyped, a, b, c: string, bits: int) =
-  chk (fromHex(Stint[bits], a) or fromHex(Stint[bits], b)) == fromHex(Stint[bits], c)
+  chk (fromHex(StInt[bits], a) or fromHex(StInt[bits], b)) == fromHex(StInt[bits], c)
 
 template chkAnd(chk: untyped, a, b, c: string, bits: int) =
-  chk (fromHex(Stint[bits], a) and fromHex(Stint[bits], b)) == fromHex(Stint[bits], c)
+  chk (fromHex(StInt[bits], a) and fromHex(StInt[bits], b)) == fromHex(StInt[bits], c)
 
 template chkXor(chk: untyped, a, b, c: string, bits: int) =
-  chk (fromHex(Stint[bits], a) xor fromHex(Stint[bits], b)) == fromHex(Stint[bits], c)
+  chk (fromHex(StInt[bits], a) xor fromHex(StInt[bits], b)) == fromHex(StInt[bits], c)
 
 template chkShl(chk: untyped, a: string, b: SomeInteger, c: string, bits: int) =
-  chk (fromHex(Stint[bits], a) shl b) == fromHex(Stint[bits], c)
+  chk (fromHex(StInt[bits], a) shl b) == fromHex(StInt[bits], c)
 
 template chkShr(chk: untyped, a: string, b: SomeInteger, c: string, bits: int) =
-  chk (fromHex(Stint[bits], a) shr b) == fromHex(Stint[bits], c)
+  chk (fromHex(StInt[bits], a) shr b) == fromHex(StInt[bits], c)
 
 template testBitwise(chk, tst: untyped) =
 
@@ -328,7 +328,7 @@ suite "Testing signed int bitwise operations":
     for i in 1..255:
       let x = 1.i256 shl i
       y = y shl 1
-      check cast[stint.Uint256](x) == y
+      check cast[stint.UInt256](x) == y
 
   test "Shift Right on positive int":
     const leftMost = 1.i256 shl 254
@@ -358,7 +358,7 @@ suite "Testing signed int bitwise operations":
 
     const
       a = (high(stint.Int256) shl 10) shr 10
-      b = (high(stint.Uint256) shl 10) shr 10
+      b = (high(stint.UInt256) shl 10) shr 10
       c = (high(stint.Int256) shl 10) shr 10
 
     check a != cast[stint.Int256](b)

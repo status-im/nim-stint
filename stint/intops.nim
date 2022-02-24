@@ -9,18 +9,18 @@
 
 import ./private/[bitops2_priv, datatypes]
 
-export Stint, StUint
+export StInt, StUint
 export IntImpl, intImpl, UintImpl, uintImpl, bitsof # TODO: remove the need to export those
 
-type SomeBigInteger = Stuint|Stint
+type SomeBigInteger = StUint|StInt
 
 import ./private/initialization
 
-func zero*[bits: static[int]](T: typedesc[Stuint[bits] or Stint[bits]]): T {.inline.} =
+func zero*[bits: static[int]](T: typedesc[StUint[bits] or StInt[bits]]): T {.inline.} =
   ## Returns the zero of the input type
   discard
 
-func one*[bits: static[int]](T: typedesc[Stuint[bits]]): T {.inline.} =
+func one*[bits: static[int]](T: typedesc[StUint[bits]]): T {.inline.} =
   ## Returns the one of the input type
   result.data = one(type result.data)
 
@@ -41,12 +41,12 @@ func `-=`*(x: var SomeBigInteger, y: SomeBigInteger) {.inline.} =
 
 import ./private/int_negabs
 
-func `-`*(x: Stint): Stint {.inline.} =
+func `-`*(x: StInt): StInt {.inline.} =
   ## Returns true if input is zero
   ## false otherwise
   result.data = -x.data
 
-func abs*(x: Stint): Stint {.inline.} =
+func abs*(x: StInt): StInt {.inline.} =
   ## Returns true if input is zero
   ## false otherwise
   result.data = abs(x.data)
@@ -94,7 +94,7 @@ func isZero*(x: SomeBigInteger): bool {.inline.} =
   ## false otherwise
   x.data.isZero
 
-func isNegative*(x: Stint): bool {.inline.} =
+func isNegative*(x: StInt): bool {.inline.} =
   ## Returns true if input is negative (< 0)
   ## false otherwise
   x.data.isNegative
@@ -142,14 +142,14 @@ func `shl`*(x: SomeBigInteger, y: SomeInteger): SomeBigInteger {.inline.} =
 
 import ./private/[int_highlow, uint_highlow]
 
-func high*[bits](_: typedesc[Stint[bits]]): Stint[bits] {.inline.} =
+func high*[bits](_: typedesc[StInt[bits]]): StInt[bits] {.inline.} =
   result.data = high(type result.data)
-func high*[bits](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.} =
+func high*[bits](_: typedesc[StUint[bits]]): StUint[bits] {.inline.} =
   result.data = high(type result.data)
 
-func low*[bits](_: typedesc[Stint[bits]]): Stint[bits] {.inline.} =
+func low*[bits](_: typedesc[StInt[bits]]): StInt[bits] {.inline.} =
   result.data = low(type result.data)
-func low*[bits](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.} =
+func low*[bits](_: typedesc[StUint[bits]]): StUint[bits] {.inline.} =
   result.data = low(type result.data)
 
 import ./private/uint_exp, math

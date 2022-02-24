@@ -10,10 +10,10 @@
 import ../stint, unittest, math, test_helpers
 
 template chkPow(chk: untyped, a, b, c: string, bits: int) =
-  chk pow(fromHex(Stuint[bits], a), fromHex(Stuint[bits], b)) == fromHex(Stuint[bits], c)
+  chk pow(fromHex(StUint[bits], a), fromHex(StUint[bits], b)) == fromHex(StUint[bits], c)
 
 template chkPow(chk: untyped, a: string, b: SomeInteger, c: string, bits: int) =
-  chk pow(fromHex(Stuint[bits], a), b) == fromHex(Stuint[bits], c)
+  chk pow(fromHex(StUint[bits], a), b) == fromHex(StUint[bits], c)
 
 template testExp(chk, tst: untyped) =
   tst "BigInt BigInt Pow":

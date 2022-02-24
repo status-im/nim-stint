@@ -14,4 +14,4 @@ func `*`*[T, T2](x, y: IntImpl[T, T2]): IntImpl[T, T2] {.inline.}=
   # For 2-complement representation this is the exact same
   # as unsigned multiplication. We don't need to deal with the sign
   # TODO: overflow detection.
-  convert[type result](convert[UIntImpl[T2]](x) * convert[UIntImpl[T2]](y))
+  convert[type result](convert[UintImpl[T2]](x) * convert[UintImpl[T2]](y))

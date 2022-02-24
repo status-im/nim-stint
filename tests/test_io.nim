@@ -26,27 +26,27 @@ template chkTruncateStint(chk, number, toType: untyped, res: string, bits: int) 
     let x = (number.stint(bits)).truncate(toType).toHex()
     chk "0x" & x == res
 
-template chkRoundtripStuint(chk: untyped, prefix, str: string, bits, radix: int) =
+template chkRoundTripStuint(chk: untyped, prefix, str: string, bits, radix: int) =
   block:
     let data = prefix & str
-    let x = parse(data, Stuint[bits], radix)
+    let x = parse(data, StUint[bits], radix)
     let y = x.toString(radix)
     chk y == str
 
-template chkRoundtripStuint(chk: untyped, str: string, bits, radix: int) =
-  chkRoundtripStuint(chk, "", str, bits, radix)
+template chkRoundTripStuint(chk: untyped, str: string, bits, radix: int) =
+  chkRoundTripStuint(chk, "", str, bits, radix)
 
-template chkRoundtripStint(chk: untyped, prefix, str: string, bits, radix: int) =
+template chkRoundTripStint(chk: untyped, prefix, str: string, bits, radix: int) =
   block:
     let data = prefix & str
-    let x = parse(data, Stint[bits], radix)
+    let x = parse(data, StInt[bits], radix)
     let y = x.toString(radix)
     chk y == str
 
-template chkRoundtripStint(chk: untyped, str: string, bits, radix: int) =
-  chkRoundtripStint(chk, "", str, bits, radix)
+template chkRoundTripStint(chk: untyped, str: string, bits, radix: int) =
+  chkRoundTripStint(chk, "", str, bits, radix)
 
-template chkRoundtripBin(chk, chkProc: untyped, bits, rep: int) =
+template chkRoundTripBin(chk, chkProc: untyped, bits, rep: int) =
   chkProc(chk, "0", bits, 2)
   chkProc(chk, repeat("1", rep), bits, 2)
   chkProc(chk, repeat("1010", rep), bits, 2)
@@ -56,7 +56,7 @@ template chkRoundtripBin(chk, chkProc: untyped, bits, rep: int) =
   chkProc(chk, repeat("1010101", rep), bits, 2)
   chkProc(chk, repeat("11111111", rep), bits, 2)
 
-template chkRoundtripHex(chk, chkProc: untyped, bits, rep: int) =
+template chkRoundTripHex(chk, chkProc: untyped, bits, rep: int) =
   chkProc(chk, "0", bits, 16)
   chkProc(chk, repeat("1", rep), bits, 16)
   chkProc(chk, repeat("7", rep), bits, 16)
@@ -65,13 +65,13 @@ template chkRoundtripHex(chk, chkProc: untyped, bits, rep: int) =
   chkProc(chk, repeat("ff", rep), bits, 16)
   chkProc(chk, repeat("f0", rep), bits, 16)
 
-template chkRoundtripOct(chk, chkProc: untyped, bits, rep: int) =
+template chkRoundTripOct(chk, chkProc: untyped, bits, rep: int) =
   chkProc(chk, "0", bits, 8)
   chkProc(chk, repeat("1", rep), bits, 8)
   chkProc(chk, repeat("7", rep), bits, 8)
   chkProc(chk, repeat("177", rep), bits, 8)
 
-template chkRoundtripDec(chk, chkProc: untyped, bits, rep: int) =
+template chkRoundTripDec(chk, chkProc: untyped, bits, rep: int) =
   chkProc(chk, "0", bits, 10)
   chkProc(chk, repeat("1", rep), bits, 10)
   chkProc(chk, repeat("9", rep), bits, 10)
@@ -84,7 +84,7 @@ func toByteArray(x: static[string]): auto {.compileTime.} =
 template chkRoundtripBE(chk: untyped, str: string, bits: int) =
   block:
     const data = toByteArray(str)
-    var x: Stuint[bits]
+    var x: StUint[bits]
     initFromBytesBE(x, data)
     let y = toByteArrayBE(x)
     chk y == data
@@ -100,14 +100,14 @@ template chkCTvsRT(chk: untyped, num: untyped, bits: int) =
 template chkDumpHexStuint(chk: untyped, BE, LE: string, bits: int) =
   block:
     let data = BE
-    let x = fromHex(Stuint[bits], data)
+    let x = fromHex(StUint[bits], data)
     chk dumpHex(x, bigEndian) == data
     chk dumpHex(x, littleEndian) == LE
 
 template chkDumpHexStint(chk: untyped, BE, LE: string, bits: int) =
   block:
     let data = BE
-    let x = fromHex(Stint[bits], data)
+    let x = fromHex(StInt[bits], data)
     chk dumpHex(x, bigEndian) == data
     chk dumpHex(x, littleEndian) == LE
 
@@ -697,19 +697,19 @@ template testIO(chk, tst: untyped) =
     chkRoundTripHex(chk, chkRoundTripStuint, 128, 16)
 
     chkRoundTripOct(chk, chkRoundTripStuint, 8, 1)
-    chkRoundtripStuint(chk, "377", 8, 8)
+    chkRoundTripStuint(chk, "377", 8, 8)
 
     chkRoundTripOct(chk, chkRoundTripStuint, 16, 1)
     chkRoundTripOct(chk, chkRoundTripStuint, 16, 2)
-    chkRoundtripStuint(chk, "377", 16, 8)
-    chkRoundtripStuint(chk, "177777", 16, 8)
+    chkRoundTripStuint(chk, "377", 16, 8)
+    chkRoundTripStuint(chk, "177777", 16, 8)
 
     chkRoundTripOct(chk, chkRoundTripStuint, 32, 1)
     chkRoundTripOct(chk, chkRoundTripStuint, 32, 2)
     chkRoundTripOct(chk, chkRoundTripStuint, 32, 3)
-    chkRoundtripStuint(chk, "377", 32, 8)
-    chkRoundtripStuint(chk, "177777", 32, 8)
-    chkRoundtripStuint(chk, "37777777777", 32, 8)
+    chkRoundTripStuint(chk, "377", 32, 8)
+    chkRoundTripStuint(chk, "177777", 32, 8)
+    chkRoundTripStuint(chk, "37777777777", 32, 8)
 
     chkRoundTripOct(chk, chkRoundTripStuint, 64, 1)
     chkRoundTripOct(chk, chkRoundTripStuint, 64, 2)
@@ -718,10 +718,10 @@ template testIO(chk, tst: untyped) =
     chkRoundTripOct(chk, chkRoundTripStuint, 64, 5)
     chkRoundTripOct(chk, chkRoundTripStuint, 64, 6)
     chkRoundTripOct(chk, chkRoundTripStuint, 64, 7)
-    chkRoundtripStuint(chk, "377", 64, 8)
-    chkRoundtripStuint(chk, "177777", 64, 8)
-    chkRoundtripStuint(chk, "37777777777", 64, 8)
-    chkRoundtripStuint(chk, "1777777777777777777777", 64, 8)
+    chkRoundTripStuint(chk, "377", 64, 8)
+    chkRoundTripStuint(chk, "177777", 64, 8)
+    chkRoundTripStuint(chk, "37777777777", 64, 8)
+    chkRoundTripStuint(chk, "1777777777777777777777", 64, 8)
 
     chkRoundTripOct(chk, chkRoundTripStuint, 128, 1)
     chkRoundTripOct(chk, chkRoundTripStuint, 128, 2)
@@ -737,26 +737,26 @@ template testIO(chk, tst: untyped) =
     chkRoundTripOct(chk, chkRoundTripStuint, 128, 12)
     chkRoundTripOct(chk, chkRoundTripStuint, 128, 13)
     chkRoundTripOct(chk, chkRoundTripStuint, 128, 14)
-    chkRoundtripStuint(chk, "377", 128, 8)
-    chkRoundtripStuint(chk, "177777", 128, 8)
-    chkRoundtripStuint(chk, "37777777777", 128, 8)
-    chkRoundtripStuint(chk, "1777777777777777777777", 128, 8)
-    chkRoundtripStuint(chk, "3777777777777777777777777777777777777777777", 128, 8)
+    chkRoundTripStuint(chk, "377", 128, 8)
+    chkRoundTripStuint(chk, "177777", 128, 8)
+    chkRoundTripStuint(chk, "37777777777", 128, 8)
+    chkRoundTripStuint(chk, "1777777777777777777777", 128, 8)
+    chkRoundTripStuint(chk, "3777777777777777777777777777777777777777777", 128, 8)
 
     chkRoundTripDec(chk, chkRoundTripStuint, 8, 1)
-    chkRoundtripStuint(chk, "255", 8, 10)
+    chkRoundTripStuint(chk, "255", 8, 10)
 
     chkRoundTripDec(chk, chkRoundTripStuint, 16, 1)
     chkRoundTripDec(chk, chkRoundTripStuint, 16, 2)
-    chkRoundtripStuint(chk, "255", 16, 10)
-    chkRoundtripStuint(chk, "65535", 16, 10)
+    chkRoundTripStuint(chk, "255", 16, 10)
+    chkRoundTripStuint(chk, "65535", 16, 10)
 
     chkRoundTripDec(chk, chkRoundTripStuint, 32, 1)
     chkRoundTripDec(chk, chkRoundTripStuint, 32, 2)
     chkRoundTripDec(chk, chkRoundTripStuint, 32, 3)
-    chkRoundtripStuint(chk, "255", 32, 10)
-    chkRoundtripStuint(chk, "65535", 32, 10)
-    chkRoundtripStuint(chk, "4294967295", 32, 10)
+    chkRoundTripStuint(chk, "255", 32, 10)
+    chkRoundTripStuint(chk, "65535", 32, 10)
+    chkRoundTripStuint(chk, "4294967295", 32, 10)
 
     chkRoundTripDec(chk, chkRoundTripStuint, 64, 1)
     chkRoundTripDec(chk, chkRoundTripStuint, 64, 2)
@@ -765,10 +765,10 @@ template testIO(chk, tst: untyped) =
     chkRoundTripDec(chk, chkRoundTripStuint, 64, 5)
     chkRoundTripDec(chk, chkRoundTripStuint, 64, 6)
     chkRoundTripDec(chk, chkRoundTripStuint, 64, 7)
-    chkRoundtripStuint(chk, "255", 64, 10)
-    chkRoundtripStuint(chk, "65535", 64, 10)
-    chkRoundtripStuint(chk, "4294967295", 64, 10)
-    chkRoundtripStuint(chk, "18446744073709551615", 64, 10)
+    chkRoundTripStuint(chk, "255", 64, 10)
+    chkRoundTripStuint(chk, "65535", 64, 10)
+    chkRoundTripStuint(chk, "4294967295", 64, 10)
+    chkRoundTripStuint(chk, "18446744073709551615", 64, 10)
 
     chkRoundTripDec(chk, chkRoundTripStuint, 128, 1)
     chkRoundTripDec(chk, chkRoundTripStuint, 128, 2)
@@ -784,25 +784,25 @@ template testIO(chk, tst: untyped) =
     chkRoundTripDec(chk, chkRoundTripStuint, 128, 12)
     chkRoundTripDec(chk, chkRoundTripStuint, 128, 13)
     chkRoundTripDec(chk, chkRoundTripStuint, 128, 14)
-    chkRoundtripStuint(chk, "255", 128, 10)
-    chkRoundtripStuint(chk, "65535", 128, 10)
-    chkRoundtripStuint(chk, "4294967295", 128, 10)
-    chkRoundtripStuint(chk, "18446744073709551615", 128, 10)
-    chkRoundtripStuint(chk, "340282366920938463463374607431768211455", 128, 10)
+    chkRoundTripStuint(chk, "255", 128, 10)
+    chkRoundTripStuint(chk, "65535", 128, 10)
+    chkRoundTripStuint(chk, "4294967295", 128, 10)
+    chkRoundTripStuint(chk, "18446744073709551615", 128, 10)
+    chkRoundTripStuint(chk, "340282366920938463463374607431768211455", 128, 10)
 
   tst "[stint] parse - toString roundtrip":
     chkRoundTripBin(chk, chkRoundTripStint, 8, 1)
-    chkRoundtripStint(chk, "1" & repeat('0', 7), 8, 2)
+    chkRoundTripStint(chk, "1" & repeat('0', 7), 8, 2)
 
     chkRoundTripBin(chk, chkRoundTripStint, 16, 1)
     chkRoundTripBin(chk, chkRoundTripStint, 16, 2)
-    chkRoundtripStint(chk, "1" & repeat('0', 15), 16, 2)
+    chkRoundTripStint(chk, "1" & repeat('0', 15), 16, 2)
 
     chkRoundTripBin(chk, chkRoundTripStint, 32, 1)
     chkRoundTripBin(chk, chkRoundTripStint, 32, 2)
     chkRoundTripBin(chk, chkRoundTripStint, 32, 3)
     chkRoundTripBin(chk, chkRoundTripStint, 32, 4)
-    chkRoundtripStint(chk, "1" & repeat('0', 31), 32, 2)
+    chkRoundTripStint(chk, "1" & repeat('0', 31), 32, 2)
 
     chkRoundTripBin(chk, chkRoundTripStint, 64, 1)
     chkRoundTripBin(chk, chkRoundTripStint, 64, 2)
@@ -812,7 +812,7 @@ template testIO(chk, tst: untyped) =
     chkRoundTripBin(chk, chkRoundTripStint, 64, 6)
     chkRoundTripBin(chk, chkRoundTripStint, 64, 7)
     chkRoundTripBin(chk, chkRoundTripStint, 64, 8)
-    chkRoundtripStint(chk, "1" & repeat('0', 63), 64, 2)
+    chkRoundTripStint(chk, "1" & repeat('0', 63), 64, 2)
 
     chkRoundTripBin(chk, chkRoundTripStint, 128, 1)
     chkRoundTripBin(chk, chkRoundTripStint, 128, 2)
@@ -830,20 +830,20 @@ template testIO(chk, tst: untyped) =
     chkRoundTripBin(chk, chkRoundTripStint, 128, 14)
     chkRoundTripBin(chk, chkRoundTripStint, 128, 15)
     chkRoundTripBin(chk, chkRoundTripStint, 128, 16)
-    chkRoundtripStint(chk, "1" & repeat('0', 127), 128, 2)
+    chkRoundTripStint(chk, "1" & repeat('0', 127), 128, 2)
 
     chkRoundTripHex(chk, chkRoundTripStint, 8, 1)
-    chkRoundtripStint(chk, "8" & repeat('0', 1), 8, 16)
+    chkRoundTripStint(chk, "8" & repeat('0', 1), 8, 16)
 
     chkRoundTripHex(chk, chkRoundTripStint, 16, 1)
     chkRoundTripHex(chk, chkRoundTripStint, 16, 2)
-    chkRoundtripStint(chk, "8" & repeat('0', 3), 16, 16)
+    chkRoundTripStint(chk, "8" & repeat('0', 3), 16, 16)
 
     chkRoundTripHex(chk, chkRoundTripStint, 32, 1)
     chkRoundTripHex(chk, chkRoundTripStint, 32, 2)
     chkRoundTripHex(chk, chkRoundTripStint, 32, 3)
     chkRoundTripHex(chk, chkRoundTripStint, 32, 4)
-    chkRoundtripStint(chk, "8" & repeat('0', 7), 32, 16)
+    chkRoundTripStint(chk, "8" & repeat('0', 7), 32, 16)
 
     chkRoundTripHex(chk, chkRoundTripStint, 64, 1)
     chkRoundTripHex(chk, chkRoundTripStint, 64, 2)
@@ -853,7 +853,7 @@ template testIO(chk, tst: untyped) =
     chkRoundTripHex(chk, chkRoundTripStint, 64, 6)
     chkRoundTripHex(chk, chkRoundTripStint, 64, 7)
     chkRoundTripHex(chk, chkRoundTripStint, 64, 8)
-    chkRoundtripStint(chk, "8" & repeat('0', 15), 64, 16)
+    chkRoundTripStint(chk, "8" & repeat('0', 15), 64, 16)
 
     chkRoundTripHex(chk, chkRoundTripStint, 128, 1)
     chkRoundTripHex(chk, chkRoundTripStint, 128, 2)
@@ -871,28 +871,28 @@ template testIO(chk, tst: untyped) =
     chkRoundTripHex(chk, chkRoundTripStint, 128, 14)
     chkRoundTripHex(chk, chkRoundTripStint, 128, 15)
     chkRoundTripHex(chk, chkRoundTripStint, 128, 16)
-    chkRoundtripStint(chk, "8" & repeat('0', 31), 128, 16)
+    chkRoundTripStint(chk, "8" & repeat('0', 31), 128, 16)
 
     chkRoundTripOct(chk, chkRoundTripStint, 8, 1)
-    chkRoundtripStint(chk, "377", 8, 8)
-    chkRoundtripStint(chk, "200", 8, 8)
+    chkRoundTripStint(chk, "377", 8, 8)
+    chkRoundTripStint(chk, "200", 8, 8)
 
     chkRoundTripOct(chk, chkRoundTripStint, 16, 1)
     chkRoundTripOct(chk, chkRoundTripStint, 16, 2)
-    chkRoundtripStint(chk, "377", 16, 8)
-    chkRoundtripStint(chk, "200", 16, 8)
-    chkRoundtripStint(chk, "177777", 16, 8)
-    chkRoundtripStint(chk, "100000", 16, 8)
+    chkRoundTripStint(chk, "377", 16, 8)
+    chkRoundTripStint(chk, "200", 16, 8)
+    chkRoundTripStint(chk, "177777", 16, 8)
+    chkRoundTripStint(chk, "100000", 16, 8)
 
     chkRoundTripOct(chk, chkRoundTripStint, 32, 1)
     chkRoundTripOct(chk, chkRoundTripStint, 32, 2)
     chkRoundTripOct(chk, chkRoundTripStint, 32, 3)
-    chkRoundtripStint(chk, "377", 32, 8)
-    chkRoundtripStint(chk, "200", 32, 8)
-    chkRoundtripStint(chk, "177777", 32, 8)
-    chkRoundtripStint(chk, "100000", 32, 8)
-    chkRoundtripStint(chk, "37777777777", 32, 8)
-    chkRoundtripStint(chk, "20000000000", 32, 8)
+    chkRoundTripStint(chk, "377", 32, 8)
+    chkRoundTripStint(chk, "200", 32, 8)
+    chkRoundTripStint(chk, "177777", 32, 8)
+    chkRoundTripStint(chk, "100000", 32, 8)
+    chkRoundTripStint(chk, "37777777777", 32, 8)
+    chkRoundTripStint(chk, "20000000000", 32, 8)
 
     chkRoundTripOct(chk, chkRoundTripStint, 64, 1)
     chkRoundTripOct(chk, chkRoundTripStint, 64, 2)
@@ -901,14 +901,14 @@ template testIO(chk, tst: untyped) =
     chkRoundTripOct(chk, chkRoundTripStint, 64, 5)
     chkRoundTripOct(chk, chkRoundTripStint, 64, 6)
     chkRoundTripOct(chk, chkRoundTripStint, 64, 7)
-    chkRoundtripStint(chk, "377", 64, 8)
-    chkRoundtripStint(chk, "200", 64, 8)
-    chkRoundtripStint(chk, "177777", 64, 8)
-    chkRoundtripStint(chk, "100000", 64, 8)
-    chkRoundtripStint(chk, "37777777777", 64, 8)
-    chkRoundtripStint(chk, "20000000000", 64, 8)
-    chkRoundtripStint(chk, "1777777777777777777777", 64, 8)
-    chkRoundtripStint(chk, "1000000000000000000000", 64, 8)
+    chkRoundTripStint(chk, "377", 64, 8)
+    chkRoundTripStint(chk, "200", 64, 8)
+    chkRoundTripStint(chk, "177777", 64, 8)
+    chkRoundTripStint(chk, "100000", 64, 8)
+    chkRoundTripStint(chk, "37777777777", 64, 8)
+    chkRoundTripStint(chk, "20000000000", 64, 8)
+    chkRoundTripStint(chk, "1777777777777777777777", 64, 8)
+    chkRoundTripStint(chk, "1000000000000000000000", 64, 8)
 
     chkRoundTripOct(chk, chkRoundTripStint, 128, 1)
     chkRoundTripOct(chk, chkRoundTripStint, 128, 2)
@@ -924,42 +924,42 @@ template testIO(chk, tst: untyped) =
     chkRoundTripOct(chk, chkRoundTripStint, 128, 12)
     chkRoundTripOct(chk, chkRoundTripStint, 128, 13)
     chkRoundTripOct(chk, chkRoundTripStint, 128, 14)
-    chkRoundtripStint(chk, "377", 128, 8)
-    chkRoundtripStint(chk, "200", 128, 8)
-    chkRoundtripStint(chk, "177777", 128, 8)
-    chkRoundtripStint(chk, "100000", 128, 8)
-    chkRoundtripStint(chk, "37777777777", 128, 8)
-    chkRoundtripStint(chk, "20000000000", 128, 8)
-    chkRoundtripStint(chk, "1777777777777777777777", 128, 8)
-    chkRoundtripStint(chk, "1000000000000000000000", 128, 8)
-    chkRoundtripStint(chk, "3777777777777777777777777777777777777777777", 128, 8)
-    chkRoundtripStint(chk, "2000000000000000000000000000000000000000000", 128, 8)
+    chkRoundTripStint(chk, "377", 128, 8)
+    chkRoundTripStint(chk, "200", 128, 8)
+    chkRoundTripStint(chk, "177777", 128, 8)
+    chkRoundTripStint(chk, "100000", 128, 8)
+    chkRoundTripStint(chk, "37777777777", 128, 8)
+    chkRoundTripStint(chk, "20000000000", 128, 8)
+    chkRoundTripStint(chk, "1777777777777777777777", 128, 8)
+    chkRoundTripStint(chk, "1000000000000000000000", 128, 8)
+    chkRoundTripStint(chk, "3777777777777777777777777777777777777777777", 128, 8)
+    chkRoundTripStint(chk, "2000000000000000000000000000000000000000000", 128, 8)
 
     chkRoundTripDec(chk, chkRoundTripStint, 8, 1)
-    chkRoundtripStint(chk, "127", 8, 10)
-    chkRoundtripStint(chk, "-127", 8, 10)
-    # chkRoundtripStint(chk, "-128", 8, 10) # TODO: not supported yet
+    chkRoundTripStint(chk, "127", 8, 10)
+    chkRoundTripStint(chk, "-127", 8, 10)
+    # chkRoundTripStint(chk, "-128", 8, 10) # TODO: not supported yet
 
     chkRoundTripDec(chk, chkRoundTripStint, 16, 1)
     chkRoundTripDec(chk, chkRoundTripStint, 16, 2)
-    chkRoundtripStint(chk, "255", 16, 10)
-    chkRoundtripStint(chk, "127", 16, 10)
-    chkRoundtripStint(chk, "-128", 16, 10)
-    chkRoundtripStint(chk, "32767", 16, 10)
-    chkRoundtripStint(chk, "-32767", 16, 10)
-    #chkRoundtripStint(chk, "-32768", 16, 10) # TODO: not supported yet
+    chkRoundTripStint(chk, "255", 16, 10)
+    chkRoundTripStint(chk, "127", 16, 10)
+    chkRoundTripStint(chk, "-128", 16, 10)
+    chkRoundTripStint(chk, "32767", 16, 10)
+    chkRoundTripStint(chk, "-32767", 16, 10)
+    #chkRoundTripStint(chk, "-32768", 16, 10) # TODO: not supported yet
 
     chkRoundTripDec(chk, chkRoundTripStint, 32, 1)
     chkRoundTripDec(chk, chkRoundTripStint, 32, 2)
     chkRoundTripDec(chk, chkRoundTripStint, 32, 3)
-    chkRoundtripStint(chk, "255", 32, 10)
-    chkRoundtripStint(chk, "127", 32, 10)
-    chkRoundtripStint(chk, "-128", 32, 10)
-    chkRoundtripStint(chk, "32767", 32, 10)
-    chkRoundtripStint(chk, "-32768", 32, 10)
-    chkRoundtripStint(chk, "65535", 32, 10)
-    chkRoundtripStint(chk, "-2147483647", 32, 10)
-    #chkRoundtripStint(chk, "-2147483648", 32, 10) # TODO: not supported yet
+    chkRoundTripStint(chk, "255", 32, 10)
+    chkRoundTripStint(chk, "127", 32, 10)
+    chkRoundTripStint(chk, "-128", 32, 10)
+    chkRoundTripStint(chk, "32767", 32, 10)
+    chkRoundTripStint(chk, "-32768", 32, 10)
+    chkRoundTripStint(chk, "65535", 32, 10)
+    chkRoundTripStint(chk, "-2147483647", 32, 10)
+    #chkRoundTripStint(chk, "-2147483648", 32, 10) # TODO: not supported yet
 
     chkRoundTripDec(chk, chkRoundTripStint, 64, 1)
     chkRoundTripDec(chk, chkRoundTripStint, 64, 2)
@@ -968,17 +968,17 @@ template testIO(chk, tst: untyped) =
     chkRoundTripDec(chk, chkRoundTripStint, 64, 5)
     chkRoundTripDec(chk, chkRoundTripStint, 64, 6)
     chkRoundTripDec(chk, chkRoundTripStint, 64, 7)
-    chkRoundtripStint(chk, "255", 64, 10)
-    chkRoundtripStint(chk, "65535", 64, 10)
-    chkRoundtripStint(chk, "127", 64, 10)
-    chkRoundtripStint(chk, "-128", 64, 10)
-    chkRoundtripStint(chk, "32767", 64, 10)
-    chkRoundtripStint(chk, "-32768", 64, 10)
-    chkRoundtripStint(chk, "65535", 64, 10)
-    chkRoundtripStint(chk, "-2147483648", 64, 10)
-    chkRoundtripStint(chk, "4294967295", 64, 10)
-    chkRoundtripStint(chk, "-9223372036854775807", 64, 10)
-    #chkRoundtripStint(chk, "-9223372036854775808", 64, 10) # TODO: not supported yet
+    chkRoundTripStint(chk, "255", 64, 10)
+    chkRoundTripStint(chk, "65535", 64, 10)
+    chkRoundTripStint(chk, "127", 64, 10)
+    chkRoundTripStint(chk, "-128", 64, 10)
+    chkRoundTripStint(chk, "32767", 64, 10)
+    chkRoundTripStint(chk, "-32768", 64, 10)
+    chkRoundTripStint(chk, "65535", 64, 10)
+    chkRoundTripStint(chk, "-2147483648", 64, 10)
+    chkRoundTripStint(chk, "4294967295", 64, 10)
+    chkRoundTripStint(chk, "-9223372036854775807", 64, 10)
+    #chkRoundTripStint(chk, "-9223372036854775808", 64, 10) # TODO: not supported yet
 
     chkRoundTripDec(chk, chkRoundTripStint, 128, 1)
     chkRoundTripDec(chk, chkRoundTripStint, 128, 2)
@@ -994,12 +994,12 @@ template testIO(chk, tst: untyped) =
     chkRoundTripDec(chk, chkRoundTripStint, 128, 12)
     chkRoundTripDec(chk, chkRoundTripStint, 128, 13)
     chkRoundTripDec(chk, chkRoundTripStint, 128, 14)
-    chkRoundtripStint(chk, "255", 128, 10)
-    chkRoundtripStint(chk, "65535", 128, 10)
-    chkRoundtripStint(chk, "4294967295", 128, 10)
-    chkRoundtripStint(chk, "18446744073709551615", 128, 10)
-    chkRoundtripStint(chk, "-170141183460469231731687303715884105727", 128, 10)
-    #chkRoundtripStint(chk, "-170141183460469231731687303715884105728", 128, 10) # TODO: not supported yet
+    chkRoundTripStint(chk, "255", 128, 10)
+    chkRoundTripStint(chk, "65535", 128, 10)
+    chkRoundTripStint(chk, "4294967295", 128, 10)
+    chkRoundTripStint(chk, "18446744073709551615", 128, 10)
+    chkRoundTripStint(chk, "-170141183460469231731687303715884105727", 128, 10)
+    #chkRoundTripStint(chk, "-170141183460469231731687303715884105728", 128, 10) # TODO: not supported yet
 
   tst "roundtrip initFromBytesBE and toByteArrayBE":
     chkRoundtripBE(chk, "x", 8)
@@ -1070,21 +1070,21 @@ proc main() =
 
     test "Creation from decimal strings":
       block:
-        let a = "123456789".parse(Stint[64])
+        let a = "123456789".parse(StInt[64])
         let b = 123456789.stint(64)
 
         check: a == b
         check: 123456789'i64 == cast[int64](a)
 
       block:
-        let a = "123456789".parse(Stuint[64])
+        let a = "123456789".parse(StUint[64])
         let b = 123456789.stuint(64)
 
         check: a == b
         check: 123456789'u64 == cast[uint64](a)
 
       block:
-        let a = "-123456789".parse(Stint[64])
+        let a = "-123456789".parse(StInt[64])
         let b = (-123456789).stint(64)
 
         check: a == b
@@ -1092,14 +1092,14 @@ proc main() =
 
     test "Creation from hex strings":
       block:
-        let a = "0xFF".parse(Stint[64], radix = 16)
+        let a = "0xFF".parse(StInt[64], radix = 16)
         let b = 255.stint(64)
 
         check: a == b
         check: 255'i64 == cast[int64](a)
 
       block:
-        let a = "0xFF".parse(Stuint[64], radix = 16)
+        let a = "0xFF".parse(StUint[64], radix = 16)
         let b = 255.stuint(64)
 
         check: a == b
@@ -1109,7 +1109,7 @@ proc main() =
         check: a == a2
 
       block:
-        let a = "0xFFFF".parse(Stint[16], 16)
+        let a = "0xFFFF".parse(StInt[16], 16)
         let b = (-1'i16).stint(16)
 
         check: a == b
@@ -1160,7 +1160,7 @@ proc main() =
 
       block:
         let s = "1234567890123456789012345678901234567890123456789"
-        let a = parse(s, StUInt[512])
+        let a = parse(s, StUint[512])
         check: a.toString == s
         check: $a == s
 
@@ -1199,7 +1199,7 @@ proc main() =
 
     test "Parsing an unexpected 0x prefix for a decimal string is a CatchableError and not a defect":
       let s = "0x123456"
-      
+
       expect(ValueError):
         let value = parse(s, StUint[256], 10)
 
@@ -1212,8 +1212,8 @@ proc main() =
 
     test "explicit conversions from basic types":
       type
-        UInt256 = Stuint[256]
-        Int128 = Stint[128]
+        UInt256 = StUint[256]
+        Int128 = StInt[128]
 
       let x = 10.uint16
 
@@ -1222,7 +1222,7 @@ proc main() =
         x.to(Int128).bits == 128
 
     test "hex -> uint256":
-      check: SECPK1_N_HEX.parse(Stuint[256], radix = 16) == SECPK1_N
+      check: SECPK1_N_HEX.parse(StUint[256], radix = 16) == SECPK1_N
 
     test "uint256 -> hex":
       check: SECPK1_N.dumpHex == SECPK1_N_HEX
@@ -1238,7 +1238,7 @@ proc main() =
         let
           bytes = f.toByteArrayBE
           nonZeroBytes = significantBytesBE(bytes)
-          fRestored = Uint256.fromBytesBE(bytes.toOpenArray(bytes.len - nonZeroBytes,
+          fRestored = UInt256.fromBytesBE(bytes.toOpenArray(bytes.len - nonZeroBytes,
                                                             bytes.len - 1))
         check f == fRestored
 
@@ -1309,16 +1309,16 @@ proc main() =
       )
 
     test "Alice signature":
-      check: alice.raw_sig.r.parse(Stuint[256], 16) == "80536744857756143861726945576089915884233437828013729338039544043241440681784".u256
-      check: alice.raw_sig.s.parse(Stuint[256], 16) == "1902566422691403459035240420865094128779958320521066670269403689808757640701".u256
+      check: alice.raw_sig.r.parse(StUint[256], 16) == "80536744857756143861726945576089915884233437828013729338039544043241440681784".u256
+      check: alice.raw_sig.s.parse(StUint[256], 16) == "1902566422691403459035240420865094128779958320521066670269403689808757640701".u256
 
     test "Bob signature":
-      check: bob.raw_sig.r.parse(Stuint[256], 16) == "41741612198399299636429810387160790514780876799439767175315078161978521003886".u256
-      check: bob.raw_sig.s.parse(Stuint[256], 16) == "47545396818609319588074484786899049290652725314938191835667190243225814114102".u256
+      check: bob.raw_sig.r.parse(StUint[256], 16) == "41741612198399299636429810387160790514780876799439767175315078161978521003886".u256
+      check: bob.raw_sig.s.parse(StUint[256], 16) == "47545396818609319588074484786899049290652725314938191835667190243225814114102".u256
 
     test "Eve signature":
-      check: eve.raw_sig.r.parse(Stuint[256], 16) == "84467545608142925331782333363288012579669270632210954476013542647119929595395".u256
-      check: eve.raw_sig.s.parse(Stuint[256], 16) == "43529886636775750164425297556346136250671451061152161143648812009114516499167".u256
+      check: eve.raw_sig.r.parse(StUint[256], 16) == "84467545608142925331782333363288012579669270632210954476013542647119929595395".u256
+      check: eve.raw_sig.s.parse(StUint[256], 16) == "43529886636775750164425297556346136250671451061152161143648812009114516499167".u256
 
     test "Using stint values in a hash table":
       block:

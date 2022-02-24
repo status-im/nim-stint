@@ -44,7 +44,7 @@ import  ./bitops2_priv, ./conversion, ./initialization,
 ##                                                                                                               ##
 ###################################################################################################################
 
-func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T)
+func div2n1n[T: SomeUnsignedInt](q, r: var T, n_hi, n_lo, d: T)
 func div2n1n(q, r: var UintImpl, ah, al, b: UintImpl)
   # Forward declaration
 
@@ -128,7 +128,7 @@ func div2n1n(q, r: var UintImpl, ah, al, b: UintImpl) =
   div3n2n(q.hi, s, ah.hi, ah.lo, al.hi, b)
   div3n2n(q.lo, r, s.hi, s.lo, al.lo, b)
 
-func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
+func div2n1n[T: SomeUnsignedInt](q, r: var T, n_hi, n_lo, d: T) =
 
   # doAssert leadingZeros(d) == 0, "Divisor was not normalized"
 
@@ -156,8 +156,8 @@ func div2n1n[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
   let
     d_hi = d shr halfSize
     d_lo = d and halfMask
-    n_lohi = nlo shr halfSize
-    n_lolo = nlo and halfMask
+    n_lohi = n_lo shr halfSize
+    n_lolo = n_lo and halfMask
 
   # First half of the quotient
   let (q1, r1) = halfQR(n_hi, n_lohi, d, d_hi, d_lo)

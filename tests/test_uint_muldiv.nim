@@ -10,16 +10,16 @@
 import ../stint, unittest, test_helpers
 
 template chkMul(chk: untyped, a, b, c: string, bits: int) =
-  chk (fromHex(Stuint[bits], a) * fromHex(Stuint[bits], b)) == fromHex(Stuint[bits], c)
+  chk (fromHex(StUint[bits], a) * fromHex(StUint[bits], b)) == fromHex(StUint[bits], c)
 
 template chkDiv(chk: untyped, a, b, c: string, bits: int) =
-  chk (fromHex(Stuint[bits], a) div fromHex(Stuint[bits], b)) == fromHex(Stuint[bits], c)
+  chk (fromHex(StUint[bits], a) div fromHex(StUint[bits], b)) == fromHex(StUint[bits], c)
 
 template chkMod(chk: untyped, a, b, c: string, bits: int) =
-  chk (fromHex(Stuint[bits], a) mod fromHex(Stuint[bits], b)) == fromHex(Stuint[bits], c)
+  chk (fromHex(StUint[bits], a) mod fromHex(StUint[bits], b)) == fromHex(StUint[bits], c)
 
 template chkDivMod(chk: untyped, a, b, c, d: string, bits: int) =
-  chk divmod(fromHex(Stuint[bits], a), fromHex(Stuint[bits], b)) == (fromHex(Stuint[bits], c), fromHex(Stuint[bits], d))
+  chk divmod(fromHex(StUint[bits], a), fromHex(StUint[bits], b)) == (fromHex(StUint[bits], c), fromHex(StUint[bits], d))
 
 template testMuldiv(chk, tst: untyped) =
   tst "operator `mul`":
@@ -293,8 +293,8 @@ suite "Testing specific failures highlighted by property-based testing":
     let u = 65696211516342324'u64
     let v = 174261910798982'u64
 
-    let a = cast[Stuint[64]](u)
-    let b = cast[Stuint[64]](v)
+    let a = cast[StUint[64]](u)
+    let b = cast[StUint[64]](v)
 
     let z = u mod v
     let tz = cast[uint64](a mod b)
@@ -305,8 +305,8 @@ suite "Testing specific failures highlighted by property-based testing":
     let u = 15080397990160655'u64
     let v = 600432699691'u64
 
-    let a = cast[Stuint[64]](u)
-    let b = cast[Stuint[64]](v)
+    let a = cast[StUint[64]](u)
+    let b = cast[StUint[64]](v)
 
     let z = u mod v
     let tz = cast[uint64](a mod b)

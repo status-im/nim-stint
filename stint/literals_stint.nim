@@ -34,12 +34,12 @@ macro make_mixed_types_ops(op: untyped, ResultTy: untyped, sign: static[Signedne
                     )
 
     result.add quote do:
-      proc `op`*[bits: static[int]](a: Stuint[bits], b: `intLit`): `ResultTy` {.inline.}=
+      proc `op`*[bits: static[int]](a: StUint[bits], b: `intLit`): `ResultTy` {.inline.}=
         `op`(a, b.stuint(bits))
 
     if switchInputs:
       result.add quote do:
-        proc `op`*[bits: static[int]](a: `intLit`, b: Stuint[bits]): `ResultTy` {.inline.}=
+        proc `op`*[bits: static[int]](a: `intLit`, b: StUint[bits]): `ResultTy` {.inline.}=
           `op`(a.stuint(bits), b)
 
   if sign != UintOnly:
@@ -50,12 +50,12 @@ macro make_mixed_types_ops(op: untyped, ResultTy: untyped, sign: static[Signedne
                     )
 
     result.add quote do:
-      proc `op`*[bits: static[int]](a: Stint[bits], b: `intLit`): `ResultTy` {.inline.}=
+      proc `op`*[bits: static[int]](a: StInt[bits], b: `intLit`): `ResultTy` {.inline.}=
         `op`(a, b.stuint(bits))
 
     if switchInputs:
       result.add quote do:
-        proc `op`*[bits: static[int]](a: `intLit`, b: Stint[bits]): `ResultTy` {.inline.}=
+        proc `op`*[bits: static[int]](a: `intLit`, b: StInt[bits]): `ResultTy` {.inline.}=
           `op`(a.stuint(bits), b)
 
 make_mixed_types_ops(`+`, InputType, BothSigned, switchInputs = true)
@@ -77,11 +77,11 @@ make_mixed_types_ops(`xor`, InputType, BothSigned, switchInputs = true)
 
 # Specialization / fast path for comparison to zero
 # Note system.nim has templates to transform > and >= into <= and <
-template mtoIsZero*{a == 0}(a: StUint or Stint): bool = a.isZero
-template mtoIsZero*{0 == a}(a: StUint or Stint): bool = a.isZero
+template mtoIsZero*{a == 0}(a: StUint or StInt): bool = a.isZero
+template mtoIsZero*{0 == a}(a: StUint or StInt): bool = a.isZero
 
-template mtoIsNeg*{a < 0}(a: Stint): bool = a.isNegative
-template mtoIsNegOrZero*{a <= 0}(a: Stint): bool = a.isZero or a.isNegative
+template mtoIsNeg*{a < 0}(a: StInt): bool = a.isNegative
+template mtoIsNegOrZero*{a <= 0}(a: StInt): bool = a.isZero or a.isNegative
 
-template mtoIsPos*{0 < a}(a: Stint): bool = not(a.isZero or a.isNegative)
-template mtoIsPosOrZero*{0 <= a}(a: Stint): bool = not a.isNegative
+template mtoIsPos*{0 < a}(a: StInt): bool = not(a.isZero or a.isNegative)
+template mtoIsPosOrZero*{0 <= a}(a: StInt): bool = not a.isNegative

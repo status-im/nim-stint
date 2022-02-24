@@ -13,22 +13,22 @@ template chkNot(chk: untyped, a, b: distinct SomeInteger, bits: int) =
   chk stuint(a, bits).not() == stuint(b, bits)
 
 template chkNot(chk: untyped, a, b: string, bits: int) =
-  chk fromHex(Stuint[bits], a).not() == fromHex(Stuint[bits], b)
+  chk fromHex(StUint[bits], a).not() == fromHex(StUint[bits], b)
 
 template chkOr(chk: untyped, a, b, c: string, bits: int) =
-  chk (fromHex(Stuint[bits], a) or fromHex(Stuint[bits], b)) == fromHex(Stuint[bits], c)
+  chk (fromHex(StUint[bits], a) or fromHex(StUint[bits], b)) == fromHex(StUint[bits], c)
 
 template chkAnd(chk: untyped, a, b, c: string, bits: int) =
-  chk (fromHex(Stuint[bits], a) and fromHex(Stuint[bits], b)) == fromHex(Stuint[bits], c)
+  chk (fromHex(StUint[bits], a) and fromHex(StUint[bits], b)) == fromHex(StUint[bits], c)
 
 template chkXor(chk: untyped, a, b, c: string, bits: int) =
-  chk (fromHex(Stuint[bits], a) xor fromHex(Stuint[bits], b)) == fromHex(Stuint[bits], c)
+  chk (fromHex(StUint[bits], a) xor fromHex(StUint[bits], b)) == fromHex(StUint[bits], c)
 
 template chkShl(chk: untyped, a: string, b: SomeInteger, c: string, bits: int) =
-  chk (fromHex(Stuint[bits], a) shl b) == fromHex(Stuint[bits], c)
+  chk (fromHex(StUint[bits], a) shl b) == fromHex(StUint[bits], c)
 
 template chkShr(chk: untyped, a: string, b: SomeInteger, c: string, bits: int) =
-  chk (fromHex(Stuint[bits], a) shr b) == fromHex(Stuint[bits], c)
+  chk (fromHex(StUint[bits], a) shr b) == fromHex(StUint[bits], c)
 
 template testBitwise(chk, tst: untyped) =
 

@@ -11,8 +11,8 @@ import stint/[bitops2, endians2, intops, io, modular_arithmetic, literals_stint]
 export bitops2, endians2, intops, io, modular_arithmetic, literals_stint
 
 type
-  Int128* = Stint[128]
-  Int256* = Stint[256]
+  Int128* = StInt[128]
+  Int256* = StInt[256]
   UInt128* = StUint[128]
   UInt256* = StUint[256]
 
