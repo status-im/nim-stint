@@ -9,7 +9,7 @@
 
 import ./intops, private/datatypes
 
-func addmod_internal(a, b, m: Stuint): Stuint {.inline.}=
+func addmod_internal(a, b, m: StUint): StUint {.inline.}=
   ## Modular addition
   ## ⚠⚠ Assume a < m and b < m
 
@@ -23,7 +23,7 @@ func addmod_internal(a, b, m: Stuint): Stuint {.inline.}=
     return a - b_from_m
   return m - b_from_m + a
 
-func submod_internal(a, b, m: Stuint): Stuint {.inline.}=
+func submod_internal(a, b, m: StUint): StUint {.inline.}=
   ## Modular substraction
   ## ⚠⚠ Assume a < m and b < m
 
@@ -36,7 +36,7 @@ func submod_internal(a, b, m: Stuint): Stuint {.inline.}=
   return m - b + a
 
 
-func doublemod_internal(a, m: Stuint): Stuint {.inline.}=
+func doublemod_internal(a, m: StUint): StUint {.inline.}=
   ## Double a modulo m. Assume a < m
   ## Internal proc - used in mulmod
 
@@ -47,7 +47,7 @@ func doublemod_internal(a, m: Stuint): Stuint {.inline.}=
     result -= m
   result += a
 
-func mulmod_internal(a, b, m: Stuint): Stuint {.inline.}=
+func mulmod_internal(a, b, m: StUint): StUint {.inline.}=
   ## Does (a * b) mod m. Assume a < m and b < m
   ## Internal proc - used in powmod
 
@@ -65,7 +65,7 @@ func mulmod_internal(a, b, m: Stuint): Stuint {.inline.}=
     a = doublemod_internal(a, m)
     b = b shr 1
 
-func powmod_internal(a, b, m: Stuint): Stuint {.inline.}=
+func powmod_internal(a, b, m: StUint): StUint {.inline.}=
   ## Compute ``(a ^ b) mod m``, assume a < m
   ## Internal proc
 
@@ -80,7 +80,7 @@ func powmod_internal(a, b, m: Stuint): Stuint {.inline.}=
     b = b shr 1
     a = mulmod_internal(a, a, m)
 
-func addmod*(a, b, m: Stuint): Stuint =
+func addmod*(a, b, m: StUint): StUint =
   ## Modular addition
 
   let a_m = if a < m: a
@@ -90,7 +90,7 @@ func addmod*(a, b, m: Stuint): Stuint =
 
   result = addmod_internal(a_m, b_m, m)
 
-func submod*(a, b, m: Stuint): Stuint =
+func submod*(a, b, m: StUint): StUint =
   ## Modular substraction
 
   let a_m = if a < m: a
@@ -100,7 +100,7 @@ func submod*(a, b, m: Stuint): Stuint =
 
   result = submod_internal(a_m, b_m, m)
 
-func mulmod*(a, b, m: Stuint): Stuint =
+func mulmod*(a, b, m: StUint): StUint =
   ## Modular multiplication
 
   let a_m = if a < m: a
@@ -110,7 +110,7 @@ func mulmod*(a, b, m: Stuint): Stuint =
 
   result = mulmod_internal(a_m, b_m, m)
 
-func powmod*(a, b, m: Stuint): Stuint =
+func powmod*(a, b, m: StUint): StUint =
   ## Modular exponentiation
 
   when nimvm:

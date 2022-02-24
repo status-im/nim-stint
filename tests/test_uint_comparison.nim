@@ -10,40 +10,40 @@
 import ../stint, unittest, test_helpers
 
 template chkLT(chk: untyped, a, b: string, bits: int) =
-  chk fromHex(Stuint[bits], a) < fromHex(Stuint[bits], b)
+  chk fromHex(StUint[bits], a) < fromHex(StUint[bits], b)
 
-template chknotLT(chk: untyped, a, b: string, bits: int) =
-  chk (not(fromHex(Stuint[bits], b) < fromHex(Stuint[bits], a)))
+template chkNotLT(chk: untyped, a, b: string, bits: int) =
+  chk (not(fromHex(StUint[bits], b) < fromHex(StUint[bits], a)))
 
 template chkLTE(chk: untyped, a, b: string, bits: int) =
-  chk fromHex(Stuint[bits], a) <= fromHex(Stuint[bits], b)
+  chk fromHex(StUint[bits], a) <= fromHex(StUint[bits], b)
 
-template chknotLTE(chk: untyped, a, b: string, bits: int) =
-  chk (not(fromHex(Stuint[bits], b) <= fromHex(Stuint[bits], a)))
+template chkNotLTE(chk: untyped, a, b: string, bits: int) =
+  chk (not(fromHex(StUint[bits], b) <= fromHex(StUint[bits], a)))
 
 template chkEQ(chk: untyped, a, b: string, bits: int) =
-  chk fromHex(Stuint[bits], a) == fromHex(Stuint[bits], b)
+  chk fromHex(StUint[bits], a) == fromHex(StUint[bits], b)
 
-template chknotEQ(chk: untyped, a, b: string, bits: int) =
-  chk (not(fromHex(Stuint[bits], a) == fromHex(Stuint[bits], b)))
+template chkNotEQ(chk: untyped, a, b: string, bits: int) =
+  chk (not(fromHex(StUint[bits], a) == fromHex(StUint[bits], b)))
 
-template chkisZero(chk: untyped, a: string, bits: int) =
-  chk fromHex(Stuint[bits], a).isZero()
+template chkIsZero(chk: untyped, a: string, bits: int) =
+  chk fromHex(StUint[bits], a).isZero()
 
-template chknotisZero(chk: untyped, a: string, bits: int) =
-  chk (not fromHex(Stuint[bits], a).isZero())
+template chkNotIsZero(chk: untyped, a: string, bits: int) =
+  chk (not fromHex(StUint[bits], a).isZero())
 
-template chkisOdd(chk: untyped, a: string, bits: int) =
-  chk fromHex(Stuint[bits], a).isOdd()
+template chkIsOdd(chk: untyped, a: string, bits: int) =
+  chk fromHex(StUint[bits], a).isOdd()
 
-template chknotisOdd(chk: untyped, a: string, bits: int) =
-  chk (not fromHex(Stuint[bits], a).isOdd())
+template chkNotIsOdd(chk: untyped, a: string, bits: int) =
+  chk (not fromHex(StUint[bits], a).isOdd())
 
-template chkisEven(chk: untyped, a: string, bits: int) =
-  chk fromHex(Stuint[bits], a).isEven()
+template chkIsEven(chk: untyped, a: string, bits: int) =
+  chk fromHex(StUint[bits], a).isEven()
 
-template chknotisEven(chk: untyped, a: string, bits: int) =
-  chk (not fromHex(Stuint[bits], a).isEven())
+template chkNotIsEven(chk: untyped, a: string, bits: int) =
+  chk (not fromHex(StUint[bits], a).isEven())
 
 template testComparison(chk, tst: untyped) =
   tst "operator `LT`":
@@ -73,30 +73,30 @@ template testComparison(chk, tst: untyped) =
     chkLT(chk, "FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
 
   tst "operator not `LT`":
-    chknotLT(chk, "0", "F", 8)
-    chknotLT(chk, "F", "FF", 8)
+    chkNotLT(chk, "0", "F", 8)
+    chkNotLT(chk, "F", "FF", 8)
 
-    chknotLT(chk, "0", "F", 16)
-    chknotLT(chk, "F", "FF", 16)
-    chknotLT(chk, "FF", "FFF", 16)
+    chkNotLT(chk, "0", "F", 16)
+    chkNotLT(chk, "F", "FF", 16)
+    chkNotLT(chk, "FF", "FFF", 16)
 
-    chknotLT(chk, "0", "F", 32)
-    chknotLT(chk, "F", "FF", 32)
-    chknotLT(chk, "FF", "FFF", 32)
-    chknotLT(chk, "FFFF", "FFFFF", 32)
+    chkNotLT(chk, "0", "F", 32)
+    chkNotLT(chk, "F", "FF", 32)
+    chkNotLT(chk, "FF", "FFF", 32)
+    chkNotLT(chk, "FFFF", "FFFFF", 32)
 
-    chknotLT(chk, "0", "F", 64)
-    chknotLT(chk, "F", "FF", 64)
-    chknotLT(chk, "FF", "FFF", 64)
-    chknotLT(chk, "FFFF", "FFFFF", 64)
-    chknotLT(chk, "FFFFF", "FFFFFFFF", 64)
+    chkNotLT(chk, "0", "F", 64)
+    chkNotLT(chk, "F", "FF", 64)
+    chkNotLT(chk, "FF", "FFF", 64)
+    chkNotLT(chk, "FFFF", "FFFFF", 64)
+    chkNotLT(chk, "FFFFF", "FFFFFFFF", 64)
 
-    chknotLT(chk, "0", "F", 128)
-    chknotLT(chk, "F", "FF", 128)
-    chknotLT(chk, "FF", "FFF", 128)
-    chknotLT(chk, "FFFF", "FFFFF", 128)
-    chknotLT(chk, "FFFFF", "FFFFFFFF", 128)
-    chknotLT(chk, "FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
+    chkNotLT(chk, "0", "F", 128)
+    chkNotLT(chk, "F", "FF", 128)
+    chkNotLT(chk, "FF", "FFF", 128)
+    chkNotLT(chk, "FFFF", "FFFFF", 128)
+    chkNotLT(chk, "FFFFF", "FFFFFFFF", 128)
+    chkNotLT(chk, "FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
 
   tst "operator `LTE`":
     chkLTE(chk, "0", "F", 8)
@@ -130,30 +130,30 @@ template testComparison(chk, tst: untyped) =
     chkLTE(chk, "FFFFFFFFFFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
 
   tst "operator not `LTE`":
-    chknotLTE(chk, "0", "F", 8)
-    chknotLTE(chk, "F", "FF", 8)
+    chkNotLTE(chk, "0", "F", 8)
+    chkNotLTE(chk, "F", "FF", 8)
 
-    chknotLTE(chk, "0", "F", 16)
-    chknotLTE(chk, "F", "FF", 16)
-    chknotLTE(chk, "FF", "FFF", 16)
+    chkNotLTE(chk, "0", "F", 16)
+    chkNotLTE(chk, "F", "FF", 16)
+    chkNotLTE(chk, "FF", "FFF", 16)
 
-    chknotLTE(chk, "0", "F", 32)
-    chknotLTE(chk, "F", "FF", 32)
-    chknotLTE(chk, "FF", "FFF", 32)
-    chknotLTE(chk, "FFFF", "FFFFF", 32)
+    chkNotLTE(chk, "0", "F", 32)
+    chkNotLTE(chk, "F", "FF", 32)
+    chkNotLTE(chk, "FF", "FFF", 32)
+    chkNotLTE(chk, "FFFF", "FFFFF", 32)
 
-    chknotLTE(chk, "0", "F", 64)
-    chknotLTE(chk, "F", "FF", 64)
-    chknotLTE(chk, "FF", "FFF", 64)
-    chknotLTE(chk, "FFFF", "FFFFF", 64)
-    chknotLTE(chk, "FFFFF", "FFFFFFFF", 64)
+    chkNotLTE(chk, "0", "F", 64)
+    chkNotLTE(chk, "F", "FF", 64)
+    chkNotLTE(chk, "FF", "FFF", 64)
+    chkNotLTE(chk, "FFFF", "FFFFF", 64)
+    chkNotLTE(chk, "FFFFF", "FFFFFFFF", 64)
 
-    chknotLTE(chk, "0", "F", 128)
-    chknotLTE(chk, "F", "FF", 128)
-    chknotLTE(chk, "FF", "FFF", 128)
-    chknotLTE(chk, "FFFF", "FFFFF", 128)
-    chknotLTE(chk, "FFFFF", "FFFFFFFF", 128)
-    chknotLTE(chk, "FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
+    chkNotLTE(chk, "0", "F", 128)
+    chkNotLTE(chk, "F", "FF", 128)
+    chkNotLTE(chk, "FF", "FFF", 128)
+    chkNotLTE(chk, "FFFF", "FFFFF", 128)
+    chkNotLTE(chk, "FFFFF", "FFFFFFFF", 128)
+    chkNotLTE(chk, "FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
 
   tst "operator `EQ`":
     chkEQ(chk, "0", "0", 8)
@@ -186,30 +186,30 @@ template testComparison(chk, tst: untyped) =
     chkEQ(chk, "FFFFFFFFFFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
 
   tst "operator not `EQ`":
-    chknotEQ(chk, "0", "F", 8)
-    chknotEQ(chk, "F", "FF", 8)
+    chkNotEQ(chk, "0", "F", 8)
+    chkNotEQ(chk, "F", "FF", 8)
 
-    chknotEQ(chk, "0", "F", 16)
-    chknotEQ(chk, "F", "FF", 16)
-    chknotEQ(chk, "FF", "FFF", 16)
+    chkNotEQ(chk, "0", "F", 16)
+    chkNotEQ(chk, "F", "FF", 16)
+    chkNotEQ(chk, "FF", "FFF", 16)
 
-    chknotEQ(chk, "0", "F", 32)
-    chknotEQ(chk, "F", "FF", 32)
-    chknotEQ(chk, "FF", "FFF", 32)
-    chknotEQ(chk, "FFFF", "FFFFF", 32)
+    chkNotEQ(chk, "0", "F", 32)
+    chkNotEQ(chk, "F", "FF", 32)
+    chkNotEQ(chk, "FF", "FFF", 32)
+    chkNotEQ(chk, "FFFF", "FFFFF", 32)
 
-    chknotEQ(chk, "0", "F", 64)
-    chknotEQ(chk, "F", "FF", 64)
-    chknotEQ(chk, "FF", "FFF", 64)
-    chknotEQ(chk, "FFFF", "FFFFF", 64)
-    chknotEQ(chk, "FFFFF", "FFFFFFFF", 64)
+    chkNotEQ(chk, "0", "F", 64)
+    chkNotEQ(chk, "F", "FF", 64)
+    chkNotEQ(chk, "FF", "FFF", 64)
+    chkNotEQ(chk, "FFFF", "FFFFF", 64)
+    chkNotEQ(chk, "FFFFF", "FFFFFFFF", 64)
 
-    chknotEQ(chk, "0", "F", 128)
-    chknotEQ(chk, "F", "FF", 128)
-    chknotEQ(chk, "FF", "FFF", 128)
-    chknotEQ(chk, "FFFF", "FFFFF", 128)
-    chknotEQ(chk, "FFFFF", "FFFFFFFF", 128)
-    chknotEQ(chk, "FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
+    chkNotEQ(chk, "0", "F", 128)
+    chkNotEQ(chk, "F", "FF", 128)
+    chkNotEQ(chk, "FF", "FFF", 128)
+    chkNotEQ(chk, "FFFF", "FFFFF", 128)
+    chkNotEQ(chk, "FFFFF", "FFFFFFFF", 128)
+    chkNotEQ(chk, "FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
 
   tst "operator `isZero`":
     chkIsZero(chk, "0", 8)
@@ -220,12 +220,12 @@ template testComparison(chk, tst: untyped) =
     chkIsZero(chk, "0", 256)
 
   tst "operator not `isZero`":
-    chknotIsZero(chk, "1", 8)
-    chknotIsZero(chk, "2", 16)
-    chknotIsZero(chk, "3", 32)
-    chknotIsZero(chk, "4", 64)
-    chknotIsZero(chk, "5", 128)
-    chknotIsZero(chk, "6", 256)
+    chkNotIsZero(chk, "1", 8)
+    chkNotIsZero(chk, "2", 16)
+    chkNotIsZero(chk, "3", 32)
+    chkNotIsZero(chk, "4", 64)
+    chkNotIsZero(chk, "5", 128)
+    chkNotIsZero(chk, "6", 256)
 
   tst "operator `isOdd`":
     chkIsOdd(chk, "1", 8)

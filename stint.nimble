@@ -15,7 +15,8 @@ proc test(args, path: string) =
   if not dirExists "build":
     mkDir "build"
   exec "nim " & getEnv("TEST_LANG", "c") & " " & getEnv("NIMFLAGS") & " " & args &
-    " --outdir:build -r --hints:off --warnings:off --skipParentCfg " & path
+    " --outdir:build -r --hints:off --warnings:off --skipParentCfg" &
+    " --styleCheck:usages --styleCheck:error " & path
 
 task test, "Run all tests - test and production implementation":
   # Run tests for internal procs - test implementation (StUint[64] = 2x uint32

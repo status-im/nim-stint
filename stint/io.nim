@@ -59,13 +59,13 @@ func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
   else:
     result.data = (type result.data)(n)
 
-func to*(x: SomeInteger, T: typedesc[Stint]): T =
+func to*(x: SomeInteger, T: typedesc[StInt]): T =
   stint(x, result.bits)
 
 func to*(x: SomeUnsignedInt, T: typedesc[StUint]): T =
   stuint(x, result.bits)
 
-func truncate*(num: Stint or StUint, T: typedesc[SomeInteger]): T {.inline.}=
+func truncate*(num: StInt or StUint, T: typedesc[SomeInteger]): T {.inline.}=
   ## Extract the int, uint, int8-int64 or uint8-uint64 portion of a multi-precision integer.
   ## Note that int and uint are 32-bit on 32-bit platform.
   ## For unsigned result type, result is modulo 2^(sizeof T in bit)
@@ -79,7 +79,7 @@ func truncate*(num: Stint or StUint, T: typedesc[SomeInteger]): T {.inline.}=
   else:
     cast[T](num.data.leastSignificantWord)
 
-func toInt*(num: Stint or StUint): int {.inline, deprecated:"Use num.truncate(int) instead".}=
+func toInt*(num: StInt or StUint): int {.inline, deprecated:"Use num.truncate(int) instead".}=
   num.truncate(int)
 
 func bigToSmall(result: var (UintImpl | IntImpl), x: auto) {.inline.} =
@@ -246,8 +246,8 @@ func readDecChar(c: char): int {.inline.}=
     raise newException(ValueError, "Character out of '0'..'9' range")
   ord(c) - ord('0')
 
-func parse*[bits: static[int]](input: string, T: typedesc[Stuint[bits]], radix: static[uint8] = 10): T =
-  ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
+func parse*[bits: static[int]](input: string, T: typedesc[StUint[bits]], radix: static[uint8] = 10): T =
+  ## Parse a string and store the result in a StInt[bits] or StUint[bits].
 
   static: doAssert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
@@ -267,8 +267,8 @@ func parse*[bits: static[int]](input: string, T: typedesc[Stuint[bits]], radix: 
       result = result * base + input[curr].readHexChar.stuint(bits)
     nextNonBlank(curr, input)
 
-func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], radix: static[int8] = 10): T =
-  ## Parse a string and store the result in a Stint[bits] or Stuint[bits].
+func parse*[bits: static[int]](input: string, T: typedesc[StInt[bits]], radix: static[int8] = 10): T =
+  ## Parse a string and store the result in a StInt[bits] or StUint[bits].
 
   static: doAssert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
@@ -282,7 +282,7 @@ func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], radix: s
   var
     curr = 0 # Current index in the string
     isNeg = false
-    no_overflow: Stuint[bits]
+    no_overflow: StUint[bits]
 
   if input[curr] == '-':
     doAssert radix == 10, "Negative numbers are only supported with base 10 input."
@@ -305,16 +305,16 @@ func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], radix: s
   else:
     result = convert[T](no_overflow)
 
-func fromHex*(T: typedesc[StUint|Stint], s: string): T {.inline.} =
+func fromHex*(T: typedesc[StUint|StInt], s: string): T {.inline.} =
   ## Convert an hex string to the corresponding unsigned integer
   parse(s, type result, radix = 16)
 
-func hexToUint*[bits: static[int]](hexString: string): Stuint[bits] {.inline.} =
+func hexToUint*[bits: static[int]](hexString: string): StUint[bits] {.inline.} =
   ## Convert an hex string to the corresponding unsigned integer
   parse(hexString, type result, radix = 16)
 
 func toString*[bits: static[int]](num: StUint[bits], radix: static[uint8] = 10): string =
-  ## Convert a Stint or Stuint to string.
+  ## Convert a StInt or StUint to string.
   ## In case of negative numbers:
   ##   - they are prefixed with "-" for base 10.
   ##   - if not base 10, they are returned raw in two-complement form.
@@ -339,8 +339,8 @@ func toString*[bits: static[int]](num: StUint[bits], radix: static[uint8] = 10):
 
   reverse(result)
 
-func toString*[bits: static[int]](num: Stint[bits], radix: static[int8] = 10): string =
-  ## Convert a Stint or Stuint to string.
+func toString*[bits: static[int]](num: StInt[bits], radix: static[int8] = 10): string =
+  ## Convert a StInt or StUint to string.
   ## In case of negative numbers:
   ##   - they are prefixed with "-" for base 10.
   ##   - if not base 10, they are returned raw in two-complement form.
@@ -353,7 +353,7 @@ func toString*[bits: static[int]](num: Stint[bits], radix: static[int8] = 10): s
 
   result = ""
 
-  type T = Stuint[bits]
+  type T = StUint[bits]
   let isNeg = num.isNegative
   let num = convert[T](if radix == 10 and isNeg: -num
             else: num)
@@ -374,19 +374,19 @@ func toString*[bits: static[int]](num: Stint[bits], radix: static[int8] = 10): s
 
   reverse(result)
 
-func `$`*(num: Stint or StUint): string {.inline.}=
+func `$`*(num: StInt or StUint): string {.inline.}=
   when num.data is SomeInteger:
     $num.data
   else:
     toString(num, 10)
 
-func toHex*[bits: static[int]](num: Stint[bits] or StUint[bits]): string {.inline.}=
+func toHex*[bits: static[int]](num: StInt[bits] or StUint[bits]): string {.inline.}=
   ## Convert to a hex string.
   ## Output is considered a big-endian base 16 string.
   ## Leading zeros are stripped. Use dumpHex instead if you need the in-memory representation
   toString(num, 16)
 
-func dumpHex*(x: Stint or StUint, order: static[Endianness] = bigEndian): string =
+func dumpHex*(x: StInt or StUint, order: static[Endianness] = bigEndian): string =
   ## Stringify an int to hex.
   ## Note. Leading zeros are not removed. Use toString(n, base = 16)/toHex instead.
   ##
@@ -415,7 +415,7 @@ func dumpHex*(x: Stint or StUint, order: static[Endianness] = bigEndian): string
       result[2*i+1] = hexChars[int byte and 0xF]
   else:
     {.pragma: restrict, codegenDecl: "$# __restrict $#".}
-    let bytes {.restrict.}= cast[ptr array[size, byte]](x.unsafeaddr)
+    let bytes {.restrict.}= cast[ptr array[size, byte]](x.unsafeAddr)
 
     for i in 0 ..< size:
       when order == system.cpuEndian:
@@ -425,7 +425,7 @@ func dumpHex*(x: Stint or StUint, order: static[Endianness] = bigEndian): string
         result[2*i] = hexChars[int bytes[bytes[].high - i] shr 4 and 0xF]
         result[2*i+1] = hexChars[int bytes[bytes[].high - i] and 0xF]
 
-proc initFromBytesBE*[bits: static[int]](val: var Stuint[bits], ba: openarray[byte], allowPadding: static[bool] = true) =
+proc initFromBytesBE*[bits: static[int]](val: var StUint[bits], ba: openArray[byte], allowPadding: static[bool] = true) =
   ## Initializes a UInt[bits] value from a byte buffer storing a big-endian
   ## representation of a number.
   ##
@@ -472,7 +472,7 @@ proc initFromBytesBE*[bits: static[int]](val: var Stuint[bits], ba: openarray[by
       else:
         for i, b in ba: r_ptr[N-1 - i] = b
 
-func significantBytesBE*(val: openarray[byte]): int {.deprecated.}=
+func significantBytesBE*(val: openArray[byte]): int {.deprecated.}=
   ## Returns the number of significant trailing bytes in a big endian
   ## representation of a number.
   # TODO: move that in https://github.com/status-im/nim-byteutils
@@ -481,19 +481,19 @@ func significantBytesBE*(val: openarray[byte]): int {.deprecated.}=
       return val.len - i
   return 1
 
-func fromBytesBE*(T: type Stuint, ba: openarray[byte],
+func fromBytesBE*(T: type StUint, ba: openArray[byte],
                   allowPadding: static[bool] = true): T =
   ## This function provides a convenience wrapper around `initFromBytesBE`.
   result.initFromBytesBE(ba, allowPadding)
 
-func readUintBE*[bits: static[int]](ba: openarray[byte]): Stuint[bits] =
+func readUintBE*[bits: static[int]](ba: openArray[byte]): StUint[bits] =
   ## Convert a big-endian array of (bits div 8) Bytes to an UInt[bits] (in native host endianness)
   ## Input:
-  ##   - a big-endian openarray of size (bits div 8) at least
+  ##   - a big-endian openArray of size (bits div 8) at least
   ## Returns:
   ##   - A unsigned integer of the same size with `bits` bits
   ##
-  ## ⚠ If the openarray length is bigger than bits div 8, part converted is undefined behaviour.
+  ## ⚠ If the openArray length is bigger than bits div 8, part converted is undefined behaviour.
   result.initFromBytesBE(ba, false)
 
 func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte] =

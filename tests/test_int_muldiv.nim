@@ -10,19 +10,19 @@
 import ../stint, unittest, test_helpers
 
 template chkMul(chk: untyped, a, b, c: string, bits: int) =
-  chk (fromHex(Stint[bits], a) * fromHex(Stint[bits], b)) == fromHex(Stint[bits], c)
+  chk (fromHex(StInt[bits], a) * fromHex(StInt[bits], b)) == fromHex(StInt[bits], c)
 
 template chkDiv(chk: untyped, a, b, c: string, bits: int) =
-  chk (fromHex(Stint[bits], a) div fromHex(Stint[bits], b)) == fromHex(Stint[bits], c)
+  chk (fromHex(StInt[bits], a) div fromHex(StInt[bits], b)) == fromHex(StInt[bits], c)
 
 template chkMod(chk: untyped, a, b, c: string, bits: int) =
-  chk (fromHex(Stint[bits], a) mod fromHex(Stint[bits], b)) == fromHex(Stint[bits], c)
+  chk (fromHex(StInt[bits], a) mod fromHex(StInt[bits], b)) == fromHex(StInt[bits], c)
 
 template chkMod(chk: untyped, a, b, c: int, bits: int) =
   chk (stint(a, bits) mod stint(b, bits)) == stint(c, bits)
 
 template chkDivMod(chk: untyped, a, b, c, d: string, bits: int) =
-  chk divmod(fromHex(Stint[bits], a), fromHex(Stint[bits], b)) == (fromHex(Stint[bits], c), fromHex(Stint[bits], d))
+  chk divmod(fromHex(StInt[bits], a), fromHex(StInt[bits], b)) == (fromHex(StInt[bits], c), fromHex(StInt[bits], d))
 
 template testMuldiv(chk, tst: untyped) =
   tst "operator `mul`":
@@ -333,8 +333,8 @@ suite "Testing signed int division and modulo implementation":
   #   check: r.hi == 0'u64
 
   test "Divmod(1234567891234567890, 10) returns the correct result":
-    let a = cast[Stint[64]](1234567891234567890'i64)
-    let b = cast[Stint[64]](10'i64)
+    let a = cast[StInt[64]](1234567891234567890'i64)
+    let b = cast[StInt[64]](10'i64)
 
     let qr = divmod(a, b)
 

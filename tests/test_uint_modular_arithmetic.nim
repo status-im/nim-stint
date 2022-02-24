@@ -9,17 +9,17 @@
 
 import ../stint, unittest, math, test_helpers
 
-template chkAddmod(chk: untyped, a, b, m, c: string, bits: int) =
-  chk addmod(fromHex(Stuint[bits], a), fromHex(Stuint[bits], b),  fromHex(Stuint[bits], m)) == fromHex(Stuint[bits], c)
+template chkAddMod(chk: untyped, a, b, m, c: string, bits: int) =
+  chk addmod(fromHex(StUint[bits], a), fromHex(StUint[bits], b),  fromHex(StUint[bits], m)) == fromHex(StUint[bits], c)
 
-template chkSubmod(chk: untyped, a, b, m, c: string, bits: int) =
-  chk submod(fromHex(Stuint[bits], a), fromHex(Stuint[bits], b),  fromHex(Stuint[bits], m)) == fromHex(Stuint[bits], c)
+template chkSubMod(chk: untyped, a, b, m, c: string, bits: int) =
+  chk submod(fromHex(StUint[bits], a), fromHex(StUint[bits], b),  fromHex(StUint[bits], m)) == fromHex(StUint[bits], c)
 
-template chkMulmod(chk: untyped, a, b, m, c: string, bits: int) =
-  chk mulmod(fromHex(Stuint[bits], a), fromHex(Stuint[bits], b),  fromHex(Stuint[bits], m)) == fromHex(Stuint[bits], c)
+template chkMulMod(chk: untyped, a, b, m, c: string, bits: int) =
+  chk mulmod(fromHex(StUint[bits], a), fromHex(StUint[bits], b),  fromHex(StUint[bits], m)) == fromHex(StUint[bits], c)
 
-template chkPowmod(chk: untyped, a, b, m, c: string, bits: int) =
-  chk powmod(fromHex(Stuint[bits], a), fromHex(Stuint[bits], b),  fromHex(Stuint[bits], m)) == fromHex(Stuint[bits], c)
+template chkPowMod(chk: untyped, a, b, m, c: string, bits: int) =
+  chk powmod(fromHex(StUint[bits], a), fromHex(StUint[bits], b),  fromHex(StUint[bits], m)) == fromHex(StUint[bits], c)
 
 template testModArith(chk, tst: untyped) =
   tst "addmod":

@@ -11,10 +11,10 @@ func convertImpl[T: IntImpl|UintImpl](x: IntImpl|UintImpl): T {.compileTime.} =
   result.hi = convertImpl[type(result.hi)](x.hi)
   result.lo = x.lo
 
-func convertImpl[T: Stuint|Stint](x: StUint|StInt): T {.compileTime.} =
+func convertImpl[T: StUint|StInt](x: StUint|StInt): T {.compileTime.} =
   result.data = convertImpl[type(result.data)](x.data)
 
-template convert*[T](x: Stuint|Stint|UintImpl|IntImpl|SomeInteger): T =
+template convert*[T](x: StUint|StInt|UintImpl|IntImpl|SomeInteger): T =
   when nimvm:
     # this is a workaround Nim VM inability to cast
     # something non integer
