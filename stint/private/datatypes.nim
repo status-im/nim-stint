@@ -60,7 +60,7 @@
 #     with a recursive tree structure.
 #     On the other side, returning a `var array[N div 2, uint64]` is problematic at the moment.
 #   - Compile-time computation is possible while due to the previous issue
-#     an array backend would be required to use var openarray[uint64]
+#     an array backend would be required to use var openArray[uint64]
 #     i.e. pointers.
 #   - Note that while shift-right and left can easily be done an array of bytes
 #     this would have reduced performance compared to moving 64-bit words.
@@ -180,7 +180,7 @@ template applyHiLo*(a, b: UintImpl | IntImpl, c: untyped): untyped =
   res.hi = c(a.hi, b.hi)
   res.lo = c(a.lo, b.lo)
   res
-  
+
 template leastSignificantWord*(num: SomeInteger): auto =
   num
 
