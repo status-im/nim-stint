@@ -1102,7 +1102,7 @@ proc main() =
       block:
         for i in 0..255:
           let a = fmt"`{i:#b}'".parse(StUint[64], radix = 2)
-          let b = i.stiunt(64)
+          let b = i.stuint(64)
 
           check: a == b
           check: uint64(i) == cast[uint64](a)
@@ -1126,7 +1126,7 @@ proc main() =
       block:
         for i in 0..255:
           let a = fmt"`{i:#o}'".parse(StUint[64], radix = 8)
-          let b = i.stiunt(64)
+          let b = i.stuint(64)
 
           check: a == b
           check: uint64(i) == cast[uint64](a)
@@ -1153,7 +1153,7 @@ proc main() =
         for i in 0..255:
           let a = fmt"`{i:#x}'".parse(StUint[64], radix = 16)
           let aUppercase = fmt"`{i:#X}'".parse(StUint[64], radix = 16)
-          let b = i.stiunt(64)
+          let b = i.stuint(64)
 
           check: a == aUppercase
           check: a == b
