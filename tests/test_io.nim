@@ -1171,6 +1171,14 @@ proc main() =
         check: a == b
         check: -1'i16 == cast[int16](a)
 
+      block:
+        let a = "0b1234abcdef".parse(StInt[16], 16)
+        let b = "0x0b1234abcdef".parse(StInt[16], 16)
+        let c = 0x0b1234abcdef.stint(64)
+
+        check: a == b
+        check: a == c
+        
     test "Conversion to decimal strings":
       block:
         let a = 1234567891234567890.stint(128)
