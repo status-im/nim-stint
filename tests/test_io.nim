@@ -1093,7 +1093,7 @@ proc main() =
     test "Creation from binary strings":
       block:
         for i in 0..255:
-          let a = fmt"`{i:#b}'".parse(StInt[64], radix = 2)
+          let a = fmt("{i:#b}").parse(StInt[64], radix = 2)
           let b = i.stint(64)
 
           check: a == b
@@ -1101,7 +1101,7 @@ proc main() =
 
       block:
         for i in 0..255:
-          let a = fmt"`{i:#b}'".parse(StUint[64], radix = 2)
+          let a = fmt("{i:#b}").parse(StUint[64], radix = 2)
           let b = i.stuint(64)
 
           check: a == b
@@ -1117,7 +1117,7 @@ proc main() =
     test "Creation from octal strings":
       block:
         for i in 0..255:
-          let a = fmt"`{i:#o}'".parse(StInt[64], radix = 8)
+          let a = fmt("{i:#o}").parse(StInt[64], radix = 8)
           let b = i.stint(64)
 
           check: a == b
@@ -1125,7 +1125,7 @@ proc main() =
 
       block:
         for i in 0..255:
-          let a = fmt"`{i:#o}'".parse(StUint[64], radix = 8)
+          let a = fmt("{i:#o}").parse(StUint[64], radix = 8)
           let b = i.stuint(64)
 
           check: a == b
@@ -1141,8 +1141,8 @@ proc main() =
     test "Creation from hex strings":
       block:
         for i in 0..255:
-          let a = fmt"`{i:#x}'".parse(StInt[64], radix = 16)
-          let aUppercase = fmt"`{i:#X}'".parse(StInt[64], radix = 16)
+          let a = fmt("{i:#x}").parse(StInt[64], radix = 16)
+          let aUppercase = fmt("{i:#X}").parse(StInt[64], radix = 16)
           let b = i.stint(64)
 
           check: a == aUppercase
@@ -1151,16 +1151,16 @@ proc main() =
 
       block:
         for i in 0..255:
-          let a = fmt"`{i:#x}'".parse(StUint[64], radix = 16)
-          let aUppercase = fmt"`{i:#X}'".parse(StUint[64], radix = 16)
+          let a = fmt("{i:#x}").parse(StUint[64], radix = 16)
+          let aUppercase = fmt("{i:#X}").parse(StUint[64], radix = 16)
           let b = i.stuint(64)
 
           check: a == aUppercase
           check: a == b
           check: uint64(i) == cast[uint64](a)
 
-          let a2 = hexToUint[64](fmt"`{i:#x}'")
-          let a3 = hexToUint[64](fmt"`{i:#X}'")
+          let a2 = hexToUint[64](fmt("{i:#x}"))
+          let a3 = hexToUint[64](fmt("{i:#X}"))
           check: a == a2
           check: a == a3
 
