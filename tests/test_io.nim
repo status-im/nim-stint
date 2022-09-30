@@ -1172,8 +1172,8 @@ proc main() =
         check: -1'i16 == cast[int16](a)
 
       block:
-        let a = "0b1234abcdef".parse(StInt[16], 16)
-        let b = "0x0b1234abcdef".parse(StInt[16], 16)
+        let a = "0b1234abcdef".parse(StInt[64], 16)
+        let b = "0x0b1234abcdef".parse(StInt[64], 16)
         let c = 0x0b1234abcdef.stint(64)
 
         check: a == b
