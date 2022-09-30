@@ -1097,7 +1097,7 @@ proc main() =
           let b = i.stint(64)
 
           check: a == b
-          check: i.i64 == cast[int64](a)
+          check: int64(i) == cast[int64](a)
 
       block:
         for i in 0..255:
@@ -1105,7 +1105,7 @@ proc main() =
           let b = i.stiunt(64)
 
           check: a == b
-          check: i.u64 == cast[uint64](a)
+          check: uint64(i) == cast[uint64](a)
 
       block:
         let a = "0b1111111111111111".parse(StInt[16], 2)
@@ -1121,7 +1121,7 @@ proc main() =
           let b = i.stint(64)
 
           check: a == b
-          check: i.i64 == cast[int64](a)
+          check: int64(i) == cast[int64](a)
 
       block:
         for i in 0..255:
@@ -1129,7 +1129,7 @@ proc main() =
           let b = i.stiunt(64)
 
           check: a == b
-          check: i.u64 == cast[uint64](a)
+          check: uint64(i) == cast[uint64](a)
 
       block:
         let a = "0o177777".parse(StInt[16], 8)
@@ -1147,7 +1147,7 @@ proc main() =
 
           check: a == aUppercase
           check: a == b
-          check: i.i64 == cast[int64](a)
+          check: int64(i) == cast[int64](a)
 
       block:
         for i in 0..255:
@@ -1157,7 +1157,7 @@ proc main() =
 
           check: a == aUppercase
           check: a == b
-          check: i.u64 == cast[uint64](a)
+          check: uint64(i) == cast[uint64](a)
 
           let a2 = hexToUint[64](fmt"`{i:#x}'")
           let a3 = hexToUint[64](fmt"`{i:#X}'")
