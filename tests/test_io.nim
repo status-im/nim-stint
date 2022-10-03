@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, strutils, math, test_helpers, tables
+import ../stint, unittest, strutils, math, test_helpers, tables, std/strformat
 
 template nativeStuint(chk, nint: untyped, bits: int) =
   chk $(nint.stuint(bits)) == $(nint)
@@ -1090,23 +1090,79 @@ proc main() =
         check: a == b
         check: -123456789'i64 == cast[int64](a)
 
+    test "Creation from binary strings":
+      block:
+        for i in 0..255:
+          let a = fmt("{i:#b}").parse(StInt[64], radix = 2)
+          let b = i.stint(64)
+
+          check: a == b
+          check: int64(i) == cast[int64](a)
+
+      block:
+        for i in 0..255:
+          let a = fmt("{i:#b}").parse(StUint[64], radix = 2)
+          let b = i.stuint(64)
+
+          check: a == b
+          check: uint64(i) == cast[uint64](a)
+
+      block:
+        let a = "0b1111111111111111".parse(StInt[16], 2)
+        let b = (-1'i16).stint(16)
+
+        check: a == b
+        check: -1'i16 == cast[int16](a)
+
+    test "Creation from octal strings":
+      block:
+        for i in 0..255:
+          let a = fmt("{i:#o}").parse(StInt[64], radix = 8)
+          let b = i.stint(64)
+
+          check: a == b
+          check: int64(i) == cast[int64](a)
+
+      block:
+        for i in 0..255:
+          let a = fmt("{i:#o}").parse(StUint[64], radix = 8)
+          let b = i.stuint(64)
+
+          check: a == b
+          check: uint64(i) == cast[uint64](a)
+
+      block:
+        let a = "0o177777".parse(StInt[16], 8)
+        let b = (-1'i16).stint(16)
+
+        check: a == b
+        check: -1'i16 == cast[int16](a)
+
     test "Creation from hex strings":
       block:
-        let a = "0xFF".parse(StInt[64], radix = 16)
-        let b = 255.stint(64)
+        for i in 0..255:
+          let a = fmt("{i:#x}").parse(StInt[64], radix = 16)
+          let aUppercase = fmt("{i:#X}").parse(StInt[64], radix = 16)
+          let b = i.stint(64)
 
-        check: a == b
-        check: 255'i64 == cast[int64](a)
+          check: a == aUppercase
+          check: a == b
+          check: int64(i) == cast[int64](a)
 
       block:
-        let a = "0xFF".parse(StUint[64], radix = 16)
-        let b = 255.stuint(64)
+        for i in 0..255:
+          let a = fmt("{i:#x}").parse(StUint[64], radix = 16)
+          let aUppercase = fmt("{i:#X}").parse(StUint[64], radix = 16)
+          let b = i.stuint(64)
 
-        check: a == b
-        check: 255'u64 == cast[uint64](a)
+          check: a == aUppercase
+          check: a == b
+          check: uint64(i) == cast[uint64](a)
 
-        let a2 = hexToUint[64]("0xFF")
-        check: a == a2
+          let a2 = hexToUint[64](fmt("{i:#x}"))
+          let a3 = hexToUint[64](fmt("{i:#X}"))
+          check: a == a2
+          check: a == a3
 
       block:
         let a = "0xFFFF".parse(StInt[16], 16)
@@ -1115,6 +1171,14 @@ proc main() =
         check: a == b
         check: -1'i16 == cast[int16](a)
 
+      block:
+        let a = "0b1234abcdef".parse(StInt[64], 16)
+        let b = "0x0b1234abcdef".parse(StInt[64], 16)
+        let c = 0x0b1234abcdef.stint(64)
+
+        check: a == b
+        check: a == c
+        
     test "Conversion to decimal strings":
       block:
         let a = 1234567891234567890.stint(128)

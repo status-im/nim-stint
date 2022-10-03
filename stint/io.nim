@@ -218,17 +218,20 @@ func skipPrefixes(current_idx: var int, str: string, radix: range[2..16]) {.inli
   doAssert current_idx == 0, "skipPrefixes only works for prefixes (position 0 and 1 of the string)"
   if str[0] == '0':
     if str[1] in {'x', 'X'}:
-      if radix != 16:
+      if radix == 16:
+        current_idx = 2
+      else:
         raise newException(ValueError,"Parsing mismatch, 0x prefix is only valid for a hexadecimal number (base 16)")
-      current_idx = 2
     elif str[1] in {'o', 'O'}:
-      if radix != 8:
+      if radix == 8:
+        current_idx = 2
+      else:
         raise newException(ValueError, "Parsing mismatch, 0o prefix is only valid for an octal number (base 8)")
-      current_idx = 2
     elif str[1] in {'b', 'B'}:
-      if radix != 2:
-        raise newException(ValueError, "Parsing mismatch, 0b prefix is only valid for a binary number (base 2)")
-      current_idx = 2
+      if radix == 2:
+        current_idx = 2
+      elif radix != 16:
+        raise newException(ValueError, "Parsing mismatch, 0b prefix is only valid for a binary number (base 2) or as first byte of a hexadecimal number (base 16)")
 
 func nextNonBlank(current_idx: var int, s: string) {.inline.} =
   ## Move the current index, skipping white spaces and "_" characters.
