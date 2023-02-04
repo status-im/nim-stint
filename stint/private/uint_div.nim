@@ -229,6 +229,9 @@ func divmodBS(x, y: UintImpl, q, r: var UintImpl) =
 const BinaryShiftThreshold = 8  # If the difference in bit-length is below 8
                                 # binary shift is probably faster
 
+# TODO remove when stint removes Nim 1.2 support
+import stew/shims/stddefects
+
 func divmod*[T](x, y: UintImpl[T]): tuple[quot, rem: UintImpl[T]]=
 
   let x_clz = x.leadingZeros
@@ -237,7 +240,7 @@ func divmod*[T](x, y: UintImpl[T]): tuple[quot, rem: UintImpl[T]]=
   # We short-circuit division depending on special-cases.
   # TODO: Constant-time division
   if unlikely(y.isZero):
-    raise newException(DivByZeroError, "You attempted to divide by zero")
+    raise newException(DivByZeroDefect, "You attempted to divide by zero")
   elif y_clz == (bitsof(y) - 1):
     # y is one
     result.quot = x
