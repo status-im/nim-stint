@@ -11,6 +11,9 @@ import
   ./datatypes, ./conversion, ./int_comparison,
   ./uint_addsub, ./uint_comparison
 
+# TODO remove when stint removes Nim 1.2 support
+import stew/shims/stddefects
+
 func `+`*(x, y: IntImpl): IntImpl {.inline.}=
   # Addition for multi-precision signed int.
   type SubTy = type x.hi
@@ -23,7 +26,7 @@ func `+`*(x, y: IntImpl): IntImpl {.inline.}=
       not(result.isNegative xor y.isNegative)
     ):
       return
-    raise newException(OverflowError, "Addition overflow")
+    raise newException(OverflowDefect, "Addition overflow")
 
 func `+=`*(x: var IntImpl, y: IntImpl) {.inline.}=
   ## In-place addition for multi-precision signed int.
@@ -42,7 +45,7 @@ func `-`*(x, y: IntImpl): IntImpl {.inline.}=
       not(result.isNegative xor y.isNegative.not)
     ):
       return
-    raise newException(OverflowError, "Substraction underflow")
+    raise newException(OverflowDefect, "Substraction underflow")
 
 func `-=`*(x: var IntImpl, y: IntImpl) {.inline.}=
   ## In-place substraction for multi-precision signed int.
