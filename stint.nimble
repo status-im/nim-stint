@@ -22,6 +22,10 @@ proc test(args, path: string) =
   exec "nim " & getEnv("TEST_LANG", "c") & " " & getEnv("NIMFLAGS") & " " & args &
     " --outdir:build -r --hints:off --warnings:off --skipParentCfg" &
     " --styleCheck:usages --styleCheck:" & styleCheckStyle & " " & path
+  if (NimMajor, NimMinor) > (1, 6):
+    exec "nim " & getEnv("TEST_LANG", "c") & " " & getEnv("NIMFLAGS") & " " & args &
+      " --outdir:build -r --mm:refc --hints:off --warnings:off --skipParentCfg" &
+      " --styleCheck:usages --styleCheck:" & styleCheckStyle & " " & path
 
 task test, "Run all tests - test and production implementation":
   # Run tests for internal procs - test implementation (StUint[64] = 2x uint32
