@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018 Status Research & Development GmbH
+# Copyright 2018-2023 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -66,15 +66,7 @@ template createShr(name, operator: untyped) =
       result.lo = convert[LoType](name(x.hi, (y - halfSize)))
       result.hi = name(x.hi, halfSize-1)
 
-when (NimMajor, NimMinor, NimPatch) >= (0, 20, 0):
-  createShr(shrOfShr, `shr`)
-elif (NimMajor, NimMinor, NimPatch) < (0, 20, 0) and defined(nimAshr):
-  createShr(shrOfAshr, ashr)
-else:
-  {.error: "arithmetic right shift is not defined for this Nim version".}
+createShr(shrOfShr, `shr`)
 
 template `shr`*(a, b: typed): untyped =
-  when (NimMajor, NimMinor, NimPatch) >= (0, 20, 0):
-    shrOfShr(a, b)
-  elif (NimMajor, NimMinor, NimPatch) < (0, 20, 0) and defined(nimAshr):
-    shrOfAShr(a, b)
+  shrOfShr(a, b)
