@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018 Status Research & Development GmbH
+# Copyright 2018-2023 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -127,15 +127,7 @@ func `xor`*(x, y: SomeBigInteger): SomeBigInteger {.inline.}=
   result.data = x.data xor y.data
 
 func `shr`*(x: SomeBigInteger, y: SomeInteger): SomeBigInteger {.inline.} =
-  when x.data is SomeSignedInt:
-    when (NimMajor, NimMinor, NimPatch) >= (0, 20, 0):
-      result.data = x.data shr y
-    elif (NimMajor, NimMinor, NimPatch) < (0, 20, 0) and defined(nimAshr):
-      result.data = ashr(x.data, y)
-    else:
-      {.error: "arithmetic right shift is not defined for this Nim version".}
-  else:
-    result.data = x.data shr y
+  result.data = x.data shr y
 
 func `shl`*(x: SomeBigInteger, y: SomeInteger): SomeBigInteger {.inline.} =
   result.data = x.data shl y

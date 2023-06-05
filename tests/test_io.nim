@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018 Status Research & Development GmbH
+# Copyright 2018-2023 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -170,15 +170,13 @@ template testIO(chk, tst: untyped) =
     nativeStuint(chk, low(uint32), 64)
     nativeStuint(chk, high(int32), 64)
     nativeStuint(chk, 0'u64, 64)
-    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-      nativeStuint(chk, high(uint64), 64)
-      nativeStuint(chk, low(uint64), 64)
+    nativeStuint(chk, high(uint64), 64)
+    nativeStuint(chk, low(uint64), 64)
     nativeStuint(chk, high(int64), 64)
 
     when sizeof(uint) == 4:
-      when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-        nativeStuint(chk, high(uint), 32)
-        nativeStuint(chk, low(uint), 32)
+      nativeStuint(chk, high(uint), 32)
+      nativeStuint(chk, low(uint), 32)
       nativeStuint(chk, high(int), 32)
     else:
       when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
@@ -200,9 +198,8 @@ template testIO(chk, tst: untyped) =
     nativeStuint(chk, low(uint32), 128)
     nativeStuint(chk, high(int32), 128)
     nativeStuint(chk, 0'u64, 128)
-    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-      nativeStuint(chk, high(uint64), 128)
-      nativeStuint(chk, low(uint64), 128)
+    nativeStuint(chk, high(uint64), 128)
+    nativeStuint(chk, low(uint64), 128)
     nativeStuint(chk, high(int64), 128)
 
   tst "[stint] Creation from native ints":
@@ -252,19 +249,16 @@ template testIO(chk, tst: untyped) =
     nativeStint(chk, 0'u64, 64)
     nativeStint(chk, high(int64), 64)
     nativeStint(chk, low(int64), 64)
-    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-      nativeStint(chk, low(uint64), 64)
+    nativeStint(chk, low(uint64), 64)
 
     when sizeof(uint) == 4:
       nativeStint(chk, high(int), 32)
       nativeStint(chk, low(int), 32)
-      when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-        nativeStint(chk, low(uint), 32)
+      nativeStint(chk, low(uint), 32)
     else:
       nativeStint(chk, high(int), 64)
       nativeStint(chk, low(int), 64)
-      when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-        nativeStint(chk, low(uint), 64)
+      nativeStint(chk, low(uint), 64)
 
     nativeStint(chk, 0, 128)
     nativeStint(chk, 0'u8, 128)
@@ -278,8 +272,7 @@ template testIO(chk, tst: untyped) =
     nativeStint(chk, low(uint32), 128)
     nativeStint(chk, 0'u64, 128)
     nativeStint(chk, high(int64), 128)
-    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-      nativeStint(chk, low(uint64), 128)
+    nativeStint(chk, low(uint64), 128)
 
     # TODO: bug #92
     #nativeStint(chk, low(int8), 128)
@@ -383,9 +376,8 @@ template testIO(chk, tst: untyped) =
     chkTruncateStuint(chk, high(int32), uint64, 64)
     chkTruncateStuint(chk, high(int32), int64, 64)
 
-    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-      chkTruncateStuint(chk, low(uint64), uint64, 64)
-      chkTruncateStuint(chk, high(uint64), uint64, 64)
+    chkTruncateStuint(chk, low(uint64), uint64, 64)
+    chkTruncateStuint(chk, high(uint64), uint64, 64)
     chkTruncateStuint(chk, high(int64), uint64, 64)
     chkTruncateStuint(chk, high(int64), int64, 64)
 
@@ -434,9 +426,8 @@ template testIO(chk, tst: untyped) =
     chkTruncateStuint(chk, high(int32), uint64, 128)
     chkTruncateStuint(chk, high(int32), int64, 128)
 
-    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-      chkTruncateStuint(chk, low(uint64), uint64, 128)
-      chkTruncateStuint(chk, high(uint64), uint64, 128)
+    chkTruncateStuint(chk, low(uint64), uint64, 128)
+    chkTruncateStuint(chk, high(uint64), uint64, 128)
     chkTruncateStuint(chk, high(int64), uint64, 128)
     chkTruncateStuint(chk, high(int64), int64, 128)
 
@@ -555,8 +546,7 @@ template testIO(chk, tst: untyped) =
     chkTruncateStint(chk, high(int32), int64, 64)
     chkTruncateStint(chk, low(int32), uint64, "0xFFFFFFFF80000000", 64)
 
-    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-      chkTruncateStint(chk, low(uint64), uint64, 64)
+    chkTruncateStint(chk, low(uint64), uint64, 64)
     chkTruncateStint(chk, low(int64), int64, 64)
     chkTruncateStint(chk, high(int64), uint64, 64)
     chkTruncateStint(chk, high(int64), int64, 64)
@@ -616,8 +606,7 @@ template testIO(chk, tst: untyped) =
     chkTruncateStint(chk, high(int32), int64, 128)
     #chkTruncateStint(chk, low(int32), uint64, "0xFFFFFFFF80000000", 128) # TODO: bug #92
 
-    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-      chkTruncateStint(chk, low(uint64), uint64, 128)
+    chkTruncateStint(chk, low(uint64), uint64, 128)
     #chkTruncateStint(chk, low(int64), int64, 128) # TODO: bug #92
     chkTruncateStint(chk, high(int64), uint64, 128)
     chkTruncateStint(chk, high(int64), int64, 128)

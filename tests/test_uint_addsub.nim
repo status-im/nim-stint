@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018 Status Research & Development GmbH
+# Copyright 2018-2023 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -60,9 +60,8 @@ template testAddSub(chk, tst: untyped) =
     chkAddition(chk, low(uint16), 17'u16, low(uint16) + 17'u16, 64)
     chkAddition(chk, high(uint32) - 17'u32, 17'u32, high(uint32), 64)
     chkAddition(chk, low(uint32), 17'u32, low(uint32) + 17'u32, 64)
-    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-      chkAddition(chk, high(uint64) - 17'u64, 17'u64, high(uint64), 64)
-      chkAddition(chk, low(uint64), 17'u64, low(uint64) + 17'u64, 64)
+    chkAddition(chk, high(uint64) - 17'u64, 17'u64, high(uint64), 64)
+    chkAddition(chk, low(uint64), 17'u64, low(uint64) + 17'u64, 64)
 
     chkAddition(chk, 0'u8, 0'u8, 0'u8, 128)
     chkAddition(chk, high(uint8) - 17'u8, 17'u8, high(uint8), 128)
@@ -71,9 +70,8 @@ template testAddSub(chk, tst: untyped) =
     chkAddition(chk, low(uint16), 17'u16, low(uint16) + 17'u16, 128)
     chkAddition(chk, high(uint32) - 17'u32, 17'u32, high(uint32), 128)
     chkAddition(chk, low(uint32), 17'u32, low(uint32) + 17'u32, 128)
-    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-      chkAddition(chk, high(uint64) - 17'u64, 17'u64, high(uint64), 128)
-      chkAddition(chk, low(uint64), 17'u64, low(uint64) + 17'u64, 128)
+    chkAddition(chk, high(uint64) - 17'u64, 17'u64, high(uint64), 128)
+    chkAddition(chk, low(uint64), 17'u64, low(uint64) + 17'u64, 128)
 
   tst "inplace addition":
     chkInplaceAddition(chk, 0'u8, 0'u8, 0'u8, 8)
@@ -101,9 +99,8 @@ template testAddSub(chk, tst: untyped) =
     chkInplaceAddition(chk, low(uint16) + 17'u16, 17'u16, low(uint16) + 34'u16, 64)
     chkInplaceAddition(chk, high(uint32) - 17'u32, 17'u32, high(uint32), 64)
     chkInplaceAddition(chk, low(uint32) + 17'u32, 17'u32, low(uint32) + 34'u32, 64)
-    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-      chkInplaceAddition(chk, high(uint64) - 17'u64, 17'u64, high(uint64), 64)
-      chkInplaceAddition(chk, low(uint64) + 17'u64, 17'u64, low(uint64) + 34'u64, 64)
+    chkInplaceAddition(chk, high(uint64) - 17'u64, 17'u64, high(uint64), 64)
+    chkInplaceAddition(chk, low(uint64) + 17'u64, 17'u64, low(uint64) + 34'u64, 64)
 
     chkInplaceAddition(chk, 0'u8, 0'u8, 0'u8, 128)
     chkInplaceAddition(chk, high(uint8) - 17'u8, 17'u8, high(uint8), 128)
@@ -112,9 +109,8 @@ template testAddSub(chk, tst: untyped) =
     chkInplaceAddition(chk, low(uint16) + 17'u16, 17'u16, low(uint16) + 34'u16, 128)
     chkInplaceAddition(chk, high(uint32) - 17'u32, 17'u32, high(uint32), 128)
     chkInplaceAddition(chk, low(uint32) + 17'u32, 17'u32, low(uint32) + 34'u32, 128)
-    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-      chkInplaceAddition(chk, high(uint64) - 17'u64, 17'u64, high(uint64), 128)
-      chkInplaceAddition(chk, low(uint64) + 17'u64, 17'u64, low(uint64) + 34'u64, 128)
+    chkInplaceAddition(chk, high(uint64) - 17'u64, 17'u64, high(uint64), 128)
+    chkInplaceAddition(chk, low(uint64) + 17'u64, 17'u64, low(uint64) + 34'u64, 128)
 
   tst "substraction":
     chkSubstraction(chk, 0'u8, 0'u8, 0'u8, 8)
@@ -142,9 +138,8 @@ template testAddSub(chk, tst: untyped) =
     chkSubstraction(chk, low(uint16) + 17'u16, 17'u16, low(uint16), 64)
     chkSubstraction(chk, high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 64)
     chkSubstraction(chk, low(uint32) + 17'u32, 17'u32, low(uint32), 64)
-    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-      chkSubstraction(chk, high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 64)
-      chkSubstraction(chk, low(uint64) + 17'u64, 17'u64, low(uint64), 64)
+    chkSubstraction(chk, high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 64)
+    chkSubstraction(chk, low(uint64) + 17'u64, 17'u64, low(uint64), 64)
 
     chkSubstraction(chk, 0'u8, 0'u8, 0'u8, 128)
     chkSubstraction(chk, high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 128)
@@ -153,9 +148,8 @@ template testAddSub(chk, tst: untyped) =
     chkSubstraction(chk, high(uint16), high(uint16), 0'u16, 128)
     chkSubstraction(chk, high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 128)
     chkSubstraction(chk, high(uint32), high(uint32), 0'u32, 128)
-    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-      chkSubstraction(chk, high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 128)
-      chkSubstraction(chk, high(uint64), high(uint64), 0'u64, 128)
+    chkSubstraction(chk, high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 128)
+    chkSubstraction(chk, high(uint64), high(uint64), 0'u64, 128)
 
   tst "inplace substraction":
     chkInplaceSubstraction(chk, 0'u8, 0'u8, 0'u8, 8)
@@ -183,9 +177,8 @@ template testAddSub(chk, tst: untyped) =
     chkInplaceSubstraction(chk, low(uint16) + 17'u16, 17'u16, low(uint16), 64)
     chkInplaceSubstraction(chk, high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 64)
     chkInplaceSubstraction(chk, low(uint32) + 17'u32, 17'u32, low(uint32), 64)
-    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-      chkInplaceSubstraction(chk, high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 64)
-      chkInplaceSubstraction(chk, low(uint64) + 17'u64, 17'u64, low(uint64), 64)
+    chkInplaceSubstraction(chk, high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 64)
+    chkInplaceSubstraction(chk, low(uint64) + 17'u64, 17'u64, low(uint64), 64)
 
     chkInplaceSubstraction(chk, 0'u8, 0'u8, 0'u8, 128)
     chkInplaceSubstraction(chk, high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 128)
@@ -194,9 +187,8 @@ template testAddSub(chk, tst: untyped) =
     chkInplaceSubstraction(chk, high(uint16), high(uint16), 0'u16, 128)
     chkInplaceSubstraction(chk, high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 128)
     chkInplaceSubstraction(chk, high(uint32), high(uint32), 0'u32, 128)
-    when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-      chkInplaceSubstraction(chk, high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 128)
-      chkInplaceSubstraction(chk, high(uint64), high(uint64), 0'u64, 128)
+    chkInplaceSubstraction(chk, high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 128)
+    chkInplaceSubstraction(chk, high(uint64), high(uint64), 0'u64, 128)
 
 static:
   testAddSub(ctCheck, ctTest)
