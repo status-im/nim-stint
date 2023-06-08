@@ -179,9 +179,8 @@ template testIO(chk, tst: untyped) =
       nativeStuint(chk, low(uint), 32)
       nativeStuint(chk, high(int), 32)
     else:
-      when (NimMajor, NimMinor, NimPatch) >= (1, 0, 0):
-        nativeStuint(chk, high(uint), 64)
-        nativeStuint(chk, low(uint), 64)
+      nativeStuint(chk, high(uint), 64)
+      nativeStuint(chk, low(uint), 64)
       nativeStuint(chk, high(int), 64)
 
     nativeStuint(chk, 0, 128)

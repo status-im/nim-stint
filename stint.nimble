@@ -7,21 +7,16 @@ skipDirs      = @["tests", "benchmarks"]
 ### Dependencies
 
 # TODO test only requirements don't work: https://github.com/nim-lang/nimble/issues/482
-requires "nim >= 1.2.0",
+requires "nim >= 1.6.0",
          "stew"
  #, "https://github.com/alehander42/nim-quicktest >= 0.18.0", "https://github.com/status-im/nim-ttmath"
 
 proc test(args, path: string) =
   if not dirExists "build":
     mkDir "build"
-  let styleCheckStyle =
-    if (NimMajor, NimMinor) < (1, 6):
-      "hint"
-    else:
-      "error"
   exec "nim " & getEnv("TEST_LANG", "c") & " " & getEnv("NIMFLAGS") & " " & args &
     " --outdir:build -r --hints:off --warnings:off --skipParentCfg" &
-    " --styleCheck:usages --styleCheck:" & styleCheckStyle & " " & path
+    " --styleCheck:usages --styleCheck:error " & path
   if (NimMajor, NimMinor) > (1, 6):
     exec "nim " & getEnv("TEST_LANG", "c") & " " & getEnv("NIMFLAGS") & " " & args &
       " --outdir:build -r --mm:refc --hints:off --warnings:off --skipParentCfg" &

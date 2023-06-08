@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018 Status Research & Development GmbH
+# Copyright 2018-2023 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -228,9 +228,6 @@ func divmodBS(x, y: UintImpl, q, r: var UintImpl) =
 
 const BinaryShiftThreshold = 8  # If the difference in bit-length is below 8
                                 # binary shift is probably faster
-
-# TODO remove when stint removes Nim 1.2 support
-import stew/shims/stddefects
 
 func divmod*[T](x, y: UintImpl[T]): tuple[quot, rem: UintImpl[T]]=
 

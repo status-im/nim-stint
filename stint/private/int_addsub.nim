@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018 Status Research & Development GmbH
+# Copyright 2018-2023 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -10,9 +10,6 @@
 import
   ./datatypes, ./conversion, ./int_comparison,
   ./uint_addsub, ./uint_comparison
-
-# TODO remove when stint removes Nim 1.2 support
-import stew/shims/stddefects
 
 func `+`*(x, y: IntImpl): IntImpl {.inline.}=
   # Addition for multi-precision signed int.
