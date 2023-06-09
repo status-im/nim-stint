@@ -7,19 +7,18 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ./private/[bitops2_priv, datatypes]
+import ./private/[datatypes]
 
-export StInt, StUint
-export IntImpl, intImpl, UintImpl, uintImpl, bitsof # TODO: remove the need to export those
+export StInt
+#export IntImpl, intImpl, UintImpl, uintImpl, bitsof # TODO: remove the need to export those
 
-type SomeBigInteger = StUint|StInt
+#import ./private/initialization
 
-import ./private/initialization
-
-func zero*[bits: static[int]](T: typedesc[StUint[bits] or StInt[bits]]): T {.inline.} =
+func zero*[bits: static[int]](T: typedesc[StInt[bits]]): T {.inline.} =
   ## Returns the zero of the input type
   discard
-
+  
+#[
 func one*[bits: static[int]](T: typedesc[StUint[bits]]): T {.inline.} =
   ## Returns the one of the input type
   result.data = one(type result.data)
@@ -159,3 +158,4 @@ func pow*(x: StUint, y: StUint): StUint {.inline.} =
     result.data = x.data.pow(y.data)
   else:
     result.data = x.data ^ y.data
+]#

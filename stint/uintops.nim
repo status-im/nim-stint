@@ -46,7 +46,7 @@ func one*[bits: static[int]](T: typedesc[Stuint[bits]]): T {.inline.} =
   result.setOne()
 
 func high*[bits](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.} =
-  for i in 0 ..< result.len:
+  for i in 0 ..< result.limbs.len:
     result[i] = high(Word)
 
 func low*[bits](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.} =

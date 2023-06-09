@@ -12,9 +12,13 @@ import
   stew/bitops2
 
 when sizeof(int) == 8 and not defined(Stint32):
-  type Word* = uint64
+  type
+    Word* = uint64
+    SignedWord* = int64
 else:
-  type Word* = uint32
+  type
+    Word* = uint32
+    SignedWord* = int32
 
 const WordBitWidth* = sizeof(Word) * 8
 
@@ -33,10 +37,19 @@ type
     limbs*: array[bits.wordsRequired, Word]
       # Limbs-Endianess is little-endian
 
-  StInt*[bits: static[int]] {.borrow: `.`.} = distinct StUint[bits]
-    ## Stack-based integer
-    ## Signed
+when (NimMajor, NimMinor) < (1,9):
+  type
+    StInt*[bits: static[int]] = object
+      ## Stack-based integer
+      ## Signed
+      limbs*: array[bits.wordsRequired, Word]
+else:
+  type
+    StInt*[bits: static[int]] {.borrow: `.`.} = distinct StUint[bits]
+      ## Stack-based integer
+      ## Signed
 
+type
   Carry* = uint8  # distinct range[0'u8 .. 1]
   Borrow* = uint8 # distinct range[0'u8 .. 1]
 

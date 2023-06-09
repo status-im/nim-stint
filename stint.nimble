@@ -7,10 +7,10 @@ skipDirs      = @["tests", "benchmarks"]
 ### Dependencies
 
 # TODO test only requirements don't work: https://github.com/nim-lang/nimble/issues/482
-requires "nim >= 1.6.0",
+requires "nim >= 1.6.12",
          "stew"
 
-proc test(args, path: string) =
+proc test(name: string, lang: string = "c") =
   if not dirExists "build":
     mkDir "build"
 

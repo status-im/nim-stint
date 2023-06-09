@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ./intops, private/datatypes
+import ./uintops, private/datatypes
 
 func addmod_internal(a, b, m: StUint): StUint {.inline.}=
   ## Modular addition

@@ -20,7 +20,7 @@ import
 func bitnot*(r: var StUint, a: Stuint) =
   ## Bitwise complement of unsigned integer a
   ## i.e. flips all bits of the input
-  for i in 0 ..< r.len:
+  for i in 0 ..< r.limbs.len:
     r[i] = not a[i]
   r.clearExtraBitsOverMSB()
 
@@ -56,7 +56,7 @@ func leadingZeros*(a: Stuint): int =
   # Adjust when we use only part of the word size
   var extraBits = WordBitWidth * a.limbs.len - a.bits
 
-  for i in countdown(a.len-1, 0):
+  for i in countdown(a.limbs.len-1, 0):
     let zeroCount = a.limbs[i].leadingZeros()
     if extraBits > 0:
       result += zeroCount - min(extraBits, WordBitWidth)

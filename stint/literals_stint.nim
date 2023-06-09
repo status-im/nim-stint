@@ -9,7 +9,7 @@
 
 ## This file provides syntactic sugar to work with literals
 
-import ./intops, macros
+import ./intops, ./uintops, macros
 
 type Signedness = enum
   BothSigned, IntOnly, UintOnly
