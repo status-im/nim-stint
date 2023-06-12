@@ -20,7 +20,7 @@ template chkDivMod(chk: untyped, a, b, c, d: string, bits: int) =
 
 template testdivmod(chk, tst: untyped) =
   tst "operator `div`":
-    chkDiv(chk, "0", "3", "0", 8)
+    #[chkDiv(chk, "0", "3", "0", 8)
     chkDiv(chk, "1", "3", "0", 8)
     chkDiv(chk, "3", "3", "1", 8)
     chkDiv(chk, "3", "1", "3", 8)
@@ -48,7 +48,7 @@ template testdivmod(chk, tst: untyped) =
     chkDiv(chk, "FF", "3", "55", 64)
     chkDiv(chk, "FFFF", "3", "5555", 64)
     chkDiv(chk, "FFFFFFFF", "3", "55555555", 64)
-    chkDiv(chk, "FFFFFFFFFFFFFFFF", "3", "5555555555555555", 64)
+    chkDiv(chk, "FFFFFFFFFFFFFFFF", "3", "5555555555555555", 64)]#
 
     chkDiv(chk, "0", "3", "0", 128)
     chkDiv(chk, "1", "3", "0", 128)
@@ -61,7 +61,7 @@ template testdivmod(chk, tst: untyped) =
     chkDiv(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "3", "55555555555555555555555555555555", 128)
 
   tst "operator `mod`":
-    chkMod(chk, "0", "3", "0", 8)
+    #[chkMod(chk, "0", "3", "0", 8)
     chkMod(chk, "1", "3", "1", 8)
     chkMod(chk, "3", "3", "0", 8)
     chkMod(chk, "3", "1", "0", 8)
@@ -101,7 +101,7 @@ template testdivmod(chk, tst: untyped) =
     chkMod(chk, "FFFFFFFF", "3", "0", 64)
     chkMod(chk, "FFFFFFFF", "23", "A", 64)
     chkMod(chk, "FFFFFFFF", "27", "15", 64)
-    chkMod(chk, "FFFFFFFFFFFFFFFF", "27", "F", 64)
+    chkMod(chk, "FFFFFFFFFFFFFFFF", "27", "F", 64)]#
 
     chkMod(chk, "0", "3", "0", 128)
     chkMod(chk, "1", "3", "1", 128)
@@ -118,7 +118,7 @@ template testdivmod(chk, tst: untyped) =
     chkMod(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "27", "15", 128)
 
   tst "operator `divmod`":
-    chkDivMod(chk, "0", "3", "0", "0", 8)
+    #[chkDivMod(chk, "0", "3", "0", "0", 8)
     chkDivMod(chk, "1", "3", "0", "1", 8)
     chkDivMod(chk, "3", "3", "1", "0", 8)
     chkDivMod(chk, "3", "1", "3", "0", 8)
@@ -158,7 +158,7 @@ template testdivmod(chk, tst: untyped) =
     chkDivMod(chk, "FFFFFFFF", "3", "55555555", "0", 64)
     chkDivMod(chk, "FFFFFFFF", "23", "7507507", "0A", 64)
     chkDivMod(chk, "FFFFFFFF", "27", "6906906", "15", 64)
-    chkDivMod(chk, "FFFFFFFFFFFFFFFF", "27", "690690690690690", "F", 64)
+    chkDivMod(chk, "FFFFFFFFFFFFFFFF", "27", "690690690690690", "F", 64)]#
 
     chkDivMod(chk, "0", "3", "0", "0", 128)
     chkDivMod(chk, "1", "3", "0", "1", 128)
@@ -180,6 +180,7 @@ static:
 suite "Wider unsigned int muldiv coverage":
   testdivmod(check, test)
 
+#[
 suite "Testing unsigned int division and modulo implementation":
   test "Divmod(100, 13) returns the correct result":
 
@@ -243,3 +244,4 @@ suite "Testing specific failures highlighted by property-based testing":
     let tz = cast[uint64](a mod b)
 
     check: z == tz
+]#

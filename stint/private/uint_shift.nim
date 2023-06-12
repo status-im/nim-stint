@@ -74,12 +74,12 @@ func shlWords*(r: var Limbs, a: Limbs, w: SomeInteger) =
 # Wrappers
 # --------------------------------------------------------
 
-func shiftRight*(r: var Stuint, a: Stuint, k: SomeInteger) =
+func shiftRight*(r: var StUint, a: StUint, k: SomeInteger) =
   ## Shift `a` right by k bits and store in `r`
   if k == 0:
     r = a
     return
-  
+
   if k < WordBitWidth:
     r.limbs.shrSmall(a.limbs, k)
     return
@@ -93,12 +93,12 @@ func shiftRight*(r: var Stuint, a: Stuint, k: SomeInteger) =
   else:
     r.limbs.shrLarge(a.limbs, w, shift)
 
-func shiftLeft*(r: var Stuint, a: Stuint, k: SomeInteger) =
+func shiftLeft*(r: var StUint, a: StUint, k: SomeInteger) =
   ## Shift `a` left by k bits and store in `r`
   if k == 0:
     r = a
     return
-  
+
   if k < WordBitWidth:
     r.limbs.shlSmall(a.limbs, k)
     r.clearExtraBitsOverMSB()

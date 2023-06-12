@@ -24,7 +24,7 @@ func div2n1n_128*(q, r: var uint64, n_hi, n_lo, d: uint64) {.inline.}=
   ## Warning ⚠️ :
   ##   - if n_hi == d, quotient does not fit in an uint64 and will throw SIGFPE on some platforms
   ##   - if n_hi > d result is undefined
-  var dblPrec {.noInit.}: uint128
+  var dblPrec {.noinit.}: uint128
   {.emit:[dblPrec, " = (unsigned __int128)", n_hi," << 64 | (unsigned __int128)",n_lo,";"].}
 
   # Don't forget to dereference the var param in C mode
@@ -39,7 +39,7 @@ func mul_128*(hi, lo: var uint64, a, b: uint64) {.inline.} =
   ## Extended precision multiplication
   ## (hi, lo) <- a*b
   block:
-    var dblPrec {.noInit.}: uint128
+    var dblPrec {.noinit.}: uint128
     {.emit:[dblPrec, " = (unsigned __int128)", a," * (unsigned __int128)", b,";"].}
 
     # Don't forget to dereference the var param in C mode
@@ -60,7 +60,7 @@ func muladd1_128*(hi, lo: var uint64, a, b, c: uint64) {.inline.} =
   ## This is constant-time on most hardware
   ## See: https://www.bearssl.org/ctmul.html
   block:
-    var dblPrec {.noInit.}: uint128
+    var dblPrec {.noinit.}: uint128
     {.emit:[dblPrec, " = (unsigned __int128)", a," * (unsigned __int128)", b, " + (unsigned __int128)",c,";"].}
 
     # Don't forget to dereference the var param in C mode
@@ -80,7 +80,7 @@ func muladd2_128*(hi, lo: var uint64, a, b, c1, c2: uint64) {.inline.}=
   ##       so adding 0xFFFFFFFFFFFFFFFF leads to (hi: 0xFFFFFFFFFFFFFFFF, lo: 0x0000000000000000)
   ##       and we have enough space to add again 0xFFFFFFFFFFFFFFFF without overflowing
   block:
-    var dblPrec {.noInit.}: uint128
+    var dblPrec {.noinit.}: uint128
     {.emit:[
       dblPrec, " = (unsigned __int128)", a," * (unsigned __int128)", b,
                " + (unsigned __int128)",c1," + (unsigned __int128)",c2,";"

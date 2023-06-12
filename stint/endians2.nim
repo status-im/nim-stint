@@ -9,7 +9,7 @@
 
 import private/datatypes
 
-{.push raises: [IndexDefect], noInit, gcsafe.}
+{.push raises: [IndexDefect], noinit, gcsafe.}
 
 # Serialization
 # ------------------------------------------------------------------------------------------
@@ -138,7 +138,7 @@ func toBytes*[bits: static int](x: StUint[bits], endian: Endianness = bigEndian)
 
 func fromBytesBE*[bits: static int](
     T: typedesc[StUint[bits]],
-    x: openArray[byte]): T {.raises: [], noInit, gcsafe.} =
+    x: openArray[byte]): T {.raises: [], noinit, gcsafe.} =
   ## Read big endian bytes and convert to an integer. At runtime, v must contain
   ## at least sizeof(T) bytes. Native endianess is used which is not
   ## portable! (i.e. use fixed-endian byte array or hex for serialization)
@@ -238,7 +238,7 @@ func fromBytesLE*[bits: static int](
 
 func fromBytes*[bits: static int](
     T: typedesc[StUint[bits]],
-    x: openarray[byte],
+    x: openArray[byte],
     srcEndian: Endianness = bigEndian): T {.inline.} =
   ## Read an source bytearray with the specified endianness and
   ## convert it to an integer

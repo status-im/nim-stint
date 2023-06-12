@@ -53,7 +53,7 @@ type
   Carry* = uint8  # distinct range[0'u8 .. 1]
   Borrow* = uint8 # distinct range[0'u8 .. 1]
 
-  SomeBigInteger*[bits: static[int]] = Stuint[bits]|Stint[bits]
+  SomeBigInteger*[bits: static[int]] = StUint[bits] | StInt[bits]
 
 const GCC_Compatible* = defined(gcc) or defined(clang) or defined(llvm_gcc)
 const X86* = defined(amd64) or defined(i386)
@@ -65,7 +65,7 @@ when sizeof(int) == 8 and GCC_Compatible:
 # Bithacks
 # --------------------------------------------------------
 
-{.push raises: [], inline, noInit, gcsafe.}
+{.push raises: [], inline, noinit, gcsafe.}
 
 template clearExtraBitsOverMSB*(a: var StUint) =
   ## A Stuint is stored in an array of 32 of 64-bit word
@@ -138,7 +138,7 @@ macro staticFor*(idx: untyped{nkIdent}, start, stopEx: static int, body: untyped
 
 # Copy
 # --------------------------------------------------------
-{.push raises: [], inline, noInit, gcsafe.}
+{.push raises: [], inline, noinit, gcsafe.}
 
 func copyWords*(
        a: var openArray[Word], startA: int,

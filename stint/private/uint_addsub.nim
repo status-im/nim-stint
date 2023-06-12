@@ -14,44 +14,44 @@ import
 
 # Addsub
 # --------------------------------------------------------
-{.push raises: [], inline, noInit, gcsafe.}
+{.push raises: [], inline, noinit, gcsafe.}
 
-func sum*(r: var Stuint, a, b: Stuint) =
+func sum*(r: var StUint, a, b: StUint) =
   ## Addition for multi-precision unsigned int
   var carry = Carry(0)
   for i in 0 ..< r.limbs.len:
     addC(carry, r[i], a[i], b[i], carry)
   r.clearExtraBitsOverMSB()
 
-func `+=`*(a: var Stuint, b: Stuint) =
+func `+=`*(a: var StUint, b: StUint) =
   ## In-place addition for multi-precision unsigned int
   a.sum(a, b)
 
-func diff*(r: var Stuint, a, b: Stuint) =
+func diff*(r: var StUint, a, b: StUint) =
   ## Substraction for multi-precision unsigned int
   var borrow = Borrow(0)
   for i in 0 ..< r.limbs.len:
     subB(borrow, r[i], a[i], b[i], borrow)
   r.clearExtraBitsOverMSB()
 
-func `-=`*(a: var Stuint, b: Stuint) =
+func `-=`*(a: var StUint, b: StUint) =
   ## In-place substraction for multi-precision unsigned int
   a.diff(a, b)
 
-func inc*(a: var Stuint, w: Word = 1) =
+func inc*(a: var StUint, w: Word = 1) =
   var carry = Carry(0)
   addC(carry, a.limbs[0], a.limbs[0], w, carry)
   for i in 1 ..< a.limbs.len:
     addC(carry, a.limbs[i], a.limbs[i], 0, carry)
   a.clearExtraBitsOverMSB()
 
-func sum*(r: var Stuint, a: Stuint, b: SomeUnsignedInt) =
+func sum*(r: var StUint, a: StUint, b: SomeUnsignedInt) =
   ## Addition for multi-precision unsigned int
   ## with an unsigned integer
   r = a
   r.inc(Word(b))
 
-func `+=`*(a: var Stuint, b: SomeUnsignedInt) =
+func `+=`*(a: var StUint, b: SomeUnsignedInt) =
   ## In-place addition for multi-precision unsigned int
   ## with an unsigned integer
   a.inc(Word(b))

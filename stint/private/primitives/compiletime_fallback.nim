@@ -109,7 +109,7 @@ func muladd2_nim*(hi, lo: var uint64, a, b, c1, c2: uint64) {.inline.}=
   addC_nim(carry2, hi, hi, 0, carry2)
 
 
-func div2n1n_nim*[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
+func div2n1n_nim*[T: SomeUnsignedInt](q, r: var T, n_hi, n_lo, d: T) =
   ## Division uint128 by uint64
   ## Warning ⚠️ :
   ##   - if n_hi == d, quotient does not fit in an uint64 and will throw SIGFPE
@@ -141,8 +141,8 @@ func div2n1n_nim*[T: SomeunsignedInt](q, r: var T, n_hi, n_lo, d: T) =
   let
     d_hi = d shr halfSize
     d_lo = d and halfMask
-    n_lohi = nlo shr halfSize
-    n_lolo = nlo and halfMask
+    n_lohi = n_lo shr halfSize
+    n_lolo = n_lo and halfMask
 
   # First half of the quotient
   let (q1, r1) = halfQR(n_hi, n_lohi, d, d_hi, d_lo)

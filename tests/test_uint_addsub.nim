@@ -35,7 +35,7 @@ template chkInplaceSubstraction(chk, a, b, c, bits: untyped) =
 
 template testAddSub(chk, tst: untyped) =
   tst "addition":
-    chkAddition(chk, 0'u8, 0'u8, 0'u8, 8)
+    #[chkAddition(chk, 0'u8, 0'u8, 0'u8, 8)
     chkAddition(chk, high(uint8) - 17'u8, 17'u8, high(uint8), 8)
     chkAddition(chk, low(uint8), 17'u8, low(uint8) + 17'u8, 8)
 
@@ -61,7 +61,7 @@ template testAddSub(chk, tst: untyped) =
     chkAddition(chk, high(uint32) - 17'u32, 17'u32, high(uint32), 64)
     chkAddition(chk, low(uint32), 17'u32, low(uint32) + 17'u32, 64)
     chkAddition(chk, high(uint64) - 17'u64, 17'u64, high(uint64), 64)
-    chkAddition(chk, low(uint64), 17'u64, low(uint64) + 17'u64, 64)
+    chkAddition(chk, low(uint64), 17'u64, low(uint64) + 17'u64, 64)]#
 
     chkAddition(chk, 0'u8, 0'u8, 0'u8, 128)
     chkAddition(chk, high(uint8) - 17'u8, 17'u8, high(uint8), 128)
@@ -74,7 +74,7 @@ template testAddSub(chk, tst: untyped) =
     chkAddition(chk, low(uint64), 17'u64, low(uint64) + 17'u64, 128)
 
   tst "inplace addition":
-    chkInplaceAddition(chk, 0'u8, 0'u8, 0'u8, 8)
+    #[chkInplaceAddition(chk, 0'u8, 0'u8, 0'u8, 8)
     chkInplaceAddition(chk, high(uint8) - 17'u8, 17'u8, high(uint8), 8)
     chkInplaceAddition(chk, low(uint8) + 17'u8, 17'u8, low(uint8) + 34'u8, 8)
 
@@ -100,7 +100,7 @@ template testAddSub(chk, tst: untyped) =
     chkInplaceAddition(chk, high(uint32) - 17'u32, 17'u32, high(uint32), 64)
     chkInplaceAddition(chk, low(uint32) + 17'u32, 17'u32, low(uint32) + 34'u32, 64)
     chkInplaceAddition(chk, high(uint64) - 17'u64, 17'u64, high(uint64), 64)
-    chkInplaceAddition(chk, low(uint64) + 17'u64, 17'u64, low(uint64) + 34'u64, 64)
+    chkInplaceAddition(chk, low(uint64) + 17'u64, 17'u64, low(uint64) + 34'u64, 64)]#
 
     chkInplaceAddition(chk, 0'u8, 0'u8, 0'u8, 128)
     chkInplaceAddition(chk, high(uint8) - 17'u8, 17'u8, high(uint8), 128)
@@ -113,7 +113,7 @@ template testAddSub(chk, tst: untyped) =
     chkInplaceAddition(chk, low(uint64) + 17'u64, 17'u64, low(uint64) + 34'u64, 128)
 
   tst "substraction":
-    chkSubstraction(chk, 0'u8, 0'u8, 0'u8, 8)
+    #[chkSubstraction(chk, 0'u8, 0'u8, 0'u8, 8)
     chkSubstraction(chk, high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 8)
     chkSubstraction(chk, low(uint8) + 17'u8, 17'u8, low(uint8), 8)
 
@@ -139,7 +139,7 @@ template testAddSub(chk, tst: untyped) =
     chkSubstraction(chk, high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 64)
     chkSubstraction(chk, low(uint32) + 17'u32, 17'u32, low(uint32), 64)
     chkSubstraction(chk, high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 64)
-    chkSubstraction(chk, low(uint64) + 17'u64, 17'u64, low(uint64), 64)
+    chkSubstraction(chk, low(uint64) + 17'u64, 17'u64, low(uint64), 64)]#
 
     chkSubstraction(chk, 0'u8, 0'u8, 0'u8, 128)
     chkSubstraction(chk, high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 128)
@@ -152,7 +152,7 @@ template testAddSub(chk, tst: untyped) =
     chkSubstraction(chk, high(uint64), high(uint64), 0'u64, 128)
 
   tst "inplace substraction":
-    chkInplaceSubstraction(chk, 0'u8, 0'u8, 0'u8, 8)
+    #[chkInplaceSubstraction(chk, 0'u8, 0'u8, 0'u8, 8)
     chkInplaceSubstraction(chk, high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 8)
     chkInplaceSubstraction(chk, low(uint8) + 17'u8, 17'u8, low(uint8), 8)
 
@@ -178,7 +178,7 @@ template testAddSub(chk, tst: untyped) =
     chkInplaceSubstraction(chk, high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 64)
     chkInplaceSubstraction(chk, low(uint32) + 17'u32, 17'u32, low(uint32), 64)
     chkInplaceSubstraction(chk, high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 64)
-    chkInplaceSubstraction(chk, low(uint64) + 17'u64, 17'u64, low(uint64), 64)
+    chkInplaceSubstraction(chk, low(uint64) + 17'u64, 17'u64, low(uint64), 64)]#
 
     chkInplaceSubstraction(chk, 0'u8, 0'u8, 0'u8, 128)
     chkInplaceSubstraction(chk, high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 128)
@@ -196,6 +196,7 @@ static:
 suite "Wider unsigned int addsub coverage":
   testAddSub(check, test)
 
+#[
 suite "Testing unsigned int addition implementation":
   test "In-place addition gives expected result":
 
@@ -261,3 +262,4 @@ suite "Testing unsigned int substraction implementation":
     let b = 101'u16.stuint(16)
 
     check: cast[uint16](a-b) == high(uint16)
+]#

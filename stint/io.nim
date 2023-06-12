@@ -74,14 +74,14 @@ func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
 func to*(a: SomeUnsignedInt, T: typedesc[StUint]): T =
   stuint(a, result.bits)
 
-func truncate*(num: Stint or StUint, T: typedesc[SomeInteger]): T {.inline.}=
+func truncate*(num: StInt or StUint, T: typedesc[SomeInteger]): T {.inline.}=
   ## Extract the int, uint, int8-int64 or uint8-uint64 portion of a multi-precision integer.
   ## Note that int and uint are 32-bit on 32-bit platform.
   ## For unsigned result type, result is modulo 2^(sizeof T in bit)
   ## For signed result type, result is undefined if input does not fit in the target type.
   result = T(num.leastSignificantWord())
 
-func toInt*(num: Stint or StUint): int {.inline, deprecated:"Use num.truncate(int) instead".}=
+func toInt*(num: StInt or StUint): int {.inline, deprecated:"Use num.truncate(int) instead".}=
   num.truncate(int)
 
 func stuint*(a: StUint, bits: static[int]): StUint[bits] {.inline.} =
@@ -271,7 +271,7 @@ func parse*[bits: static[int]](input: string, T: typedesc[StUint[bits]], radix: 
 #   else:
 #     result = convert[T](no_overflow)
 
-func fromHex*(T: typedesc[StUint|Stint], s: string): T {.inline.} =
+func fromHex*(T: typedesc[StUint|StInt], s: string): T {.inline.} =
   ## Convert an hex string to the corresponding unsigned integer
   parse(s, type result, radix = 16)
 
@@ -346,13 +346,13 @@ func toString*[bits: static[int]](num: StUint[bits], radix: static[uint8] = 10):
 #   else:
 #     toString(num, 10)
 
-func toHex*[bits: static[int]](num: Stint[bits] or StUint[bits]): string {.inline.}=
+func toHex*[bits: static[int]](num: StInt[bits] or StUint[bits]): string {.inline.}=
   ## Convert to a hex string.
   ## Output is considered a big-endian base 16 string.
   ## Leading zeros are stripped. Use dumpHex instead if you need the in-memory representation
   toString(num, 16)
 
-func dumpHex*(a: Stint or StUint, order: static[Endianness] = bigEndian): string =
+func dumpHex*(a: StInt or StUint, order: static[Endianness] = bigEndian): string =
   ## Stringify an int to hex.
   ## Note. Leading zeros are not removed. Use toString(n, base = 16)/toHex instead.
   ##
@@ -369,7 +369,7 @@ func dumpHex*(a: Stint or StUint, order: static[Endianness] = bigEndian): string
 
 export fromBytes, toBytes
 
-func readUintBE*[bits: static[int]](ba: openArray[byte]): StUint[bits] {.noInit, inline.}=
+func readUintBE*[bits: static[int]](ba: openArray[byte]): StUint[bits] {.noinit, inline.}=
   ## Convert a big-endian array of (bits div 8) Bytes to an UInt[bits] (in native host endianness)
   ## Input:
   ##   - a big-endian openArray of size (bits div 8) at least
@@ -377,7 +377,7 @@ func readUintBE*[bits: static[int]](ba: openArray[byte]): StUint[bits] {.noInit,
   ##   - A unsigned integer of the same size with `bits` bits
   result = (typeof result).fromBytesBE(ba)
 
-func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte] {.noInit, inline.}=
+func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte] {.noinit, inline.}=
   ## Convert a uint[bits] to to a big-endian array of bits div 8 bytes
   ## Input:
   ##   - an unsigned integer
@@ -391,7 +391,7 @@ template hash*(num: StUint|StInt): Hash =
   # Explore better hashing solutions in nim-stew.
   hashData(unsafeAddr num, sizeof num)
 
-func fromBytesBE*(T: type StUint, ba: openArray[byte], allowPadding: static[bool] = true): T {.noInit, inline.}=
+func fromBytesBE*(T: type StUint, ba: openArray[byte], allowPadding: static[bool] = true): T {.noinit, inline.}=
   result = readUintBE[T.bits](ba)
   when allowPadding:
     result = result shl ((sizeof(T) - ba.len) * 8)

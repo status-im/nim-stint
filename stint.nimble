@@ -10,7 +10,7 @@ skipDirs      = @["tests", "benchmarks"]
 requires "nim >= 1.6.12",
          "stew"
 
-proc test(name: string, lang: string = "c") =
+proc test(args, path: string) =
   if not dirExists "build":
     mkDir "build"
 
@@ -23,10 +23,10 @@ proc test(name: string, lang: string = "c") =
       " --styleCheck:usages --styleCheck:error " & path
 
 task test_internal, "Run tests for internal procs":
-  test "internal"
+  test "", "tests/internal"
 
 task test_public_api, "Run all tests - prod implementation (StUint[64] = uint64":
-  test "all_tests"
+  test "", "tests/all_tests"
 
 task test_uint256_ttmath, "Run random tests Uint256 vs TTMath":
   requires "https://github.com/alehander42/nim-quicktest >= 0.18.0", "https://github.com/status-im/nim-ttmath"

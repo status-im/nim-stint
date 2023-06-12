@@ -15,42 +15,42 @@ import
 
 # Bitwise operations
 # --------------------------------------------------------
-{.push raises: [], inline, noInit, gcsafe.}
+{.push raises: [], inline, noinit, gcsafe.}
 
-func bitnot*(r: var StUint, a: Stuint) =
+func bitnot*(r: var StUint, a: StUint) =
   ## Bitwise complement of unsigned integer a
   ## i.e. flips all bits of the input
   for i in 0 ..< r.limbs.len:
     r[i] = not a[i]
   r.clearExtraBitsOverMSB()
 
-func bitor*(r: var Stuint, a, b: Stuint) =
+func bitor*(r: var StUint, a, b: StUint) =
   ## `Bitwise or` of numbers a and b
   for i in 0 ..< r.limbs.len:
     r[i] = a[i] or b[i]
 
-func bitand*(r: var Stuint, a, b: Stuint) =
+func bitand*(r: var StUint, a, b: StUint) =
   ## `Bitwise and` of numbers a and b
   for i in 0 ..< r.limbs.len:
     r[i] = a[i] and b[i]
 
-func bitxor*(r: var Stuint, a, b: Stuint) =
+func bitxor*(r: var StUint, a, b: StUint) =
   ## `Bitwise xor` of numbers x and y
   for i in 0 ..< r.limbs.len:
     r[i] = a[i] xor b[i]
   r.clearExtraBitsOverMSB()
 
-func countOnes*(a: Stuint): int =
+func countOnes*(a: StUint): int =
   result = 0
   for i in 0 ..< a.limbs.len:
     result += countOnes(a[i])
 
-func parity*(a: Stuint): int =
+func parity*(a: StUint): int =
   result = parity(a.limbs[0])
   for i in 1 ..< a.limbs.len:
     result = result xor parity(a.limbs[i])
 
-func leadingZeros*(a: Stuint): int =
+func leadingZeros*(a: StUint): int =
   result = 0
 
   # Adjust when we use only part of the word size
@@ -66,7 +66,7 @@ func leadingZeros*(a: Stuint): int =
     if zeroCount != WordBitWidth:
       break
 
-func trailingZeros*(a: Stuint): int =
+func trailingZeros*(a: StUint): int =
   result = 0
   for i in 0 ..< a.limbs.len:
     let zeroCount = a[i].trailingZeros()
@@ -78,7 +78,7 @@ func trailingZeros*(a: Stuint): int =
     if result > a.bits:
       result = a.bits
 
-func firstOne*(a: Stuint): int =
+func firstOne*(a: StUint): int =
   result = trailingZeros(a)
   if result == a.limbs.len * WordBitWidth:
     result = 0

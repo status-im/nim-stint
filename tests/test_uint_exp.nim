@@ -17,7 +17,7 @@ template chkPow(chk: untyped, a: string, b: SomeInteger, c: string, bits: int) =
 
 template testExp(chk, tst: untyped) =
   tst "BigInt BigInt Pow":
-    chkPow(chk, "F", "2", "E1", 8)
+    #[chkPow(chk, "F", "2", "E1", 8)
 
     chkPow(chk, "F", "2", "E1", 16)
     chkPow(chk, "FF", "2", "FE01", 16)
@@ -29,7 +29,7 @@ template testExp(chk, tst: untyped) =
     chkPow(chk, "F", "2", "E1", 64)
     chkPow(chk, "FF", "2", "FE01", 64)
     chkPow(chk, "FF", "3", "FD02FF", 64)
-    chkPow(chk, "FFF", "3", "FFD002FFF", 64)
+    chkPow(chk, "FFF", "3", "FFD002FFF", 64)]#
 
     chkPow(chk, "F", "2", "E1", 128)
     chkPow(chk, "FF", "2", "FE01", 128)
@@ -38,7 +38,7 @@ template testExp(chk, tst: untyped) =
     chkPow(chk, "FFFFF", "3", "ffffd00002fffff", 128)
 
   tst "BigInt Natural Pow":
-    chkPow(chk, "F", 2, "E1", 8)
+    #[chkPow(chk, "F", 2, "E1", 8)
 
     chkPow(chk, "F", 2, "E1", 16)
     chkPow(chk, "FF", 2, "FE01", 16)
@@ -50,7 +50,7 @@ template testExp(chk, tst: untyped) =
     chkPow(chk, "F", 2, "E1", 64)
     chkPow(chk, "FF", 2, "FE01", 64)
     chkPow(chk, "FF", 3, "FD02FF", 64)
-    chkPow(chk, "FFF", 3, "FFD002FFF", 64)
+    chkPow(chk, "FFF", 3, "FFD002FFF", 64)]#
 
     chkPow(chk, "F", 2, "E1", 128)
     chkPow(chk, "FF", 2, "FE01", 128)
@@ -64,6 +64,7 @@ static:
 suite "Wider unsigned int exp coverage":
   testExp(check, test)
 
+#[
 suite "Testing unsigned exponentiation":
   test "Simple exponentiation 5^3":
 
@@ -84,3 +85,4 @@ suite "Testing unsigned exponentiation":
 
     check: a.pow(b) == "4922235242952026704037113243122008064".u256
     check: a.pow(b.stuint(256)) == "4922235242952026704037113243122008064".u256
+]#

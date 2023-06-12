@@ -21,7 +21,7 @@ export StUint
 
 # Initialization
 # --------------------------------------------------------
-{.push raises: [], inline, noInit, gcsafe.}
+{.push raises: [], inline, noinit, gcsafe.}
 
 func setZero*(a: var StUint) =
   ## Set ``a`` to 0
@@ -37,40 +37,40 @@ func setSmallInt(a: var StUint, k: Word) =
 func setOne*(a: var StUint) =
   setSmallInt(a, 1)
 
-func zero*[bits: static[int]](T: typedesc[Stuint[bits]]): T {.inline.} =
+func zero*[bits: static[int]](T: typedesc[StUint[bits]]): T {.inline.} =
   ## Returns the zero of the input type
   discard
 
-func one*[bits: static[int]](T: typedesc[Stuint[bits]]): T {.inline.} =
+func one*[bits: static[int]](T: typedesc[StUint[bits]]): T {.inline.} =
   ## Returns the one of the input type
   result.setOne()
 
-func high*[bits](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.} =
+func high*[bits](_: typedesc[StUint[bits]]): StUint[bits] {.inline.} =
   for i in 0 ..< result.limbs.len:
     result[i] = high(Word)
 
-func low*[bits](_: typedesc[Stuint[bits]]): Stuint[bits] {.inline.} =
+func low*[bits](_: typedesc[StUint[bits]]): StUint[bits] {.inline.} =
   discard
 
 {.pop.}
 # Comparisons
 # --------------------------------------------------------
-{.push raises: [], inline, noInit, gcsafe.}
+{.push raises: [], inline, noinit, gcsafe.}
 
-func isZero*(a: Stuint): bool =
+func isZero*(a: StUint): bool =
   for i in 0 ..< a.limbs.len:
     if a[i] != 0:
       return false
   return true
 
-func `==`*(a, b: Stuint): bool {.inline.} =
+func `==`*(a, b: StUint): bool {.inline.} =
   ## Unsigned `equal` comparison
   for i in 0 ..< a.limbs.len:
     if a[i] != b[i]:
       return false
   return true
 
-func `<`*(a, b: Stuint): bool {.inline.} =
+func `<`*(a, b: StUint): bool {.inline.} =
   ## Unsigned `less than` comparison
   var diff: Word
   var borrow: Borrow
@@ -78,16 +78,16 @@ func `<`*(a, b: Stuint): bool {.inline.} =
     subB(borrow, diff, a[i], b[i], borrow)
   return bool(borrow)
 
-func `<=`*(a, b: Stuint): bool {.inline.} =
+func `<=`*(a, b: StUint): bool {.inline.} =
   ## Unsigned `less or equal` comparison
   not(b < a)
 
-func isOdd*(a: Stuint): bool {.inline.} =
+func isOdd*(a: StUint): bool {.inline.} =
   ## Returns true if input is off
   ## false otherwise
   bool(a[0] and 1)
 
-func isEven*(a: Stuint): bool {.inline.} =
+func isEven*(a: StUint): bool {.inline.} =
   ## Returns true if input is zero
   ## false otherwise
   not a.isOdd()
@@ -95,22 +95,22 @@ func isEven*(a: Stuint): bool {.inline.} =
 {.pop.}
 # Bitwise operations
 # --------------------------------------------------------
-{.push raises: [], inline, noInit, gcsafe.}
+{.push raises: [], inline, noinit, gcsafe.}
 
-func `not`*(a: Stuint): Stuint =
+func `not`*(a: StUint): StUint =
   ## Bitwise complement of unsigned integer a
   ## i.e. flips all bits of the input
   result.bitnot(a)
 
-func `or`*(a, b: Stuint): Stuint =
+func `or`*(a, b: StUint): StUint =
   ## `Bitwise or` of numbers a and b
   result.bitor(a, b)
 
-func `and`*(a, b: Stuint): Stuint =
+func `and`*(a, b: StUint): StUint =
   ## `Bitwise and` of numbers a and b
   result.bitand(a, b)
 
-func `xor`*(a, b: Stuint): Stuint =
+func `xor`*(a, b: StUint): StUint =
   ## `Bitwise xor` of numbers x and y
   result.bitxor(a, b)
 
@@ -125,11 +125,11 @@ export
 
 {.push raises: [], inline, gcsafe.}
 
-func `shr`*(a: Stuint, k: SomeInteger): Stuint =
+func `shr`*(a: StUint, k: SomeInteger): StUint =
   ## Shift right by k bits
   result.shiftRight(a, k)
 
-func `shl`*(a: Stuint, k: SomeInteger): Stuint =
+func `shl`*(a: StUint, k: SomeInteger): StUint =
   ## Shift left by k bits
   result.shiftLeft(a, k)
 
@@ -137,15 +137,15 @@ func `shl`*(a: Stuint, k: SomeInteger): Stuint =
 
 # Addsub
 # --------------------------------------------------------
-{.push raises: [], inline, noInit, gcsafe.}
+{.push raises: [], inline, noinit, gcsafe.}
 
-func `+`*(a, b: Stuint): Stuint =
+func `+`*(a, b: StUint): StUint =
   ## Addition for multi-precision unsigned int
   result.sum(a, b)
 
 export `+=`
 
-func `-`*(a, b: Stuint): Stuint =
+func `-`*(a, b: StUint): StUint =
   ## Substraction for multi-precision unsigned int
   result.diff(a, b)
 
@@ -153,7 +153,7 @@ export `-=`
 
 export inc
 
-func `+`*(a: Stuint, b: SomeUnsignedInt): Stuint =
+func `+`*(a: StUint, b: SomeUnsignedInt): StUint =
   ## Addition for multi-precision unsigned int
   ## with an unsigned integer
   result.sum(a, Word(b))
@@ -169,9 +169,9 @@ export `+=`
 # - It's implemented at the limb-level so that
 #   in the future Stuint[254] and Stuint256] share a common codepath
 
-{.push raises: [], inline, noInit, gcsafe.}
+{.push raises: [], inline, noinit, gcsafe.}
 
-func `*`*(a, b: Stuint): Stuint =
+func `*`*(a, b: StUint): StUint =
   ## Integer multiplication
   result.limbs.prod(a.limbs, b.limbs)
   result.clearExtraBitsOverMSB()
@@ -181,9 +181,9 @@ func `*`*(a, b: Stuint): Stuint =
 # Exponentiation
 # --------------------------------------------------------
 
-{.push raises: [], noInit, gcsafe.}
+{.push raises: [], noinit, gcsafe.}
 
-func pow*(a: Stuint, e: Natural): Stuint =
+func pow*(a: StUint, e: Natural): StUint =
   ## Compute ``a`` to the power of ``e``,
   ## ``e`` must be non-negative
 
@@ -202,7 +202,7 @@ func pow*(a: Stuint, e: Natural): Stuint =
       break
     a = a * a
 
-func pow*[aBits, eBits](a: Stuint[aBits], e: Stuint[eBits]): Stuint[aBits] =
+func pow*[aBits, eBits](a: StUint[aBits], e: StUint[eBits]): StUint[aBits] =
   ## Compute ``x`` to the power of ``y``,
   ## ``x`` must be non-negative
   # Implementation uses exponentiation by squaring
@@ -224,19 +224,19 @@ func pow*[aBits, eBits](a: Stuint[aBits], e: Stuint[eBits]): Stuint[aBits] =
 
 # Division & Modulo
 # --------------------------------------------------------
-{.push raises: [], inline, noInit, gcsafe.}
+{.push raises: [], inline, noinit, gcsafe.}
 
-func `div`*(x, y: Stuint): Stuint =
+func `div`*(x, y: StUint): StUint =
   ## Division operation for multi-precision unsigned uint
-  var tmp{.noInit.}: Stuint
+  var tmp{.noinit.}: StUint
   divRem(result.limbs, tmp.limbs, x.limbs, y.limbs)
 
-func `mod`*(x, y: Stuint): Stuint =
+func `mod`*(x, y: StUint): StUint =
   ## Remainder operation for multi-precision unsigned uint
-  var tmp{.noInit.}: Stuint
+  var tmp{.noinit.}: StUint
   divRem(tmp.limbs, result.limbs, x.limbs, y.limbs)
 
-func divmod*(x, y: Stuint): tuple[quot, rem: Stuint] =
+func divmod*(x, y: StUint): tuple[quot, rem: StUint] =
   ## Division and remainder operations for multi-precision unsigned uint
   divRem(result.quot.limbs, result.rem.limbs, x.limbs, y.limbs)
 

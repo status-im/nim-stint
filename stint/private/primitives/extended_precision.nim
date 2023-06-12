@@ -77,7 +77,7 @@ when sizeof(int) == 8 and not defined(Stint32):
 
   when defined(vcc):
     from ./extended_precision_x86_64_msvc import div2n1n_128, mul_128, muladd1_128, muladd2_128
-  elif GCCCompatible:
+  elif GCC_Compatible:
     when X86:
       from ./extended_precision_x86_64_gcc import div2n1n_128
       from ./extended_precision_64bit_uint128 import mul_128, muladd1_128, muladd2_128

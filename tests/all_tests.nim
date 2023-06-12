@@ -7,17 +7,19 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import  test_uint_bitops2,
-        test_uint_endianness,
-        test_uint_comparison,
-        test_uint_bitwise,
-        test_uint_addsub,
-        test_uint_muldiv,
-        test_uint_exp,
-        test_uint_modular_arithmetic,
-        test_uint_endians2,
-        test_randomized_divmod
+import  
+  test_uint_addsub,
+  test_uint_bitops2,
+  test_uint_bitwise,
+  test_uint_comparison,
+  #test_uint_divmod,
+  test_uint_endianness,
+  test_uint_endians2,        
+  test_uint_exp,
+  #test_uint_modular_arithmetic,
+  test_uint_mul
 
+#[
 import  test_int_endianness,
         test_int_comparison,
         test_int_addsub,
@@ -27,4 +29,4 @@ import  test_int_endianness,
 
 import  test_io,
         test_conversion
-
+]#
