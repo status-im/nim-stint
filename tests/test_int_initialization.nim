@@ -9,6 +9,8 @@
 
 import ../stint, unittest, test_helpers
 
+import stew/byteutils
+
 template testInitialization(chk, tst: untyped) =
   tst "zero one":
     var a: StInt[128]
@@ -42,9 +44,7 @@ template testInitialization(chk, tst: untyped) =
   tst "hi lo":
     let x = Int128.high
     var z = UInt128.high
-    z.clearBit(10)
-    debugEcho x.toHex
-    debugEcho z.toHex
+    z.clearBit(z.bits - 1)
     chk x.imp == z
 
     let xx = Int128.low

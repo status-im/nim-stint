@@ -51,24 +51,47 @@ template chkIsEven(chk: untyped, a: string, bits: int) =
 template chkNotIsEven(chk: untyped, a: string, bits: int) =
   chk (not fromHex(StInt[bits], a).isEven())
 
-import strutils
-
 template testComparison(chk, tst: untyped) =
   tst "operator `LT`":
     chk 0.i128 < 1.i128
     chk -1.i128 < 1.i128
     chk -1.i128 < 0.i128
     chk Int128.low < Int128.high
- 
-    #chkLT(chk, "0", "F", 128)
-    #chkLT(chk, "F", "FF", 128)
-    #chkLT(chk, "FF", "FFF", 128)
-    #chkLT(chk, "FFFF", "FFFFF", 128)
-    #chkLT(chk, "FFFFF", "FFFFFFFF", 128)
-    #chkLT(chk, "FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
-    #chkLT(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
-#[
-  tst "operator not `LT`":
+    chk -2.i128 < -1.i128
+    chk 1.i128 < 2.i128
+    chk 10000.i128 < Int128.high
+    chk Int128.low < 10000.i128
+
+    chk 0.i256 < 1.i256
+    chk -1.i256 < 1.i256
+    chk -1.i256 < 0.i256
+    chk Int256.low < Int256.high
+    chk -2.i256 < -1.i256
+    chk 1.i256 < 2.i256
+
+    chkLT(chk, "0", "F", 128)
+    chkLT(chk, "F", "FF", 128)
+    chkLT(chk, "FF", "FFF", 128)
+    chkLT(chk, "FFFF", "FFFFF", 128)
+    chkLT(chk, "FFFFF", "FFFFFFFF", 128)
+    chkLT(chk, "FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
+    chkLT(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
+
+  tst "operator `GT`":
+    chk 1.i128 > 0.i128
+    chk 1.i128 > -1.i128
+    chk 0.i128 > -1.i128
+    chk Int128.high > Int128.low
+    chk -1.i128 > -2.i128
+    chk 2.i128 > 1.i128
+
+    chk 1.i256 > 0.i256
+    chk 1.i256 > -1.i256
+    chk 0.i256 > -1.i256
+    chk Int256.high > Int256.low
+    chk -1.i256 > -2.i256
+    chk 2.i256 > 1.i256
+
     chkNotLT(chk, "0", "F", 128)
     chkNotLT(chk, "F", "FF", 128)
     chkNotLT(chk, "FF", "FFF", 128)
@@ -78,6 +101,30 @@ template testComparison(chk, tst: untyped) =
     chkNotLT(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
 
   tst "operator `LTE`":
+    chk 0.i128 <= 1.i128
+    chk -1.i128 <= 1.i128
+    chk -1.i128 <= 0.i128
+    chk Int128.low <= Int128.high
+    chk -2.i128 <= -1.i128
+    chk 1.i128 <= 2.i128
+    chk 10000.i128 <= Int128.high
+    chk Int128.low <= 10000.i128
+    chk Int128.low <= Int128.low
+    chk Int128.high <= Int128.high
+    chk 10000.i128 <= 10000.i128
+
+    chk 0.i256 <= 1.i256
+    chk -1.i256 <= 1.i256
+    chk -1.i256 <= 0.i256
+    chk Int256.low <= Int256.high
+    chk -2.i256 <= -1.i256
+    chk 1.i256 <= 2.i256
+    chk 10000.i256 <= Int256.high
+    chk Int256.low <= 10000.i256
+    chk Int256.low <= Int256.low
+    chk Int256.high <= Int256.high
+    chk 10000.i256 <= 10000.i256
+
     chkLTE(chk, "0", "F", 128)
     chkLTE(chk, "F", "FF", 128)
     chkLTE(chk, "FF", "FFF", 128)
@@ -87,7 +134,31 @@ template testComparison(chk, tst: untyped) =
     chkLTE(chk, "FFFFFFFFFFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
     chkLTE(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
 
-  tst "operator not `LTE`":
+  tst "operator `GTE`":
+    chk 1.i128       >= 0.i128
+    chk 1.i128       >= -1.i128
+    chk 0.i128       >= -1.i128
+    chk Int128.high  >= Int128.low
+    chk -1.i128      >= -2.i128
+    chk 2.i128       >= 1.i128
+    chk Int128.high  >= 10000.i128
+    chk 10000.i128   >= Int128.low
+    chk Int128.low   >= Int128.low
+    chk Int128.high  >= Int128.high
+    chk 10000.i128   >= 10000.i128
+
+    chk 1.i256       >= 0.i256
+    chk 1.i256       >= -1.i256
+    chk 0.i256       >= -1.i256
+    chk Int256.high  >= Int256.low
+    chk -1.i256      >= -2.i256
+    chk 2.i256       >= 1.i256
+    chk Int256.high  >= 10000.i256
+    chk 10000.i256   >= Int256.low
+    chk Int256.low   >= Int256.low
+    chk Int256.high  >= Int256.high
+    chk 10000.i256   >= 10000.i256
+
     chkNotLTE(chk, "0", "F", 128)
     chkNotLTE(chk, "F", "FF", 128)
     chkNotLTE(chk, "FF", "FFF", 128)
@@ -97,6 +168,18 @@ template testComparison(chk, tst: untyped) =
     chkNotLTE(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
 
   tst "operator `EQ`":
+    chk 0.i128 == 0.i128
+    chk 1.i128 == 1.i128
+    chk -1.i128 == -1.i128
+    chk Int128.high == Int128.high
+    chk Int128.low == Int128.low
+
+    chk 0.i256 == 0.i256
+    chk 1.i256 == 1.i256
+    chk -1.i256 == -1.i256
+    chk Int256.high == Int256.high
+    chk Int256.low == Int256.low
+
     chkEQ(chk, "0", "0", 128)
     chkEQ(chk, "F", "F", 128)
     chkEQ(chk, "FF", "FF", 128)
@@ -105,6 +188,13 @@ template testComparison(chk, tst: untyped) =
     chkEQ(chk, "FFFFFFFFFFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
 
   tst "operator not `EQ`":
+    chk Int128.low != Int128.high
+    chk Int128.high != Int128.low
+    chk 0.i256 != 1.i256
+    chk 1.i256 != 0.i256
+    chk 1.i256 != -1.i256
+    chk -1.i256 != 1.i256
+
     chkNotEQ(chk, "0", "F", 128)
     chkNotEQ(chk, "F", "FF", 128)
     chkNotEQ(chk, "FF", "FFF", 128)
@@ -113,40 +203,20 @@ template testComparison(chk, tst: untyped) =
     chkNotEQ(chk, "FFFFFFFFFFF", "AFFFFFFFFFFFFFFFFFFFFFFF", 128)
 
   tst "operator `isZero`":
-    chkIsZero(chk, "0", 8)
-    chkIsZero(chk, "0", 16)
-    chkIsZero(chk, "0", 32)
-    chkIsZero(chk, "0", 64)
     chkIsZero(chk, "0", 128)
     chkIsZero(chk, "0", 256)
 
   tst "operator not `isZero`":
-    chkNotIsZero(chk, "1", 8)
-    chkNotIsZero(chk, "2", 16)
-    chkNotIsZero(chk, "3", 32)
-    chkNotIsZero(chk, "4", 64)
     chkNotIsZero(chk, "5", 128)
     chkNotIsZero(chk, "6", 256)
 
-    chkNotIsZero(chk, "FF", 8)
-    chkNotIsZero(chk, "FFFF", 16)
-    chkNotIsZero(chk, "FFFFFFFF", 32)
-    chkNotIsZero(chk, "FFFFFFFFFFFFFFFF", 64)
     chkNotIsZero(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", 128)
     chkNotIsZero(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", 256)
 
   tst "operator `isNegative`":
-    chkIsNegative(chk, "F0", 8)
-    chkIsNegative(chk, "F000", 16)
-    chkIsNegative(chk, "F0000000", 32)
-    chkIsNegative(chk, "F000000000000000", 64)
     chkIsNegative(chk, "F0000000000000000000000000000000", 128)
     chkIsNegative(chk, "F000000000000000000000000000000000000000000000000000000000000000", 256)
 
-    chkIsNegative(chk, "A1", 8)
-    chkIsNegative(chk, "A200", 16)
-    chkIsNegative(chk, "A3000000", 32)
-    chkIsNegative(chk, "A400000000000000", 64)
     chkIsNegative(chk, "A5000000000000000000000000000000", 128)
     chkIsNegative(chk, "A600000000000000000000000000000000000000000000000000000000000000", 256)
 
@@ -157,86 +227,42 @@ template testComparison(chk, tst: untyped) =
     chkNotIsNegative(chk, "5", 128)
     chkNotIsNegative(chk, "6", 256)
 
-    chkNotIsNegative(chk, "71", 8)
-    chkNotIsNegative(chk, "7200", 16)
-    chkNotIsNegative(chk, "73000000", 32)
-    chkNotIsNegative(chk, "7400000000000000", 64)
     chkNotIsNegative(chk, "75000000000000000000000000000000", 128)
     chkNotIsNegative(chk, "7600000000000000000000000000000000000000000000000000000000000000", 256)
 
   tst "operator `isOdd`":
-    chkIsOdd(chk, "1", 8)
-    chkIsOdd(chk, "1", 16)
-    chkIsOdd(chk, "1", 32)
-    chkIsOdd(chk, "1", 64)
     chkIsOdd(chk, "1", 128)
     chkIsOdd(chk, "1", 256)
 
-    chkIsOdd(chk, "FF", 8)
-    chkIsOdd(chk, "FFF", 16)
-    chkIsOdd(chk, "FFFFF", 32)
-    chkIsOdd(chk, "FFFFFF", 64)
     chkIsOdd(chk, "FFFFFFFFFFFFFFF", 128)
     chkIsOdd(chk, "FFFFFFFFFFFFFFFFFF", 256)
 
   tst "operator not `isOdd`":
-    chkNotIsOdd(chk, "0", 8)
-    chkNotIsOdd(chk, "0", 16)
-    chkNotIsOdd(chk, "0", 32)
-    chkNotIsOdd(chk, "0", 64)
     chkNotIsOdd(chk, "0", 128)
     chkNotIsOdd(chk, "0", 256)
 
-    chkNotIsOdd(chk, "4", 8)
-    chkNotIsOdd(chk, "4", 16)
-    chkNotIsOdd(chk, "4", 32)
-    chkNotIsOdd(chk, "4", 64)
     chkNotIsOdd(chk, "4", 128)
     chkNotIsOdd(chk, "4", 256)
 
-    chkNotIsOdd(chk, "A", 8)
-    chkNotIsOdd(chk, "AAA", 16)
-    chkNotIsOdd(chk, "AAAA", 32)
-    chkNotIsOdd(chk, "FFFFFA", 64)
     chkNotIsOdd(chk, "FFFFFFFFFFFFFFA", 128)
     chkNotIsOdd(chk, "FFFFFFFFFFFFFFFFFA", 256)
 
   tst "operator `isEven`":
-    chkNotIsOdd(chk, "0", 8)
-    chkNotIsOdd(chk, "0", 16)
-    chkNotIsOdd(chk, "0", 32)
-    chkNotIsOdd(chk, "0", 64)
     chkNotIsOdd(chk, "0", 128)
     chkNotIsOdd(chk, "0", 256)
 
-    chkNotIsOdd(chk, "4", 8)
-    chkNotIsOdd(chk, "4", 16)
-    chkNotIsOdd(chk, "4", 32)
-    chkNotIsOdd(chk, "4", 64)
     chkNotIsOdd(chk, "4", 128)
     chkNotIsOdd(chk, "4", 256)
 
-    chkNotIsOdd(chk, "A", 8)
-    chkNotIsOdd(chk, "AAA", 16)
-    chkNotIsOdd(chk, "AAAA", 32)
-    chkNotIsOdd(chk, "FFFFFA", 64)
     chkNotIsOdd(chk, "FFFFFFFFFFFFFFA", 128)
     chkNotIsOdd(chk, "FFFFFFFFFFFFFFFFFA", 256)
 
   tst "operator not `isEven`":
-    chkIsOdd(chk, "1", 8)
-    chkIsOdd(chk, "1", 16)
-    chkIsOdd(chk, "1", 32)
-    chkIsOdd(chk, "1", 64)
     chkIsOdd(chk, "1", 128)
     chkIsOdd(chk, "1", 256)
 
-    chkIsOdd(chk, "FF", 8)
-    chkIsOdd(chk, "FFF", 16)
-    chkIsOdd(chk, "FFFFF", 32)
-    chkIsOdd(chk, "FFFFFF", 64)
     chkIsOdd(chk, "FFFFFFFFFFFFFFF", 128)
-    chkIsOdd(chk, "FFFFFFFFFFFFFFFFFF", 256)]#
+    chkIsOdd(chk, "FFFFFFFFFFFFFFFFFF", 256)
 
 static:
   testComparison(ctCheck, ctTest)
@@ -248,12 +274,12 @@ proc main() =
   suite "Wider signed int comparison coverage":
     testComparison(check, test)
 
-#[
+
   suite "Signed int - Testing comparison operators":
     let
-      a = 10'i16.stint(16)
-      b = 15'i16.stint(16)
-      c = 150'i16.stint(16)
+      a = 10.i256
+      b = 15.i256
+      c = 150.i256
 
     test "< operator":
       check:
@@ -303,6 +329,5 @@ proc main() =
         not b.isEven
         c.isEven
         not c.isOdd
-]#
 
 main()

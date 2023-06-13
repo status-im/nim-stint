@@ -17,7 +17,7 @@ import
 export StInt
 
 const
-  signMask = 1.Word shl WordBitWidth
+  signMask = 1.Word shl (WordBitWidth - 1)
   clearSignMask = not signMask
 
 # Signedness
