@@ -299,8 +299,7 @@ func toString*[bits: static[int]](num: StInt[bits], radix: static[int8] = 10): s
   ##   - they are prefixed with "-" for base 10.
   ##   - if not base 10, they are returned raw in two-complement form.
   let isNeg = num.isNegative
-  #if radix == 10 and isNeg:
-  if isNeg:
+  if radix == 10 and isNeg:
     "-" & toString(num.neg.imp, radix)
   else:
     toString(num.imp, radix)

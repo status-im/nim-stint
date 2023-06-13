@@ -161,11 +161,14 @@ func `xor`*(a, b: StInt): StInt =
 
 func `shr`*(a: StInt, k: SomeInteger): StInt =
   ## Shift right by k bits, arithmetically
-  ## ~(~a >> k)
-  var tmp: type a
-  result.imp.bitnot(a.imp)
-  tmp.imp.shiftRight(result.imp, k)
-  result.imp.bitnot(tmp.imp)
+  ## value < 0 ? ~(~value >> amount) : value >> amount
+  if a.isNegative:
+    var tmp: type a
+    result.imp.bitnot(a.imp)
+    tmp.imp.shiftRight(result.imp, k)
+    result.imp.bitnot(tmp.imp)
+  else:
+    result.imp.shiftRight(a.imp, k)
 
 func `shl`*(a: StInt, k: SomeInteger): StInt =
   ## Shift left by k bits
