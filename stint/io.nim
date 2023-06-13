@@ -224,43 +224,40 @@ func parse*[bits: static[int]](input: string, T: typedesc[StUint[bits]], radix: 
       result = result * base + input[curr].readHexChar.stuint(bits)
     nextNonBlank(curr, input)
 
-# func parse*[bits: static[int]](input: string, T: typedesc[Stint[bits]], radix: static[int8] = 10): T =
-#   ## Parse a string and store the result in a Stint[bits] or StUint[bits].
+func parse*[bits: static[int]](input: string, T: typedesc[StInt[bits]], radix: static[int8] = 10): T =
+  ## Parse a string and store the result in a Stint[bits] or StUint[bits].
 
-#   static: doAssert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
-#   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
+  static: doAssert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
+  # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
+  # TODO: we can special case hex result/input as an array of bytes
+  #       and be much faster
 
-#   # TODO: we can special case hex result/input as an array of bytes
-#   #       and be much faster
+  # For conversion we require overflowing operations (for example for negative hex numbers)
+  const base = radix.int8.stuint(bits)
 
-#   # For conversion we require overflowing operations (for example for negative hex numbers)
-#   const base = radix.int8.StUint(bits)
+  var
+    curr = 0 # Current index in the string
+    isNeg = false
+    noOverflow: StUint[bits]
 
-#   var
-#     curr = 0 # Current index in the string
-#     isNeg = false
-#     no_overflow: StUint[bits]
+  if input[curr] == '-':
+    doAssert radix == 10, "Negative numbers are only supported with base 10 input."
+    isNeg = true
+    inc curr
+  else:
+    skipPrefixes(curr, input, radix)
 
-#   if input[curr] == '-':
-#     doAssert radix == 10, "Negative numbers are only supported with base 10 input."
-#     isNeg = true
-#     inc curr
-#   else:
-#     skipPrefixes(curr, input, radix)
+  while curr < input.len:
+    # TODO: overflow detection
+    when radix <= 10:
+      noOverflow = noOverflow * base + input[curr].readDecChar.stuint(bits)
+    else:
+      noOverflow = noOverflow * base + input[curr].readHexChar.stuint(bits)
+    nextNonBlank(curr, input)
 
-#   while curr < input.len:
-#     # TODO: overflow detection
-#     when radix <= 10:
-#       no_overflow = no_overflow * base + input[curr].readDecChar.StUint(bits)
-#     else:
-#       no_overflow = no_overflow * base + input[curr].readHexChar.StUint(bits)
-#     nextNonBlank(curr, input)
-
-#   # TODO: we can't create the lowest int this way
-#   if isNeg:
-#     result = -convert[T](no_overflow)
-#   else:
-#     result = convert[T](no_overflow)
+  result.imp = noOverflow
+  if isNeg:
+    result.negate
 
 func fromHex*(T: typedesc[StUint|StInt], s: string): T {.inline.} =
   ## Convert an hex string to the corresponding unsigned integer
@@ -302,7 +299,8 @@ func toString*[bits: static[int]](num: StInt[bits], radix: static[int8] = 10): s
   ##   - they are prefixed with "-" for base 10.
   ##   - if not base 10, they are returned raw in two-complement form.
   let isNeg = num.isNegative
-  if radix == 10 and isNeg:
+  #if radix == 10 and isNeg:
+  if isNeg:
     "-" & toString(num.neg.imp, radix)
   else:
     toString(num.imp, radix)

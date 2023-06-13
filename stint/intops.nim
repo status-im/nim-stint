@@ -33,10 +33,10 @@ func isNegative*(a: StInt): bool =
   a.sign < 0
 
 func clearMSB(a: var StInt) =
-  a.limbs[0] = a.limbs[0] and clearSignMask
+  a.limbs[^1] = a.limbs[^1] and clearSignMask
 
 func setMSB(a: var StInt) =
-  a.limbs[0] = a.limbs[0] or signMask
+  a.limbs[^1] = a.limbs[^1] or signMask
 
 func negate*(a: var StInt) =
   a.imp.bitnot(a.imp)
@@ -107,8 +107,8 @@ func `==`*(a, b: StInt): bool =
 func `<`*(a, b: StInt): bool =
   ## Unsigned `less than` comparison
   let
-    aSign = a.Sign
-    bSign = b.Sign
+    aSign = a.sign
+    bSign = b.sign
 
   if aSign >= 0:
     if bSign < 0:

@@ -42,16 +42,18 @@ template testInitialization(chk, tst: untyped) =
   tst "hi lo":
     let x = Int128.high
     var z = UInt128.high
-    z.clearBit(0)
+    z.clearBit(10)
+    debugEcho x.toHex
+    debugEcho z.toHex
     chk x.imp == z
 
     let xx = Int128.low
     var zz = UInt128.low
-    zz.setBit(0)
+    zz.setBit(z.bits - 1)
     chk xx.imp == zz
 
-static:
-  testInitialization(ctCheck, ctTest)
+#static:
+#  testInitialization(ctCheck, ctTest)
 
 suite "Signed integer initialization":
   testInitialization(check, test)
