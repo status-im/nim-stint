@@ -7,155 +7,204 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ./private/[datatypes]
+import
+  ./private/datatypes,
+  ./private/uint_bitwise,
+  ./private/uint_shift,
+  ./private/uint_addsub,
+  ./uintops
 
 export StInt
-#export IntImpl, intImpl, UintImpl, uintImpl, bitsof # TODO: remove the need to export those
 
-#import ./private/initialization
+const
+  signMask = 1.Word shl WordBitWidth
+  clearSignMask = not signMask
 
-func zero*[bits: static[int]](T: typedesc[StInt[bits]]): T {.inline.} =
+# Signedness
+# --------------------------------------------------------
+{.push raises: [], inline, noinit, gcsafe.}
+
+func sign*(a: StInt): int =
+  if a.imp.isZero: return 0
+  if a.limbs[^1] < signMask: 1
+  else: -1
+
+func isNegative*(a: StInt): bool =
+  a.sign < 0
+
+func clearSign(a: var StInt) =
+  a.limbs[^1] = a.limbs[^1] and clearSignMask
+
+func setSign(a: var StInt) =
+  a.limbs[^1] = a.limbs[^1] or signMask
+
+func negate*(a: var StInt) =
+  a.imp.bitnot(a.imp)
+  a.imp.inc
+
+func neg*(a: StInt): StInt =
+  result.imp.bitnot(a.imp)
+  result.imp.inc
+
+func abs*(a: StInt): StInt =
+  if a.isNegative:
+    a.neg
+  else:
+    a
+
+func `-`*(a: StInt): StInt =
+  a.neg
+
+{.pop.}
+
+# Initialization
+# --------------------------------------------------------
+{.push raises: [], inline, noinit, gcsafe.}
+
+func setZero*(a: var StInt) =
+  ## Set ``a`` to 0
+  a.imp.setZero
+
+func setOne*(a: var StInt) =
+  a.imp.setOne
+
+func zero*[bits: static[int]](T: typedesc[StInt[bits]]): T =
   ## Returns the zero of the input type
-  discard
-  
-#[
-func one*[bits: static[int]](T: typedesc[StUint[bits]]): T {.inline.} =
+  result.setZero
+
+func one*[bits: static[int]](T: typedesc[StInt[bits]]): T =
   ## Returns the one of the input type
-  result.data = one(type result.data)
+  result.setOne
 
-import ./private/[int_addsub, uint_addsub]
+func high*[bits](_: typedesc[StInt[bits]]): StInt[bits] =
+  # The highest signed int has representation
+  # 0b0111_1111_1111_1111 ....
+  # so we only have to unset the most significant bit.
+  for i in 0 ..< result.limbs.len:
+    result[i] = high(Word)
+  result.clearSign
 
-func `+`*(x, y: SomeBigInteger): SomeBigInteger {.inline.} =
-  ## Integer addition
-  result.data = x.data + y.data
-func `+=`*(x: var SomeBigInteger, y: SomeBigInteger) {.inline.} =
-  ## Integer addition
-  x.data += y.data
-func `-`*(x, y: SomeBigInteger): SomeBigInteger {.inline.} =
-  ## Integer substraction
-  result.data = x.data - y.data
-func `-=`*(x: var SomeBigInteger, y: SomeBigInteger) {.inline.} =
-  ## Integer substraction
-  x.data -= y.data
+func low*[bits](_: typedesc[StInt[bits]]): StInt[bits] =
+  # The lowest signed int has representation
+  # 0b1000_0000_0000_0000 ....
+  # so we only have to set the most significant bit.
+  result.setZero
+  result.setSign
 
-import ./private/int_negabs
+{.pop.}
 
-func `-`*(x: StInt): StInt {.inline.} =
-  ## Returns true if input is zero
-  ## false otherwise
-  result.data = -x.data
+# Comparisons
+# --------------------------------------------------------
+{.push raises: [], inline, noinit, gcsafe.}
 
-func abs*(x: StInt): StInt {.inline.} =
-  ## Returns true if input is zero
-  ## false otherwise
-  result.data = abs(x.data)
+func isZero*(a: StInt): bool =
+  a.imp.isZero
 
-import ./private/[int_mul, uint_mul]
-
-func `*`*(x, y: SomeBigInteger): SomeBigInteger {.inline.} =
-  ## Integer multiplication
-  result.data = x.data * y.data
-
-import ./private/[int_div, uint_div]
-
-func `div`*(x, y: SomeBigInteger): SomeBigInteger {.inline.} =
-  ## Integer division
-  result.data = x.data div y.data
-func `mod`*(x, y: SomeBigInteger): SomeBigInteger {.inline.} =
-  ## Integer modulo
-  ## This returns the remainder of x / y.
-  ## i.e. x = y * quotient + remainder
-  result.data = x.data mod y.data
-func divmod*(x, y: SomeBigInteger): tuple[quot, rem: SomeBigInteger] {.inline.} =
-  ## Fused integer division and modulo
-  ## Return both the quotient and remainder
-  ## of x / y
-  (result.quot.data, result.rem.data) = divmod(x.data, y.data)
-
-import ./private/[int_comparison, uint_comparison]
-
-func `<`*(x, y: SomeBigInteger): bool {.inline.} =
-  ## Unsigned `less than` comparison
-  x.data < y.data
-func `<=`*(x, y: SomeBigInteger): bool {.inline.} =
-  ## Unsigned `less or equal` comparison
-  x.data <= y.data
-func `==`*(x, y: SomeBigInteger): bool {.inline.} =
+func `==`*(a, b: StInt): bool =
   ## Unsigned `equal` comparison
-  x.data == y.data
-export `<`, `<=`, `==` # Address Generic Instantiation too nested: https://github.com/status-im/nim-stint/pull/66#issuecomment-427557655
+  a.imp == b.imp
 
-# TODO these exports are needed for the SomeInteger versions - move to stew?
-export isZero, isOdd, isEven, isNegative
+func `<`*(a, b: StInt): bool =
+  ## Unsigned `less than` comparison
+  let
+    aSign = a.Sign
+    bSign = b.Sign
 
-func isZero*(x: SomeBigInteger): bool {.inline.} =
+  if aSign >= 0:
+    if bSign < 0:
+      return false
+  elif bSign >= 0:
+    return true
+
+  a.imp < b.imp
+
+func `<=`*(a, b: StInt): bool =
+  ## Unsigned `less or equal` comparison
+  not(b < a)
+
+func isOdd*(a: StInt): bool =
+  ## Returns true if input is off
+  ## false otherwise
+  bool(a[0] and 1)
+
+func isEven*(a: StInt): bool =
   ## Returns true if input is zero
   ## false otherwise
-  x.data.isZero
+  not a.isOdd()
 
-func isNegative*(x: StInt): bool {.inline.} =
-  ## Returns true if input is negative (< 0)
-  ## false otherwise
-  x.data.isNegative
+{.pop.}
 
-func isOdd*(x: SomeBigInteger): bool {.inline.} =
-  ## Returns true if input is zero
-  ## false otherwise
-  x.data.isOdd
+# Bitwise operations
+# --------------------------------------------------------
+{.push raises: [], inline, noinit, gcsafe.}
 
-func isEven*(x: SomeBigInteger): bool {.inline.} =
-  ## Returns true if input is zero
-  ## false otherwise
-  x.data.isEven
+func `not`*(a: StInt): StInt =
+  ## Bitwise complement of unsigned integer a
+  ## i.e. flips all bits of the input
+  result.imp.bitnot(a.imp)
 
-export isEven, isOdd
+func `or`*(a, b: StInt): StInt =
+  ## `Bitwise or` of numbers a and b
+  result.imp.bitor(a.imp, b.imp)
 
-import ./private/[int_bitwise_ops, uint_bitwise_ops]
+func `and`*(a, b: StInt): StInt =
+  ## `Bitwise and` of numbers a and b
+  result.imp.bitand(a.imp, b.imp)
 
-func `not`*(x: SomeBigInteger): SomeBigInteger {.inline.}=
-  ## Bitwise `not` i.e. flips all bits of the input
-  result.data = x.data.not
-func `or`*(x, y: SomeBigInteger): SomeBigInteger {.inline.}=
-  ## Bitwise `or`
-  result.data = x.data or y.data
-func `and`*(x, y: SomeBigInteger): SomeBigInteger {.inline.}=
-  ## Bitwise `and`
-  result.data = x.data and y.data
-func `xor`*(x, y: SomeBigInteger): SomeBigInteger {.inline.}=
-  ## Bitwise `xor`
-  result.data = x.data xor y.data
+func `xor`*(a, b: StInt): StInt =
+  ## `Bitwise xor` of numbers x and y
+  result.imp.bitxor(a.imp, b.imp)
 
-func `shr`*(x: SomeBigInteger, y: SomeInteger): SomeBigInteger {.inline.} =
-  result.data = x.data shr y
+{.pop.} # End noInit
 
-func `shl`*(x: SomeBigInteger, y: SomeInteger): SomeBigInteger {.inline.} =
-  result.data = x.data shl y
+{.push raises: [], inline, gcsafe.}
 
-import ./private/[int_highlow, uint_highlow]
+func `shr`*(a: StInt, k: SomeInteger): StInt =
+  ## Shift right by k bits, arithmetically
+  ## ~(~a >> k)
+  var tmp: type a
+  result.imp.bitnot(a.imp)
+  tmp.imp.shiftRight(result.imp, k)
+  result.imp.bitnot(tmp.imp)
 
-func high*[bits](_: typedesc[StInt[bits]]): StInt[bits] {.inline.} =
-  result.data = high(type result.data)
-func high*[bits](_: typedesc[StUint[bits]]): StUint[bits] {.inline.} =
-  result.data = high(type result.data)
+func `shl`*(a: StInt, k: SomeInteger): StInt =
+  ## Shift left by k bits
+  result.imp.shiftLeft(a.imp, k)
 
-func low*[bits](_: typedesc[StInt[bits]]): StInt[bits] {.inline.} =
-  result.data = low(type result.data)
-func low*[bits](_: typedesc[StUint[bits]]): StUint[bits] {.inline.} =
-  result.data = low(type result.data)
+{.pop.}
 
-import ./private/uint_exp, math
+# Addsub
+# --------------------------------------------------------
+{.push raises: [], inline, noinit, gcsafe.}
 
-func pow*(x: StUint, y: Natural): StUint {.inline.} =
-  ## Returns x raised at the power of y
-  when x.data is UintImpl:
-    result.data = x.data.pow(y)
-  else:
-    result.data = x.data ^ y
+#[
+func `+`*(a, b: StInt): StInt =
+  ## Addition for multi-precision unsigned int
+  result.sum(a, b)
 
-func pow*(x: StUint, y: StUint): StUint {.inline.} =
-  ## Returns x raised at the power of y
-  when x.data is UintImpl:
-    result.data = x.data.pow(y.data)
-  else:
-    result.data = x.data ^ y.data
+func `+=`*(a: var StInt, b: StInt) =
+  ## In-place addition for multi-precision unsigned int
+  a.sum(a, b)
+
+func `-`*(a, b: StInt): StInt =
+  ## Substraction for multi-precision unsigned int
+  result.diff(a, b)
+
+func `-=`*(a: var StInt, b: StInt) =
+  ## In-place substraction for multi-precision unsigned int
+  a.diff(a, b)
+
+func inc*(a: var StInt, w: Word = 1) =
+
+func `+`*(a: StInt, b: SomeUnsignedInt): StInt =
+  ## Addition for multi-precision unsigned int
+  ## with an unsigned integer
+  result.sum(a, Word(b))
+
+func `+=`*(a: var StInt, b: SomeUnsignedInt) =
+  ## In-place addition for multi-precision unsigned int
+  ## with an unsigned integer
+  a.inc(Word(b))
 ]#
+
+{.pop.}

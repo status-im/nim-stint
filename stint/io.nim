@@ -46,32 +46,24 @@ template static_check_size(T: typedesc[SomeInteger], bits: static[int]) =
 func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
   ## Converts an integer to an arbitrary precision integer.
   when sizeof(n) > sizeof(Word):
-    result.limbs[0] = Word(n and Word.high)  
+    result.limbs[0] = Word(n and Word.high)
     result.limbs[1] = Word(n shr WordBitWidth)
   else:
-    result.limbs[0] = Word(n)  
+    result.limbs[0] = Word(n)
 
-# func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
-#   ## Converts an integer to an arbitrary precision signed integer.
-#
-#   when result.data is IntImpl:
-#     static_check_size(T, bits)
-#     when T is SomeSignedInt:
-#       if n < 0:
-#         # TODO: when bits >= 128, cannot create from
-#         # low(int8-64)
-#         # see: status-im/nim-stint/issues/92
-#         assignLo(result.data, -n)
-#         result = -result
-#       else:
-#         assignLo(result.data, n)
-#     else:
-#       assignLo(result.data, n)
-#   else:
-#     result.data = (type result.data)(n)
+func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
+  ## Converts an integer to an arbitrary precision signed integer.
+  when T is SomeUnsignedInt:
+    result.imp = stuint(n, bits)
+  else:
+    if n < 0:
+      result.imp = stuint(-n, bits)
+      result.negate
+    else:
+      result.imp = stuint(n, bits)
 
-# func to*(a: SomeInteger, T: typedesc[Stint]): T =
-#   stint(a, result.bits)
+func to*(a: SomeInteger, T: typedesc[Stint]): T =
+  stint(a, result.bits)
 
 func to*(a: SomeUnsignedInt, T: typedesc[StUint]): T =
   stuint(a, result.bits)
@@ -82,9 +74,6 @@ func truncate*(num: StInt or StUint, T: typedesc[SomeInteger]): T {.inline.}=
   ## For unsigned result type, result is modulo 2^(sizeof T in bit)
   ## For signed result type, result is undefined if input does not fit in the target type.
   result = T(num.leastSignificantWord())
-
-func toInt*(num: StInt or StUint): int {.inline, deprecated:"Use num.truncate(int) instead".}=
-  num.truncate(int)
 
 func stuint*(a: StUint, bits: static[int]): StUint[bits] {.inline.} =
   ## unsigned int to unsigned int conversion
@@ -307,46 +296,19 @@ func toString*[bits: static[int]](num: StUint[bits], radix: static[uint8] = 10):
 
   reverse(result)
 
-# func toString*[bits: static[int]](num: Stint[bits], radix: static[int8] = 10): string =
-#   ## Convert a Stint or StUint to string.
-#   ## In case of negative numbers:
-#   ##   - they are prefixed with "-" for base 10.
-#   ##   - if not base 10, they are returned raw in two-complement form.
+func toString*[bits: static[int]](num: StInt[bits], radix: static[int8] = 10): string =
+  ## Convert a Stint or StUint to string.
+  ## In case of negative numbers:
+  ##   - they are prefixed with "-" for base 10.
+  ##   - if not base 10, they are returned raw in two-complement form.
+  let isNeg = num.isNegative
+  if radix == 10 and isNeg:
+    "-" & toString(num.neg.imp, radix)
+  else:
+    toString(num.imp, radix)
 
-#   static: doAssert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
-#   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
-
-#   const hexChars = "0123456789abcdef"
-#   const base = radix.int8.StUint(bits)
-
-#   result = ""
-
-#   type T = StUint[bits]
-#   let isNeg = num.isNegative
-#   let num = convert[T](if radix == 10 and isNeg: -num
-#             else: num)
-
-#   var (q, r) = divmod(num, base)
-
-#   while true:
-#     when bitsof(r.data) <= 64:
-#       result.add hexChars[r.data.int]
-#     else:
-#       result.add hexChars[r.truncate(int)]
-#     if q.isZero:
-#       break
-#     (q, r) = divmod(q, base)
-
-#   if isNeg and radix == 10:
-#     result.add '-'
-
-#   reverse(result)
-
-# func `$`*(num: Stint or StUint): string {.inline.}=
-#   when num.data is SomeInteger:
-#     $num.data
-#   else:
-#     toString(num, 10)
+func `$`*(num: StInt or StUint): string {.inline.}=
+  toString(num, 10)
 
 func toHex*[bits: static[int]](num: StInt[bits] or StUint[bits]): string {.inline.}=
   ## Convert to a hex string.

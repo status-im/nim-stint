@@ -164,7 +164,7 @@ func divRem*(
   let rLen = bLen
 
   if unlikely(bBits == 0):
-    raise newException(DivByZeroError, "You attempted to divide by zero")
+    raise newException(DivByZeroDefect, "You attempted to divide by zero")
 
   if aBits < bBits:
     # if a uses less bits than b,

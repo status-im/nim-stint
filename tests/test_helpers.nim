@@ -5,5 +5,6 @@ template ctCheck*(cond: untyped) =
   doAssert(cond)
 
 template ctTest*(name: string, body: untyped) =
-  body
-  echo "[OK] compile time ", name
+  block:
+    body
+    echo "[OK] compile time ", name

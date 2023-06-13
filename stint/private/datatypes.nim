@@ -40,7 +40,7 @@ type
   StInt*[bits: static[int]] = object
     ## Stack-based integer
     ## Signed
-    limbs*: array[bits.wordsRequired, Word]
+    imp*: StUint[bits]
 
   # {.borrow: `.`.} only works with nim-devel
   # StInt*[bits: static[int]] {.borrow: `.`.} = distinct StUint[bits]
@@ -94,6 +94,10 @@ func usedBitsAndWords*(a: openArray[Word]): tuple[bits, words: int] =
 # Accessors
 # --------------------------------------------------------
 
+template limbs*(a: StInt): untyped =
+  # TODO: remove this when we switch to borrow `.`
+  a.imp.limbs
+  
 template `[]`*(a: SomeBigInteger, i: SomeInteger or BackwardsIndex): Word =
   a.limbs[i]
 
