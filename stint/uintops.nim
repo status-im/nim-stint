@@ -15,7 +15,8 @@ import
   ./private/uint_addsub,
   ./private/uint_mul,
   ./private/uint_div,
-  ./private/primitives/addcarry_subborrow
+  ./private/primitives/addcarry_subborrow,
+  stew/bitops2
 
 export StUint
 
@@ -132,6 +133,16 @@ func `shr`*(a: StUint, k: SomeInteger): StUint =
 func `shl`*(a: StUint, k: SomeInteger): StUint =
   ## Shift left by k bits
   result.shiftLeft(a, k)
+
+func setBit*(a: var StUint, k: SomeInteger) =
+  let limbIndex = k div WordBitWidth
+  let bitIndex = k mod WordBitWidth
+  setBit(a.limbs[limbIndex], bitIndex)
+
+func clearBit*(a: var StUint, k: SomeInteger) =
+  let limbIndex = k div WordBitWidth
+  let bitIndex = k mod WordBitWidth
+  clearBit(a.limbs[limbIndex], bitIndex)
 
 {.pop.}
 

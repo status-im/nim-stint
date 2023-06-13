@@ -9,14 +9,6 @@
 
 import ../stint, unittest, test_helpers
 
-#[
-template chkAddition(chk, a, b, c, bits: untyped) =
-  block:
-    let x = stuint(a, bits)
-    let y = stuint(b, bits)
-    chk x + y == stuint(c, bits)
-]#
-
 template testSignedness(chk, tst: untyped) =
   tst "positive sign":
     let a = stint(1, 128)

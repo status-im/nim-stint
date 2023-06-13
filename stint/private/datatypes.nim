@@ -97,11 +97,17 @@ func usedBitsAndWords*(a: openArray[Word]): tuple[bits, words: int] =
 template limbs*(a: StInt): untyped =
   # TODO: remove this when we switch to borrow `.`
   a.imp.limbs
+
+template `[]`*(a: StInt, i: SomeInteger or BackwardsIndex): Word =
+  a.imp.limbs[i]
+
+template `[]=`*(a: var StInt, i: SomeInteger or BackwardsIndex, val: Word) =
+  a.imp.limbs[i] = val
   
-template `[]`*(a: SomeBigInteger, i: SomeInteger or BackwardsIndex): Word =
+template `[]`*(a: StUInt, i: SomeInteger or BackwardsIndex): Word =
   a.limbs[i]
 
-template `[]=`*(a: var SomeBigInteger, i: SomeInteger or BackwardsIndex, val: Word) =
+template `[]=`*(a: var StUInt, i: SomeInteger or BackwardsIndex, val: Word) =
   a.limbs[i] = val
 
 # Iterations

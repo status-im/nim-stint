@@ -32,11 +32,11 @@ func sign*(a: StInt): int =
 func isNegative*(a: StInt): bool =
   a.sign < 0
 
-func clearSign(a: var StInt) =
-  a.limbs[^1] = a.limbs[^1] and clearSignMask
+func clearMSB(a: var StInt) =
+  a.limbs[0] = a.limbs[0] and clearSignMask
 
-func setSign(a: var StInt) =
-  a.limbs[^1] = a.limbs[^1] or signMask
+func setMSB(a: var StInt) =
+  a.limbs[0] = a.limbs[0] or signMask
 
 func negate*(a: var StInt) =
   a.imp.bitnot(a.imp)
@@ -82,14 +82,14 @@ func high*[bits](_: typedesc[StInt[bits]]): StInt[bits] =
   # so we only have to unset the most significant bit.
   for i in 0 ..< result.limbs.len:
     result[i] = high(Word)
-  result.clearSign
+  result.clearMSB
 
 func low*[bits](_: typedesc[StInt[bits]]): StInt[bits] =
   # The lowest signed int has representation
   # 0b1000_0000_0000_0000 ....
   # so we only have to set the most significant bit.
   result.setZero
-  result.setSign
+  result.setMSB
 
 {.pop.}
 
