@@ -45,9 +45,11 @@ template static_check_size(T: typedesc[SomeInteger], bits: static[int]) =
 
 func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
   ## Converts an integer to an arbitrary precision integer.
-  result.limbs[0] = Word(n)
   when sizeof(n) > sizeof(Word):
-    result.limbs[1] = Word(n) shr WordBitWidth
+    result.limbs[0] = Word(n and Word.high)  
+    result.limbs[1] = Word(n shr WordBitWidth)
+  else:
+    result.limbs[0] = Word(n)  
 
 # func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
 #   ## Converts an integer to an arbitrary precision signed integer.
