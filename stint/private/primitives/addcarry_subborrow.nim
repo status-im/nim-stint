@@ -107,14 +107,14 @@ func addC*(cOut: var Carry, sum: var uint32, a, b: uint32, cIn: Carry) {.inline.
   ## (CarryOut, Sum) <- a + b + CarryIn
   when nimvm:
     let dblPrec = uint64(cIn) + uint64(a) + uint64(b)
-    sum = (uint32)(dblPrec)
+    sum = uint32(dblPrec and uint32.high)
     cOut = Carry(dblPrec shr 32)
   else:
     when X86:
       cOut = addcarry_u32(cIn, a, b, sum)
     else:
       let dblPrec = uint64(cIn) + uint64(a) + uint64(b)
-      sum = (uint32)(dblPrec)
+      sum = uint32(dblPrec)
       cOut = Carry(dblPrec shr 32)
 
 func subB*(bOut: var Borrow, diff: var uint32, a, b: uint32, bIn: Borrow) {.inline.} =
@@ -122,7 +122,7 @@ func subB*(bOut: var Borrow, diff: var uint32, a, b: uint32, bIn: Borrow) {.inli
   ## (BorrowOut, Diff) <- a - b - borrowIn
   when nimvm:
     let dblPrec = uint64(a) - uint64(b) - uint64(bIn)
-    diff = (uint32)(dblPrec)
+    diff = uint32(dblPrec and uint32.high)
     # On borrow the high word will be 0b1111...1111 and needs to be masked
     bOut = Borrow((dblPrec shr 32) and 1)
   else:
@@ -130,7 +130,7 @@ func subB*(bOut: var Borrow, diff: var uint32, a, b: uint32, bIn: Borrow) {.inli
       bOut = subborrow_u32(bIn, a, b, diff)
     else:
       let dblPrec = uint64(a) - uint64(b) - uint64(bIn)
-      diff = (uint32)(dblPrec)
+      diff = uint32(dblPrec)
       # On borrow the high word will be 0b1111...1111 and needs to be masked
       bOut = Borrow((dblPrec shr 32) and 1)
 

@@ -41,7 +41,10 @@ func mul*(hi, lo: var uint32, a, b: uint32) {.inline.} =
   ## Extended precision multiplication
   ## (hi, lo) <- a*b
   let dblPrec = uint64(a) * uint64(b)
-  lo = uint32(dblPrec)
+  when nimvm:
+    lo = uint32(dblPrec and uint32.high)
+  else:
+    lo = uint32(dblPrec)
   hi = uint32(dblPrec shr 32)
 
 func muladd1*(hi, lo: var uint32, a, b, c: uint32) {.inline.} =
@@ -51,7 +54,10 @@ func muladd1*(hi, lo: var uint32, a, b, c: uint32) {.inline.} =
   ## Note: 0xFFFFFFFF² -> (hi: 0xFFFFFFFE, lo: 0x00000001)
   ##       so adding any c cannot overflow
   let dblPrec = uint64(a) * uint64(b) + uint64(c)
-  lo = uint32(dblPrec)
+  when nimvm:
+    lo = uint32(dblPrec and uint32.high)
+  else:
+    lo = uint32(dblPrec)
   hi = uint32(dblPrec shr 32)
 
 func muladd2*(hi, lo: var uint32, a, b, c1, c2: uint32) {.inline.}=
@@ -63,7 +69,10 @@ func muladd2*(hi, lo: var uint32, a, b, c1, c2: uint32) {.inline.}=
   ##       so adding 0xFFFFFFFF leads to (hi: 0xFFFFFFFF, lo: 0x00000000)
   ##       and we have enough space to add again 0xFFFFFFFF without overflowing
   let dblPrec = uint64(a) * uint64(b) + uint64(c1) + uint64(c2)
-  lo = uint32(dblPrec)
+  when nimvm:
+    lo = uint32(dblPrec and uint32.high)
+  else:
+    lo = uint32(dblPrec)
   hi = uint32(dblPrec shr 32)
 
 # ############################################################
