@@ -37,19 +37,16 @@ type
     limbs*: array[bits.wordsRequired, Word]
       # Limbs-Endianess is little-endian
 
-when (NimMajor, NimMinor) < (1,9):
-  type
-    StInt*[bits: static[int]] = object
-      ## Stack-based integer
-      ## Signed
-      limbs*: array[bits.wordsRequired, Word]
-else:
-  type
-    StInt*[bits: static[int]] {.borrow: `.`.} = distinct StUint[bits]
-      ## Stack-based integer
-      ## Signed
+  StInt*[bits: static[int]] = object
+    ## Stack-based integer
+    ## Signed
+    limbs*: array[bits.wordsRequired, Word]
 
-type
+  # {.borrow: `.`.} only works with nim-devel
+  # StInt*[bits: static[int]] {.borrow: `.`.} = distinct StUint[bits]
+    ## Stack-based integer
+    ## Signed
+
   Carry* = uint8  # distinct range[0'u8 .. 1]
   Borrow* = uint8 # distinct range[0'u8 .. 1]
 
