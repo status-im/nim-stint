@@ -9,7 +9,7 @@
 
 import private/datatypes
 
-{.push raises: [IndexDefect], noinit, gcsafe.}
+{.push raises: [], noinit, gcsafe.}
 
 # Serialization
 # ------------------------------------------------------------------------------------------

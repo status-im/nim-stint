@@ -1,0 +1,1 @@
+switch("warning", "BareExcept:off")

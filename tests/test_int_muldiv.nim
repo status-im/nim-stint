@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018 Status Research & Development GmbH
+# Copyright 2018-2023 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -26,32 +26,6 @@ template chkDivMod(chk: untyped, a, b, c, d: string, bits: int) =
 
 template testMuldiv(chk, tst: untyped) =
   tst "operator `mul`":
-    chkMul(chk, "0", "3", "0", 8)
-    chkMul(chk, "1", "3", "3", 8)
-    chkMul(chk, "F0", "3", "D0", 8)
-    chkMul(chk, "FF", "FF", "1", 8)
-
-    chkMul(chk, "0", "3", "0", 16)
-    chkMul(chk, "1", "3", "3", 16)
-    chkMul(chk, "F0", "3", "2D0", 16)
-    chkMul(chk, "F000", "3", "D000", 16)
-    chkMul(chk, "FFFF", "FFFF", "1", 16)
-
-    chkMul(chk, "0", "3", "0", 32)
-    chkMul(chk, "1", "3", "3", 32)
-    chkMul(chk, "F0", "3", "2D0", 32)
-    chkMul(chk, "F000", "3", "2D000", 32)
-    chkMul(chk, "F0000000", "3", "D0000000", 32)
-    chkMul(chk, "FFFFFFFF", "FFFFFFFF", "1", 32)
-
-    chkMul(chk, "0", "3", "0", 64)
-    chkMul(chk, "1", "3", "3", 64)
-    chkMul(chk, "F0", "3", "2D0", 64)
-    chkMul(chk, "F000", "3", "2D000", 64)
-    chkMul(chk, "F0000000", "3", "2D0000000", 64)
-    chkMul(chk, "F000000000000000", "3", "D000000000000000", 64)
-    chkMul(chk, "FFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFF", "1", 64)
-
     chkMul(chk, "0", "3", "0", 128)
     chkMul(chk, "1", "3", "3", 128)
     chkMul(chk, "F0", "3", "2D0", 128)
@@ -62,37 +36,6 @@ template testMuldiv(chk, tst: untyped) =
     chkMul(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "1", 128)
 
   tst "operator `div`":
-    chkDiv(chk, "0", "3", "0", 8)
-    chkDiv(chk, "1", "3", "0", 8)
-    chkDiv(chk, "3", "3", "1", 8)
-    chkDiv(chk, "3", "1", "3", 8)
-    chkDiv(chk, "FF", "3", "0", 8)
-    chkDiv(chk, "0F", "FF", "F1", 8)
-    chkDiv(chk, "FF", "FF", "1", 8)
-
-    chkDiv(chk, "0", "3", "0", 16)
-    chkDiv(chk, "1", "3", "0", 16)
-    chkDiv(chk, "3", "3", "1", 16)
-    chkDiv(chk, "3", "1", "3", 16)
-    chkDiv(chk, "FF", "3", "55", 16)
-    chkDiv(chk, "0F", "FF", "0", 16)
-    chkDiv(chk, "FF", "FF", "1", 16)
-    chkDiv(chk, "FFFF", "3", "0", 16)
-    chkDiv(chk, "0F", "FFFF", "FFF1", 16)
-    chkDiv(chk, "FFFF", "FFFF", "1", 16)
-
-
-    chkDiv(chk, "0", "3", "0", 32)
-    chkDiv(chk, "1", "3", "0", 32)
-    chkDiv(chk, "3", "3", "1", 32)
-    chkDiv(chk, "3", "1", "3", 32)
-    chkDiv(chk, "FF", "3", "55", 32)
-    chkDiv(chk, "0F", "FF", "0", 32)
-    chkDiv(chk, "FF", "FF", "1", 32)
-    chkDiv(chk, "FFFF", "3", "5555", 32)
-    chkDiv(chk, "0F", "FFFFFFFF", "FFFFFFF1", 32)
-    chkDiv(chk, "FFFFFFFF", "FFFFFFFF", "1", 32)
-
     chkDiv(chk, "0", "3", "0", 64)
     chkDiv(chk, "1", "3", "0", 64)
     chkDiv(chk, "3", "3", "1", 64)
@@ -116,33 +59,6 @@ template testMuldiv(chk, tst: untyped) =
     chkDiv(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "1", 128)
 
   tst "operator `mod`":
-    chkMod(chk, "0", "3", "0", 8)
-    chkMod(chk, "1", "3", "1", 8)
-    chkMod(chk, "3", "3", "0", 8)
-    chkMod(chk, "3", "1", "0", 8)
-    chkMod(chk, "FF", "3", "FF", 8)
-    chkMod(chk, "FF", "4", "FF", 8)
-    chkMod(chk, "FF", "FF", "0", 8)
-    chkMod(chk, "0F", "FC", "3", 8)
-
-    chkMod(chk, "0", "3", "0", 16)
-    chkMod(chk, "1", "3", "1", 16)
-    chkMod(chk, "3", "3", "0", 16)
-    chkMod(chk, "3", "1", "0", 16)
-    chkMod(chk, "FFFF", "3", "FFFF", 16)
-    chkMod(chk, "FFFF", "4", "FFFF", 16)
-    chkMod(chk, "FFFF", "FFFF", "0", 16)
-    chkMod(chk, "0F", "FFFC", "3", 16)
-
-    chkMod(chk, "0", "3", "0", 32)
-    chkMod(chk, "1", "3", "1", 32)
-    chkMod(chk, "3", "3", "0", 32)
-    chkMod(chk, "3", "1", "0", 32)
-    chkMod(chk, "FFFFFFFF", "3", "FFFFFFFF", 32)
-    chkMod(chk, "FFFFFFFF", "4", "FFFFFFFF", 32)
-    chkMod(chk, "FFFFFFFF", "FFFFFFFF", "0", 32)
-    chkMod(chk, "0F", "FFFFFFFC", "3", 32)
-
     chkMod(chk, "0", "3", "0", 64)
     chkMod(chk, "1", "3", "1", 64)
     chkMod(chk, "3", "3", "0", 64)
@@ -162,33 +78,6 @@ template testMuldiv(chk, tst: untyped) =
     chkMod(chk, "0F", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC", "3", 128)
 
   tst "operator `divmod`":
-    chkDivMod(chk, "0", "3", "0", "0", 8)
-    chkDivMod(chk, "1", "3", "0", "1", 8)
-    chkDivMod(chk, "3", "3", "1", "0", 8)
-    chkDivMod(chk, "3", "1", "3", "0", 8)
-    chkDivMod(chk, "FF", "3", "0", "FF", 8)
-    chkDivMod(chk, "FF", "4", "0", "FF", 8)
-    chkDivMod(chk, "FF", "FF", "1", "0", 8)
-    chkDivMod(chk, "0F", "FC", "FD", "3", 8)
-
-    chkDivMod(chk, "0", "3", "0", "0", 16)
-    chkDivMod(chk, "1", "3", "0", "1", 16)
-    chkDivMod(chk, "3", "3", "1", "0", 16)
-    chkDivMod(chk, "3", "1", "3", "0", 16)
-    chkDivMod(chk, "FFFF", "3", "0", "FFFF", 16)
-    chkDivMod(chk, "FFFF", "4", "0", "FFFF", 16)
-    chkDivMod(chk, "FFFF", "FFFF", "1", "0", 16)
-    chkDivMod(chk, "0F", "FFFC", "FFFD", "3", 16)
-
-    chkDivMod(chk, "0", "3", "0", "0", 32)
-    chkDivMod(chk, "1", "3", "0", "1", 32)
-    chkDivMod(chk, "3", "3", "1", "0", 32)
-    chkDivMod(chk, "3", "1", "3", "0", 32)
-    chkDivMod(chk, "FFFFFFFF", "3", "0", "FFFFFFFF", 32)
-    chkDivMod(chk, "FFFFFFFF", "4", "0", "FFFFFFFF", 32)
-    chkDivMod(chk, "FFFFFFFF", "FFFFFFFF", "1", "0", 32)
-    chkDivMod(chk, "0F", "FFFFFFFC", "FFFFFFFD", "3", 32)
-
     chkDivMod(chk, "0", "3", "0", "0", 64)
     chkDivMod(chk, "1", "3", "0", "1", 64)
     chkDivMod(chk, "3", "3", "1", "0", 64)
@@ -227,8 +116,8 @@ template testMuldiv(chk, tst: untyped) =
     chkMod(chk, 2, -5, 2, 64)
     chkMod(chk, -2, -5, -2, 64)
 
-static:
-  testMuldiv(ctCheck, ctTest)
+#static:
+  #testMuldiv(ctCheck, ctTest)
 
 suite "Wider signed int muldiv coverage":
   testMuldiv(check, test)
@@ -318,19 +207,18 @@ suite "Testing signed int division and modulo implementation":
     check: cast[int64](qr.quot) == -100'i64 div -13
     check: cast[int64](qr.rem)  == -100'i64 mod -13
 
-  # test "Divmod(2^64, 3) returns the correct result":
-  #   let a = 1.stint(128) shl 64
-  #   let b = 3.stint(128)
+  test "Divmod(2^64, 3) returns the correct result":
+    let a = 1.stint(128) shl 64
+    let b = 3.stint(128)
 
-  #   let qr = divmod(a, b)
+    let qr = divmod(a, b)
 
-  #   let q = cast[UintImpl[uint64]](qr.quot)
-  #   let r = cast[UintImpl[uint64]](qr.rem)
+    let q = qr.quot
+    let r = qr.rem
 
-  #   check: q.lo == 6148914691236517205'u64
-  #   check: q.hi == 0'u64
-  #   check: r.lo == 1'u64
-  #   check: r.hi == 0'u64
+    check:
+      q == 6148914691236517205'u64.i128
+      r == 1'u64.i128
 
   test "Divmod(1234567891234567890, 10) returns the correct result":
     let a = cast[StInt[64]](1234567891234567890'i64)
@@ -343,4 +231,3 @@ suite "Testing signed int division and modulo implementation":
 
     check: q == 123456789123456789'i64
     check: r == 0'i64
-

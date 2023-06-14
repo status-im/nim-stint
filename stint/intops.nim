@@ -12,6 +12,7 @@ import
   ./private/uint_bitwise,
   ./private/uint_shift,
   ./private/uint_addsub,
+  ./private/uint_div,
   ./uintops
 
 export StInt
@@ -33,6 +34,9 @@ func sign*(a: StInt): int =
 
 func isNegative*(a: StInt): bool =
   a.limbs[^1] >= signMask
+
+func isPositive*(a: StInt): bool =
+  a.limbs[^1] < signMask
 
 func clearMSB(a: var StInt) =
   a.limbs[^1] = a.limbs[^1] and clearSignMask
@@ -260,3 +264,98 @@ func pow*[aBits, eBits](a: StInt[aBits], e: StInt[eBits]): StInt[aBits] =
       result.negate
   else:
     result.imp = a.imp.pow(e.imp)
+
+{.pop.}
+
+# Division & Modulo
+# --------------------------------------------------------
+{.push raises: [], inline, noinit, gcsafe.}
+
+func `div`*(n, d: StInt): StInt =
+  ## Division operation for multi-precision unsigned uint
+  var tmp{.noinit.}: StInt
+
+  if n.isPositive:
+    if d.isPositive:
+      # pos / pos
+      result.imp = n.imp div d.imp
+      return
+    else:
+      # pos / neg
+      tmp = d.neg
+      result.imp = n.imp div tmp.imp
+      result.negate
+      return
+
+  let nneg = n.neg
+  if d.isNegative:
+    # neg / neg
+    tmp = d.neg
+    result.imp = nneg.imp div tmp.imp
+    return
+
+  # neg / pos
+  result.imp = nneg.imp div d.imp
+  result.negate
+
+func `mod`*(x, y: StInt): StInt =
+  ## Remainder operation for multi-precision unsigned uint
+  let
+    xIn = x.abs
+    yIn = y.abs
+
+  result.imp = xIn.imp mod yIn.imp
+  if x.isNegative:
+    result.negate
+
+func divmodI(x, y: StInt): tuple[quot, rem: StInt] =
+  ## Division and remainder operations for multi-precision uint
+  ## with StInt operands
+  divRem(result.quot.limbs, result.rem.limbs, x.limbs, y.limbs)
+
+func divmod*(n, d: StInt): tuple[quot, rem: StInt] =
+  ## Division and remainder operations for multi-precision unsigned uint
+  var tmp{.noinit.}: StInt
+
+  if n.isPositive:
+    if d.isPositive:
+      # pos / pos
+      return divmodI(n, d)
+    else:
+      # pos / neg
+      tmp = d.neg
+      result = divmodI(n, tmp)
+      result.quot.negate
+      return
+
+  let nneg = n.neg
+  if d.isNegative:
+    # neg / neg
+    tmp = d.neg
+    result = divmodI(nneg, tmp)
+    result.rem.negate
+    return
+
+  # neg / pos
+  result = divmodI(nneg, d)
+  result.quot.negate
+  result.rem.negate
+
+{.pop.}
+
+# Multiplication
+# --------------------------------------------------------
+
+{.push raises: [], inline, noinit, gcsafe.}
+
+func `*`*(a, b: StInt): StInt =
+  ## Integer multiplication
+  let
+    av = a.abs
+    bv = b.abs
+
+  result.imp = av.imp * bv.imp
+  if a.isNegative xor b.isNegative:
+    result.negate
+
+{.pop.}

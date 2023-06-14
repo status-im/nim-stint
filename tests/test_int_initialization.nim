@@ -9,8 +9,6 @@
 
 import ../stint, unittest, test_helpers
 
-import stew/byteutils
-
 template testInitialization(chk, tst: untyped) =
   tst "zero one":
     var a: StInt[128]
@@ -52,8 +50,8 @@ template testInitialization(chk, tst: untyped) =
     zz.setBit(z.bits - 1)
     chk xx.imp == zz
 
-#static:
-#  testInitialization(ctCheck, ctTest)
+static:
+  testInitialization(ctCheck, ctTest)
 
 suite "Signed integer initialization":
   testInitialization(check, test)

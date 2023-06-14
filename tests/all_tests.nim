@@ -7,6 +7,8 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
+{. warning[UnusedImport]:off .}
+
 import
   test_uint_addsub,
   test_uint_bitops2,
@@ -26,7 +28,8 @@ import
   test_int_bitwise,
   test_int_addsub,
   test_int_endianness,
-  test_int_muldiv
+  test_int_muldiv,
+  test_int_exp
 
 #[
 import  test_io,

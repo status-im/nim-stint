@@ -134,15 +134,10 @@ suite "Wider signed int bitwise coverage":
 when defined(cpp):
   import quicktest, ttmath_compat
 
-func high(T: typedesc[SomeUnsignedInt]): T =
-  not T(0)
+  func high(T: typedesc[SomeUnsignedInt]): T =
+    not T(0)
 
 suite "Testing signed int bitwise operations":
-  const
-    hi = high(int64)
-    lo = low(int64)
-    itercount = 1000
-
   test "Shift Left":
     var y = 1.u256
     for i in 1..255:
@@ -186,6 +181,11 @@ suite "Testing signed int bitwise operations":
     check c == a
 
   when defined(cpp):
+    const
+      hi = high(int64)
+      lo = low(int64)
+      itercount = 1000
+
     quicktest "signed int `shl` vs ttmath", itercount do(x0: int64(min=lo, max=hi),
                                   x1: int64(min=0, max=hi),
                                   x2: int64(min=0, max=hi),
