@@ -25,6 +25,8 @@ const
 {.push raises: [], inline, noinit, gcsafe.}
 
 func sign*(a: StInt): int =
+  ## get the sign of `a`
+  ## either -1, 0, or 1
   if a.imp.isZero: return 0
   if a.limbs[^1] < signMask: 1
   else: -1
@@ -39,10 +41,12 @@ func setMSB(a: var StInt) =
   a.limbs[^1] = a.limbs[^1] or signMask
 
 func negate*(a: var StInt) =
+  ## two complement negation
   a.imp.bitnot(a.imp)
   a.imp.inc
 
 func neg*(a: StInt): StInt =
+  ## two complement negation
   result.imp.bitnot(a.imp)
   result.imp.inc
 
@@ -53,6 +57,7 @@ func abs*(a: StInt): StInt =
     a
 
 func `-`*(a: StInt): StInt =
+  ## two complement negation
   a.neg
 
 {.pop.}
@@ -66,6 +71,7 @@ func setZero*(a: var StInt) =
   a.imp.setZero
 
 func setOne*(a: var StInt) =
+  ## Set ``a`` to 1
   a.imp.setOne
 
 func zero*[bits: static[int]](T: typedesc[StInt[bits]]): T =
@@ -172,12 +178,18 @@ func `shl`*(a: StInt, k: SomeInteger): StInt =
   result.imp.shiftLeft(a.imp, k)
 
 func setBit*(a: var StInt, k: Natural) =
+  ## set bit at position `k`
+  ## k = 0..a.bits-1
   a.imp.setBit(k)
 
 func clearBit*(a: var StInt, k: Natural) =
+  ## set bit at position `k`
+  ## k = 0..a.bits-1  
   a.imp.clearBit(k)
 
 func getBit*(a: StInt, k: Natural): bool =
+  ## set bit at position `k`
+  ## k = 0..a.bits-1  
   a.imp.getBit(k)
 
 {.pop.}
@@ -216,3 +228,16 @@ func `+=`*(a: var StInt, b: SomeUnsignedInt) =
   a.imp.inc(Word(b))
 
 {.pop.}
+
+# Exponentiation
+# --------------------------------------------------------
+
+{.push raises: [], noinit, gcsafe.}
+
+func pow*(a: StUint, e: Natural): StUint =
+  ## Compute ``a`` to the power of ``e``,
+  ## ``e`` must be non-negative
+  
+func pow*[aBits, eBits](a: StUint[aBits], e: StUint[eBits]): StUint[aBits] =
+  ## Compute ``x`` to the power of ``y``,
+  ## ``x`` must be non-negative

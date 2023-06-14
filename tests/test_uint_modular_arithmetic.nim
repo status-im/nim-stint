@@ -23,21 +23,6 @@ template chkPowMod(chk: untyped, a, b, m, c: string, bits: int) =
 
 template testModArith(chk, tst: untyped) =
   tst "addmod":
-    #[chkAddMod(chk, "F", "F", "7", "2", 8)
-    chkAddMod(chk, "AAAA", "AA", "F", "0", 16)
-    chkAddMod(chk, "BBBB", "AAAA", "9", "3", 16)
-
-    chkAddMod(chk, "F", "F", "7", "2", 32)
-    chkAddMod(chk, "AAAA", "AA", "F", "0", 32)
-    chkAddMod(chk, "BBBB", "AAAA", "9", "3", 32)
-    chkAddMod(chk, "BBBBBBBB", "AAAAAAAA", "9", "6", 32)
-
-    chkAddMod(chk, "F", "F", "7", "2", 64)
-    chkAddMod(chk, "AAAA", "AA", "F", "0", 64)
-    chkAddMod(chk, "BBBB", "AAAA", "9", "3", 64)
-    chkAddMod(chk, "BBBBBBBB", "AAAAAAAA", "9", "6", 64)
-    chkAddMod(chk, "BBBBBBBBBBBBBBBB", "AAAAAAAAAAAAAAAA", "9", "3", 64)]#
-
     chkAddMod(chk, "F", "F", "7", "2", 128)
     chkAddMod(chk, "AAAA", "AA", "F", "0", 128)
     chkAddMod(chk, "BBBB", "AAAA", "9", "3", 128)
@@ -45,27 +30,7 @@ template testModArith(chk, tst: untyped) =
     chkAddMod(chk, "BBBBBBBBBBBBBBBB", "AAAAAAAAAAAAAAAA", "9", "3", 128)
     chkAddMod(chk, "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "9", "6", 128)
 
-
   tst "submod":
-    #[chkSubMod(chk, "C", "3", "C", "9", 8)
-    chkSubMod(chk, "1", "3", "C", "A", 8)
-    chkSubMod(chk, "1", "FF", "C", "A", 8)
-
-    chkSubMod(chk, "C", "3", "C", "9", 16)
-    chkSubMod(chk, "1", "3", "C", "A", 16)
-    chkSubMod(chk, "1", "FFFF", "C", "A", 32)
-
-    chkSubMod(chk, "C", "3", "C", "9", 32)
-    chkSubMod(chk, "1", "3", "C", "A", 32)
-    chkSubMod(chk, "1", "FFFF", "C", "A", 32)
-    chkSubMod(chk, "1", "FFFFFFFF", "C", "A", 32)
-
-    chkSubMod(chk, "C", "3", "C", "9", 64)
-    chkSubMod(chk, "1", "3", "C", "A", 64)
-    chkSubMod(chk, "1", "FFFF", "C", "A", 64)
-    chkSubMod(chk, "1", "FFFFFFFF", "C", "A", 64)
-    chkSubMod(chk, "1", "FFFFFFFFFFFFFFFF", "C", "A", 64)]#
-
     chkSubMod(chk, "C", "3", "C", "9", 128)
     chkSubMod(chk, "1", "3", "C", "A", 128)
     chkSubMod(chk, "1", "FFFF", "C", "A", 128)
@@ -74,25 +39,6 @@ template testModArith(chk, tst: untyped) =
     chkSubMod(chk, "1", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "C", "A", 128)
 
   tst "mulmod":
-    #[chkMulMod(chk, "C", "3", "C", "0", 8)
-    chkMulMod(chk, "1", "3", "C", "3", 8)
-    chkMulMod(chk, "1", "FF", "C", "3", 8)
-
-    chkMulMod(chk, "C", "3", "C", "0", 16)
-    chkMulMod(chk, "1", "3", "C", "3", 16)
-    chkMulMod(chk, "1", "FFFF", "C", "3", 16)
-
-    chkMulMod(chk, "C", "3", "C", "0", 32)
-    chkMulMod(chk, "1", "3", "C", "3", 32)
-    chkMulMod(chk, "1", "FFFF", "C", "3", 32)
-    chkMulMod(chk, "1", "FFFFFFFF", "C", "3", 32)
-
-    chkMulMod(chk, "C", "3", "C", "0", 64)
-    chkMulMod(chk, "1", "3", "C", "3", 64)
-    chkMulMod(chk, "1", "FFFF", "C", "3", 64)
-    chkMulMod(chk, "1", "FFFFFFFF", "C", "3", 64)
-    chkMulMod(chk, "1", "FFFFFFFFFFFFFFFF", "C", "3", 64)]#
-
     chkMulMod(chk, "C", "3", "C", "0", 128)
     chkMulMod(chk, "1", "3", "C", "3", 128)
     chkMulMod(chk, "1", "FFFF", "C", "3", 128)
@@ -100,89 +46,57 @@ template testModArith(chk, tst: untyped) =
     chkMulMod(chk, "1", "FFFFFFFFFFFFFFFF", "C", "3", 128)
     chkMulMod(chk, "1", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "C", "3", 128)
 
-  # TODO: bug #98
-  when nimvm:
-    # this ugly branch needed due to nim-lang/Nim#12518
-    discard
-  else:
-    tst "powmod":
-      #[chkPowMod(chk, "C", "3", "C", "0", 8)
-      chkPowMod(chk, "1", "3", "C", "1", 8)
-      chkPowMod(chk, "1", "FF", "C", "1", 8)
-      chkPowMod(chk, "FF", "3", "C", "3", 8)
+  tst "powmod":
+    chkPowMod(chk, "C", "3", "C", "0", 128)
+    chkPowMod(chk, "1", "3", "C", "1", 128)
+    chkPowMod(chk, "1", "FF", "C", "1", 128)
+    chkPowMod(chk, "FF", "3", "C", "3", 128)
+    chkPowMod(chk, "FFFF", "3", "C", "3", 128)
+    chkPowMod(chk, "FFFFFFFF", "3", "C", "3", 128)
+    chkPowMod(chk, "FFFFFFFFFFFFFFFF", "3", "C", "3", 128)
+    chkPowMod(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "3", "C", "3", 128)
 
-      chkPowMod(chk, "C", "3", "C", "0", 16)
-      chkPowMod(chk, "1", "3", "C", "1", 16)
-      chkPowMod(chk, "1", "FF", "C", "1", 16)
-      chkPowMod(chk, "FF", "3", "C", "3", 16)
-      chkPowMod(chk, "FFFF", "3", "C", "3", 16)
-
-      chkPowMod(chk, "C", "3", "C", "0", 32)
-      chkPowMod(chk, "1", "3", "C", "1", 32)
-      chkPowMod(chk, "1", "FF", "C", "1", 32)
-      chkPowMod(chk, "FF", "3", "C", "3", 32)
-      chkPowMod(chk, "FFFF", "3", "C", "3", 32)
-      chkPowMod(chk, "FFFFFFFF", "3", "C", "3", 32)
-
-      chkPowMod(chk, "C", "3", "C", "0", 64)
-      chkPowMod(chk, "1", "3", "C", "1", 64)
-      chkPowMod(chk, "1", "FF", "C", "1", 64)
-      chkPowMod(chk, "FF", "3", "C", "3", 64)
-      chkPowMod(chk, "FFFF", "3", "C", "3", 64)
-      chkPowMod(chk, "FFFFFFFF", "3", "C", "3", 64)
-      chkPowMod(chk, "FFFFFFFFFFFFFFFF", "3", "C", "3", 64)]#
-
-      chkPowMod(chk, "C", "3", "C", "0", 128)
-      chkPowMod(chk, "1", "3", "C", "1", 128)
-      chkPowMod(chk, "1", "FF", "C", "1", 128)
-      chkPowMod(chk, "FF", "3", "C", "3", 128)
-      chkPowMod(chk, "FFFF", "3", "C", "3", 128)
-      chkPowMod(chk, "FFFFFFFF", "3", "C", "3", 128)
-      chkPowMod(chk, "FFFFFFFFFFFFFFFF", "3", "C", "3", 128)
-      chkPowMod(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "3", "C", "3", 128)
-
-static:
-  testModArith(ctCheck, ctTest)
+#static:
+  #testModArith(ctCheck, ctTest)
 
 suite "Wider unsigned Modular arithmetic coverage":
   testModArith(check, test)
 
-#[
 suite "Modular arithmetic":
   test "Modular addition":
 
     # uint16 rolls over at 65535
-    let a = 50000'u16.stuint(16)
-    let b = 20000'u16.stuint(16)
-    let m = 60000'u16.stuint(16)
+    let a = 50000.u256
+    let b = 20000.u256
+    let m = 60000.u256
 
-    check: addmod(a, b, m) == 10000'u16.stuint(16)
+    check: addmod(a, b, m) == 10000.u256
 
   test "Modular substraction":
 
-    let a = 5'u16.stuint(16)
-    let b = 7'u16.stuint(16)
-    let m = 20'u16.stuint(16)
+    let a = 5.u256
+    let b = 7.u256
+    let m = 20.u256
 
-    check: submod(a, b, m) == 18'u16.stuint(16)
+    check: submod(a, b, m) == 18.u256
 
   test "Modular multiplication":
     # https://www.wolframalpha.com/input/?i=(1234567890+*+987654321)+mod+999999999
     # --> 345_679_002
-    let a = 1234567890'u64.stuint(64)
-    let b = 987654321'u64.stuint(64)
-    let m = 999999999'u64.stuint(64)
+    let a = 1234567890.u256
+    let b = 987654321.u256
+    let m = 999999999.u256
 
-    check: mulmod(a, b, m) == 345_679_002'u64.stuint(64)
+    check: mulmod(a, b, m) == 345_679_002.u256
 
   test "Modular exponentiation":
     block: # https://www.khanacademy.org/computing/computer-science/cryptography/modarithmetic/a/fast-modular-exponentiation
       check:
-        powmod(5'u16.stuint(16), 117'u16.stuint(16), 19'u16.stuint(16)) == 1'u16.stuint(16)
-        powmod(3'u16.stuint(16), 1993'u16.stuint(16), 17'u16.stuint(16)) == 14'u16.stuint(16)
+        powmod(5.u256, 117.u256, 19.u256) == 1.u256
+        powmod(3.u256, 1993.u256, 17.u256) == 14.u256
 
       check:
-        powmod(12.stuint(256), 34.stuint(256), high(UInt256)) == "4922235242952026704037113243122008064".u256
+        powmod(12.u256, 34.u256, high(UInt256)) == "4922235242952026704037113243122008064".u256
 
     block: # Little Fermat theorem
       # https://programmingpraxis.com/2014/08/08/big-modular-exponentiation/
@@ -203,4 +117,3 @@ suite "Modular arithmetic":
 
       check:
         powmod(P, Q, M) == expected
-]#

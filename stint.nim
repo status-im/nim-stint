@@ -26,7 +26,7 @@ func u256*(n: SomeInteger): UInt256 {.inline.} = n.stuint(256)
 func u256*(s: string): UInt256 {.inline.} = s.parse(UInt256)
 
 func i128*(n: SomeInteger): Int128 {.inline.} = n.stint(128)
-# func i128*(s: string): Int128 {.inline.} = s.parse(Int128)
+func i128*(s: string): Int128 {.inline.} = s.parse(Int128)
 
 func i256*(n: SomeInteger): Int256 {.inline.} = n.stint(256)
-# func i256*(s: string): Int256 {.inline.} = s.parse(Int256)
+func i256*(s: string): Int256 {.inline.} = s.parse(Int256)

@@ -135,16 +135,22 @@ func `shl`*(a: StUint, k: Natural): StUint =
   result.shiftLeft(a, k)
 
 func setBit*(a: var StUint, k: Natural) =
+  ## set bit at position `k`
+  ## k = 0..a.bits-1
   let limbIndex = k div WordBitWidth
   let bitIndex = k mod WordBitWidth
   setBit(a.limbs[limbIndex], bitIndex)
 
 func clearBit*(a: var StUint, k: Natural) =
+  ## set bit at position `k`
+  ## k = 0..a.bits-1
   let limbIndex = k div WordBitWidth
   let bitIndex = k mod WordBitWidth
   clearBit(a.limbs[limbIndex], bitIndex)
 
 func getBit*(a: StUint, k: Natural): bool =
+  ## set bit at position `k`
+  ## k = 0..a.bits-1
   let limbIndex = k div WordBitWidth
   let bitIndex = k mod WordBitWidth
   getBit(a.limbs[limbIndex], bitIndex)
