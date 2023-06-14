@@ -9,6 +9,16 @@
 
 import ../stint, unittest, strutils, math, test_helpers, tables, std/strformat
 
+import stew/byteutils
+func significantBytesBE(val: openArray[byte]): int =
+  ## Returns the number of significant trailing bytes in a big endian
+  ## representation of a number.
+  # TODO: move that in https://github.com/status-im/nim-byteutils
+  for i in 0 ..< val.len:
+    if val[i] != 0:
+      return val.len - i
+  return 1
+
 template nativeStuint(chk, nint: untyped, bits: int) =
   chk $(nint.stuint(bits)) == $(nint)
 
@@ -111,51 +121,8 @@ template chkDumpHexStint(chk: untyped, BE, LE: string, bits: int) =
     chk dumpHex(x, bigEndian) == data
     chk dumpHex(x, littleEndian) == LE
 
-template testIO(chk, tst: untyped) =
+template testIO(chk, tst, handleErr: untyped) =
   tst "[stuint] Creation from native ints":
-    nativeStuint(chk, 0, 8)
-    nativeStuint(chk, 0'u8, 8)
-    nativeStuint(chk, 0xFF'u16, 8)
-    nativeStuint(chk, 0xFF'u32, 8)
-    nativeStuint(chk, 0xFF'u64, 8)
-    nativeStuint(chk, 0'i8, 8)
-    nativeStuint(chk, 0xFF'i16, 8)
-    nativeStuint(chk, 0xFF'i32, 8)
-    nativeStuint(chk, 0xFF'i64, 8)
-    nativeStuint(chk, high(uint8), 8)
-    nativeStuint(chk, low(uint8), 8)
-    nativeStuint(chk, high(int8), 8)
-
-    nativeStuint(chk, 0, 16)
-    nativeStuint(chk, 0'u8, 16)
-    nativeStuint(chk, 0xFFFF'u32, 16)
-    nativeStuint(chk, 0xFFFF'u64, 16)
-    nativeStuint(chk, 0xFFFF'i32, 16)
-    nativeStuint(chk, 0xFFFF'i64, 16)
-    nativeStuint(chk, high(uint8), 16)
-    nativeStuint(chk, low(uint8), 16)
-    nativeStuint(chk, high(int8), 16)
-    nativeStuint(chk, 0'u16, 16)
-    nativeStuint(chk, high(uint16), 16)
-    nativeStuint(chk, low(uint16), 16)
-    nativeStuint(chk, high(int16), 16)
-
-    nativeStuint(chk, 0, 32)
-    nativeStuint(chk, 0'u8, 32)
-    nativeStuint(chk, 0xFFFFFFFF'u64, 32)
-    nativeStuint(chk, 0xFFFFFFFF'i64, 32)
-    nativeStuint(chk, high(uint8), 32)
-    nativeStuint(chk, low(uint8), 32)
-    nativeStuint(chk, high(int8), 32)
-    nativeStuint(chk, 0'u16, 32)
-    nativeStuint(chk, high(uint16), 32)
-    nativeStuint(chk, low(uint16), 32)
-    nativeStuint(chk, high(int16), 32)
-    nativeStuint(chk, 0'u32, 32)
-    nativeStuint(chk, high(uint32), 32)
-    nativeStuint(chk, low(uint32), 32)
-    nativeStuint(chk, high(int32), 32)
-
     nativeStuint(chk, 0, 64)
     nativeStuint(chk, 0'u8, 64)
     nativeStuint(chk, high(uint8), 64)
@@ -174,11 +141,7 @@ template testIO(chk, tst: untyped) =
     nativeStuint(chk, low(uint64), 64)
     nativeStuint(chk, high(int64), 64)
 
-    when sizeof(uint) == 4:
-      nativeStuint(chk, high(uint), 32)
-      nativeStuint(chk, low(uint), 32)
-      nativeStuint(chk, high(int), 32)
-    else:
+    when sizeof(uint) == 8:
       nativeStuint(chk, high(uint), 64)
       nativeStuint(chk, low(uint), 64)
       nativeStuint(chk, high(int), 64)
@@ -202,36 +165,6 @@ template testIO(chk, tst: untyped) =
     nativeStuint(chk, high(int64), 128)
 
   tst "[stint] Creation from native ints":
-    nativeStint(chk, 0, 8)
-    nativeStint(chk, 0'u8, 8)
-    nativeStint(chk, high(int8), 8)
-    nativeStint(chk, low(int8), 8)
-    nativeStint(chk, low(uint8), 8)
-
-    nativeStint(chk, 0, 16)
-    nativeStint(chk, 0'u8, 16)
-    nativeStint(chk, high(int8), 16)
-    nativeStint(chk, low(int8), 16)
-    nativeStint(chk, low(uint8), 16)
-    nativeStint(chk, 0'u16, 16)
-    nativeStint(chk, high(int16), 16)
-    nativeStint(chk, low(int16), 16)
-    nativeStint(chk, low(uint16), 16)
-
-    nativeStint(chk, 0, 32)
-    nativeStint(chk, 0'u8, 32)
-    nativeStint(chk, high(int8), 32)
-    nativeStint(chk, low(int8), 32)
-    nativeStint(chk, low(uint8), 32)
-    nativeStint(chk, 0'u16, 32)
-    nativeStint(chk, high(int16), 32)
-    nativeStint(chk, low(int16), 32)
-    nativeStint(chk, low(uint16), 32)
-    nativeStint(chk, 0'u32, 32)
-    nativeStint(chk, high(int32), 32)
-    nativeStint(chk, low(int32), 32)
-    nativeStint(chk, low(uint32), 32)
-
     nativeStint(chk, 0, 64)
     nativeStint(chk, 0'u8, 64)
     nativeStint(chk, high(int8), 64)
@@ -250,11 +183,7 @@ template testIO(chk, tst: untyped) =
     nativeStint(chk, low(int64), 64)
     nativeStint(chk, low(uint64), 64)
 
-    when sizeof(uint) == 4:
-      nativeStint(chk, high(int), 32)
-      nativeStint(chk, low(int), 32)
-      nativeStint(chk, low(uint), 32)
-    else:
+    when sizeof(uint) == 8:
       nativeStint(chk, high(int), 64)
       nativeStint(chk, low(int), 64)
       nativeStint(chk, low(uint), 64)
@@ -273,63 +202,12 @@ template testIO(chk, tst: untyped) =
     nativeStint(chk, high(int64), 128)
     nativeStint(chk, low(uint64), 128)
 
-    # TODO: bug #92
-    #nativeStint(chk, low(int8), 128)
-    #nativeStint(chk, low(int16), 128)
-    #nativeStint(chk, low(int32), 128)
-    #nativeStint(chk, low(int64), 128)
+    nativeStint(chk, low(int8), 128)
+    nativeStint(chk, low(int16), 128)
+    nativeStint(chk, low(int32), 128)
+    nativeStint(chk, low(int64), 128)
 
   tst "[stuint] truncate":
-    chkTruncateStuint(chk, low(uint8), uint8, 8)
-    chkTruncateStuint(chk, high(uint8), uint8, 8)
-    chkTruncateStuint(chk, high(int8), uint8, 8)
-    chkTruncateStuint(chk, high(int8), int8, 8)
-
-    chkTruncateStuint(chk, low(uint8), uint8, 16)
-    chkTruncateStuint(chk, high(uint8), uint8, 16)
-    chkTruncateStuint(chk, high(int8), uint8, 16)
-    chkTruncateStuint(chk, high(int8), int8, 16)
-
-    chkTruncateStuint(chk, low(uint8), uint16, 16)
-    chkTruncateStuint(chk, high(uint8), uint16, 16)
-    chkTruncateStuint(chk, high(int8), uint16, 16)
-    chkTruncateStuint(chk, high(int8), int16, 16)
-
-    chkTruncateStuint(chk, low(uint16), uint16, 16)
-    chkTruncateStuint(chk, high(uint16), uint16, 16)
-    chkTruncateStuint(chk, high(int16), uint16, 16)
-    chkTruncateStuint(chk, high(int16), int16, 16)
-
-    chkTruncateStuint(chk, low(uint8), uint8, 32)
-    chkTruncateStuint(chk, high(uint8), uint8, 32)
-    chkTruncateStuint(chk, high(int8), uint8, 32)
-    chkTruncateStuint(chk, high(int8), int8, 32)
-
-    chkTruncateStuint(chk, low(uint8), uint16, 32)
-    chkTruncateStuint(chk, high(uint8), uint16, 32)
-    chkTruncateStuint(chk, high(int8), uint16, 32)
-    chkTruncateStuint(chk, high(int8), int16, 32)
-
-    chkTruncateStuint(chk, low(uint16), uint16, 32)
-    chkTruncateStuint(chk, high(uint16), uint16, 32)
-    chkTruncateStuint(chk, high(int16), uint16, 32)
-    chkTruncateStuint(chk, high(int16), int16, 32)
-
-    chkTruncateStuint(chk, low(uint8), uint32, 32)
-    chkTruncateStuint(chk, high(uint8), uint32, 32)
-    chkTruncateStuint(chk, high(int8), uint32, 32)
-    chkTruncateStuint(chk, high(int8), int32, 32)
-
-    chkTruncateStuint(chk, low(uint16), uint32, 32)
-    chkTruncateStuint(chk, high(uint16), uint32, 32)
-    chkTruncateStuint(chk, high(int16), uint32, 32)
-    chkTruncateStuint(chk, high(int16), int32, 32)
-
-    chkTruncateStuint(chk, low(uint32), uint32, 32)
-    chkTruncateStuint(chk, high(uint32), uint32, 32)
-    chkTruncateStuint(chk, high(int32), uint32, 32)
-    chkTruncateStuint(chk, high(int32), int32, 32)
-
     chkTruncateStuint(chk, low(uint8), uint8, 64)
     chkTruncateStuint(chk, high(uint8), uint8, 64)
     chkTruncateStuint(chk, high(int8), uint8, 64)
@@ -431,197 +309,150 @@ template testIO(chk, tst: untyped) =
     chkTruncateStuint(chk, high(int64), int64, 128)
 
   tst "[stint] truncate":
-    chkTruncateStint(chk, low(uint8), uint8, 8)
-    chkTruncateStint(chk, low(int8), int8, 8)
-    chkTruncateStint(chk, high(int8), uint8, 8)
-    chkTruncateStint(chk, high(int8), int8, 8)
-    chkTruncateStint(chk, low(int8), uint8, "0x80", 8)
-
-    chkTruncateStint(chk, low(uint8), uint8, 16)
-    chkTruncateStint(chk, low(int8), int8, 16)
-    chkTruncateStint(chk, high(int8), uint8, 16)
-    chkTruncateStint(chk, high(int8), int8, 16)
-    chkTruncateStint(chk, low(int8), uint8, "0x80", 16)
-
-    chkTruncateStint(chk, low(uint8), uint16, 16)
-    chkTruncateStint(chk, low(int8), int16, 16)
-    chkTruncateStint(chk, high(int8), uint16, 16)
-    chkTruncateStint(chk, high(int8), int16, 16)
-    chkTruncateStint(chk, low(int8), uint16, "0xFF80", 16)
-
-    chkTruncateStint(chk, low(uint16), uint16, 16)
-    chkTruncateStint(chk, low(int16), int16, 16)
-    chkTruncateStint(chk, high(int16), uint16, 16)
-    chkTruncateStint(chk, high(int16), int16, 16)
-    chkTruncateStint(chk, low(int16), uint16, "0x8000", 16)
-
-    chkTruncateStint(chk, low(uint8), uint8, 32)
-    chkTruncateStint(chk, low(int8), int8, 32)
-    chkTruncateStint(chk, high(int8), uint8, 32)
-    chkTruncateStint(chk, high(int8), int8, 32)
-    chkTruncateStint(chk, low(int8), uint8, "0x80", 32)
-
-    chkTruncateStint(chk, low(uint8), uint16, 32)
-    chkTruncateStint(chk, low(int8), int16, 32)
-    chkTruncateStint(chk, high(int8), uint16, 32)
-    chkTruncateStint(chk, high(int8), int16, 32)
-    chkTruncateStint(chk, low(int8), uint16, "0xFF80", 32)
-
-    chkTruncateStint(chk, low(uint16), uint16, 32)
-    chkTruncateStint(chk, low(int16), int16, 32)
-    chkTruncateStint(chk, high(int16), uint16, 32)
-    chkTruncateStint(chk, high(int16), int16, 32)
-    chkTruncateStint(chk, low(int16), uint16, "0x8000", 32)
-
-    chkTruncateStint(chk, low(uint8), uint32, 32)
-    chkTruncateStint(chk, low(int8), int32, 32)
-    chkTruncateStint(chk, high(int8), uint32, 32)
-    chkTruncateStint(chk, high(int8), int32, 32)
-    chkTruncateStint(chk, low(int8), uint32, "0xFFFFFF80", 32)
-
-    chkTruncateStint(chk, low(uint16), uint32, 32)
-    chkTruncateStint(chk, low(int16), int32, 32)
-    chkTruncateStint(chk, high(int16), uint32, 32)
-    chkTruncateStint(chk, high(int16), int32, 32)
-    chkTruncateStint(chk, low(int16), uint32, "0xFFFF8000", 32)
-
-    chkTruncateStint(chk, low(uint32), uint32, 32)
-    chkTruncateStint(chk, low(int32), int32, 32)
-    chkTruncateStint(chk, high(int32), uint32, 32)
-    chkTruncateStint(chk, high(int32), int32, 32)
-    chkTruncateStint(chk, low(int32), uint32, "0x80000000", 32)
-
+    chkTruncateStint(chk, 10, uint8, 64)
+    chkTruncateStint(chk, 10, int8, 64)
+    chkTruncateStint(chk, -10, int8, 64)
     chkTruncateStint(chk, low(uint8), uint8, 64)
     chkTruncateStint(chk, low(int8), int8, 64)
     chkTruncateStint(chk, high(int8), uint8, 64)
     chkTruncateStint(chk, high(int8), int8, 64)
-    chkTruncateStint(chk, low(int8), uint8, "0x80", 64)
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int8), uint8, "0x80", 64)
 
     chkTruncateStint(chk, low(uint8), uint16, 64)
     chkTruncateStint(chk, low(int8), int16, 64)
     chkTruncateStint(chk, high(int8), uint16, 64)
     chkTruncateStint(chk, high(int8), int16, 64)
-    chkTruncateStint(chk, low(int8), uint16, "0xFF80", 64)
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int8), uint16, "0xFF80", 64)
 
     chkTruncateStint(chk, low(uint16), uint16, 64)
     chkTruncateStint(chk, low(int16), int16, 64)
     chkTruncateStint(chk, high(int16), uint16, 64)
     chkTruncateStint(chk, high(int16), int16, 64)
-    chkTruncateStint(chk, low(int16), uint16, "0x8000", 64)
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int16), uint16, "0x8000", 64)
 
     chkTruncateStint(chk, low(uint8), uint32, 64)
     chkTruncateStint(chk, low(int8), int32, 64)
     chkTruncateStint(chk, high(int8), uint32, 64)
     chkTruncateStint(chk, high(int8), int32, 64)
-    chkTruncateStint(chk, low(int8), uint32, "0xFFFFFF80", 64)
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int8), uint32, "0xFFFFFF80", 64)
 
     chkTruncateStint(chk, low(uint16), uint32, 64)
     chkTruncateStint(chk, low(int16), int32, 64)
     chkTruncateStint(chk, high(int16), uint32, 64)
     chkTruncateStint(chk, high(int16), int32, 64)
-    chkTruncateStint(chk, low(int16), uint32, "0xFFFF8000", 64)
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int16), uint32, "0xFFFF8000", 64)
 
     chkTruncateStint(chk, low(uint32), uint32, 64)
     chkTruncateStint(chk, low(int32), int32, 64)
     chkTruncateStint(chk, high(int32), uint32, 64)
     chkTruncateStint(chk, high(int32), int32, 64)
-    chkTruncateStint(chk, low(int32), uint32, "0x80000000", 64)
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int32), uint32, "0x80000000", 64)
 
     chkTruncateStint(chk, low(uint8), uint64, 64)
     chkTruncateStint(chk, low(int8), int64, 64)
     chkTruncateStint(chk, high(int8), uint64, 64)
     chkTruncateStint(chk, high(int8), int64, 64)
-    chkTruncateStint(chk, low(int8), uint64, "0xFFFFFFFFFFFFFF80", 64)
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int8), uint64, "0xFFFFFFFFFFFFFF80", 64)
 
     chkTruncateStint(chk, low(uint16), uint64, 64)
     chkTruncateStint(chk, low(int16), int64, 64)
     chkTruncateStint(chk, high(int16), uint64, 64)
     chkTruncateStint(chk, high(int16), int64, 64)
-    chkTruncateStint(chk, low(int16), uint64, "0xFFFFFFFFFFFF8000", 64)
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int16), uint64, "0xFFFFFFFFFFFF8000", 64)
 
     chkTruncateStint(chk, low(uint32), uint64, 64)
     chkTruncateStint(chk, low(int32), int64, 64)
     chkTruncateStint(chk, high(int32), uint64, 64)
     chkTruncateStint(chk, high(int32), int64, 64)
-    chkTruncateStint(chk, low(int32), uint64, "0xFFFFFFFF80000000", 64)
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int32), uint64, "0xFFFFFFFF80000000", 64)
 
     chkTruncateStint(chk, low(uint64), uint64, 64)
     chkTruncateStint(chk, low(int64), int64, 64)
     chkTruncateStint(chk, high(int64), uint64, 64)
     chkTruncateStint(chk, high(int64), int64, 64)
-    chkTruncateStint(chk, low(int64), uint64, "0x8000000000000000", 64)
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int64), uint64, "0x8000000000000000", 64)
 
     chkTruncateStint(chk, low(uint8), uint8, 128)
-    #chkTruncateStint(chk, low(int8), int8, 128) # TODO: bug #92
+    chkTruncateStint(chk, low(int8), int8, 128)
     chkTruncateStint(chk, high(int8), uint8, 128)
     chkTruncateStint(chk, high(int8), int8, 128)
-    #chkTruncateStint(chk, low(int8), uint8, "0x80", 128) # TODO: bug #92
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int8), uint8, "0x80", 128)
 
     chkTruncateStint(chk, low(uint8), uint16, 128)
-    #chkTruncateStint(chk, low(int8), int16, 128) # TODO: bug #92
+    chkTruncateStint(chk, low(int8), int16, 128)
     chkTruncateStint(chk, high(int8), uint16, 128)
     chkTruncateStint(chk, high(int8), int16, 128)
-    #chkTruncateStint(chk, low(int8), uint16, "0xFF80", 128) # TODO: bug #92
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int8), uint16, "0xFF80", 128)
 
     chkTruncateStint(chk, low(uint16), uint16, 128)
-    #chkTruncateStint(chk, low(int16), int16, 128) # TODO: bug #92
+    chkTruncateStint(chk, low(int16), int16, 128)
     chkTruncateStint(chk, high(int16), uint16, 128)
     chkTruncateStint(chk, high(int16), int16, 128)
-    #chkTruncateStint(chk, low(int16), uint16, "0x8000", 128) # TODO: bug #92
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int16), uint16, "0x8000", 128)
 
     chkTruncateStint(chk, low(uint8), uint32, 128)
-    #chkTruncateStint(chk, low(int8), int32, 128) # TODO: bug #92
+    chkTruncateStint(chk, low(int8), int32, 128)
     chkTruncateStint(chk, high(int8), uint32, 128)
     chkTruncateStint(chk, high(int8), int32, 128)
-    #chkTruncateStint(chk, low(int8), uint32, "0xFFFFFF80", 128) # TODO: bug #92
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int8), uint32, "0xFFFFFF80", 128)
 
     chkTruncateStint(chk, low(uint16), uint32, 128)
-    #chkTruncateStint(chk, low(int16), int32, 128) # TODO: bug #92
+    chkTruncateStint(chk, low(int16), int32, 128)
     chkTruncateStint(chk, high(int16), uint32, 128)
     chkTruncateStint(chk, high(int16), int32, 128)
-    #chkTruncateStint(chk, low(int16), uint32, "0xFFFF8000", 128) # TODO: bug #92
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int16), uint32, "0xFFFF8000", 128)
 
     chkTruncateStint(chk, low(uint32), uint32, 128)
-    #chkTruncateStint(chk, low(int32), int32, 128) # TODO: bug #92
+    chkTruncateStint(chk, low(int32), int32, 128)
     chkTruncateStint(chk, high(int32), uint32, 128)
     chkTruncateStint(chk, high(int32), int32, 128)
-    #chkTruncateStint(chk, low(int32), uint32, "0x80000000", 128) # TODO: bug #92
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int32), uint32, "0x80000000", 128)
 
     chkTruncateStint(chk, low(uint8), uint64, 128)
-    #chkTruncateStint(chk, low(int8), int64, 128) # TODO: bug #92
+    chkTruncateStint(chk, low(int8), int64, 128)
     chkTruncateStint(chk, high(int8), uint64, 128)
     chkTruncateStint(chk, high(int8), int64, 128)
-    #chkTruncateStint(chk, low(int8), uint64, "0xFFFFFFFFFFFFFF80", 128) # TODO: bug #92
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int8), uint64, "0xFFFFFFFFFFFFFF80", 128)
 
     chkTruncateStint(chk, low(uint16), uint64, 128)
-    #chkTruncateStint(chk, low(int16), int64, 128) # TODO: bug #92
+    chkTruncateStint(chk, low(int16), int64, 128)
     chkTruncateStint(chk, high(int16), uint64, 128)
     chkTruncateStint(chk, high(int16), int64, 128)
-    #chkTruncateStint(chk, low(int16), uint64, "0xFFFFFFFFFFFF8000", 128) # TODO: bug #92
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int16), uint64, "0xFFFFFFFFFFFF8000", 128)
 
     chkTruncateStint(chk, low(uint32), uint64, 128)
-    #chkTruncateStint(chk, low(int32), int64, 128) # TODO: bug #92
+    chkTruncateStint(chk, low(int32), int64, 128)
     chkTruncateStint(chk, high(int32), uint64, 128)
     chkTruncateStint(chk, high(int32), int64, 128)
-    #chkTruncateStint(chk, low(int32), uint64, "0xFFFFFFFF80000000", 128) # TODO: bug #92
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int32), uint64, "0xFFFFFFFF80000000", 128)
 
     chkTruncateStint(chk, low(uint64), uint64, 128)
-    #chkTruncateStint(chk, low(int64), int64, 128) # TODO: bug #92
+    chkTruncateStint(chk, low(int64), int64, 128)
     chkTruncateStint(chk, high(int64), uint64, 128)
     chkTruncateStint(chk, high(int64), int64, 128)
-    #chkTruncateStint(chk, low(int64), uint64, "0x8000000000000000", 128) # TODO: bug #92
+    handleErr AssertionDefect:
+      chkTruncateStint(chk, low(int64), uint64, "0x8000000000000000", 128)
 
   tst "[stuint] parse - toString roundtrip":
-    chkRoundTripBin(chk, chkRoundTripStuint, 8, 1)
-
-    chkRoundTripBin(chk, chkRoundTripStuint, 16, 1)
-    chkRoundTripBin(chk, chkRoundTripStuint, 16, 2)
-
-    chkRoundTripBin(chk, chkRoundTripStuint, 32, 1)
-    chkRoundTripBin(chk, chkRoundTripStuint, 32, 2)
-    chkRoundTripBin(chk, chkRoundTripStuint, 32, 3)
-    chkRoundTripBin(chk, chkRoundTripStuint, 32, 4)
-
     chkRoundTripBin(chk, chkRoundTripStuint, 64, 1)
     chkRoundTripBin(chk, chkRoundTripStuint, 64, 2)
     chkRoundTripBin(chk, chkRoundTripStuint, 64, 3)
@@ -648,16 +479,6 @@ template testIO(chk, tst: untyped) =
     chkRoundTripBin(chk, chkRoundTripStuint, 128, 15)
     chkRoundTripBin(chk, chkRoundTripStuint, 128, 16)
 
-    chkRoundTripHex(chk, chkRoundTripStuint, 8, 1)
-
-    chkRoundTripHex(chk, chkRoundTripStuint, 16, 1)
-    chkRoundTripHex(chk, chkRoundTripStuint, 16, 2)
-
-    chkRoundTripHex(chk, chkRoundTripStuint, 32, 1)
-    chkRoundTripHex(chk, chkRoundTripStuint, 32, 2)
-    chkRoundTripHex(chk, chkRoundTripStuint, 32, 3)
-    chkRoundTripHex(chk, chkRoundTripStuint, 32, 4)
-
     chkRoundTripHex(chk, chkRoundTripStuint, 64, 1)
     chkRoundTripHex(chk, chkRoundTripStuint, 64, 2)
     chkRoundTripHex(chk, chkRoundTripStuint, 64, 3)
@@ -683,21 +504,6 @@ template testIO(chk, tst: untyped) =
     chkRoundTripHex(chk, chkRoundTripStuint, 128, 14)
     chkRoundTripHex(chk, chkRoundTripStuint, 128, 15)
     chkRoundTripHex(chk, chkRoundTripStuint, 128, 16)
-
-    chkRoundTripOct(chk, chkRoundTripStuint, 8, 1)
-    chkRoundTripStuint(chk, "377", 8, 8)
-
-    chkRoundTripOct(chk, chkRoundTripStuint, 16, 1)
-    chkRoundTripOct(chk, chkRoundTripStuint, 16, 2)
-    chkRoundTripStuint(chk, "377", 16, 8)
-    chkRoundTripStuint(chk, "177777", 16, 8)
-
-    chkRoundTripOct(chk, chkRoundTripStuint, 32, 1)
-    chkRoundTripOct(chk, chkRoundTripStuint, 32, 2)
-    chkRoundTripOct(chk, chkRoundTripStuint, 32, 3)
-    chkRoundTripStuint(chk, "377", 32, 8)
-    chkRoundTripStuint(chk, "177777", 32, 8)
-    chkRoundTripStuint(chk, "37777777777", 32, 8)
 
     chkRoundTripOct(chk, chkRoundTripStuint, 64, 1)
     chkRoundTripOct(chk, chkRoundTripStuint, 64, 2)
@@ -730,21 +536,6 @@ template testIO(chk, tst: untyped) =
     chkRoundTripStuint(chk, "37777777777", 128, 8)
     chkRoundTripStuint(chk, "1777777777777777777777", 128, 8)
     chkRoundTripStuint(chk, "3777777777777777777777777777777777777777777", 128, 8)
-
-    chkRoundTripDec(chk, chkRoundTripStuint, 8, 1)
-    chkRoundTripStuint(chk, "255", 8, 10)
-
-    chkRoundTripDec(chk, chkRoundTripStuint, 16, 1)
-    chkRoundTripDec(chk, chkRoundTripStuint, 16, 2)
-    chkRoundTripStuint(chk, "255", 16, 10)
-    chkRoundTripStuint(chk, "65535", 16, 10)
-
-    chkRoundTripDec(chk, chkRoundTripStuint, 32, 1)
-    chkRoundTripDec(chk, chkRoundTripStuint, 32, 2)
-    chkRoundTripDec(chk, chkRoundTripStuint, 32, 3)
-    chkRoundTripStuint(chk, "255", 32, 10)
-    chkRoundTripStuint(chk, "65535", 32, 10)
-    chkRoundTripStuint(chk, "4294967295", 32, 10)
 
     chkRoundTripDec(chk, chkRoundTripStuint, 64, 1)
     chkRoundTripDec(chk, chkRoundTripStuint, 64, 2)
@@ -779,19 +570,6 @@ template testIO(chk, tst: untyped) =
     chkRoundTripStuint(chk, "340282366920938463463374607431768211455", 128, 10)
 
   tst "[stint] parse - toString roundtrip":
-    chkRoundTripBin(chk, chkRoundTripStint, 8, 1)
-    chkRoundTripStint(chk, "1" & repeat('0', 7), 8, 2)
-
-    chkRoundTripBin(chk, chkRoundTripStint, 16, 1)
-    chkRoundTripBin(chk, chkRoundTripStint, 16, 2)
-    chkRoundTripStint(chk, "1" & repeat('0', 15), 16, 2)
-
-    chkRoundTripBin(chk, chkRoundTripStint, 32, 1)
-    chkRoundTripBin(chk, chkRoundTripStint, 32, 2)
-    chkRoundTripBin(chk, chkRoundTripStint, 32, 3)
-    chkRoundTripBin(chk, chkRoundTripStint, 32, 4)
-    chkRoundTripStint(chk, "1" & repeat('0', 31), 32, 2)
-
     chkRoundTripBin(chk, chkRoundTripStint, 64, 1)
     chkRoundTripBin(chk, chkRoundTripStint, 64, 2)
     chkRoundTripBin(chk, chkRoundTripStint, 64, 3)
@@ -820,19 +598,6 @@ template testIO(chk, tst: untyped) =
     chkRoundTripBin(chk, chkRoundTripStint, 128, 16)
     chkRoundTripStint(chk, "1" & repeat('0', 127), 128, 2)
 
-    chkRoundTripHex(chk, chkRoundTripStint, 8, 1)
-    chkRoundTripStint(chk, "8" & repeat('0', 1), 8, 16)
-
-    chkRoundTripHex(chk, chkRoundTripStint, 16, 1)
-    chkRoundTripHex(chk, chkRoundTripStint, 16, 2)
-    chkRoundTripStint(chk, "8" & repeat('0', 3), 16, 16)
-
-    chkRoundTripHex(chk, chkRoundTripStint, 32, 1)
-    chkRoundTripHex(chk, chkRoundTripStint, 32, 2)
-    chkRoundTripHex(chk, chkRoundTripStint, 32, 3)
-    chkRoundTripHex(chk, chkRoundTripStint, 32, 4)
-    chkRoundTripStint(chk, "8" & repeat('0', 7), 32, 16)
-
     chkRoundTripHex(chk, chkRoundTripStint, 64, 1)
     chkRoundTripHex(chk, chkRoundTripStint, 64, 2)
     chkRoundTripHex(chk, chkRoundTripStint, 64, 3)
@@ -860,27 +625,6 @@ template testIO(chk, tst: untyped) =
     chkRoundTripHex(chk, chkRoundTripStint, 128, 15)
     chkRoundTripHex(chk, chkRoundTripStint, 128, 16)
     chkRoundTripStint(chk, "8" & repeat('0', 31), 128, 16)
-
-    chkRoundTripOct(chk, chkRoundTripStint, 8, 1)
-    chkRoundTripStint(chk, "377", 8, 8)
-    chkRoundTripStint(chk, "200", 8, 8)
-
-    chkRoundTripOct(chk, chkRoundTripStint, 16, 1)
-    chkRoundTripOct(chk, chkRoundTripStint, 16, 2)
-    chkRoundTripStint(chk, "377", 16, 8)
-    chkRoundTripStint(chk, "200", 16, 8)
-    chkRoundTripStint(chk, "177777", 16, 8)
-    chkRoundTripStint(chk, "100000", 16, 8)
-
-    chkRoundTripOct(chk, chkRoundTripStint, 32, 1)
-    chkRoundTripOct(chk, chkRoundTripStint, 32, 2)
-    chkRoundTripOct(chk, chkRoundTripStint, 32, 3)
-    chkRoundTripStint(chk, "377", 32, 8)
-    chkRoundTripStint(chk, "200", 32, 8)
-    chkRoundTripStint(chk, "177777", 32, 8)
-    chkRoundTripStint(chk, "100000", 32, 8)
-    chkRoundTripStint(chk, "37777777777", 32, 8)
-    chkRoundTripStint(chk, "20000000000", 32, 8)
 
     chkRoundTripOct(chk, chkRoundTripStint, 64, 1)
     chkRoundTripOct(chk, chkRoundTripStint, 64, 2)
@@ -923,32 +667,6 @@ template testIO(chk, tst: untyped) =
     chkRoundTripStint(chk, "3777777777777777777777777777777777777777777", 128, 8)
     chkRoundTripStint(chk, "2000000000000000000000000000000000000000000", 128, 8)
 
-    chkRoundTripDec(chk, chkRoundTripStint, 8, 1)
-    chkRoundTripStint(chk, "127", 8, 10)
-    chkRoundTripStint(chk, "-127", 8, 10)
-    # chkRoundTripStint(chk, "-128", 8, 10) # TODO: not supported yet
-
-    chkRoundTripDec(chk, chkRoundTripStint, 16, 1)
-    chkRoundTripDec(chk, chkRoundTripStint, 16, 2)
-    chkRoundTripStint(chk, "255", 16, 10)
-    chkRoundTripStint(chk, "127", 16, 10)
-    chkRoundTripStint(chk, "-128", 16, 10)
-    chkRoundTripStint(chk, "32767", 16, 10)
-    chkRoundTripStint(chk, "-32767", 16, 10)
-    #chkRoundTripStint(chk, "-32768", 16, 10) # TODO: not supported yet
-
-    chkRoundTripDec(chk, chkRoundTripStint, 32, 1)
-    chkRoundTripDec(chk, chkRoundTripStint, 32, 2)
-    chkRoundTripDec(chk, chkRoundTripStint, 32, 3)
-    chkRoundTripStint(chk, "255", 32, 10)
-    chkRoundTripStint(chk, "127", 32, 10)
-    chkRoundTripStint(chk, "-128", 32, 10)
-    chkRoundTripStint(chk, "32767", 32, 10)
-    chkRoundTripStint(chk, "-32768", 32, 10)
-    chkRoundTripStint(chk, "65535", 32, 10)
-    chkRoundTripStint(chk, "-2147483647", 32, 10)
-    #chkRoundTripStint(chk, "-2147483648", 32, 10) # TODO: not supported yet
-
     chkRoundTripDec(chk, chkRoundTripStint, 64, 1)
     chkRoundTripDec(chk, chkRoundTripStint, 64, 2)
     chkRoundTripDec(chk, chkRoundTripStint, 64, 3)
@@ -966,7 +684,7 @@ template testIO(chk, tst: untyped) =
     chkRoundTripStint(chk, "-2147483648", 64, 10)
     chkRoundTripStint(chk, "4294967295", 64, 10)
     chkRoundTripStint(chk, "-9223372036854775807", 64, 10)
-    #chkRoundTripStint(chk, "-9223372036854775808", 64, 10) # TODO: not supported yet
+    chkRoundTripStint(chk, "-9223372036854775808", 64, 10)
 
     chkRoundTripDec(chk, chkRoundTripStint, 128, 1)
     chkRoundTripDec(chk, chkRoundTripStint, 128, 2)
@@ -987,65 +705,37 @@ template testIO(chk, tst: untyped) =
     chkRoundTripStint(chk, "4294967295", 128, 10)
     chkRoundTripStint(chk, "18446744073709551615", 128, 10)
     chkRoundTripStint(chk, "-170141183460469231731687303715884105727", 128, 10)
-    #chkRoundTripStint(chk, "-170141183460469231731687303715884105728", 128, 10) # TODO: not supported yet
+    chkRoundTripStint(chk, "-170141183460469231731687303715884105728", 128, 10)
 
   tst "roundtrip initFromBytesBE and toByteArrayBE":
-    chkRoundtripBE(chk, "x", 8)
-    chkRoundtripBE(chk, "xy", 16)
-    chkRoundtripBE(chk, "xyzw", 32)
     chkRoundtripBE(chk, "xyzwabcd", 64)
     chkRoundtripBE(chk, "xyzwabcd12345678", 128)
     chkRoundtripBE(chk, "xyzwabcd12345678kilimanjarohello", 256)
 
   tst "[stuint] dumpHex":
-    chkDumpHexStuint(chk, "ab", "ab", 8)
-
-    chkDumpHexStuint(chk, "00ab", "ab00", 16)
-    chkDumpHexStuint(chk, "abcd", "cdab", 16)
-
-    chkDumpHexStuint(chk, "000000ab", "ab000000", 32)
-    chkDumpHexStuint(chk, "3412abcd", "cdab1234", 32)
-
     chkDumpHexStuint(chk, "00000000000000ab", "ab00000000000000", 64)
     chkDumpHexStuint(chk, "abcdef0012345678", "7856341200efcdab", 64)
 
     chkDumpHexStuint(chk, "abcdef0012345678abcdef1122334455", "5544332211efcdab7856341200efcdab", 128)
 
   tst "[stint] dumpHex":
-    chkDumpHexStint(chk, "ab", "ab", 8)
-
-    chkDumpHexStint(chk, "00ab", "ab00", 16)
-    chkDumpHexStint(chk, "abcd", "cdab", 16)
-
-    chkDumpHexStint(chk, "000000ab", "ab000000", 32)
-    chkDumpHexStint(chk, "3412abcd", "cdab1234", 32)
-
     chkDumpHexStint(chk, "00000000000000ab", "ab00000000000000", 64)
     chkDumpHexStint(chk, "abcdef0012345678", "7856341200efcdab", 64)
 
     chkDumpHexStint(chk, "abcdef0012345678abcdef1122334455", "5544332211efcdab7856341200efcdab", 128)
 
 static:
-  testIO(ctCheck, ctTest)
+  testIO(ctCheck, ctTest, ctExpect)
 
 proc main() =
   # Nim GC protests we are using too much global variables
   # so put it in a proc
   suite "Testing input and output procedures":
-    testIO(check, test)
+    testIO(check, test, expect)
 
     # dumpHex
 
     test "toByteArrayBE CT vs RT":
-      chkCTvsRT(check, 0xab'u8, 8)
-
-      chkCTvsRT(check, 0xab'u16, 16)
-      chkCTvsRT(check, 0xabcd'u16, 16)
-
-      chkCTvsRT(check, 0xab'u32, 32)
-      chkCTvsRT(check, 0xabcd'u32, 32)
-      chkCTvsRT(check, 0xabcdef12'u32, 32)
-
       chkCTvsRT(check, 0xab'u64, 64)
       chkCTvsRT(check, 0xabcd'u64, 64)
       chkCTvsRT(check, 0xabcdef12'u64, 64)
@@ -1120,11 +810,11 @@ proc main() =
           check: uint64(i) == cast[uint64](a)
 
       block:
-        let a = "0o177777".parse(StInt[16], 8)
-        let b = (-1'i16).stint(16)
+        let a = "0o1777777777777777777777".parse(StInt[64], 8)
+        let b = (-1'i16).stint(64)
 
         check: a == b
-        check: -1'i16 == cast[int16](a)
+        check: -1'i16 == cast[int64](a)
 
     test "Creation from hex strings":
       block:
@@ -1153,20 +843,20 @@ proc main() =
           check: a == a3
 
       block:
-        let a = "0xFFFF".parse(StInt[16], 16)
-        let b = (-1'i16).stint(16)
+        let a = "0xFFFFFFFFFFFFFFFF".parse(StInt[64], 16)
+        let b = (-1'i16).stint(64)
 
         check: a == b
-        check: -1'i16 == cast[int16](a)
+        check: -1'i16 == cast[int64](a)
 
       block:
-        let a = "0b1234abcdef".parse(StInt[64], 16)
-        let b = "0x0b1234abcdef".parse(StInt[64], 16)
-        let c = 0x0b1234abcdef.stint(64)
+        let a = "0c1234abcdef".parse(StInt[64], 16)
+        let b = "0x0c1234abcdef".parse(StInt[64], 16)
+        let c = 0x0c1234abcdef.stint(64)
 
         check: a == b
         check: a == c
-        
+
     test "Conversion to decimal strings":
       block:
         let a = 1234567891234567890.stint(128)
@@ -1196,12 +886,12 @@ proc main() =
 
     test "Hex dump":
       block:
-        let a = 0x1234'i32.stint(32)
-        check: a.dumpHex(bigEndian).toUpperAscii == "00001234"
+        let a = 0x1234'i32.stint(64)
+        check: a.dumpHex(bigEndian).toUpperAscii == "0000000000001234"
 
       block:
-        let a = 0x1234'i32.stint(32)
-        check: a.dumpHex(littleEndian).toUpperAscii == "34120000"
+        let a = 0x1234'i32.stint(64)
+        check: a.dumpHex(littleEndian).toUpperAscii == "3412000000000000"
 
     test "Back and forth bigint conversion consistency":
       block:
@@ -1252,8 +942,8 @@ proc main() =
     test "Parsing an unexpected 0x prefix for a decimal string is a CatchableError and not a defect":
       let s = "0x123456"
 
-      expect(ValueError):
-        let value = parse(s, StUint[256], 10)
+      expect(AssertionDefect):
+        discard parse(s, StUint[256], 10)
 
   suite "Testing conversion functions: Hex, Bytes, Endianness using secp256k1 curve":
 

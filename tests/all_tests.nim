@@ -31,7 +31,7 @@ import
   test_int_muldiv,
   test_int_exp
 
-#[
-import  test_io,
-        test_conversion
-]#
+
+import
+  test_io#,
+  #test_conversion

@@ -8,3 +8,13 @@ template ctTest*(name: string, body: untyped) =
   block:
     body
     echo "[OK] compile time ", name
+
+template ctExpect*(errTypes, body: untyped) =
+  try:
+    body
+  except errTypes:
+    discard
+  except CatchableError:
+    doAssert(false, "unexpected error")
+  except Defect:
+    doAssert(false, "unexpected defect")

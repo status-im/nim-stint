@@ -59,6 +59,25 @@ when sizeof(int) == 8 and GCC_Compatible:
   type
     uint128*{.importc: "unsigned __int128".} = object
 
+# Accessors
+# --------------------------------------------------------
+
+template limbs*(a: StInt): untyped =
+  # TODO: remove this when we switch to borrow `.`
+  a.imp.limbs
+
+template `[]`*(a: StInt, i: SomeInteger or BackwardsIndex): Word =
+  a.imp.limbs[i]
+
+template `[]=`*(a: var StInt, i: SomeInteger or BackwardsIndex, val: Word) =
+  a.imp.limbs[i] = val
+
+template `[]`*(a: StUint, i: SomeInteger or BackwardsIndex): Word =
+  a.limbs[i]
+
+template `[]=`*(a: var StUint, i: SomeInteger or BackwardsIndex, val: Word) =
+  a.limbs[i] = val
+
 # Bithacks
 # --------------------------------------------------------
 
@@ -90,25 +109,6 @@ func usedBitsAndWords*(a: openArray[Word]): tuple[bits, words: int] =
   return (0, 0)
 
 {.pop.}
-
-# Accessors
-# --------------------------------------------------------
-
-template limbs*(a: StInt): untyped =
-  # TODO: remove this when we switch to borrow `.`
-  a.imp.limbs
-
-template `[]`*(a: StInt, i: SomeInteger or BackwardsIndex): Word =
-  a.imp.limbs[i]
-
-template `[]=`*(a: var StInt, i: SomeInteger or BackwardsIndex, val: Word) =
-  a.imp.limbs[i] = val
-  
-template `[]`*(a: StUint, i: SomeInteger or BackwardsIndex): Word =
-  a.limbs[i]
-
-template `[]=`*(a: var StUint, i: SomeInteger or BackwardsIndex, val: Word) =
-  a.limbs[i] = val
 
 # Iterations
 # --------------------------------------------------------

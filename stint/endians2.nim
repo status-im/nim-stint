@@ -143,15 +143,15 @@ func fromBytesBE*[bits: static int](
   ## at least sizeof(T) bytes. Native endianess is used which is not
   ## portable! (i.e. use fixed-endian byte array or hex for serialization)
 
-  var accum: Word
-  var accumBits: int
+  var accum: Word = 0
+  var accumBits: int = 0
   var dstIdx: int
 
   when cpuEndian == littleEndian: # src is bigEndian, CPU is little-endian
     dstIdx = 0
 
     for srcIdx in countdown(x.len-1, 0):
-      let srcByte = x[srcIdx]
+      let srcByte = Word(x[srcIdx])
 
       accum = accum or (srcByte shl accumBits)
       accumBits += 8
@@ -170,7 +170,7 @@ func fromBytesBE*[bits: static int](
     dstIdx = result.limbs.len-1
 
     for srcIdx in countdown(x.len-1, 0):
-      let srcByte = x[srcIdx]
+      let srcByte = Word(x[srcIdx])
 
       accum = accum or (srcByte shl accumBits)
       accumBits += 8
@@ -193,15 +193,15 @@ func fromBytesLE*[bits: static int](
   ## contain at least sizeof(T) bytes. By default, native endianess is used
   ## which is not portable! (i.e. use fixed-endian byte array or hex for serialization)
 
-  var accum: Word
-  var accumBits: int
+  var accum: Word = 0
+  var accumBits: int = 0
   var dstIdx: int
 
   when cpuEndian == littleEndian: # src and CPU are little-endian
     dstIdx = 0
 
     for srcIdx in 0 ..< x.len:
-      let srcByte = x[srcIdx]
+      let srcByte = Word(x[srcIdx])
 
       accum = accum or (srcByte shl accumBits)
       accumBits += 8
@@ -220,7 +220,7 @@ func fromBytesLE*[bits: static int](
     dstIdx = result.limbs.len-1
 
     for srcIdx in 0 ..< x.len:
-      let srcByte = x[srcIdx]
+      let srcByte = Word(x[srcIdx])
 
       accum = accum or (srcByte shl accumBits)
       accumBits += 8
@@ -247,3 +247,34 @@ func fromBytes*[bits: static int](
     result = fromBytesLE(T, x)
   else:
     result = fromBytesBE(T, x)
+
+
+# Signed integer version of above funcs
+
+func toBytesLE*[bits: static int](src: StInt[bits]):
+                array[bits div 8, byte] {.inline.} =
+  toBytesLE(src.imp)
+
+func toBytesBE*[bits: static int](src: StInt[bits]):
+                array[bits div 8, byte] {.inline.} =
+  toBytesBE(src.imp)
+
+func toBytes*[bits: static int](x: StInt[bits], endian: Endianness = bigEndian):
+              array[bits div 8, byte] {.inline.} =
+  toBytes(x.imp, endian)
+
+func fromBytesBE*[bits: static int](
+    T: typedesc[StInt[bits]],
+    x: openArray[byte]): T {.raises: [], noinit, gcsafe, inline.} =
+  fromBytesBE(type result.imp, x)
+
+func fromBytesLE*[bits: static int](
+    T: typedesc[StInt[bits]],
+    x: openArray[byte]): T {.inline.} =
+  fromBytesLE(type result.imp, x)
+
+func fromBytes*[bits: static int](
+    T: typedesc[StInt[bits]],
+    x: openArray[byte],
+    srcEndian: Endianness = bigEndian): T {.inline.} =
+  fromBytes(type result.imp, x, srcEndian)

@@ -17,9 +17,11 @@ import
 from stew/byteutils import toHex
 
 template leastSignificantWord*(a: SomeBigInteger): Word =
+  mixin limbs
   a.limbs[0]
 
 template mostSignificantWord*(a: SomeBigInteger): Word =
+  mixin limbs
   a.limbs[^1]
 
 template signedWordType*(_: type SomeBigInteger): type =
@@ -57,12 +59,32 @@ func to*(a: SomeInteger, T: typedesc[StInt]): T =
 func to*(a: SomeUnsignedInt, T: typedesc[StUint]): T =
   stuint(a, result.bits)
 
-func truncate*(num: StInt or StUint, T: typedesc[SomeInteger]): T {.inline.}=
+func truncate*(num: StUint, T: typedesc[SomeInteger]): T {.inline.}=
   ## Extract the int, uint, int8-int64 or uint8-uint64 portion of a multi-precision integer.
   ## Note that int and uint are 32-bit on 32-bit platform.
   ## For unsigned result type, result is modulo 2^(sizeof T in bit)
   ## For signed result type, result is undefined if input does not fit in the target type.
   result = T(num.leastSignificantWord())
+
+func truncate*(num: StInt, T: typedesc[SomeInteger]): T {.inline.}=
+  ## Extract the int, uint, int8-int64 or uint8-uint64 portion of a multi-precision integer.
+  ## Note that int and uint are 32-bit on 32-bit platform.
+  ## For unsigned result type, result is modulo 2^(sizeof T in bit)
+  ## For signed result type, result is undefined if input does not fit in the target type.
+  let n = num.abs
+  when sizeof(T) > sizeof(Word):
+    result = T(n.leastSignificantWord())
+  else:
+    result = T(n.leastSignificantWord() and Word(T.high))
+
+  if num.isNegative:
+    when T is SomeUnsignedInt:
+      doAssert(false, "cannot truncate negative number to unsigned integer")
+    else:
+      if n.leastSignificantWord() == Word(T.high) + 1:
+        result = low(T)
+      else:
+        result = -result
 
 func stuint*(a: StUint, bits: static[int]): StUint[bits] {.inline.} =
   ## unsigned int to unsigned int conversion
@@ -175,6 +197,7 @@ func skipPrefixes(current_idx: var int, str: string, radix: range[2..16]) {.inli
       doAssert radix == 8, "Parsing mismatch, 0o prefix is only valid for an octal number (base 8)"
       current_idx = 2
     elif str[1] in {'b', 'B'}:
+      # this check will fail if we have radix 16 and input "0bcdef12345" which is a valid hex
       doAssert radix == 2, "Parsing mismatch, 0b prefix is only valid for a binary number (base 2)"
       current_idx = 2
 
@@ -343,8 +366,8 @@ template hash*(num: StUint|StInt): Hash =
 
 func fromBytesBE*(T: type StUint, ba: openArray[byte], allowPadding: static[bool] = true): T {.noinit, inline.}=
   result = readUintBE[T.bits](ba)
-  when allowPadding:
-    result = result shl ((sizeof(T) - ba.len) * 8)
+  #when allowPadding:
+  #  result = result shl (((sizeof(T) - ba.len) * 8) - 1)
 
 template initFromBytesBE*(x: var StUint, ba: openArray[byte], allowPadding: static[bool] = true) =
   x = fromBytesBE(type x, ba, allowPadding)
