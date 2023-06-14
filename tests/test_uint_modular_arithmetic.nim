@@ -56,8 +56,8 @@ template testModArith(chk, tst: untyped) =
     chkPowMod(chk, "FFFFFFFFFFFFFFFF", "3", "C", "3", 128)
     chkPowMod(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "3", "C", "3", 128)
 
-#static:
-  #testModArith(ctCheck, ctTest)
+static:
+  testModArith(ctCheck, ctTest)
 
 suite "Wider unsigned Modular arithmetic coverage":
   testModArith(check, test)

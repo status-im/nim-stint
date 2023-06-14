@@ -116,8 +116,8 @@ template testMuldiv(chk, tst: untyped) =
     chkMod(chk, 2, -5, 2, 64)
     chkMod(chk, -2, -5, -2, 64)
 
-#static:
-  #testMuldiv(ctCheck, ctTest)
+static:
+  testMuldiv(ctCheck, ctTest)
 
 suite "Wider signed int muldiv coverage":
   testMuldiv(check, test)

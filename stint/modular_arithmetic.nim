@@ -113,13 +113,6 @@ func mulmod*(a, b, m: StUint): StUint =
 func powmod*(a, b, m: StUint): StUint =
   ## Modular exponentiation
 
-  when nimvm:
-    doAssert false, "cannot use powmod at compile-time"
-  else:
-    # we need this ugly branch
-    # because of nim-lang/Nim#12517
-    discard
-
   let a_m = if a < m: a
             else: a mod m
 

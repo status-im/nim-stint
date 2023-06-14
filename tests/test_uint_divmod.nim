@@ -60,8 +60,8 @@ template testdivmod(chk, tst: untyped) =
     chkDivMod(chk, "FFFFFFFFFFFFFFFF", "27", "690690690690690", "F", 128)
     chkDivMod(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "27", "6906906906906906906906906906906", "15", 128)
 
-#static:
-  #testdivmod(ctCheck, ctTest)
+static:
+  testdivmod(ctCheck, ctTest)
 
 suite "Wider unsigned int muldiv coverage":
   testdivmod(check, test)

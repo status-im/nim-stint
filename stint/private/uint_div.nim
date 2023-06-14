@@ -47,7 +47,7 @@ func shlAddMod_multi(a: var openArray[Word], c: Word,
                      M: openArray[Word], mBits: int): Word =
   ## Fused modular left-shift + add
   ## Shift input `a` by a word and add `c` modulo `M`
-  ## 
+  ##
   ## Specialized for M being a multi-precision integer.
   ##
   ## With a word W = 2^WordBitWidth and a modulus M
@@ -55,7 +55,7 @@ func shlAddMod_multi(a: var openArray[Word], c: Word,
   ## and returns q = (a * W + c ) / M
   ##
   ## The modulus `M` most-significant bit at `mBits` MUST be set.
-  
+
                                         # Assuming 64-bit words
   let hi = a[^1]                        # Save the high word to detect carries
   let R = mBits and (WordBitWidth - 1)  # R = mBits mod 64
@@ -128,7 +128,7 @@ func shlAddMod(a: var openArray[Word], c: Word,
                M: openArray[Word], mBits: int): Word {.inline.}=
   ## Fused modular left-shift + add
   ## Shift input `a` by a word and add `c` modulo `M`
-  ## 
+  ##
   ## With a word W = 2^WordBitWidth and a modulus M
   ## Does a <- a * W + c (mod M)
   ## and returns q = (a * W + c ) / M
@@ -182,13 +182,28 @@ func divRem*(
     copyWords(r, 0, a, aOffset+1, bLen-1)
     r[rLen-1] = 0
     # Now shift-left the copied words while adding the new word mod b
-    for i in countdown(aOffset, 0):
-      q[i] = shlAddMod(
-        r.toOpenArray(0, rLen-1),
-        a[i],
-        b.toOpenArray(0, bLen-1),
-        bBits
-      )
+
+    when nimvm:
+      # workaround nim bug #22095
+      var rr = @(r.toOpenArray(0, rLen-1))
+      var bb = @(b.toOpenArray(0, bLen-1))
+      for i in countdown(aOffset, 0):
+        q[i] = shlAddMod(
+          rr,
+          a[i],
+          bb,
+          bBits
+        )
+      for i in 0..rLen-1:
+        r[i] = rr[i]
+    else:
+      for i in countdown(aOffset, 0):
+        q[i] = shlAddMod(
+          r.toOpenArray(0, rLen-1),
+          a[i],
+          b.toOpenArray(0, bLen-1),
+          bBits
+        )
 
     # Clean up extra words
     for i in aOffset+1 ..< q.len:
@@ -229,7 +244,7 @@ func divRem*(
 # - An Efficient Multiple-Precision Division Algorithm,
 #   Liusheng Huang, Hong Zhong, Hong Shen, Yonglong Luo, 2005
 #   https://ieeexplore.ieee.org/document/1579076
-# 
+#
 # - Efficient multiple-precision integer division algorithm
 #   Debapriyay Mukhopadhyaya, Subhas C.Nandy, 2014
 #   https://www.sciencedirect.com/science/article/abs/pii/S0020019013002627
