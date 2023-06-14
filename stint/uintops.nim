@@ -126,23 +126,28 @@ export
 
 {.push raises: [], inline, gcsafe.}
 
-func `shr`*(a: StUint, k: SomeInteger): StUint =
+func `shr`*(a: StUint, k: Natural): StUint =
   ## Shift right by k bits
   result.shiftRight(a, k)
 
-func `shl`*(a: StUint, k: SomeInteger): StUint =
+func `shl`*(a: StUint, k: Natural): StUint =
   ## Shift left by k bits
   result.shiftLeft(a, k)
 
-func setBit*(a: var StUint, k: SomeInteger) =
+func setBit*(a: var StUint, k: Natural) =
   let limbIndex = k div WordBitWidth
   let bitIndex = k mod WordBitWidth
   setBit(a.limbs[limbIndex], bitIndex)
 
-func clearBit*(a: var StUint, k: SomeInteger) =
+func clearBit*(a: var StUint, k: Natural) =
   let limbIndex = k div WordBitWidth
   let bitIndex = k mod WordBitWidth
   clearBit(a.limbs[limbIndex], bitIndex)
+
+func getBit*(a: StUint, k: Natural): bool =
+  let limbIndex = k div WordBitWidth
+  let bitIndex = k mod WordBitWidth
+  getBit(a.limbs[limbIndex], bitIndex)
 
 {.pop.}
 

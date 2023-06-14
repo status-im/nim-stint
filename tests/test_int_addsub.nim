@@ -122,42 +122,42 @@ proc main() =
   suite "Testing signed addition implementation":
     test "In-place addition gives expected result":
 
-      var a = 20182018.stint(64)
-      let b = 20172017.stint(64)
+      var a = 20182018.stint(256)
+      let b = 20172017.stint(256)
 
       a += b
 
-      check: cast[int64](a) == 20182018'i64 + 20172017'i64
+      check a == (20182018'i64 + 20172017'i64).i256
 
     test "Addition gives expected result":
 
-      let a = 20182018.stint(64)
-      let b = 20172017.stint(64)
+      let a = 20182018.stint(256)
+      let b = 20172017.stint(256)
 
-      check: cast[int64](a+b) == 20182018'i64 + 20172017'i64
+      check a+b == (20182018'i64 + 20172017'i64).i256
 
     test "When the low half overflows, it is properly carried":
       # uint8 (low half) overflow at 255
-      let a = 100'i16.stint(16)
-      let b = 100'i16.stint(16)
+      let a = 100.stint(256)
+      let b = 100.stint(256)
 
-      check: cast[int16](a+b) == 200
+      check a+b == 200.i256
 
   suite "Testing signed substraction implementation":
     test "In-place substraction gives expected result":
 
-      var a = 20182018.stint(64)
-      let b = 20172017.stint(64)
+      var a = 20182018.stint(256)
+      let b = 20172017.stint(256)
 
       a -= b
 
-      check: cast[int64](a) == 20182018'i64 - 20172017'i64
+      check a == (20182018'i64 - 20172017'i64).i256
 
     test "Substraction gives expected result":
 
-      let a = 20182018.stint(64)
-      let b = 20172017.stint(64)
+      let a = 20182018.stint(256)
+      let b = 20172017.stint(256)
 
-      check: cast[int64](a-b) == 20182018'i64 - 20172017'i64
+      check: a-b == (20182018'i64 - 20172017'i64).i256
 
 main()

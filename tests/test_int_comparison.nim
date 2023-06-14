@@ -274,7 +274,6 @@ proc main() =
   suite "Wider signed int comparison coverage":
     testComparison(check, test)
 
-
   suite "Signed int - Testing comparison operators":
     let
       a = 10.i256

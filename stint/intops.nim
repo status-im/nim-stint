@@ -30,7 +30,7 @@ func sign*(a: StInt): int =
   else: -1
 
 func isNegative*(a: StInt): bool =
-  a.sign < 0
+  a.limbs[^1] >= signMask
 
 func clearMSB(a: var StInt) =
   a.limbs[^1] = a.limbs[^1] and clearSignMask
@@ -107,14 +107,11 @@ func `==`*(a, b: StInt): bool =
 func `<`*(a, b: StInt): bool =
   ## Unsigned `less than` comparison
   let
-    aSign = a.sign
-    bSign = b.sign
+    aNeg = a.isNegative
+    bNeg = b.isNegative
 
-  if aSign >= 0:
-    if bSign < 0:
-      return false
-  elif bSign >= 0:
-    return true
+  if aNeg xor bNeg:
+    return aNeg
 
   a.imp < b.imp
 
@@ -174,40 +171,48 @@ func `shl`*(a: StInt, k: SomeInteger): StInt =
   ## Shift left by k bits
   result.imp.shiftLeft(a.imp, k)
 
+func setBit*(a: var StInt, k: Natural) =
+  a.imp.setBit(k)
+
+func clearBit*(a: var StInt, k: Natural) =
+  a.imp.clearBit(k)
+
+func getBit*(a: StInt, k: Natural): bool =
+  a.imp.getBit(k)
+
 {.pop.}
 
 # Addsub
 # --------------------------------------------------------
 {.push raises: [], inline, noinit, gcsafe.}
 
-#[
 func `+`*(a, b: StInt): StInt =
   ## Addition for multi-precision unsigned int
-  result.sum(a, b)
+  result.imp.sum(a.imp, b.imp)
 
 func `+=`*(a: var StInt, b: StInt) =
   ## In-place addition for multi-precision unsigned int
-  a.sum(a, b)
+  a.imp.sum(a.imp, b.imp)
 
 func `-`*(a, b: StInt): StInt =
   ## Substraction for multi-precision unsigned int
-  result.diff(a, b)
+  result.imp.diff(a.imp, b.imp)
 
 func `-=`*(a: var StInt, b: StInt) =
   ## In-place substraction for multi-precision unsigned int
-  a.diff(a, b)
+  a.imp.diff(a.imp, b.imp)
 
 func inc*(a: var StInt, w: Word = 1) =
+  a.imp.inc(w)
 
 func `+`*(a: StInt, b: SomeUnsignedInt): StInt =
   ## Addition for multi-precision unsigned int
   ## with an unsigned integer
-  result.sum(a, Word(b))
+  result.imp.sum(a.imp, Word(b))
 
 func `+=`*(a: var StInt, b: SomeUnsignedInt) =
   ## In-place addition for multi-precision unsigned int
   ## with an unsigned integer
-  a.inc(Word(b))
-]#
+  a.imp.inc(Word(b))
 
 {.pop.}
