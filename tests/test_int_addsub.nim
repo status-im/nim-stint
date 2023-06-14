@@ -92,10 +92,10 @@ template testAddSub(chk, tst: untyped) =
     chkNegation(chk, 32767, -32767, 128)
     # With Nim 1.6, it seems like https://github.com/status-im/nim-stint/issues/92
     # can now happen on 32-bit platforms.
-    when (NimMajor,NimMinor,NimPatch) < (1,6,0):
-      chkNegation(chk, 2147483648, -2147483648, 128)
+    #when (NimMajor,NimMinor,NimPatch) < (1,6,0):
+    chkNegation(chk, 2147483648, -2147483648, 128)
     chkNegation(chk, 2147483647, -2147483647, 128)
-    #chkNegation(chk, 9223372036854775808, -9223372036854775808, 128) # TODO: bug #92
+    # chkNegation(chk, 9223372036854775808, -9223372036854775808, 128) # TODO: bug #92
 
   tst "absolute integer":
     chkAbs(chk, 0, 0, 128)

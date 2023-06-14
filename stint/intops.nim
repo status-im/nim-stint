@@ -184,12 +184,12 @@ func setBit*(a: var StInt, k: Natural) =
 
 func clearBit*(a: var StInt, k: Natural) =
   ## set bit at position `k`
-  ## k = 0..a.bits-1  
+  ## k = 0..a.bits-1
   a.imp.clearBit(k)
 
 func getBit*(a: StInt, k: Natural): bool =
   ## set bit at position `k`
-  ## k = 0..a.bits-1  
+  ## k = 0..a.bits-1
   a.imp.getBit(k)
 
 {.pop.}
@@ -234,10 +234,29 @@ func `+=`*(a: var StInt, b: SomeUnsignedInt) =
 
 {.push raises: [], noinit, gcsafe.}
 
-func pow*(a: StUint, e: Natural): StUint =
+func isOdd(x: Natural): bool =
+  bool(x and 1)
+
+func pow*(a: StInt, e: Natural): StInt =
   ## Compute ``a`` to the power of ``e``,
   ## ``e`` must be non-negative
-  
-func pow*[aBits, eBits](a: StUint[aBits], e: StUint[eBits]): StUint[aBits] =
+  if a.isNegative:
+    let base = a.neg
+    result.imp = base.imp.pow(e)
+    if e.isOdd:
+      result.negate
+  else:
+    result.imp = a.imp.pow(e)
+
+func pow*[aBits, eBits](a: StInt[aBits], e: StInt[eBits]): StInt[aBits] =
   ## Compute ``x`` to the power of ``y``,
   ## ``x`` must be non-negative
+  doAssert e.isNegative.not, "exponent must be non-negative"
+
+  if a.isNegative:
+    let base = a.neg
+    result.imp = base.imp.pow(e.imp)
+    if e.isOdd:
+      result.negate
+  else:
+    result.imp = a.imp.pow(e.imp)
