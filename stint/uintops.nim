@@ -40,7 +40,7 @@ func setOne*(a: var StUint) =
 
 func zero*[bits: static[int]](T: typedesc[StUint[bits]]): T {.inline.} =
   ## Returns the zero of the input type
-  discard
+  result.setZero
 
 func one*[bits: static[int]](T: typedesc[StUint[bits]]): T {.inline.} =
   ## Returns the one of the input type
@@ -51,7 +51,7 @@ func high*[bits](_: typedesc[StUint[bits]]): StUint[bits] {.inline.} =
     result[i] = high(Word)
 
 func low*[bits](_: typedesc[StUint[bits]]): StUint[bits] {.inline.} =
-  discard
+  result.setZero
 
 {.pop.}
 # Comparisons

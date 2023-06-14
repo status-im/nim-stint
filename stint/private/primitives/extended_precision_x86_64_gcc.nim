@@ -44,14 +44,12 @@ func div2n1n_128*(q, r: var uint64, n_hi, n_lo, d: uint64) {.inline.}=
   when defined(cpp):
     asm """
       divq %[divisor]
-      : "=a" (`q`), "=d" (`r`)
-      : "d" (`n_hi`), "a" (`n_lo`), [divisor] "rm" (`d`)
-      :
+      :"=a" (`q`), "=d" (`r`)
+      :"d" (`n_hi`), "a" (`n_lo`), [divisor] "rm" (`d`)
     """
   else:
     asm """
       divq %[divisor]
-      : "=a" (`*q`), "=d" (`*r`)
-      : "d" (`n_hi`), "a" (`n_lo`), [divisor] "rm" (`d`)
-      :
+      :"=a" (*`q`), "=d" (*`r`)
+      :"d" (`n_hi`), "a" (`n_lo`), [divisor] "rm" (`d`)
     """
