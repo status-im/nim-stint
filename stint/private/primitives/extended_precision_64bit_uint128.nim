@@ -15,6 +15,13 @@ import ../datatypes
 #
 # ############################################################
 
+const
+  # at the time of writing June 14th 2023
+  # only devel branch codegen can generate
+  # ptr deref when using var param
+  # while version-1-6 and version-2-0 branch cannot
+  noExplicitPtrDeref = defined(cpp) or defined(nimDevelFixVarParam)
+
 static:
   doAssert GCC_Compatible
   doAssert sizeof(int) == 8
@@ -28,7 +35,7 @@ func div2n1n_128*(q, r: var uint64, n_hi, n_lo, d: uint64) {.inline.}=
   {.emit:[dblPrec, " = (unsigned __int128)", n_hi," << 64 | (unsigned __int128)",n_lo,";"].}
 
   # Don't forget to dereference the var param in C mode
-  when defined(cpp):
+  when noExplicitPtrDeref:
     {.emit:[q, " = (NU64)(", dblPrec," / ", d, ");"].}
     {.emit:[r, " = (NU64)(", dblPrec," % ", d, ");"].}
   else:
@@ -43,7 +50,7 @@ func mul_128*(hi, lo: var uint64, a, b: uint64) {.inline.} =
     {.emit:[dblPrec, " = (unsigned __int128)", a," * (unsigned __int128)", b,";"].}
 
     # Don't forget to dereference the var param in C mode
-    when defined(cpp):
+    when noExplicitPtrDeref:
       {.emit:[hi, " = (NU64)(", dblPrec," >> ", 64'u64, ");"].}
       {.emit:[lo, " = (NU64)", dblPrec,";"].}
     else:
@@ -64,7 +71,7 @@ func muladd1_128*(hi, lo: var uint64, a, b, c: uint64) {.inline.} =
     {.emit:[dblPrec, " = (unsigned __int128)", a," * (unsigned __int128)", b, " + (unsigned __int128)",c,";"].}
 
     # Don't forget to dereference the var param in C mode
-    when defined(cpp):
+    when noExplicitPtrDeref:
       {.emit:[hi, " = (NU64)(", dblPrec," >> ", 64'u64, ");"].}
       {.emit:[lo, " = (NU64)", dblPrec,";"].}
     else:
@@ -87,7 +94,7 @@ func muladd2_128*(hi, lo: var uint64, a, b, c1, c2: uint64) {.inline.}=
     ].}
 
     # Don't forget to dereference the var param in C mode
-    when defined(cpp):
+    when noExplicitPtrDeref:
       {.emit:[hi, " = (NU64)(", dblPrec," >> ", 64'u64, ");"].}
       {.emit:[lo, " = (NU64)", dblPrec,";"].}
     else:
