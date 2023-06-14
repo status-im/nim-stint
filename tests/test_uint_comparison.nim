@@ -191,7 +191,7 @@ suite "Testing unsigned int comparison operators":
   let
     a = 10.stuint(64)
     b = 15.stuint(64)
-    c = 150'u16
+    c = 150'u64
     d = 4.stuint(128) shl 64
     e = 4.stuint(128)
     f = 4.stuint(128) shl 65

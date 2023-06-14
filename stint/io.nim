@@ -62,7 +62,7 @@ func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
     else:
       result.imp = stuint(n, bits)
 
-func to*(a: SomeInteger, T: typedesc[Stint]): T =
+func to*(a: SomeInteger, T: typedesc[StInt]): T =
   stint(a, result.bits)
 
 func to*(a: SomeUnsignedInt, T: typedesc[StUint]): T =

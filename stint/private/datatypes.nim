@@ -104,10 +104,10 @@ template `[]`*(a: StInt, i: SomeInteger or BackwardsIndex): Word =
 template `[]=`*(a: var StInt, i: SomeInteger or BackwardsIndex, val: Word) =
   a.imp.limbs[i] = val
   
-template `[]`*(a: StUInt, i: SomeInteger or BackwardsIndex): Word =
+template `[]`*(a: StUint, i: SomeInteger or BackwardsIndex): Word =
   a.limbs[i]
 
-template `[]=`*(a: var StUInt, i: SomeInteger or BackwardsIndex, val: Word) =
+template `[]=`*(a: var StUint, i: SomeInteger or BackwardsIndex, val: Word) =
   a.limbs[i] = val
 
 # Iterations
