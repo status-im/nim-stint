@@ -9,17 +9,12 @@
 
 import
   # Standard library
-  typetraits, algorithm, hashes,
-  # Status libraries
-  # stew/byteutils,
+  std/[typetraits, algorithm, hashes],
   # Internal
   ./private/datatypes,
-  # ./private/int_negabs,
-  # ./private/compiletime_helpers,
-  # ./intops,
   ./uintops, ./endians2
 
-from stew/byteutils import toHex # Why are we exporting readHexChar in byteutils?
+from stew/byteutils import toHex
 
 template leastSignificantWord*(a: SomeBigInteger): Word =
   a.limbs[0]
@@ -33,20 +28,10 @@ template signedWordType*(_: type SomeBigInteger): type =
 template wordType*(_: type SomeBigInteger): type =
   Word
 
-template static_check_size(T: typedesc[SomeInteger], bits: static[int]) =
-  # To avoid a costly runtime check, we refuse storing into StUint types smaller
-  # than the input type.
-
-  static: doAssert sizeof(T) * 8 <= bits, "Input type (" & $T &
-            ") cannot be stored in a multi-precision " &
-            $bits & "-bit integer." &
-            "\nUse a smaller input type instead. This is a compile-time check" &
-            " to avoid a costly run-time bit_length check at each StUint initialization."
-
 func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
   ## Converts an integer to an arbitrary precision integer.
   when sizeof(n) > sizeof(Word):
-    result.limbs[0] = Word(n and Word.high)
+    result.limbs[0] = Word(n and Word.high.T)
     result.limbs[1] = Word(n shr WordBitWidth)
   else:
     result.limbs[0] = Word(n)
@@ -57,7 +42,11 @@ func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
     result.imp = stuint(n, bits)
   else:
     if n < 0:
-      result.imp = stuint(-n, bits)
+      if n == low(T):
+        # special case, bug #92 workaround
+        result.imp = stuint(high(T), bits) + stuint(1, bits)
+      else:
+        result.imp = stuint(-n, bits)
       result.negate
     else:
       result.imp = stuint(n, bits)
