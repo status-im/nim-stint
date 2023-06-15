@@ -65,6 +65,8 @@ func truncate*(num: StUint, T: typedesc[SomeInteger]): T {.inline.}=
   ## For unsigned result type, result is modulo 2^(sizeof T in bit)
   ## For signed result type, result is undefined if input does not fit in the target type.
   result = T(num.leastSignificantWord())
+  when sizeof(T) > sizeof(Word):
+    result = result or (T(num.limbs[1]) shl WordBitWidth)
 
 func truncate*(num: StInt, T: typedesc[SomeInteger]): T {.inline.}=
   ## Extract the int, uint, int8-int64 or uint8-uint64 portion of a multi-precision integer.
@@ -73,18 +75,27 @@ func truncate*(num: StInt, T: typedesc[SomeInteger]): T {.inline.}=
   ## For signed result type, result is undefined if input does not fit in the target type.
   let n = num.abs
   when sizeof(T) > sizeof(Word):
-    result = T(n.leastSignificantWord())
+    result = T(n.leastSignificantWord())    
   else:
     result = T(n.leastSignificantWord() and Word(T.high))
 
   if num.isNegative:
     when T is SomeUnsignedInt:
       doAssert(false, "cannot truncate negative number to unsigned integer")
-    else:
+    elif sizeof(T) <= sizeof(Word):
       if n.leastSignificantWord() == Word(T.high) + 1:
         result = low(T)
       else:
         result = -result
+    else:
+      if n == stint(T.high, num.bits) + 1'u:
+        result = low(T)
+      else:
+        #result = result or (T(num.limbs[1]) shl WordBitWidth)
+        result = -result
+  else:
+    when sizeof(T) > sizeof(Word):
+      result = result or (T(num.limbs[1]) shl WordBitWidth)
 
 func stuint*(a: StUint, bits: static[int]): StUint[bits] {.inline.} =
   ## unsigned int to unsigned int conversion
