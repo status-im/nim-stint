@@ -7,9 +7,6 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-# import stint/[bitops2, endians2, intops, io, modular_arithmetic, literals_stint]
-# export bitops2, endians2, intops, io, modular_arithmetic, literals_stint
-
 import stint/[io, uintops, intops, literals_stint, modular_arithmetic]
 export io, uintops, intops, literals_stint, modular_arithmetic
 
@@ -30,3 +27,7 @@ func i128*(s: string): Int128 {.inline.} = s.parse(Int128)
 
 func i256*(n: SomeInteger): Int256 {.inline.} = n.stint(256)
 func i256*(s: string): Int256 {.inline.} = s.parse(Int256)
+
+# According to nim manual, you can write something like 1234567890'u256
+# or 1234567890'i256, and the number will be passed as string to the
+# constructor

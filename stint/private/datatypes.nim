@@ -39,13 +39,8 @@ type
 
   StInt*[bits: static[int]] = object
     ## Stack-based integer
-    ## Signed
+    ## Signed, in two complement format
     imp*: StUint[bits]
-
-  # {.borrow: `.`.} only works with nim-devel
-  # StInt*[bits: static[int]] {.borrow: `.`.} = distinct StUint[bits]
-    ## Stack-based integer
-    ## Signed
 
   Carry* = uint8  # distinct range[0'u8 .. 1]
   Borrow* = uint8 # distinct range[0'u8 .. 1]
@@ -63,7 +58,6 @@ when sizeof(int) == 8 and GCC_Compatible:
 # --------------------------------------------------------
 
 template limbs*(a: StInt): untyped =
-  # TODO: remove this when we switch to borrow `.`
   a.imp.limbs
 
 template `[]`*(a: StInt, i: SomeInteger or BackwardsIndex): Word =

@@ -55,6 +55,7 @@ func neg*(a: StInt): StInt =
   result.imp.inc
 
 func abs*(a: StInt): StInt =
+  ## Returns the positive value of Stint
   if a.isNegative:
     a.neg
   else:
@@ -87,6 +88,7 @@ func one*[bits: static[int]](T: typedesc[StInt[bits]]): T =
   result.setOne
 
 func high*[bits](_: typedesc[StInt[bits]]): StInt[bits] =
+  ## Returns the highest value of Stint
   # The highest signed int has representation
   # 0b0111_1111_1111_1111 ....
   # so we only have to unset the most significant bit.
@@ -95,6 +97,7 @@ func high*[bits](_: typedesc[StInt[bits]]): StInt[bits] =
   result.clearMSB
 
 func low*[bits](_: typedesc[StInt[bits]]): StInt[bits] =
+  ## Returns the lowest value of Stint
   # The lowest signed int has representation
   # 0b1000_0000_0000_0000 ....
   # so we only have to set the most significant bit.
@@ -111,11 +114,11 @@ func isZero*(a: StInt): bool =
   a.imp.isZero
 
 func `==`*(a, b: StInt): bool =
-  ## Unsigned `equal` comparison
+  ## Signed int `equal` comparison
   a.imp == b.imp
 
 func `<`*(a, b: StInt): bool =
-  ## Unsigned `less than` comparison
+  ## Signed int `less than` comparison
   let
     aNeg = a.isNegative
     bNeg = b.isNegative
@@ -126,11 +129,11 @@ func `<`*(a, b: StInt): bool =
   a.imp < b.imp
 
 func `<=`*(a, b: StInt): bool =
-  ## Unsigned `less or equal` comparison
+  ## Signed int `less or equal` comparison
   not(b < a)
 
 func isOdd*(a: StInt): bool =
-  ## Returns true if input is off
+  ## Returns true if input is odd
   ## false otherwise
   bool(a[0] and 1)
 
@@ -146,7 +149,7 @@ func isEven*(a: StInt): bool =
 {.push raises: [], inline, noinit, gcsafe.}
 
 func `not`*(a: StInt): StInt =
-  ## Bitwise complement of unsigned integer a
+  ## Bitwise complement of signed integer a
   ## i.e. flips all bits of the input
   result.imp.bitnot(a.imp)
 
@@ -203,31 +206,31 @@ func getBit*(a: StInt, k: Natural): bool =
 {.push raises: [], inline, noinit, gcsafe.}
 
 func `+`*(a, b: StInt): StInt =
-  ## Addition for multi-precision unsigned int
+  ## Addition for multi-precision signed int
   result.imp.sum(a.imp, b.imp)
 
 func `+=`*(a: var StInt, b: StInt) =
-  ## In-place addition for multi-precision unsigned int
+  ## In-place addition for multi-precision signed int
   a.imp.sum(a.imp, b.imp)
 
 func `-`*(a, b: StInt): StInt =
-  ## Substraction for multi-precision unsigned int
+  ## Substraction for multi-precision signed int
   result.imp.diff(a.imp, b.imp)
 
 func `-=`*(a: var StInt, b: StInt) =
-  ## In-place substraction for multi-precision unsigned int
+  ## In-place substraction for multi-precision signed int
   a.imp.diff(a.imp, b.imp)
 
 func inc*(a: var StInt, w: Word = 1) =
   a.imp.inc(w)
 
 func `+`*(a: StInt, b: SomeUnsignedInt): StInt =
-  ## Addition for multi-precision unsigned int
+  ## Addition for multi-precision signed int
   ## with an unsigned integer
   result.imp.sum(a.imp, Word(b))
 
 func `+=`*(a: var StInt, b: SomeUnsignedInt) =
-  ## In-place addition for multi-precision unsigned int
+  ## In-place addition for multi-precision signed int
   ## with an unsigned integer
   a.imp.inc(Word(b))
 
@@ -272,7 +275,7 @@ func pow*[aBits, eBits](a: StInt[aBits], e: StInt[eBits]): StInt[aBits] =
 {.push raises: [], inline, noinit, gcsafe.}
 
 func `div`*(n, d: StInt): StInt =
-  ## Division operation for multi-precision unsigned uint
+  ## Division operation for multi-precision signed uint
   var tmp{.noinit.}: StInt
 
   if n.isPositive:
@@ -299,7 +302,9 @@ func `div`*(n, d: StInt): StInt =
   result.negate
 
 func `mod`*(x, y: StInt): StInt =
-  ## Remainder operation for multi-precision unsigned uint
+  ## Remainder operation for multi-precision signed uint
+  ## The behavior is similar to Nim's `mod` operator
+  ## The sign of the remainder will follow the sign of left operand
   let
     xIn = x.abs
     yIn = y.abs
@@ -314,7 +319,8 @@ func divmodI(x, y: StInt): tuple[quot, rem: StInt] =
   divRem(result.quot.limbs, result.rem.limbs, x.limbs, y.limbs)
 
 func divmod*(n, d: StInt): tuple[quot, rem: StInt] =
-  ## Division and remainder operations for multi-precision unsigned uint
+  ## Division and remainder operations for multi-precision signed uint
+  ## The sign of the remainder will follow the sign of left operand
   var tmp{.noinit.}: StInt
 
   if n.isPositive:
@@ -349,7 +355,7 @@ func divmod*(n, d: StInt): tuple[quot, rem: StInt] =
 {.push raises: [], inline, noinit, gcsafe.}
 
 func `*`*(a, b: StInt): StInt =
-  ## Integer multiplication
+  ## Signed integer multiplication
   let
     av = a.abs
     bv = b.abs

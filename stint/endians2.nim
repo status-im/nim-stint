@@ -250,6 +250,7 @@ func fromBytes*[bits: static int](
 
 
 # Signed integer version of above funcs
+# ------------------------------------------------------------------------------------------
 
 func toBytesLE*[bits: static int](src: StInt[bits]):
                 array[bits div 8, byte] {.inline.} =
