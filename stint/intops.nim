@@ -28,7 +28,7 @@ const
 func sign*(a: StInt): int =
   ## get the sign of `a`
   ## either -1, 0, or 1
-  if a.imp.isZero: return 0
+  if a.impl.isZero: return 0
   if a.limbs[^1] < signMask: 1
   else: -1
 
@@ -46,13 +46,13 @@ func setMSB(a: var StInt) =
 
 func negate*(a: var StInt) =
   ## two complement negation
-  a.imp.bitnot(a.imp)
-  a.imp.inc
+  a.impl.bitnot(a.impl)
+  a.impl.inc
 
 func neg*(a: StInt): StInt =
   ## two complement negation
-  result.imp.bitnot(a.imp)
-  result.imp.inc
+  result.impl.bitnot(a.impl)
+  result.impl.inc
 
 func abs*(a: StInt): StInt =
   ## Returns the positive value of Stint
@@ -73,11 +73,11 @@ func `-`*(a: StInt): StInt =
 
 func setZero*(a: var StInt) =
   ## Set ``a`` to 0
-  a.imp.setZero
+  a.impl.setZero
 
 func setOne*(a: var StInt) =
   ## Set ``a`` to 1
-  a.imp.setOne
+  a.impl.setOne
 
 func zero*[bits: static[int]](T: typedesc[StInt[bits]]): T =
   ## Returns the zero of the input type
@@ -111,11 +111,11 @@ func low*[bits](_: typedesc[StInt[bits]]): StInt[bits] =
 {.push raises: [], inline, noinit, gcsafe.}
 
 func isZero*(a: StInt): bool =
-  a.imp.isZero
+  a.impl.isZero
 
 func `==`*(a, b: StInt): bool =
   ## Signed int `equal` comparison
-  a.imp == b.imp
+  a.impl == b.impl
 
 func `<`*(a, b: StInt): bool =
   ## Signed int `less than` comparison
@@ -126,7 +126,7 @@ func `<`*(a, b: StInt): bool =
   if aNeg xor bNeg:
     return aNeg
 
-  a.imp < b.imp
+  a.impl < b.impl
 
 func `<=`*(a, b: StInt): bool =
   ## Signed int `less or equal` comparison
@@ -151,19 +151,19 @@ func isEven*(a: StInt): bool =
 func `not`*(a: StInt): StInt =
   ## Bitwise complement of signed integer a
   ## i.e. flips all bits of the input
-  result.imp.bitnot(a.imp)
+  result.impl.bitnot(a.impl)
 
 func `or`*(a, b: StInt): StInt =
   ## `Bitwise or` of numbers a and b
-  result.imp.bitor(a.imp, b.imp)
+  result.impl.bitor(a.impl, b.impl)
 
 func `and`*(a, b: StInt): StInt =
   ## `Bitwise and` of numbers a and b
-  result.imp.bitand(a.imp, b.imp)
+  result.impl.bitand(a.impl, b.impl)
 
 func `xor`*(a, b: StInt): StInt =
   ## `Bitwise xor` of numbers x and y
-  result.imp.bitxor(a.imp, b.imp)
+  result.impl.bitxor(a.impl, b.impl)
 
 {.pop.} # End noInit
 
@@ -174,30 +174,30 @@ func `shr`*(a: StInt, k: SomeInteger): StInt =
   ## value < 0 ? ~(~value >> amount) : value >> amount
   if a.isNegative:
     var tmp: type a
-    result.imp.bitnot(a.imp)
-    tmp.imp.shiftRight(result.imp, k)
-    result.imp.bitnot(tmp.imp)
+    result.impl.bitnot(a.impl)
+    tmp.impl.shiftRight(result.impl, k)
+    result.impl.bitnot(tmp.impl)
   else:
-    result.imp.shiftRight(a.imp, k)
+    result.impl.shiftRight(a.impl, k)
 
 func `shl`*(a: StInt, k: SomeInteger): StInt =
   ## Shift left by k bits
-  result.imp.shiftLeft(a.imp, k)
+  result.impl.shiftLeft(a.impl, k)
 
 func setBit*(a: var StInt, k: Natural) =
   ## set bit at position `k`
   ## k = 0..a.bits-1
-  a.imp.setBit(k)
+  a.impl.setBit(k)
 
 func clearBit*(a: var StInt, k: Natural) =
   ## set bit at position `k`
   ## k = 0..a.bits-1
-  a.imp.clearBit(k)
+  a.impl.clearBit(k)
 
 func getBit*(a: StInt, k: Natural): bool =
   ## set bit at position `k`
   ## k = 0..a.bits-1
-  a.imp.getBit(k)
+  a.impl.getBit(k)
 
 {.pop.}
 
@@ -207,32 +207,32 @@ func getBit*(a: StInt, k: Natural): bool =
 
 func `+`*(a, b: StInt): StInt =
   ## Addition for multi-precision signed int
-  result.imp.sum(a.imp, b.imp)
+  result.impl.sum(a.impl, b.impl)
 
 func `+=`*(a: var StInt, b: StInt) =
   ## In-place addition for multi-precision signed int
-  a.imp.sum(a.imp, b.imp)
+  a.impl.sum(a.impl, b.impl)
 
 func `-`*(a, b: StInt): StInt =
   ## Substraction for multi-precision signed int
-  result.imp.diff(a.imp, b.imp)
+  result.impl.diff(a.impl, b.impl)
 
 func `-=`*(a: var StInt, b: StInt) =
   ## In-place substraction for multi-precision signed int
-  a.imp.diff(a.imp, b.imp)
+  a.impl.diff(a.impl, b.impl)
 
 func inc*(a: var StInt, w: Word = 1) =
-  a.imp.inc(w)
+  a.impl.inc(w)
 
 func `+`*(a: StInt, b: SomeUnsignedInt): StInt =
   ## Addition for multi-precision signed int
   ## with an unsigned integer
-  result.imp.sum(a.imp, Word(b))
+  result.impl.sum(a.impl, Word(b))
 
 func `+=`*(a: var StInt, b: SomeUnsignedInt) =
   ## In-place addition for multi-precision signed int
   ## with an unsigned integer
-  a.imp.inc(Word(b))
+  a.impl.inc(Word(b))
 
 {.pop.}
 
@@ -249,11 +249,11 @@ func pow*(a: StInt, e: Natural): StInt =
   ## ``e`` must be non-negative
   if a.isNegative:
     let base = a.neg
-    result.imp = base.imp.pow(e)
+    result.impl = base.impl.pow(e)
     if e.isOdd:
       result.negate
   else:
-    result.imp = a.imp.pow(e)
+    result.impl = a.impl.pow(e)
 
 func pow*[aBits, eBits](a: StInt[aBits], e: StInt[eBits]): StInt[aBits] =
   ## Compute ``x`` to the power of ``y``,
@@ -262,11 +262,11 @@ func pow*[aBits, eBits](a: StInt[aBits], e: StInt[eBits]): StInt[aBits] =
 
   if a.isNegative:
     let base = a.neg
-    result.imp = base.imp.pow(e.imp)
+    result.impl = base.impl.pow(e.impl)
     if e.isOdd:
       result.negate
   else:
-    result.imp = a.imp.pow(e.imp)
+    result.impl = a.impl.pow(e.impl)
 
 {.pop.}
 
@@ -281,12 +281,12 @@ func `div`*(n, d: StInt): StInt =
   if n.isPositive:
     if d.isPositive:
       # pos / pos
-      result.imp = n.imp div d.imp
+      result.impl = n.impl div d.impl
       return
     else:
       # pos / neg
       tmp = d.neg
-      result.imp = n.imp div tmp.imp
+      result.impl = n.impl div tmp.impl
       result.negate
       return
 
@@ -294,11 +294,11 @@ func `div`*(n, d: StInt): StInt =
   if d.isNegative:
     # neg / neg
     tmp = d.neg
-    result.imp = nneg.imp div tmp.imp
+    result.impl = nneg.impl div tmp.impl
     return
 
   # neg / pos
-  result.imp = nneg.imp div d.imp
+  result.impl = nneg.impl div d.impl
   result.negate
 
 func `mod`*(x, y: StInt): StInt =
@@ -309,7 +309,7 @@ func `mod`*(x, y: StInt): StInt =
     xIn = x.abs
     yIn = y.abs
 
-  result.imp = xIn.imp mod yIn.imp
+  result.impl = xIn.impl mod yIn.impl
   if x.isNegative:
     result.negate
 
@@ -360,7 +360,7 @@ func `*`*(a, b: StInt): StInt =
     av = a.abs
     bv = b.abs
 
-  result.imp = av.imp * bv.imp
+  result.impl = av.impl * bv.impl
   if a.isNegative xor b.isNegative:
     result.negate
 

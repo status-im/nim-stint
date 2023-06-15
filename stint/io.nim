@@ -41,17 +41,17 @@ func stuint*[T: SomeInteger](n: T, bits: static[int]): StUint[bits] {.inline.}=
 func stint*[T: SomeInteger](n: T, bits: static[int]): StInt[bits] {.inline.}=
   ## Converts an integer to an arbitrary precision signed integer.
   when T is SomeUnsignedInt:
-    result.imp = stuint(n, bits)
+    result.impl = stuint(n, bits)
   else:
     if n < 0:
       if n == low(T):
         # special case, bug #92 workaround
-        result.imp = stuint(high(T), bits) + stuint(1, bits)
+        result.impl = stuint(high(T), bits) + stuint(1, bits)
       else:
-        result.imp = stuint(-n, bits)
+        result.impl = stuint(-n, bits)
       result.negate
     else:
-      result.imp = stuint(n, bits)
+      result.impl = stuint(n, bits)
 
 func to*(a: SomeInteger, T: typedesc[StInt]): T =
   stint(a, result.bits)
@@ -278,7 +278,7 @@ func parse*[bits: static[int]](input: string, T: typedesc[StInt[bits]], radix: s
       noOverflow = noOverflow * base + input[curr].readHexChar.stuint(bits)
     nextNonBlank(curr, input)
 
-  result.imp = noOverflow
+  result.impl = noOverflow
   if isNeg:
     result.negate
 
@@ -323,9 +323,9 @@ func toString*[bits: static[int]](num: StInt[bits], radix: static[int8] = 10): s
   ##   - if not base 10, they are returned raw in two-complement form.
   let isNeg = num.isNegative
   if radix == 10 and isNeg:
-    "-" & toString(num.neg.imp, radix)
+    "-" & toString(num.neg.impl, radix)
   else:
-    toString(num.imp, radix)
+    toString(num.impl, radix)
 
 func `$`*(num: StInt or StUint): string {.inline.}=
   toString(num, 10)

@@ -43,12 +43,12 @@ template testInitialization(chk, tst: untyped) =
     let x = Int128.high
     var z = UInt128.high
     z.clearBit(z.bits - 1)
-    chk x.imp == z
+    chk x.impl == z
 
     let xx = Int128.low
     var zz = UInt128.low
     zz.setBit(z.bits - 1)
-    chk xx.imp == zz
+    chk xx.impl == zz
 
 static:
   testInitialization(ctCheck, ctTest)

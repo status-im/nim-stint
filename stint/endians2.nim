@@ -254,28 +254,28 @@ func fromBytes*[bits: static int](
 
 func toBytesLE*[bits: static int](src: StInt[bits]):
                 array[bits div 8, byte] {.inline.} =
-  toBytesLE(src.imp)
+  toBytesLE(src.impl)
 
 func toBytesBE*[bits: static int](src: StInt[bits]):
                 array[bits div 8, byte] {.inline.} =
-  toBytesBE(src.imp)
+  toBytesBE(src.impl)
 
 func toBytes*[bits: static int](x: StInt[bits], endian: Endianness = bigEndian):
               array[bits div 8, byte] {.inline.} =
-  toBytes(x.imp, endian)
+  toBytes(x.impl, endian)
 
 func fromBytesBE*[bits: static int](
     T: typedesc[StInt[bits]],
     x: openArray[byte]): T {.raises: [], noinit, gcsafe, inline.} =
-  fromBytesBE(type result.imp, x)
+  fromBytesBE(type result.impl, x)
 
 func fromBytesLE*[bits: static int](
     T: typedesc[StInt[bits]],
     x: openArray[byte]): T {.inline.} =
-  fromBytesLE(type result.imp, x)
+  fromBytesLE(type result.impl, x)
 
 func fromBytes*[bits: static int](
     T: typedesc[StInt[bits]],
     x: openArray[byte],
     srcEndian: Endianness = bigEndian): T {.inline.} =
-  fromBytes(type result.imp, x, srcEndian)
+  fromBytes(type result.impl, x, srcEndian)

@@ -40,7 +40,7 @@ type
   StInt*[bits: static[int]] = object
     ## Stack-based integer
     ## Signed, in two complement format
-    imp*: StUint[bits]
+    impl*: StUint[bits]
 
   Carry* = uint8  # distinct range[0'u8 .. 1]
   Borrow* = uint8 # distinct range[0'u8 .. 1]
@@ -58,13 +58,13 @@ when sizeof(int) == 8 and GCC_Compatible:
 # --------------------------------------------------------
 
 template limbs*(a: StInt): untyped =
-  a.imp.limbs
+  a.impl.limbs
 
 template `[]`*(a: StInt, i: SomeInteger or BackwardsIndex): Word =
-  a.imp.limbs[i]
+  a.impl.limbs[i]
 
 template `[]=`*(a: var StInt, i: SomeInteger or BackwardsIndex, val: Word) =
-  a.imp.limbs[i] = val
+  a.impl.limbs[i] = val
 
 template `[]`*(a: StUint, i: SomeInteger or BackwardsIndex): Word =
   a.limbs[i]
