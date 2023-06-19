@@ -64,7 +64,10 @@ func truncate*(num: StUint, T: typedesc[SomeInteger]): T {.inline.}=
   ## Note that int and uint are 32-bit on 32-bit platform.
   ## For unsigned result type, result is modulo 2^(sizeof T in bit)
   ## For signed result type, result is undefined if input does not fit in the target type.
-  result = T(num.leastSignificantWord())
+  when T is SomeSignedInt:
+    result = T(num.leastSignificantWord() and Word(T.high))
+  else:
+    result = T(num.leastSignificantWord())
   when sizeof(T) > sizeof(Word):
     result = result or (T(num.limbs[1]) shl WordBitWidth)
 

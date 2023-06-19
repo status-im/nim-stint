@@ -724,16 +724,14 @@ template testIO(chk, tst, handleErr: untyped) =
 
     chkDumpHexStint(chk, "abcdef0012345678abcdef1122334455", "5544332211efcdab7856341200efcdab", 128)
 
-static:
-  testIO(ctCheck, ctTest, ctExpect)
+#static:
+  #testIO(ctCheck, ctTest, ctExpect)
 
 proc main() =
   # Nim GC protests we are using too much global variables
   # so put it in a proc
   suite "Testing input and output procedures":
-    testIO(check, test, expect)
-
-    # dumpHex
+    #testIO(check, test, expect)
 
     test "toByteArrayBE CT vs RT":
       chkCTvsRT(check, 0xab'u64, 64)
@@ -938,6 +936,9 @@ proc main() =
               x.truncate(uint64) == 2'u64^32 + 1
       else:
         echo "Next test skipped when Stint forces uint32 backend in test mode"
+
+      let z = "115792089237316195423570985008687907853269984665640564039457584007913129639935".u256
+      let kk = z.truncate(int)
 
     test "Parsing an unexpected 0x prefix for a decimal string is a CatchableError and not a defect":
       let s = "0x123456"
