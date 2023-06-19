@@ -16,11 +16,8 @@ import ../datatypes
 # ############################################################
 
 const
-  # at the time of writing June 14th 2023
-  # only devel branch codegen can generate
-  # ptr deref when using var param
-  # while version-1-6 and version-2-0 branch cannot
-  noExplicitPtrDeref = defined(cpp) or defined(nimDevelFixVarParam)
+  newerNim = (NimMajor, NimMinor) > (1, 6)
+  noExplicitPtrDeref = defined(cpp) or newerNim
 
 static:
   doAssert GCC_Compatible

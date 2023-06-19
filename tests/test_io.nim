@@ -724,14 +724,14 @@ template testIO(chk, tst, handleErr: untyped) =
 
     chkDumpHexStint(chk, "abcdef0012345678abcdef1122334455", "5544332211efcdab7856341200efcdab", 128)
 
-#static:
-  #testIO(ctCheck, ctTest, ctExpect)
+static:
+  testIO(ctCheck, ctTest, ctExpect)
 
 proc main() =
   # Nim GC protests we are using too much global variables
   # so put it in a proc
   suite "Testing input and output procedures":
-    #testIO(check, test, expect)
+    testIO(check, test, expect)
 
     test "toByteArrayBE CT vs RT":
       chkCTvsRT(check, 0xab'u64, 64)
