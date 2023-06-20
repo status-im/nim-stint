@@ -33,5 +33,5 @@ import
 
 
 import
-  test_io#,
-  #test_conversion
+  test_io,
+  test_conversion

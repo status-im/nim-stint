@@ -72,6 +72,12 @@ template `[]`*(a: StUint, i: SomeInteger or BackwardsIndex): Word =
 template `[]=`*(a: var StUint, i: SomeInteger or BackwardsIndex, val: Word) =
   a.limbs[i] = val
 
+template len*(a: StInt): int =
+  a.impl.limbs.len
+
+template len*(a: StUint): int =
+  a.limbs.len
+
 # Bithacks
 # --------------------------------------------------------
 
