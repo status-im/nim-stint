@@ -316,140 +316,140 @@ template testIO(chk, tst, handleErr: untyped) =
     chkTruncateStint(chk, low(int8), int8, 64)
     chkTruncateStint(chk, high(int8), uint8, 64)
     chkTruncateStint(chk, high(int8), int8, 64)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int8), uint8, "0x80", 64)
 
     chkTruncateStint(chk, low(uint8), uint16, 64)
     chkTruncateStint(chk, low(int8), int16, 64)
     chkTruncateStint(chk, high(int8), uint16, 64)
     chkTruncateStint(chk, high(int8), int16, 64)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int8), uint16, "0xFF80", 64)
 
     chkTruncateStint(chk, low(uint16), uint16, 64)
     chkTruncateStint(chk, low(int16), int16, 64)
     chkTruncateStint(chk, high(int16), uint16, 64)
     chkTruncateStint(chk, high(int16), int16, 64)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int16), uint16, "0x8000", 64)
 
     chkTruncateStint(chk, low(uint8), uint32, 64)
     chkTruncateStint(chk, low(int8), int32, 64)
     chkTruncateStint(chk, high(int8), uint32, 64)
     chkTruncateStint(chk, high(int8), int32, 64)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int8), uint32, "0xFFFFFF80", 64)
 
     chkTruncateStint(chk, low(uint16), uint32, 64)
     chkTruncateStint(chk, low(int16), int32, 64)
     chkTruncateStint(chk, high(int16), uint32, 64)
     chkTruncateStint(chk, high(int16), int32, 64)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int16), uint32, "0xFFFF8000", 64)
 
     chkTruncateStint(chk, low(uint32), uint32, 64)
     chkTruncateStint(chk, low(int32), int32, 64)
     chkTruncateStint(chk, high(int32), uint32, 64)
     chkTruncateStint(chk, high(int32), int32, 64)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int32), uint32, "0x80000000", 64)
 
     chkTruncateStint(chk, low(uint8), uint64, 64)
     chkTruncateStint(chk, low(int8), int64, 64)
     chkTruncateStint(chk, high(int8), uint64, 64)
     chkTruncateStint(chk, high(int8), int64, 64)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int8), uint64, "0xFFFFFFFFFFFFFF80", 64)
 
     chkTruncateStint(chk, low(uint16), uint64, 64)
     chkTruncateStint(chk, low(int16), int64, 64)
     chkTruncateStint(chk, high(int16), uint64, 64)
     chkTruncateStint(chk, high(int16), int64, 64)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int16), uint64, "0xFFFFFFFFFFFF8000", 64)
 
     chkTruncateStint(chk, low(uint32), uint64, 64)
     chkTruncateStint(chk, low(int32), int64, 64)
     chkTruncateStint(chk, high(int32), uint64, 64)
     chkTruncateStint(chk, high(int32), int64, 64)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int32), uint64, "0xFFFFFFFF80000000", 64)
 
     chkTruncateStint(chk, low(uint64), uint64, 64)
     chkTruncateStint(chk, low(int64), int64, 64)
     chkTruncateStint(chk, high(int64), uint64, 64)
     chkTruncateStint(chk, high(int64), int64, 64)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int64), uint64, "0x8000000000000000", 64)
 
     chkTruncateStint(chk, low(uint8), uint8, 128)
     chkTruncateStint(chk, low(int8), int8, 128)
     chkTruncateStint(chk, high(int8), uint8, 128)
     chkTruncateStint(chk, high(int8), int8, 128)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int8), uint8, "0x80", 128)
 
     chkTruncateStint(chk, low(uint8), uint16, 128)
     chkTruncateStint(chk, low(int8), int16, 128)
     chkTruncateStint(chk, high(int8), uint16, 128)
     chkTruncateStint(chk, high(int8), int16, 128)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int8), uint16, "0xFF80", 128)
 
     chkTruncateStint(chk, low(uint16), uint16, 128)
     chkTruncateStint(chk, low(int16), int16, 128)
     chkTruncateStint(chk, high(int16), uint16, 128)
     chkTruncateStint(chk, high(int16), int16, 128)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int16), uint16, "0x8000", 128)
 
     chkTruncateStint(chk, low(uint8), uint32, 128)
     chkTruncateStint(chk, low(int8), int32, 128)
     chkTruncateStint(chk, high(int8), uint32, 128)
     chkTruncateStint(chk, high(int8), int32, 128)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int8), uint32, "0xFFFFFF80", 128)
 
     chkTruncateStint(chk, low(uint16), uint32, 128)
     chkTruncateStint(chk, low(int16), int32, 128)
     chkTruncateStint(chk, high(int16), uint32, 128)
     chkTruncateStint(chk, high(int16), int32, 128)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int16), uint32, "0xFFFF8000", 128)
 
     chkTruncateStint(chk, low(uint32), uint32, 128)
     chkTruncateStint(chk, low(int32), int32, 128)
     chkTruncateStint(chk, high(int32), uint32, 128)
     chkTruncateStint(chk, high(int32), int32, 128)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int32), uint32, "0x80000000", 128)
 
     chkTruncateStint(chk, low(uint8), uint64, 128)
     chkTruncateStint(chk, low(int8), int64, 128)
     chkTruncateStint(chk, high(int8), uint64, 128)
     chkTruncateStint(chk, high(int8), int64, 128)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int8), uint64, "0xFFFFFFFFFFFFFF80", 128)
 
     chkTruncateStint(chk, low(uint16), uint64, 128)
     chkTruncateStint(chk, low(int16), int64, 128)
     chkTruncateStint(chk, high(int16), uint64, 128)
     chkTruncateStint(chk, high(int16), int64, 128)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int16), uint64, "0xFFFFFFFFFFFF8000", 128)
 
     chkTruncateStint(chk, low(uint32), uint64, 128)
     chkTruncateStint(chk, low(int32), int64, 128)
     chkTruncateStint(chk, high(int32), uint64, 128)
     chkTruncateStint(chk, high(int32), int64, 128)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int32), uint64, "0xFFFFFFFF80000000", 128)
 
     chkTruncateStint(chk, low(uint64), uint64, 128)
     chkTruncateStint(chk, low(int64), int64, 128)
     chkTruncateStint(chk, high(int64), uint64, 128)
     chkTruncateStint(chk, high(int64), int64, 128)
-    handleErr AssertionDefect:
+    handleErr OverflowDefect:
       chkTruncateStint(chk, low(int64), uint64, "0x8000000000000000", 128)
 
   tst "[stuint] parse - toString roundtrip":
@@ -943,7 +943,7 @@ proc main() =
     test "Parsing an unexpected 0x prefix for a decimal string is a CatchableError and not a defect":
       let s = "0x123456"
 
-      expect(AssertionDefect):
+      expect(OverflowDefect):
         discard parse(s, StUint[256], 10)
 
   suite "Testing conversion functions: Hex, Bytes, Endianness using secp256k1 curve":

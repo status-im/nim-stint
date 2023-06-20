@@ -18,7 +18,7 @@ from stew/byteutils import toHex
 
 # Helpers
 # --------------------------------------------------------
-{.push raises: [], inline, gcsafe.}
+{.push raises: [], gcsafe.}
 
 template leastSignificantWord*(a: SomeBigInteger): Word =
   mixin limbs
@@ -79,7 +79,7 @@ func to*(a: SomeUnsignedInt, T: typedesc[StUint]): T =
 
 # Conversions
 # --------------------------------------------------------
-{.push raises: [], inline, gcsafe.}
+{.push raises: [], gcsafe.}
 
 func truncate*(num: StUint, T: typedesc[SomeInteger]): T {.inline.}=
   ## Extract the int, uint, int8-int64 or uint8-uint64 portion of a multi-precision integer.
@@ -106,7 +106,7 @@ func truncate*(num: StInt, T: typedesc[SomeInteger]): T {.inline.}=
 
   if num.isNegative:
     when T is SomeUnsignedInt:
-      doAssert(false, "cannot truncate negative number to unsigned integer")
+      raise newException(OverflowDefect, "cannot truncate negative number to unsigned integer")
     elif sizeof(T) <= sizeof(Word):
       if n.leastSignificantWord() == Word(T.high) + 1:
         result = low(T)
@@ -136,7 +136,8 @@ func stuint*(a: StUint, bits: static[int]): StUint[bits] {.inline.} =
 func stuint*(a: StInt, bits: static[int]): StUint[bits] {.inline.} =
   ## signed int to unsigned int conversion
   ## bigger to smaller bits conversion, the result is truncated
-  doAssert(a.isPositive, "Cannot convert negative number to unsigned int")
+  if a.isNegative:
+    raise newException(OverflowDefect, "Cannot convert negative number to unsigned int")
   stuint(a.impl, bits)
 
 func smallToBig(a: StInt, bits: static[int]): StInt[bits] =
@@ -146,7 +147,7 @@ func smallToBig(a: StInt, bits: static[int]): StInt[bits] =
   else:
     result.impl = stuint(a.impl, bits)
 
-func stint*(a: StInt, bits: static[int]): StInt[bits] {.inline.} =
+func stint*(a: StInt, bits: static[int]): StInt[bits] =
   ## signed int to signed int conversion
   ## will raise exception if input does not fit into destination
   when a.bits < bits:
