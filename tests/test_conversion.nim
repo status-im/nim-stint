@@ -54,7 +54,6 @@ template chkStintToStuint(chk, handleErr: untyped, N, bits: static[int]) =
 
 template chkStintToStint(chk, handleErr: untyped, N, bits: static[int]) =
   block:
-    # TODO add low value tests if bug #92 fixed
     let y = stint(0, N)
     let z = stint(1, N)
     let v = stint(-1, N)

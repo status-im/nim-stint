@@ -378,19 +378,85 @@ func readUintBE*[bits: static[int]](ba: openArray[byte]): StUint[bits] {.noinit,
   result = (typeof result).fromBytesBE(ba)
 
 func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte] {.noinit, inline.}=
-  ## Convert a uint[bits] to to a big-endian array of bits div 8 bytes
+  ## Convert a Uint[bits] to to a big-endian array of bits div 8 bytes
   ## Input:
   ##   - an unsigned integer
   ## Returns:
   ##   - a big-endian array of the same size
   result = n.toBytesBE()
 
-func fromBytesBE*(T: type StUint, ba: openArray[byte], allowPadding: static[bool] = true): T {.noinit, inline.}=
+func fromBytesBE*(T: type StUint, ba: openArray[byte]): T {.noinit, inline.}=
   result = readUintBE[T.bits](ba)
-  #when allowPadding:
-  #  result = result shl (((sizeof(T) - ba.len) * 8) - 1)
 
-template initFromBytesBE*(x: var StUint, ba: openArray[byte], allowPadding: static[bool] = true) =
-  x = fromBytesBE(type x, ba, allowPadding)
+template initFromBytesBE*(x: var StUint, ba: openArray[byte]) =
+  x = fromBytesBE(type x, ba)
+
+func readUintLE*[bits: static[int]](ba: openArray[byte]): StUint[bits] {.noinit, inline.}=
+  ## Convert a lettle-endian array of (bits div 8) Bytes to an UInt[bits] (in native host endianness)
+  ## Input:
+  ##   - a little-endian openArray of size (bits div 8) at least
+  ## Returns:
+  ##   - A unsigned integer of the same size with `bits` bits
+  result = (typeof result).fromBytesLE(ba)
+
+func toByteArrayLE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte] {.noinit, inline.}=
+  ## Convert a Uint[bits] to to a little-endian array of bits div 8 bytes
+  ## Input:
+  ##   - an unsigned integer
+  ## Returns:
+  ##   - a little-endian array of the same size
+  result = n.toBytesLE()
+
+func fromBytesLE*(T: type StUint, ba: openArray[byte]): T {.noinit, inline.}=
+  result = readUintLE[T.bits](ba)
+
+template initFromBytesLE*(x: var StUint, ba: openArray[byte]) =
+  x = fromBytesLE(type x, ba)
+
+#---------------Byte Serialization of Signed Integer ---------------------------
+
+func readIntBE*[bits: static[int]](ba: openArray[byte]): StInt[bits] {.noinit, inline.}=
+  ## Convert a big-endian array of (bits div 8) Bytes to an Int[bits] (in native host endianness)
+  ## Input:
+  ##   - a big-endian openArray of size (bits div 8) at least
+  ## Returns:
+  ##   - A signed integer of the same size with `bits` bits
+  result.impl = (typeof result.impl).fromBytesBE(ba)
+
+func toByteArrayBE*[bits: static[int]](n: StInt[bits]): array[bits div 8, byte] {.noinit, inline.}=
+  ## Convert a Int[bits] to to a big-endian array of bits div 8 bytes
+  ## Input:
+  ##   - a signed integer
+  ## Returns:
+  ##   - a big-endian array of the same size
+  result = n.impl.toBytesBE()
+
+func fromBytesBE*(T: type StInt, ba: openArray[byte]): T {.noinit, inline.}=
+  result = readIntBE[T.bits](ba)
+
+template initFromBytesBE*(x: var StInt, ba: openArray[byte]) =
+  x = fromBytesBE(type x, ba)
+
+func readIntLE*[bits: static[int]](ba: openArray[byte]): StInt[bits] {.noinit, inline.}=
+  ## Convert a lettle-endian array of (bits div 8) Bytes to an Int[bits] (in native host endianness)
+  ## Input:
+  ##   - a little-endian openArray of size (bits div 8) at least
+  ## Returns:
+  ##   - A signed integer of the same size with `bits` bits
+  result.impl = (typeof result.impl).fromBytesLE(ba)
+
+func toByteArrayLE*[bits: static[int]](n: StInt[bits]): array[bits div 8, byte] {.noinit, inline.}=
+  ## Convert a Int[bits] to to a little-endian array of bits div 8 bytes
+  ## Input:
+  ##   - an signed integer
+  ## Returns:
+  ##   - a little-endian array of the same size
+  result = n.impl.toBytesLE()
+
+func fromBytesLE*(T: type StInt, ba: openArray[byte]): T {.noinit, inline.}=
+  result = readIntLE[T.bits](ba)
+
+template initFromBytesLE*(x: var StInt, ba: openArray[byte]) =
+  x = fromBytesLE(type x, ba)
 
 {.pop.}

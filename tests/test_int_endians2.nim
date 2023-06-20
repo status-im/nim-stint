@@ -10,22 +10,22 @@
 import ../stint, unittest, stew/byteutils, test_helpers
 
 template chkToBytesLE(chk: untyped, bits: int, hex: string) =
-  let x = fromHex(StUint[bits], hex)
+  let x = fromHex(StInt[bits], hex)
   chk toBytes(x, littleEndian).toHex() == x.dumpHex(littleEndian)
 
 template chkToBytesBE(chk: untyped, bits: int, hex: string) =
-  let x = fromHex(StUint[bits], hex)
+  let x = fromHex(StInt[bits], hex)
   chk toBytes(x, bigEndian).toHex() == x.dumpHex(bigEndian)
 
 
 template chkFromBytesBE(chk: untyped, bits: int, hex: string) =
-  let x = fromHex(StUint[bits], hex)
-  let z = fromBytesBE(StUint[bits], toByteArrayBE(x))
+  let x = fromHex(StInt[bits], hex)
+  let z = fromBytesBE(StInt[bits], toByteArrayBE(x))
   chk z == x
 
 template chkFromBytesLE(chk: untyped, bits: int, hex: string) =
-  let x = fromHex(StUint[bits], hex)
-  let z = fromBytesLE(StUint[bits], toByteArrayLE(x))
+  let x = fromHex(StInt[bits], hex)
+  let z = fromBytesLE(StInt[bits], toByteArrayLE(x))
   chk z == x
 
 template chkEndians(chkFunc, tst, name: untyped) =
@@ -47,16 +47,34 @@ suite "Testing endians":
   test "Endians give sane results":
 
     check:
-      1.u128.toByteArrayBE() ==
+      1.i128.toByteArrayBE() ==
         [0'u8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
 
-      1.u128.toByteArrayLE() ==
+      1.i128.toByteArrayLE() ==
         [1'u8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-      1.u128 == UInt128.fromBytesBE(
+      1.i128 == Int128.fromBytesBE(
         [0'u8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
 
-      1.u128 == UInt128.fromBytesLE(
+      1.i128 == Int128.fromBytesLE(
         [1'u8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+
+      -1.i128.toByteArrayBE() ==
+        [255'u8, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255]
+
+      -2.i128.toByteArrayBE() ==
+        [255'u8, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 254]
+
+      -1.i128.toByteArrayLE() ==
+        [255'u8, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255]
+
+      -2.i128.toByteArrayLE() ==
+        [254'u8, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255]
+
+      -2.i128 == Int128.fromBytesBE(
+        [255'u8, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 254])
+
+      -2.i128 == Int128.fromBytesLE(
+        [254'u8, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255])
 
   testEndians(check, test)
