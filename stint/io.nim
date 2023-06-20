@@ -292,11 +292,14 @@ func parse*[bits: static[int]](input: string,
   if isNeg:
     result.negate
 
-func fromHex*(T: typedesc[StUint|StInt], s: string): T =
+func fromHex*(T: typedesc[StUint|StInt], s: string): T {.inline.} =
   ## Convert an hex string to the corresponding unsigned integer
   parse(s, type result, radix = 16)
 
-func hexToUint*[bits: static[int]](hexString: string): StUint[bits] =
+func fromDecimal*(T: typedesc[StUint|StInt], s: string): T {.inline.} =
+  parse(s, type result, radix = 10)
+
+func hexToUint*[bits: static[int]](hexString: string): StUint[bits] {.inline.} =
   ## Convert an hex string to the corresponding unsigned integer
   parse(hexString, type result, radix = 16)
 
