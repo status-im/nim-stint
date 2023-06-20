@@ -264,6 +264,13 @@ template testComparison(chk, tst: untyped) =
     chkIsOdd(chk, "FFFFFFFFFFFFFFF", 128)
     chkIsOdd(chk, "FFFFFFFFFFFFFFFFFF", 256)
 
+  tst "isOne":
+    let x = 1.i128
+    chk x.isOne
+
+    let y = 1.i256
+    chk y.isOne
+
 static:
   testComparison(ctCheck, ctTest)
 

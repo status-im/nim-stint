@@ -64,6 +64,14 @@ func isZero*(a: StUint): bool =
       return false
   return true
 
+func isOne*(a: StUint): bool =
+  if a.limbs[0] != 1:
+    return false
+  for i in 1 ..< a.limbs.len:
+    if a.limbs[i] != 0:
+      return false
+  return true
+
 func `==`*(a, b: StUint): bool {.inline.} =
   ## Unsigned `equal` comparison
   for i in 0 ..< a.limbs.len:

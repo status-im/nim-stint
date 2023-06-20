@@ -9,6 +9,8 @@
 
 import ./uintops, private/datatypes
 
+{.push raises: [], gcsafe.}
+
 func addmod_internal(a, b, m: StUint): StUint {.inline.}=
   ## Modular addition
   ## ⚠⚠ Assume a < m and b < m
@@ -117,3 +119,5 @@ func powmod*(a, b, m: StUint): StUint =
             else: a mod m
 
   result = powmod_internal(a_m, b, m)
+
+{.pop.}

@@ -943,7 +943,7 @@ proc main() =
     test "Parsing an unexpected 0x prefix for a decimal string is a CatchableError and not a defect":
       let s = "0x123456"
 
-      expect(OverflowDefect):
+      expect(AssertionDefect):
         discard parse(s, StUint[256], 10)
 
   suite "Testing conversion functions: Hex, Bytes, Endianness using secp256k1 curve":

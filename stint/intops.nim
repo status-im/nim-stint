@@ -113,6 +113,9 @@ func low*[bits](_: typedesc[StInt[bits]]): StInt[bits] =
 func isZero*(a: StInt): bool =
   a.impl.isZero
 
+func isOne*(a: StInt): bool =
+  a.impl.isOne
+
 func `==`*(a, b: StInt): bool =
   ## Signed int `equal` comparison
   a.impl == b.impl
