@@ -370,7 +370,7 @@ func dumpHex*(a: StInt or StUint, order: static[Endianness] = bigEndian): string
 # --------------------------------------------------------
 {.push raises: [], inline, noinit, gcsafe.}
 
-export fromBytes, toBytes
+export fromBytes, toBytes, toBytesLE, toBytesBE
 
 func readUintBE*[bits: static[int]](ba: openArray[byte]): StUint[bits] {.noinit, inline.}=
   ## Convert a big-endian array of (bits div 8) Bytes to an UInt[bits] (in native host endianness)
@@ -426,14 +426,6 @@ func readIntBE*[bits: static[int]](ba: openArray[byte]): StInt[bits] {.noinit, i
   ##   - A signed integer of the same size with `bits` bits
   result.impl = (typeof result.impl).fromBytesBE(ba)
 
-func toByteArrayBE*[bits: static[int]](n: StInt[bits]): array[bits div 8, byte] {.noinit, inline.}=
-  ## Convert a Int[bits] to to a big-endian array of bits div 8 bytes
-  ## Input:
-  ##   - a signed integer
-  ## Returns:
-  ##   - a big-endian array of the same size
-  result = n.impl.toBytesBE()
-
 func fromBytesBE*(T: type StInt, ba: openArray[byte]): T {.noinit, inline.}=
   result = readIntBE[T.bits](ba)
 
@@ -461,5 +453,11 @@ func fromBytesLE*(T: type StInt, ba: openArray[byte]): T {.noinit, inline.}=
 
 template initFromBytesLE*(x: var StInt, ba: openArray[byte]) =
   x = fromBytesLE(type x, ba)
+
+template toBytesLE*[bits: static[int]](n: StInt[bits]): array[bits div 8, byte] =
+  result = n.impl.toBytesLE()
+
+template toBytesBE*[bits: static[int]](n: StInt[bits]): array[bits div 8, byte] =
+  result = n.impl.toBytesBE()
 
 {.pop.}
