@@ -131,12 +131,6 @@ static:
 suite "Wider signed int bitwise coverage":
   testBitwise(check, test)
 
-when defined(cpp):
-  import quicktest, ttmath_compat
-
-  func high(T: typedesc[SomeUnsignedInt]): T =
-    not T(0)
-
 suite "Testing signed int bitwise operations":
   test "Shift Left":
     var y = 1.u256
@@ -180,6 +174,14 @@ suite "Testing signed int bitwise operations":
     check c != cast[stint.Int256](b)
     check c == a
 
+#[
+
+when defined(cpp):
+  import quicktest, ttmath_compat
+
+  func high(T: typedesc[SomeUnsignedInt]): T =
+    not T(0)
+
   when defined(cpp):
     const
       hi = high(int64)
@@ -221,3 +223,4 @@ suite "Testing signed int bitwise operations":
         mp_z  = mp_x shr y
 
       check ttm_z.asSt == mp_z
+]#

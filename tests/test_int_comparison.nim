@@ -248,21 +248,21 @@ template testComparison(chk, tst: untyped) =
     chkNotIsOdd(chk, "FFFFFFFFFFFFFFFFFA", 256)
 
   tst "operator `isEven`":
-    chkNotIsOdd(chk, "0", 128)
-    chkNotIsOdd(chk, "0", 256)
+    chkIsEven(chk, "0", 128)
+    chkIsEven(chk, "0", 256)
 
-    chkNotIsOdd(chk, "4", 128)
-    chkNotIsOdd(chk, "4", 256)
+    chkIsEven(chk, "4", 128)
+    chkIsEven(chk, "4", 256)
 
-    chkNotIsOdd(chk, "FFFFFFFFFFFFFFA", 128)
-    chkNotIsOdd(chk, "FFFFFFFFFFFFFFFFFA", 256)
+    chkIsEven(chk, "FFFFFFFFFFFFFFA", 128)
+    chkIsEven(chk, "FFFFFFFFFFFFFFFFFA", 256)
 
   tst "operator not `isEven`":
-    chkIsOdd(chk, "1", 128)
-    chkIsOdd(chk, "1", 256)
+    chkNotIsEven(chk, "1", 128)
+    chkNotIsEven(chk, "1", 256)
 
-    chkIsOdd(chk, "FFFFFFFFFFFFFFF", 128)
-    chkIsOdd(chk, "FFFFFFFFFFFFFFFFFF", 256)
+    chkNotIsEven(chk, "FFFFFFFFFFFFFFF", 128)
+    chkNotIsEven(chk, "FFFFFFFFFFFFFFFFFF", 256)
 
   tst "isOne":
     let x = 1.i128

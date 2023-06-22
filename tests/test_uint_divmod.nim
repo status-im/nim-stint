@@ -60,7 +60,7 @@ template testdivmod(chk, tst: untyped) =
     chkDivMod(chk, "FFFFFFFFFFFFFFFF", "27", "690690690690690", "F", 128)
     chkDivMod(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "27", "6906906906906906906906906906906", "15", 128)
 
-#[static:
+static:
   testdivmod(ctCheck, ctTest)
 
 suite "Wider unsigned int muldiv coverage":
@@ -101,7 +101,6 @@ suite "Testing unsigned int division and modulo implementation":
     check:
       q == 123456789123456789'u64.u256
       r == 0'u64.u256
-]#
 
 suite "Testing specific failures highlighted by property-based testing":
   test "Modulo: 65696211516342324 mod 174261910798982":

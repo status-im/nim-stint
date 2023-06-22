@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, math, test_helpers
+import ../stint, unittest, test_helpers
 
 template chkAddMod(chk: untyped, a, b, m, c: string, bits: int) =
   chk addmod(fromHex(StUint[bits], a), fromHex(StUint[bits], b),  fromHex(StUint[bits], m)) == fromHex(StUint[bits], c)
