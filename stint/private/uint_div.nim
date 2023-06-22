@@ -141,17 +141,26 @@ func shlAddMod(a: var openArray[Word], c: Word,
     # And normalize (a * 2^64 + c) by R as well to maintain the result
     # This ensures that (a0, a1)/p0 fits in a limb.
     let R = mBits and (WordBitWidth - 1)
-    let clz = WordBitWidth-R
 
     # (hi, lo) = a * 2^64 + c
-    let hi = (a[0] shl clz) or (c shr R)
-    let lo = c shl clz
-    let m0 = M[0] shl clz
+    if R == 0:
+      # We can delegate this R == 0 case to the
+      # shlAddMod_multi, with the same result.
+      # But isn't it faster to handle it here?
+      var q, r: Word
+      div2n1n(q, r, a[0], c, M[0])
+      a[0] = r
+      return q
+    else:
+      let clz = WordBitWidth-R
+      let hi = (a[0] shl clz) or (c shr R)
+      let lo = c shl clz
+      let m0 = M[0] shl clz
 
-    var q, r: Word
-    div2n1n(q, r, hi, lo, m0)
-    a[0] = r shr clz
-    return q
+      var q, r: Word
+      div2n1n(q, r, hi, lo, m0)
+      a[0] = r shr clz
+      return q
   else:
     return shlAddMod_multi(a, c, M, mBits)
 

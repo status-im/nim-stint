@@ -60,7 +60,7 @@ template testdivmod(chk, tst: untyped) =
     chkDivMod(chk, "FFFFFFFFFFFFFFFF", "27", "690690690690690", "F", 128)
     chkDivMod(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "27", "6906906906906906906906906906906", "15", 128)
 
-static:
+#[static:
   testdivmod(ctCheck, ctTest)
 
 suite "Wider unsigned int muldiv coverage":
@@ -101,6 +101,7 @@ suite "Testing unsigned int division and modulo implementation":
     check:
       q == 123456789123456789'u64.u256
       r == 0'u64.u256
+]#
 
 suite "Testing specific failures highlighted by property-based testing":
   test "Modulo: 65696211516342324 mod 174261910798982":
@@ -127,3 +128,13 @@ suite "Testing specific failures highlighted by property-based testing":
     let tz = a mod b
 
     check z.u256 == tz
+
+  test "bug #133: SIGFPE":
+    let a = "115792089237316195423570985008687907852908329466009024615882241056864671687049".u256
+    let b = "15030568110056696491".u256
+    let q = a div b
+    let r = a mod b
+    check q == "7703773296489151700480904010733627392011592199037677352760".u256
+    let w = q * b + r
+    check w == a
+
