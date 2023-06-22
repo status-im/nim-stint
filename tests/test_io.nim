@@ -939,7 +939,10 @@ proc main() =
 
       let z = "115792089237316195423570985008687907853269984665640564039457584007913129639935".u256
       let kk = z.truncate(int)
-      check kk == 9223372036854775807
+      when sizeof(int) == 4:
+        check kk == 2147483647
+      else:
+        check kk == 9223372036854775807
 
     test "Parsing an unexpected 0x prefix for a decimal string is a CatchableError and not a defect":
       let s = "0x123456"
