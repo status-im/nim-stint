@@ -25,15 +25,15 @@ echo "t_randomized_divmod xoshiro512** seed: ", seed
 
 proc test_divmod(bits: static int, iters: int, gen: RandomGen) =
   for _ in 0 ..< iters:
-    let a = rng.random_elem(Stuint[bits], gen)
-    let b = rng.random_elem(Stuint[bits], gen)
+    let a = rng.random_elem(StUint[bits], gen)
+    let b = rng.random_elem(StUint[bits], gen)
 
     try:
       let (q, r) = divmod(a, b)
       doAssert a == q*b + r
     except DivByZeroDefect:
       doAssert b.isZero()
-    
+
 template test(bits: static int) =
   test "(q, r) = divmod(a, b) <=> a = q*b + r (" & $bits & " bits)":
     test_divmod(bits, Iters, Uniform)

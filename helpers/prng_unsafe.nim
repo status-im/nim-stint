@@ -118,7 +118,7 @@ func random_unsafe*[T: SomeInteger](rng: var RngState, inclRange: Slice[T]): T =
 # Containers
 # ------------------------------------------------------------
 
-func sample_unsafe*[T](rng: var RngState, src: openarray[T]): T =
+func sample_unsafe*[T](rng: var RngState, src: openArray[T]): T =
   ## Return a random sample from an array
   result = src[rng.random_unsafe(uint32 src.len)]
 
@@ -206,7 +206,7 @@ type
     HighHammingWeight
     Long01Sequence
 
-func random_elem*(rng: var RngState, T: typedesc, gen: RandomGen): T {.inline, noInit.} =
+func random_elem*(rng: var RngState, T: typedesc, gen: RandomGen): T {.inline, noinit.} =
   case gen
   of Uniform:
     result = rng.random_unsafe(T)
