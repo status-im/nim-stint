@@ -28,12 +28,6 @@ task test_internal, "Run tests for internal procs":
 task test_public_api, "Run all tests - prod implementation (StUint[64] = uint64":
   test "", "tests/all_tests"
 
-task test_uint256_ttmath, "Run random tests Uint256 vs TTMath":
-  requires "https://github.com/alehander42/nim-quicktest >= 0.18.0", "https://github.com/status-im/nim-ttmath"
-  putEnv("TEST_LANG", "cpp")
-  switch("define", "release")  
-  test "", "tests/test_uint256_ttmath"
-
 task test, "Run all tests":
   exec "nimble test_internal"
   exec "nimble test_public_api"

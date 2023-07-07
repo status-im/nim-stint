@@ -37,4 +37,7 @@ import
   t_randomized_divmod,
   test_bugfix,
   test_features
-  
+
+when defined(cpp):
+  import
+    test_vs_intx

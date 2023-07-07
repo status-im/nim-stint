@@ -30,11 +30,11 @@ jobs:
             shell: bash
           - target:
               os: macos
-            builder: macos-11
+            builder: macos-12
             shell: bash
           - target:
               os: windows
-            builder: windows-2019
+            builder: windows-latest
             shell: msys2 {0}
 
     defaults:
@@ -47,22 +47,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Set GCC 10 as default compiler (Linux)
+        if: runner.os == 'Linux' && matrix.target.cpu != 'i386'
+        run: |
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 \
+            --slave /usr/bin/g++ g++ /usr/bin/g++-10 \
+            --slave /usr/bin/gcov gcov /usr/bin/gcov-10
+
       - name: Install build dependencies (Linux i386)
         if: runner.os == 'Linux' && matrix.target.cpu == 'i386'
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-fast update -qq
           sudo DEBIAN_FRONTEND='noninteractive' apt-fast install \
-            --no-install-recommends -yq gcc-multilib g++-multilib \
-            libssl-dev:i386
+            --no-install-recommends -yq gcc-10-multilib g++-10-multilib \
+            libssl-dev:i386 linux-libc-dev:i386
           mkdir -p external/bin
           cat << EOF > external/bin/gcc
           #!/bin/bash
-          exec $(which gcc) -m32 "\$@"
+          exec $(which gcc-10) -m32 "\$@"
           EOF
           cat << EOF > external/bin/g++
           #!/bin/bash
-          exec $(which g++) -m32 "\$@"
+          exec $(which g++-10) -m32 "\$@"
           EOF
           chmod 755 external/bin/gcc external/bin/g++
           echo '${{ github.workspace }}/external/bin' >> $GITHUB_PATH
@@ -155,6 +162,6 @@ jobs:
           nim --version
           nimble --version
           nimble install -y --depsOnly
-          #nimble install -y https://github.com/alehander42/nim-quicktest ttmath
           env TEST_LANG="c" nimble test
-          #env TEST_LANG="cpp" nimble test
+          # run test against intx
+          env TEST_LANG="cpp" nimble test
