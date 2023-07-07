@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018 Status Research & Development GmbH
+# Copyright 2018-2023 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -31,9 +31,8 @@ import
   test_int_muldiv,
   test_int_exp
 
-
 import
   test_io,
   test_conversion,
-  t_randomized_divmod
-
+  t_randomized_divmod,
+  test_bugfix
