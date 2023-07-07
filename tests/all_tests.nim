@@ -35,4 +35,6 @@ import
   test_io,
   test_conversion,
   t_randomized_divmod,
-  test_bugfix
+  test_bugfix,
+  test_features
+  

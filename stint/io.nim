@@ -261,7 +261,7 @@ func parse*[bits: static[int]](input: string,
 
 func parse*[bits: static[int]](input: string,
                                T: typedesc[StInt[bits]],
-                               radix: static[int8] = 10): T =
+                               radix: static[uint8] = 10): T =
   ## Parse a string and store the result in a Stint[bits] or StUint[bits].
 
   static: doAssert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
@@ -465,3 +465,27 @@ template toBytesBE*[bits: static[int]](n: StInt[bits]): array[bits div 8, byte] 
   result = n.impl.toBytesBE()
 
 {.pop.}
+
+func getRadix(s: static string): uint8 {.compileTime.} =
+  if s.len <= 2:
+    return 10
+  
+  # maybe have prefix have prefix
+  if s[0] != '0':
+    return 10
+
+  if s[1] == 'b':
+    return 2
+      
+  if s[1] == 'o':
+    return 8
+    
+  if s[1] == 'x':
+    return 16
+  
+func customLiteral*(T: type SomeBigInteger, s: static string): T =
+  when s.len == 0:
+    doAssert(false, "customLiteral cannot accept param with zero length")
+    
+  const radix = getRadix(s)
+  parse(s, T, radix)

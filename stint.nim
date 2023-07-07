@@ -31,3 +31,15 @@ func i256*(s: string): Int256 {.inline.} = s.parse(Int256)
 # According to nim manual, you can write something like 1234567890'u256
 # or 1234567890'i256, and the number will be passed as string to the
 # constructor
+
+func `'i128`*(s: static string): Int128 {.inline.} = 
+  customLiteral(Int128, s)
+
+func `'i256`*(s: static string): Int256 {.inline.} = 
+  customLiteral(Int256, s)
+  
+func `'u128`*(s: static string): UInt128 {.inline.} = 
+  customLiteral(UInt128, s)
+
+func `'u256`*(s: static string): UInt256 {.inline.} = 
+  customLiteral(UInt256, s)
