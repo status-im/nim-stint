@@ -213,14 +213,14 @@ func skipPrefixes(current_idx: var int, str: string, radix: range[2..16]) {.inli
     elif str[1] in {'o', 'O'}:
       doAssert radix == 8, "Parsing mismatch, 0o prefix is only valid for an octal number (base 8)"
       current_idx = 2
-    elif str[1] in {'b', 'B'}:      
+    elif str[1] in {'b', 'B'}:
       if radix == 2:
         current_idx = 2
       elif radix == 16:
         # allow something like "0bcdef12345" which is a valid hex
         current_idx = 0
       else:
-        doAssert false, "Parsing mismatch, 0b prefix is only valid for a binary number (base 2), or hex number"      
+        doAssert false, "Parsing mismatch, 0b prefix is only valid for a binary number (base 2), or hex number"
 
 func nextNonBlank(current_idx: var int, s: string) {.inline.} =
   ## Move the current index, skipping white spaces and "_" characters.
@@ -333,7 +333,7 @@ func toString*[bits: static[int]](num: StUint[bits], radix: static[uint8] = 10):
 
   reverse(result)
 
-func toString*[bits: static[int]](num: StInt[bits], radix: static[int8] = 10): string =
+func toString*[bits: static[int]](num: StInt[bits], radix: static[uint8] = 10): string =
   ## Convert a Stint or StUint to string.
   ## In case of negative numbers:
   ##   - they are prefixed with "-" for base 10.
@@ -466,26 +466,16 @@ template toBytesBE*[bits: static[int]](n: StInt[bits]): array[bits div 8, byte] 
 
 {.pop.}
 
-func getRadix(s: static string): uint8 {.compileTime.} =
-  if s.len <= 2:
-    return 10
-  
-  # maybe have prefix have prefix
-  if s[0] != '0':
-    return 10
+include
+  ./private/custom_literal
 
-  if s[1] == 'b':
-    return 2
-      
-  if s[1] == 'o':
-    return 8
-    
-  if s[1] == 'x':
-    return 16
-  
 func customLiteral*(T: type SomeBigInteger, s: static string): T =
   when s.len == 0:
     doAssert(false, "customLiteral cannot accept param with zero length")
-    
+
   const radix = getRadix(s)
+  type TT = T
+  when isOverflow(TT, s, radix):
+    {.error: "Stint custom literal overlow detected" .}
+
   parse(s, T, radix)
