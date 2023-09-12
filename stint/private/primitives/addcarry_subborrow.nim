@@ -113,9 +113,11 @@ func addC*(cOut: var Carry, sum: var uint32, a, b: uint32, cIn: Carry) {.inline.
     when X86:
       cOut = addcarry_u32(cIn, a, b, sum)
     else:
-      let dblPrec = uint64(cIn) + uint64(a) + uint64(b)
-      sum = uint32(dblPrec)
-      cOut = Carry(dblPrec shr 32)
+      # on arch e.g. arm: nim will complaints "Error: redefinition of 'dblPrec'"
+      # so we use dlbPrec2 here
+      let dblPrec2 = uint64(cIn) + uint64(a) + uint64(b)
+      sum = uint32(dblPrec2)
+      cOut = Carry(dblPrec2 shr 32)
 
 func subB*(bOut: var Borrow, diff: var uint32, a, b: uint32, bIn: Borrow) {.inline.} =
   ## Substraction with borrow
@@ -129,10 +131,11 @@ func subB*(bOut: var Borrow, diff: var uint32, a, b: uint32, bIn: Borrow) {.inli
     when X86:
       bOut = subborrow_u32(bIn, a, b, diff)
     else:
-      let dblPrec = uint64(a) - uint64(b) - uint64(bIn)
-      diff = uint32(dblPrec)
+      # ditto
+      let dblPrec2 = uint64(a) - uint64(b) - uint64(bIn)
+      diff = uint32(dblPrec2)
       # On borrow the high word will be 0b1111...1111 and needs to be masked
-      bOut = Borrow((dblPrec shr 32) and 1)
+      bOut = Borrow((dblPrec2 shr 32) and 1)
 
 func addC*(cOut: var Carry, sum: var uint64, a, b: uint64, cIn: Carry) {.inline.} =
   ## Addition with carry
