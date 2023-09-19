@@ -10,24 +10,42 @@ skipDirs      = @["tests", "benchmarks"]
 requires "nim >= 1.6.12",
          "stew"
 
-proc test(args, path: string) =
-  if not dirExists "build":
-    mkDir "build"
+let nimc = getEnv("NIMC", "nim") # Which nim compiler to use
+let lang = getEnv("NIMLANG", "c") # Which backend (c/cpp/js)
+let flags = getEnv("NIMFLAGS", "") # Extra flags for the compiler
+let verbose = getEnv("V", "") notin ["", "0"]
 
-  exec "nim " & getEnv("TEST_LANG", "c") & " " & getEnv("NIMFLAGS") & " " & args &
-    " --outdir:build -r --hints:off --warnings:off --skipParentCfg" &
-    " --styleCheck:usages --styleCheck:error " & path
+from os import quoteShell
+
+let cfg =
+  " --styleCheck:usages --styleCheck:error" &
+  (if verbose: "" else: " --verbosity:0 --hints:off") &
+  " --skipParentCfg --skipUserCfg --outdir:build " &
+  quoteShell("--nimcache:build/nimcache/$projectName")
+
+
+proc build(args, path: string) =
+  exec nimc & " " & lang & " " & cfg & " " & flags & " " & args & " " & path
+
+proc run(args, path: string) =
+  build args & " -r", path
   if (NimMajor, NimMinor) > (1, 6):
-    exec "nim " & getEnv("TEST_LANG", "c") & " " & getEnv("NIMFLAGS") & " " & args &
-      " --outdir:build -r --mm:refc --hints:off --warnings:off --skipParentCfg" &
-      " --styleCheck:usages --styleCheck:error " & path
+    build args & " --mm:refc -r", path
+
+proc test(path: string) =
+  for config in ["", "-d:stintNoIntrinsics"]:
+    for mode in ["-d:debug", "-d:release"]:
+      run(config & " " & mode, path)
 
 task test_internal, "Run tests for internal procs":
-  test "", "tests/internal"
+  test "tests/internal"
 
 task test_public_api, "Run all tests - prod implementation (StUint[64] = uint64":
-  test "", "tests/all_tests"
+  test "tests/all_tests"
 
 task test, "Run all tests":
-  exec "nimble test_internal"
-  exec "nimble test_public_api"
+  test "tests/internal"
+  test "tests/all_tests"
+
+  # Smoke-test wasm32 compiles
+  build "--cpu:wasm32", "tests/all_tests"
