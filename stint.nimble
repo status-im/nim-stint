@@ -48,4 +48,4 @@ task test, "Run all tests":
   test "tests/all_tests"
 
   # Smoke-test wasm32 compiles
-  build "--cpu:wasm32", "tests/all_tests"
+  build "--cpu:wasm32 -c", "tests/all_tests"
