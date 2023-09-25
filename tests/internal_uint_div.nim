@@ -9,6 +9,8 @@
 
 # Test implementation of internal proc:
 
+{.used.}
+
 include ../stint/private/uint_div
 import unittest
 
