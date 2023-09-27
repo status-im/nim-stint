@@ -7,64 +7,58 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, test_helpers
+import ../stint, unittest2
 
-template chkDiv(chk: untyped, a, b, c: string, bits: int) =
-  chk (fromHex(StUint[bits], a) div fromHex(StUint[bits], b)) == fromHex(StUint[bits], c)
+template chkDiv(a, b, c: string, bits: int) =
+  check (fromHex(StUint[bits], a) div fromHex(StUint[bits], b)) == fromHex(StUint[bits], c)
 
-template chkMod(chk: untyped, a, b, c: string, bits: int) =
-  chk (fromHex(StUint[bits], a) mod fromHex(StUint[bits], b)) == fromHex(StUint[bits], c)
+template chkMod(a, b, c: string, bits: int) =
+  check (fromHex(StUint[bits], a) mod fromHex(StUint[bits], b)) == fromHex(StUint[bits], c)
 
-template chkDivMod(chk: untyped, a, b, c, d: string, bits: int) =
-  chk divmod(fromHex(StUint[bits], a), fromHex(StUint[bits], b)) == (fromHex(StUint[bits], c), fromHex(StUint[bits], d))
-
-template testdivmod(chk, tst: untyped) =
-  tst "operator `div`":
-    chkDiv(chk, "0", "3", "0", 128)
-    chkDiv(chk, "1", "3", "0", 128)
-    chkDiv(chk, "3", "3", "1", 128)
-    chkDiv(chk, "3", "1", "3", 128)
-    chkDiv(chk, "FF", "3", "55", 128)
-    chkDiv(chk, "FFFF", "3", "5555", 128)
-    chkDiv(chk, "FFFFFFFF", "3", "55555555", 128)
-    chkDiv(chk, "FFFFFFFFFFFFFFFF", "3", "5555555555555555", 128)
-    chkDiv(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "3", "55555555555555555555555555555555", 128)
-
-  tst "operator `mod`":
-    chkMod(chk, "0", "3", "0", 128)
-    chkMod(chk, "1", "3", "1", 128)
-    chkMod(chk, "3", "3", "0", 128)
-    chkMod(chk, "3", "1", "0", 128)
-    chkMod(chk, "FF", "3", "0", 128)
-    chkMod(chk, "FF", "4", "3", 128)
-    chkMod(chk, "FFFF", "3", "0", 128)
-    chkMod(chk, "FFFF", "17", "8", 128)
-    chkMod(chk, "FFFFFFFF", "3", "0", 128)
-    chkMod(chk, "FFFFFFFF", "23", "A", 128)
-    chkMod(chk, "FFFFFFFF", "27", "15", 128)
-    chkMod(chk, "FFFFFFFFFFFFFFFF", "27", "F", 128)
-    chkMod(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "27", "15", 128)
-
-  tst "operator `divmod`":
-    chkDivMod(chk, "0", "3", "0", "0", 128)
-    chkDivMod(chk, "1", "3", "0", "1", 128)
-    chkDivMod(chk, "3", "3", "1", "0", 128)
-    chkDivMod(chk, "3", "1", "3", "0", 128)
-    chkDivMod(chk, "FF", "3", "55", "0", 128)
-    chkDivMod(chk, "FF", "4", "3F", "3", 128)
-    chkDivMod(chk, "FFFF", "3", "5555", "0", 128)
-    chkDivMod(chk, "FFFF", "17", "B21", "8", 128)
-    chkDivMod(chk, "FFFFFFFF", "3", "55555555", "0", 128)
-    chkDivMod(chk, "FFFFFFFF", "23", "7507507", "0A", 128)
-    chkDivMod(chk, "FFFFFFFF", "27", "6906906", "15", 128)
-    chkDivMod(chk, "FFFFFFFFFFFFFFFF", "27", "690690690690690", "F", 128)
-    chkDivMod(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "27", "6906906906906906906906906906906", "15", 128)
-
-static:
-  testdivmod(ctCheck, ctTest)
+template chkDivMod(a, b, c, d: string, bits: int) =
+  check divmod(fromHex(StUint[bits], a), fromHex(StUint[bits], b)) == (fromHex(StUint[bits], c), fromHex(StUint[bits], d))
 
 suite "Wider unsigned int muldiv coverage":
-  testdivmod(check, test)
+  test "operator `div`":
+    chkDiv("0", "3", "0", 128)
+    chkDiv("1", "3", "0", 128)
+    chkDiv("3", "3", "1", 128)
+    chkDiv("3", "1", "3", 128)
+    chkDiv("FF", "3", "55", 128)
+    chkDiv("FFFF", "3", "5555", 128)
+    chkDiv("FFFFFFFF", "3", "55555555", 128)
+    chkDiv("FFFFFFFFFFFFFFFF", "3", "5555555555555555", 128)
+    chkDiv("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "3", "55555555555555555555555555555555", 128)
+
+  test "operator `mod`":
+    chkMod("0", "3", "0", 128)
+    chkMod("1", "3", "1", 128)
+    chkMod("3", "3", "0", 128)
+    chkMod("3", "1", "0", 128)
+    chkMod("FF", "3", "0", 128)
+    chkMod("FF", "4", "3", 128)
+    chkMod("FFFF", "3", "0", 128)
+    chkMod("FFFF", "17", "8", 128)
+    chkMod("FFFFFFFF", "3", "0", 128)
+    chkMod("FFFFFFFF", "23", "A", 128)
+    chkMod("FFFFFFFF", "27", "15", 128)
+    chkMod("FFFFFFFFFFFFFFFF", "27", "F", 128)
+    chkMod("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "27", "15", 128)
+
+  test "operator `divmod`":
+    chkDivMod("0", "3", "0", "0", 128)
+    chkDivMod("1", "3", "0", "1", 128)
+    chkDivMod("3", "3", "1", "0", 128)
+    chkDivMod("3", "1", "3", "0", 128)
+    chkDivMod("FF", "3", "55", "0", 128)
+    chkDivMod("FF", "4", "3F", "3", 128)
+    chkDivMod("FFFF", "3", "5555", "0", 128)
+    chkDivMod("FFFF", "17", "B21", "8", 128)
+    chkDivMod("FFFFFFFF", "3", "55555555", "0", 128)
+    chkDivMod("FFFFFFFF", "23", "7507507", "0A", 128)
+    chkDivMod("FFFFFFFF", "27", "6906906", "15", 128)
+    chkDivMod("FFFFFFFFFFFFFFFF", "27", "690690690690690", "F", 128)
+    chkDivMod("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "27", "6906906906906906906906906906906", "15", 128)
 
 suite "Testing unsigned int division and modulo implementation":
   test "Divmod(100, 13) returns the correct result":

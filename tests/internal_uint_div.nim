@@ -12,7 +12,7 @@
 {.used.}
 
 include ../stint/private/uint_div
-import unittest
+import unittest2
 
 suite "implementation of internal division procecures":
   test "Division of 2 words by 1 - specific carry case (issue #30)":
