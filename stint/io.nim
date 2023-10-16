@@ -10,11 +10,14 @@
 import
   # Standard library
   std/[typetraits, algorithm, hashes],
+  # External libraries
+  results,
   # Internal
   ./private/datatypes,
   ./uintops, ./endians2
 
 from stew/byteutils import toHex
+export results
 
 # Helpers
 # --------------------------------------------------------
@@ -198,29 +201,48 @@ func readHexChar(c: char): int8 {.inline.}=
   else:
     raise newException(ValueError, $c & "is not a hexadecimal character")
 
-func skipPrefixes(current_idx: var int, str: string, radix: range[2..16]) {.inline.} =
+func readStrictHexChar(c: char): Result[int8, cstring] {.raises: [], inline.} =
+  ## Converts an hex char to an int
+  case c
+  of '0'..'9': ok(int8 ord(c) - ord('0'))
+  of 'a'..'f': ok(int8 ord(c) - ord('a') + 10)
+  of 'A'..'F': ok(int8 ord(c) - ord('A') + 10)
+  else:
+    err("Invalid hexadecimal character encountered!")
+
+func skipPrefixes(str: string,
+                  radix: range[2..16]): Result[int, cstring] {.
+     raises: [], inline.} =
   ## Returns the index of the first meaningful char in `hexStr` by skipping
   ## "0x" prefix
+  if len(str) < 2:
+    return ok(0)
 
-  if str.len < 2:
-    return
-
-  doAssert current_idx == 0, "skipPrefixes only works for prefixes (position 0 and 1 of the string)"
-  if str[0] == '0':
-    if str[1] in {'x', 'X'}:
-      doAssert radix == 16, "Parsing mismatch, 0x prefix is only valid for a hexadecimal number (base 16)"
-      current_idx = 2
-    elif str[1] in {'o', 'O'}:
-      doAssert radix == 8, "Parsing mismatch, 0o prefix is only valid for an octal number (base 8)"
-      current_idx = 2
-    elif str[1] in {'b', 'B'}:
-      if radix == 2:
-        current_idx = 2
-      elif radix == 16:
-        # allow something like "0bcdef12345" which is a valid hex
-        current_idx = 0
+  return
+    if str[0] == '0':
+      if str[1] in {'x', 'X'}:
+        if radix != 16:
+          return err("Parsing mismatch, 0x prefix is only valid for a " &
+                     "hexadecimal number (base 16)")
+        ok(2)
+      elif str[1] in {'o', 'O'}:
+        if radix != 8:
+          return err("Parsing mismatch, 0o prefix is only valid for an " &
+                     "octal number (base 8)")
+        ok(2)
+      elif str[1] in {'b', 'B'}:
+        if radix == 2:
+          ok(2)
+        elif radix == 16:
+          # allow something like "0bcdef12345" which is a valid hex
+          ok(0)
+        else:
+          err("Parsing mismatch, 0b prefix is only valid for a binary number " &
+              "(base 2), or hex number")
       else:
-        doAssert false, "Parsing mismatch, 0b prefix is only valid for a binary number (base 2), or hex number"
+        ok(0)
+    else:
+      ok(0)
 
 func nextNonBlank(current_idx: var int, s: string) {.inline.} =
   ## Move the current index, skipping white spaces and "_" characters.
@@ -236,6 +258,47 @@ func readDecChar(c: range['0'..'9']): int {.inline.}=
   # specialization without branching for base <= 10.
   ord(c) - ord('0')
 
+func readStrictDecChar(c: char): Result[int8, cstring] {.raises: [], inline.} =
+  case c
+  of '0'..'9': ok(int8 ord(c) - ord('0'))
+  else:
+    err("Invalid decimal character encountered!")
+
+func strictParse*[bits: static[int]](input: string,
+                                     T: typedesc[StUint[bits]],
+                                     radix: static[uint8] = 10
+                                    ): Result[T, cstring] {.raises: [].} =
+  var res: T
+  static: doAssert (radix >= 2) and (radix <= 16),
+            "Only base from 2..16 are supported"
+
+  const
+    base = radix.uint8.stuint(bits)
+    zero = 0.uint8.stuint(256)
+
+  var currentIndex =
+    block:
+      let res = skipPrefixes(input, radix)
+      if res.isErr():
+        return err(res.error)
+      res.get()
+
+  while currentIndex < len(input):
+    let value =
+      when radix <= 10:
+        ? readStrictDecChar(input[currentIndex])
+      else:
+        ? readStrictHexChar(input[currentIndex])
+    let mres = res * base
+    if (res != zero) and (mres div base != res):
+      return err("Overflow error")
+    let ares = mres + value.stuint(bits)
+    if ares < mres:
+      return err("Overflow error")
+    res = ares
+    inc(currentIndex)
+  ok(res)
+
 func parse*[bits: static[int]](input: string,
                                T: typedesc[StUint[bits]],
                                radix: static[uint8] = 10): T =
@@ -248,8 +311,12 @@ func parse*[bits: static[int]](input: string,
   #       and be much faster
 
   const base = radix.uint8.stuint(bits)
-  var curr = 0 # Current index in the string
-  skipPrefixes(curr, input, radix)
+  var curr =
+    block:
+      let res = skipPrefixes(input, radix)
+      if res.isErr():
+        raiseAssert $res.error
+      res.get()
 
   while curr < input.len:
     # TODO: overflow detection
@@ -282,7 +349,12 @@ func parse*[bits: static[int]](input: string,
     isNeg = true
     inc curr
   else:
-    skipPrefixes(curr, input, radix)
+    curr =
+      block:
+        let res = skipPrefixes(input, radix)
+        if res.isErr():
+          raiseAssert $res.error
+        res.get()
 
   while curr < input.len:
     # TODO: overflow detection
