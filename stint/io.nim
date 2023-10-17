@@ -201,12 +201,16 @@ func readHexChar(c: char): int8 {.inline.}=
   else:
     raise newException(ValueError, $c & "is not a hexadecimal character")
 
-func readStrictHexChar(c: char): Result[int8, cstring] {.raises: [], inline.} =
+func readStrictHexChar(c: char, radix: static[uint8]): Result[int8, cstring] {.
+     raises: [], inline.} =
   ## Converts an hex char to an int
+  const
+    lowerLastChar = chr(ord('a') + radix - 11'u8)
+    capitalLastChar = chr(ord('A') + radix - 11'u8)
   case c
-  of '0'..'9': ok(int8 ord(c) - ord('0'))
-  of 'a'..'f': ok(int8 ord(c) - ord('a') + 10)
-  of 'A'..'F': ok(int8 ord(c) - ord('A') + 10)
+  of '0' .. '9': ok(int8 ord(c) - ord('0'))
+  of 'a' .. lowerLastChar: ok(int8 ord(c) - ord('a') + 10)
+  of 'A' .. capitalLastChar: ok(int8 ord(c) - ord('A') + 10)
   else:
     err("Invalid hexadecimal character encountered!")
 
@@ -258,11 +262,12 @@ func readDecChar(c: range['0'..'9']): int {.inline.}=
   # specialization without branching for base <= 10.
   ord(c) - ord('0')
 
-func readStrictDecChar(c: char): Result[int8, cstring] {.raises: [], inline.} =
+func readStrictDecChar(c: char, radix: static[uint8]): Result[int8, cstring] {.
+     raises: [], inline.} =
+  const lastChar = char(ord('0') + radix - 1'u8)
   case c
-  of '0'..'9': ok(int8 ord(c) - ord('0'))
-  else:
-    err("Invalid decimal character encountered!")
+  of '0' .. lastChar: ok(int8 ord(c) - ord('0'))
+  else: err("Invalid decimal character encountered!")
 
 func strictParse*[bits: static[int]](input: string,
                                      T: typedesc[StUint[bits]],
@@ -286,9 +291,9 @@ func strictParse*[bits: static[int]](input: string,
   while currentIndex < len(input):
     let value =
       when radix <= 10:
-        ? readStrictDecChar(input[currentIndex])
+        ? readStrictDecChar(input[currentIndex], radix)
       else:
-        ? readStrictHexChar(input[currentIndex])
+        ? readStrictHexChar(input[currentIndex], radix)
     let mres = res * base
     if (res != zero) and (mres div base != res):
       return err("Overflow error")
