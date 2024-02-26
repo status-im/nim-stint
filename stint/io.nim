@@ -235,11 +235,11 @@ func nextNonBlank(current_idx: var int, s: string) {.inline.} =
 func readDecChar(c: char): int8 {.inline.}=
   ## Converts a decimal char to an int
   # specialization without branching for base <= 10.
-  ccase c
+  case c
   of '0'..'9':
     int8(ord(c) - ord('0'))
   else:
-    newException(ValueError, "[" & $c & "] is not a decimal character")
+    raise newException(ValueError, "[" & $c & "] is not a decimal character")
 
 func parse*[bits: static[int]](input: string,
                                T: typedesc[StUint[bits]],
