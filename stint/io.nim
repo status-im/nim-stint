@@ -196,7 +196,8 @@ func readHexChar(c: char): int8 {.inline.}=
   of 'a'..'f': result = int8 ord(c) - ord('a') + 10
   of 'A'..'F': result = int8 ord(c) - ord('A') + 10
   else:
-    raise newException(ValueError, $c & "is not a hexadecimal character")
+    raise newException(ValueError,
+                       "[" & $c & "] is not a hexadecimal character")
 
 func skipPrefixes(current_idx: var int, str: string, radix: range[2..16]) {.inline.} =
   ## Returns the index of the first meaningful char in `hexStr` by skipping
@@ -231,10 +232,14 @@ func nextNonBlank(current_idx: var int, s: string) {.inline.} =
   while current_idx < s.len and s[current_idx] in blanks:
     inc current_idx
 
-func readDecChar(c: range['0'..'9']): int {.inline.}=
+func readDecChar(c: char): int8 {.inline.}=
   ## Converts a decimal char to an int
   # specialization without branching for base <= 10.
-  ord(c) - ord('0')
+  case c
+  of '0'..'9':
+    int8(ord(c) - ord('0'))
+  else:
+    raise newException(ValueError, "[" & $c & "] is not a decimal character")
 
 func parse*[bits: static[int]](input: string,
                                T: typedesc[StUint[bits]],
