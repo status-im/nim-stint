@@ -42,7 +42,7 @@ jobs:
     runs-on: ${{ matrix.builder }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set GCC 10 as default compiler (Linux)
         if: runner.os == 'Linux' && matrix.target.cpu != 'i386'
@@ -74,7 +74,7 @@ jobs:
       - name: Restore llvm-mingw (Windows) from cache
         if: runner.os == 'Windows'
         id: windows-mingw-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: external/mingw-${{ matrix.target.cpu }}
           key: 'mingw-llvm-17-${{ matrix.target.cpu }}'
@@ -100,7 +100,7 @@ jobs:
       - name: Restore Nim DLLs dependencies (Windows) from cache
         if: runner.os == 'Windows'
         id: windows-dlls-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: external/dlls
           key: 'dlls'
