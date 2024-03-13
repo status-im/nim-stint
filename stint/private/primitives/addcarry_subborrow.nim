@@ -148,7 +148,7 @@ func addC*(cOut: var Carry, sum: var uint64, a, b: uint64, cIn: Carry) {.inline.
     when useIntrinsics:
       cOut = addcarry_u64(cIn, a, b, sum)
     elif useInt128:
-      var dblPrec {.noInit.}: uint128
+      var dblPrec {.noinit.}: uint128
       {.emit:[dblPrec, " = (unsigned __int128)", a," + (unsigned __int128)", b, " + (unsigned __int128)",cIn,";"].}
 
       # Don't forget to dereference the var param in C mode
@@ -170,7 +170,7 @@ func subB*(bOut: var Borrow, diff: var uint64, a, b: uint64, bIn: Borrow) {.inli
     when useIntrinsics:
       bOut = subborrow_u64(bIn, a, b, diff)
     elif useInt128:
-      var dblPrec {.noInit.}: uint128
+      var dblPrec {.noinit.}: uint128
       {.emit:[dblPrec, " = (unsigned __int128)", a," - (unsigned __int128)", b, " - (unsigned __int128)",bIn,";"].}
 
       # Don't forget to dereference the var param in C mode

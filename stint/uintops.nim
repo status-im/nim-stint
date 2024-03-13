@@ -123,7 +123,7 @@ func `xor`*(a, b: StUint): StUint =
   ## `Bitwise xor` of numbers x and y
   result.bitxor(a, b)
 
-{.pop.} # End noInit
+{.pop.} # End noinit
 
 export
   countOnes,

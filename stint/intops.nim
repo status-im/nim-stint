@@ -168,7 +168,7 @@ func `xor`*(a, b: StInt): StInt =
   ## `Bitwise xor` of numbers x and y
   result.impl.bitxor(a.impl, b.impl)
 
-{.pop.} # End noInit
+{.pop.} # End noinit
 
 {.push raises: [], inline, gcsafe.}
 
