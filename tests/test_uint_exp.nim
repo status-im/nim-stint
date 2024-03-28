@@ -7,34 +7,28 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, math, test_helpers
+import ../stint, unittest2, math
 
-template chkPow(chk: untyped, a, b, c: string, bits: int) =
-  chk pow(fromHex(StUint[bits], a), fromHex(StUint[bits], b)) == fromHex(StUint[bits], c)
+template chkPow(a, b, c: string, bits: int) =
+  check pow(fromHex(StUint[bits], a), fromHex(StUint[bits], b)) == fromHex(StUint[bits], c)
 
-template chkPow(chk: untyped, a: string, b: SomeInteger, c: string, bits: int) =
-  chk pow(fromHex(StUint[bits], a), b) == fromHex(StUint[bits], c)
-
-template testExp(chk, tst: untyped) =
-  tst "BigInt BigInt Pow":
-    chkPow(chk, "F", "2", "E1", 128)
-    chkPow(chk, "FF", "2", "FE01", 128)
-    chkPow(chk, "FF", "3", "FD02FF", 128)
-    chkPow(chk, "FFF", "3", "FFD002FFF", 128)
-    chkPow(chk, "FFFFF", "3", "ffffd00002fffff", 128)
-
-  tst "BigInt Natural Pow":
-    chkPow(chk, "F", 2, "E1", 128)
-    chkPow(chk, "FF", 2, "FE01", 128)
-    chkPow(chk, "FF", 3, "FD02FF", 128)
-    chkPow(chk, "FFF", 3, "FFD002FFF", 128)
-    chkPow(chk, "FFFFF", 3, "ffffd00002fffff", 128)
-
-static:
-  testExp(ctCheck, ctTest)
+template chkPow(a: string, b: SomeInteger, c: string, bits: int) =
+  check pow(fromHex(StUint[bits], a), b) == fromHex(StUint[bits], c)
 
 suite "Wider unsigned int exp coverage":
-  testExp(check, test)
+  test "BigInt BigInt Pow":
+    chkPow("F", "2", "E1", 128)
+    chkPow("FF", "2", "FE01", 128)
+    chkPow("FF", "3", "FD02FF", 128)
+    chkPow("FFF", "3", "FFD002FFF", 128)
+    chkPow("FFFFF", "3", "ffffd00002fffff", 128)
+
+  test "BigInt Natural Pow":
+    chkPow("F", 2, "E1", 128)
+    chkPow("FF", 2, "FE01", 128)
+    chkPow("FF", 3, "FD02FF", 128)
+    chkPow("FFF", 3, "FFD002FFF", 128)
+    chkPow("FFFFF", 3, "ffffd00002fffff", 128)
 
 suite "Testing unsigned exponentiation":
   test "Simple exponentiation 5^3":
@@ -45,8 +39,8 @@ suite "Testing unsigned exponentiation":
       u = a.stuint(64)
 
     check:
-      cast[uint64](u.pow(b)) == a ^ b
-      cast[uint64](u.pow(b.stuint(64))) == a ^ b
+      u.pow(b).truncate(uint64) == a ^ b
+      u.pow(b.stuint(64)).truncate(uint64) == a ^ b
 
   test "12 ^ 34 == 4922235242952026704037113243122008064":
     # https://www.wolframalpha.com/input/?i=12+%5E+34

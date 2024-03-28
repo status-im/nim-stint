@@ -7,10 +7,10 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest
+import ../stint, unittest2
 
 suite "Testing unsigned int byte representation":
-  test "Byte representation conforms to the platform endianness":
+  runtimeTest "Byte representation conforms to the platform endianness":
     let a = 20182018.stuint(64)
     let b = 20182018'u64
 

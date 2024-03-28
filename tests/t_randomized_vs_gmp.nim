@@ -1,6 +1,6 @@
 # Stint
 # Copyright (c) 2018-2022    Status Research & Development GmbH
-# 
+#
 # Licensed and distributed under either of
 #   * MIT license (license terms in the root directory or at http://opensource.org/licenses/MIT).
 #   * Apache v2 license (license terms in the root directory or at http://www.apache.org/licenses/LICENSE-2.0).
@@ -8,7 +8,7 @@
 
 import
   # Standard library
-  std/[unittest, times, strutils],
+  std/[unittest2, times, strutils],
   # Third-party
   gmp, stew/byteutils,
   # Internal
@@ -50,7 +50,7 @@ proc fromStuint[bits: static int](dst: var mpz_t, src: Stuint[bits]) =
   doAssert t2.toOpenArray(0, wordsWritten-1) == t.toOpenArray(t.len-wordsWritten, t.len-1)
 
 proc test_add(bits: static int, iters: int, gen: RandomGen) =
-  
+
   const N = (bits + 7) div 8
 
   var x, y, z, m: mpz_t
@@ -59,7 +59,7 @@ proc test_add(bits: static int, iters: int, gen: RandomGen) =
   mpz_init(z)
   mpz_init(m)
   mpz_ui_pow_ui(m, 2, bits) # 2^bits
-  
+
   for _ in 0 ..< iters:
     let a = rng.random_elem(Stuint[bits], gen)
     let b = rng.random_elem(Stuint[bits], gen)
@@ -97,7 +97,7 @@ template testAddition(bits: static int) =
     test_add(bits, Iters, Long01Sequence)
 
 proc test_sub(bits: static int, iters: int, gen: RandomGen) =
-  
+
   const N = (bits + 7) div 8
 
   var x, y, z, m: mpz_t
@@ -106,7 +106,7 @@ proc test_sub(bits: static int, iters: int, gen: RandomGen) =
   mpz_init(z)
   mpz_init(m)
   mpz_ui_pow_ui(m, 2, bits) # 2^bits
-  
+
   for _ in 0 ..< iters:
     let a = rng.random_elem(Stuint[bits], gen)
     let b = rng.random_elem(Stuint[bits], gen)
@@ -144,7 +144,7 @@ template testSubstraction(bits: static int) =
     test_sub(bits, Iters, Long01Sequence)
 
 proc test_mul(bits: static int, iters: int, gen: RandomGen) =
-  
+
   const N = (bits + 7) div 8
 
   var x, y, z, m: mpz_t
@@ -153,7 +153,7 @@ proc test_mul(bits: static int, iters: int, gen: RandomGen) =
   mpz_init(z)
   mpz_init(m)
   mpz_ui_pow_ui(m, 2, bits) # 2^bits
-  
+
   for _ in 0 ..< iters:
     let a = rng.random_elem(Stuint[bits], gen)
     let b = rng.random_elem(Stuint[bits], gen)

@@ -7,51 +7,45 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, test_helpers
+import ../stint, unittest2
 
-template chkMul(chk: untyped, a, b, c: string, bits: int) =
-  chk (fromHex(StUint[bits], a) * fromHex(StUint[bits], b)) == fromHex(StUint[bits], c)
-
-template testMul(chk, tst: untyped) =
-  tst "operator `mul`":
-    #[chkMul(chk, "0", "3", "0", 8)
-    chkMul(chk, "1", "3", "3", 8)
-    chkMul(chk, "64", "3", "2C", 8) # overflow
-
-    chkMul(chk, "0", "3", "0", 16)
-    chkMul(chk, "1", "3", "3", 16)
-    chkMul(chk, "64", "3", "12C", 16)
-    chkMul(chk, "1770", "46", "68A0", 16) # overflow
-
-    chkMul(chk, "0", "3", "0", 32)
-    chkMul(chk, "1", "3", "3", 32)
-    chkMul(chk, "64", "3", "12C", 32)
-    chkMul(chk, "1770", "46", "668A0", 32)
-    chkMul(chk, "13880", "13880", "7D784000", 32) # overflow
-
-    chkMul(chk, "0", "3", "0", 64)
-    chkMul(chk, "1", "3", "3", 64)
-    chkMul(chk, "64", "3", "12C", 64)
-    chkMul(chk, "1770", "46", "668A0", 64)
-    chkMul(chk, "13880", "13880", "17D784000", 64)
-    chkMul(chk, "3B9ACA00", "E8D4A51000", "35C9ADC5DEA00000", 64) # overflow]#
-
-    chkMul(chk, "0", "3", "0", 128)
-    chkMul(chk, "1", "3", "3", 128)
-    chkMul(chk, "64", "3", "12C", 128)
-    chkMul(chk, "1770", "46", "668A0", 128)
-    chkMul(chk, "13880", "13880", "17D784000", 128)
-    chkMul(chk, "3B9ACA00", "E8D4A51000", "3635C9ADC5DEA00000", 128)
-    chkMul(chk, "25295F0D1", "10", "25295F0D10", 128)
-    chkMul(chk, "123456789ABCDEF00", "123456789ABCDEF00", "4b66dc33f6acdca5e20890f2a5210000", 128) # overflow
-
-    chkMul(chk, "123456789ABCDEF00", "123456789ABCDEF00", "14b66dc33f6acdca5e20890f2a5210000", 256)
-
-static:
-  testMul(ctCheck, ctTest)
+template chkMul(a, b, c: string, bits: int) =
+  check (fromHex(StUint[bits], a) * fromHex(StUint[bits], b)) == fromHex(StUint[bits], c)
 
 suite "Wider unsigned int muldiv coverage":
-  testMul(check, test)
+  test "operator `mul`":
+    #[chkMul("0", "3", "0", 8)
+    chkMul("1", "3", "3", 8)
+    chkMul("64", "3", "2C", 8) # overflow
+
+    chkMul("0", "3", "0", 16)
+    chkMul("1", "3", "3", 16)
+    chkMul("64", "3", "12C", 16)
+    chkMul("1770", "46", "68A0", 16) # overflow
+
+    chkMul("0", "3", "0", 32)
+    chkMul("1", "3", "3", 32)
+    chkMul("64", "3", "12C", 32)
+    chkMul("1770", "46", "668A0", 32)
+    chkMul("13880", "13880", "7D784000", 32) # overflow
+
+    chkMul("0", "3", "0", 64)
+    chkMul("1", "3", "3", 64)
+    chkMul("64", "3", "12C", 64)
+    chkMul("1770", "46", "668A0", 64)
+    chkMul("13880", "13880", "17D784000", 64)
+    chkMul("3B9ACA00", "E8D4A51000", "35C9ADC5DEA00000", 64) # overflow]#
+
+    chkMul("0", "3", "0", 128)
+    chkMul("1", "3", "3", 128)
+    chkMul("64", "3", "12C", 128)
+    chkMul("1770", "46", "668A0", 128)
+    chkMul("13880", "13880", "17D784000", 128)
+    chkMul("3B9ACA00", "E8D4A51000", "3635C9ADC5DEA00000", 128)
+    chkMul("25295F0D1", "10", "25295F0D10", 128)
+    chkMul("123456789ABCDEF00", "123456789ABCDEF00", "4b66dc33f6acdca5e20890f2a5210000", 128) # overflow
+
+    chkMul("123456789ABCDEF00", "123456789ABCDEF00", "14b66dc33f6acdca5e20890f2a5210000", 256)
 
 #[
 suite "Testing unsigned int multiplication implementation":
