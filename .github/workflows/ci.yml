@@ -168,6 +168,6 @@ jobs:
           env TEST_LANG="c" nimble test
           # run test against intx
           env TEST_LANG="cpp" nimble test
-          # test conditional compilation for arm654 arch
+          # test conditional compilation for arm64 arch
           # without running the binary
           nim c -c --cpu:arm64 --os:linux tests/all_tests
