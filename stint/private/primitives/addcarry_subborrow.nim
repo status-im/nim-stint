@@ -88,6 +88,10 @@ const
   useIntrinsics = X86 and not stintNoIntrinsics
   useInt128 = GCC_Compatible and sizeof(int) == 8 and not stintNoIntrinsics
 
+const
+  newerNim = (NimMajor, NimMinor) > (1, 6)
+  noExplicitPtrDeref = defined(cpp) or newerNim
+
 when useIntrinsics:
   when defined(windows):
     {.pragma: intrinsics, header:"<intrin.h>", nodecl.}
@@ -152,7 +156,7 @@ func addC*(cOut: var Carry, sum: var uint64, a, b: uint64, cIn: Carry) {.inline.
       {.emit:[dblPrec, " = (unsigned __int128)", a," + (unsigned __int128)", b, " + (unsigned __int128)",cIn,";"].}
 
       # Don't forget to dereference the var param in C mode
-      when defined(cpp):
+      when noExplicitPtrDeref:
         {.emit:[cOut, " = (NU64)(", dblPrec," >> ", 64'u64, ");"].}
         {.emit:[sum, " = (NU64)", dblPrec,";"].}
       else:
@@ -175,7 +179,7 @@ func subB*(bOut: var Borrow, diff: var uint64, a, b: uint64, bIn: Borrow) {.inli
 
       # Don't forget to dereference the var param in C mode
       # On borrow the high word will be 0b1111...1111 and needs to be masked
-      when defined(cpp):
+      when noExplicitPtrDeref:
         {.emit:[bOut, " = (NU64)(", dblPrec," >> ", 64'u64, ") & 1;"].}
         {.emit:[diff, " = (NU64)", dblPrec,";"].}
       else:
