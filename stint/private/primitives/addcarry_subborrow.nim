@@ -101,8 +101,8 @@ when useIntrinsics:
   func addcarry_u32(carryIn: Carry, a, b: uint32, sum: var uint32): Carry {.importc: "_addcarry_u32", intrinsics.}
   func subborrow_u32(borrowIn: Borrow, a, b: uint32, diff: var uint32): Borrow {.importc: "_subborrow_u32", intrinsics.}
 
-  func addcarry_u64(carryIn: Carry, a, b: uint64, sum: var uint64): Carry {.importc: "_addcarry_u64", intrinsics.}
-  func subborrow_u64(borrowIn: Borrow, a, b:uint64, diff: var uint64): Borrow {.importc: "_subborrow_u64", intrinsics.}
+  func addcarry_u64(carryIn: Carry, a, b: uint64, sum: var culonglong): Carry {.importc: "_addcarry_u64", intrinsics.}
+  func subborrow_u64(borrowIn: Borrow, a, b:uint64, diff: var culonglong): Borrow {.importc: "_subborrow_u64", intrinsics.}
 
 # ############################################################
 #
@@ -150,7 +150,7 @@ func addC*(cOut: var Carry, sum: var uint64, a, b: uint64, cIn: Carry) {.inline.
     addC_nim(cOut, sum, a, b, cIn)
   else:
     when useIntrinsics:
-      cOut = addcarry_u64(cIn, a, b, sum)
+      cOut = addcarry_u64(cIn, a, b, culonglong(sum))
     elif useInt128:
       var dblPrec {.noinit.}: uint128
       {.emit:[dblPrec, " = (unsigned __int128)", a," + (unsigned __int128)", b, " + (unsigned __int128)",cIn,";"].}
@@ -172,7 +172,7 @@ func subB*(bOut: var Borrow, diff: var uint64, a, b: uint64, bIn: Borrow) {.inli
     subB_nim(bOut, diff, a, b, bIn)
   else:
     when useIntrinsics:
-      bOut = subborrow_u64(bIn, a, b, diff)
+      bOut = subborrow_u64(bIn, a, b, culonglong(diff))
     elif useInt128:
       var dblPrec {.noinit.}: uint128
       {.emit:[dblPrec, " = (unsigned __int128)", a," - (unsigned __int128)", b, " - (unsigned __int128)",bIn,";"].}
