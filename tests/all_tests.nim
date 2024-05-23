@@ -38,6 +38,6 @@ import
   test_bugfix,
   test_features
 
-when defined(cpp):
+when defined(cpp) and not defined(unittest2Static):
   import
     test_vs_intx

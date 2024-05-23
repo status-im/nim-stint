@@ -8,7 +8,7 @@
 
 import
   ../stint,
-  unittest
+  unittest2
 
 template reject(code: untyped) =
   static: assert(not compiles(code))

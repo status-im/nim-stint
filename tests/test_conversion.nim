@@ -7,9 +7,9 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, strutils, test_helpers
+import ../stint, unittest2, strutils
 
-template chkStuintToStuint(chk: untyped, N, bits: static[int]) =
+template chkStuintToStuint(N, bits: static[int]) =
   block:
     let x = StUint[N].high
     let y = stuint(0, N)
@@ -20,13 +20,13 @@ template chkStuintToStuint(chk: untyped, N, bits: static[int]) =
     let zz = stuint(z, bits)
 
     when N <= bits:
-      chk $x == $xx
+      check $x == $xx
     else:
-      chk $xx == $(StUint[bits].high)
-    chk $y == $yy
-    chk $z == $zz
+      check $xx == $(StUint[bits].high)
+    check $y == $yy
+    check $z == $zz
 
-template chkStintToStuint(chk, handleErr: untyped, N, bits: static[int]) =
+template chkStintToStuint(N, bits: static[int]) =
   block:
     let w = StInt[N].low
     let x = StInt[N].high
@@ -34,25 +34,25 @@ template chkStintToStuint(chk, handleErr: untyped, N, bits: static[int]) =
     let z = stint(1, N)
     let v = stint(-1, N)
 
-    handleErr OverflowDefect:
+    expect OverflowDefect:
       discard stuint(w, bits)
 
     let xx = stuint(x, bits)
     let yy = stuint(y, bits)
     let zz = stuint(z, bits)
 
-    handleErr OverflowDefect:
+    expect OverflowDefect:
       discard stuint(v, bits)
 
     when N <= bits:
-      chk $x == $xx
+      check $x == $xx
     else:
-      chk $xx == $(StUint[bits].high)
+      check $xx == $(StUint[bits].high)
 
-    chk $y == $yy
-    chk $z == $zz
+    check $y == $yy
+    check $z == $zz
 
-template chkStintToStint(chk, handleErr: untyped, N, bits: static[int]) =
+template chkStintToStint(N, bits: static[int]) =
   block:
     let y = stint(0, N)
     let z = stint(1, N)
@@ -65,24 +65,24 @@ template chkStintToStint(chk, handleErr: untyped, N, bits: static[int]) =
     when bits >= N:
       let x = StInt[N].high
       let xx = stint(x, bits)
-      chk $x == $xx
+      check $x == $xx
     else:
       let x = fromHex(StInt[N], toHex(StInt[bits].high))
       let xx = stint(x, bits)
-      chk $x == $xx
+      check $x == $xx
 
-    chk $y == $yy
-    chk $z == $zz
-    chk $v == $vv
+    check $y == $yy
+    check $z == $zz
+    check $v == $vv
 
     let w = StInt[N].low
 
     when bits < N:
-      handleErr RangeDefect:
+      expect RangeDefect:
         discard stint(w, bits)
     else:
       let ww = stint(w, bits)
-      chk $w == $ww
+      check $w == $ww
 
     let m = stint(int32.low, N)
     let n = stint(int64.low, N)
@@ -90,10 +90,10 @@ template chkStintToStint(chk, handleErr: untyped, N, bits: static[int]) =
     let mm = stint(m, bits)
     let nn = stint(n, bits)
 
-    chk $m == $mm
-    chk $n == $nn
+    check $m == $mm
+    check $n == $nn
 
-template chkStuintToStint(chk, handleErr: untyped, N, bits: static[int]) =
+template chkStuintToStint(N, bits: static[int]) =
   block:
     let y = stuint(0, N)
     let z = stuint(1, N)
@@ -103,107 +103,108 @@ template chkStuintToStint(chk, handleErr: untyped, N, bits: static[int]) =
     let zz = stint(z, bits)
 
     when bits <= N:
-      handleErr RangeDefect:
+      expect RangeDefect:
         discard stint(v, bits)
     else:
       let vv = stint(v, bits)
-      chk v.toHex == vv.toHex
+      check v.toHex == vv.toHex
 
-    chk $y == $yy
-    chk $z == $zz
+    check $y == $yy
+    check $z == $zz
 
-template testConversion(chk, tst, handleErr: untyped) =
-  tst "stuint to stuint":
-    chkStuintToStuint(chk, 64, 64)
-    chkStuintToStuint(chk, 64, 128)
-    chkStuintToStuint(chk, 64, 256)
-    chkStuintToStuint(chk, 64, 512)
 
-    chkStuintToStuint(chk, 128, 64)
-    chkStuintToStuint(chk, 128, 128)
-    chkStuintToStuint(chk, 128, 256)
-    chkStuintToStuint(chk, 128, 512)
+suite "Testing conversion between big integers":
+  test "stuint to stuint":
+    chkStuintToStuint(64, 64)
+    chkStuintToStuint(64, 128)
+    chkStuintToStuint(64, 256)
+    chkStuintToStuint(64, 512)
 
-    chkStuintToStuint(chk, 256, 64)
-    chkStuintToStuint(chk, 256, 128)
-    chkStuintToStuint(chk, 256, 256)
-    chkStuintToStuint(chk, 256, 512)
+    chkStuintToStuint(128, 64)
+    chkStuintToStuint(128, 128)
+    chkStuintToStuint(128, 256)
+    chkStuintToStuint(128, 512)
 
-    chkStuintToStuint(chk, 512, 64)
-    chkStuintToStuint(chk, 512, 128)
-    chkStuintToStuint(chk, 512, 256)
-    chkStuintToStuint(chk, 512, 512)
+    chkStuintToStuint(256, 64)
+    chkStuintToStuint(256, 128)
+    chkStuintToStuint(256, 256)
+    chkStuintToStuint(256, 512)
 
-  tst "stint to stuint":
-    chkStintToStuint(chk, handleErr, 64, 64)
-    chkStintToStuint(chk, handleErr, 64, 128)
-    chkStintToStuint(chk, handleErr, 64, 256)
-    chkStintToStuint(chk, handleErr, 64, 512)
+    chkStuintToStuint(512, 64)
+    chkStuintToStuint(512, 128)
+    chkStuintToStuint(512, 256)
+    chkStuintToStuint(512, 512)
 
-    chkStintToStuint(chk, handleErr, 128, 64)
-    chkStintToStuint(chk, handleErr, 128, 128)
-    chkStintToStuint(chk, handleErr, 128, 256)
-    chkStintToStuint(chk, handleErr, 128, 512)
+  test "stint to stuint":
+    chkStintToStuint(64, 64)
+    chkStintToStuint(64, 128)
+    chkStintToStuint(64, 256)
+    chkStintToStuint(64, 512)
 
-    chkStintToStuint(chk, handleErr, 256, 64)
-    chkStintToStuint(chk, handleErr, 256, 128)
-    chkStintToStuint(chk, handleErr, 256, 256)
-    chkStintToStuint(chk, handleErr, 256, 512)
+    chkStintToStuint(128, 64)
+    chkStintToStuint(128, 128)
+    chkStintToStuint(128, 256)
+    chkStintToStuint(128, 512)
 
-    chkStintToStuint(chk, handleErr, 512, 64)
-    chkStintToStuint(chk, handleErr, 512, 128)
-    chkStintToStuint(chk, handleErr, 512, 256)
-    chkStintToStuint(chk, handleErr, 512, 512)
+    chkStintToStuint(256, 64)
+    chkStintToStuint(256, 128)
+    chkStintToStuint(256, 256)
+    chkStintToStuint(256, 512)
 
-  tst "stint to stint":
-    chkStintToStint(chk, handleErr, 64, 64)
-    chkStintToStint(chk, handleErr, 64, 128)
-    chkStintToStint(chk, handleErr, 64, 256)
-    chkStintToStint(chk, handleErr, 64, 512)
+    chkStintToStuint(512, 64)
+    chkStintToStuint(512, 128)
+    chkStintToStuint(512, 256)
+    chkStintToStuint(512, 512)
 
-    chkStintToStint(chk, handleErr, 128, 64)
-    chkStintToStint(chk, handleErr, 128, 128)
-    chkStintToStint(chk, handleErr, 128, 256)
-    chkStintToStint(chk, handleErr, 128, 512)
+  test "stint to stint":
+    chkStintToStint(64, 64)
+    chkStintToStint(64, 128)
+    chkStintToStint(64, 256)
+    chkStintToStint(64, 512)
 
-    chkStintToStint(chk, handleErr, 256, 64)
-    chkStintToStint(chk, handleErr, 256, 128)
-    chkStintToStint(chk, handleErr, 256, 256)
-    chkStintToStint(chk, handleErr, 256, 512)
+    chkStintToStint(128, 64)
+    chkStintToStint(128, 128)
+    chkStintToStint(128, 256)
+    chkStintToStint(128, 512)
 
-    chkStintToStint(chk, handleErr, 512, 64)
-    chkStintToStint(chk, handleErr, 512, 128)
-    chkStintToStint(chk, handleErr, 512, 256)
-    chkStintToStint(chk, handleErr, 512, 512)
+    chkStintToStint(256, 64)
+    chkStintToStint(256, 128)
+    chkStintToStint(256, 256)
+    chkStintToStint(256, 512)
 
-  tst "stuint to stint":
-    chkStuintToStint(chk, handleErr, 64, 64)
-    chkStuintToStint(chk, handleErr, 64, 128)
-    chkStuintToStint(chk, handleErr, 64, 256)
-    chkStuintToStint(chk, handleErr, 64, 512)
+    chkStintToStint(512, 64)
+    chkStintToStint(512, 128)
+    chkStintToStint(512, 256)
+    chkStintToStint(512, 512)
 
-    chkStuintToStint(chk, handleErr, 128, 64)
-    chkStuintToStint(chk, handleErr, 128, 128)
-    chkStuintToStint(chk, handleErr, 128, 256)
-    chkStuintToStint(chk, handleErr, 128, 512)
+  test "stuint to stint":
+    chkStuintToStint(64, 64)
+    chkStuintToStint(64, 128)
+    chkStuintToStint(64, 256)
+    chkStuintToStint(64, 512)
 
-    chkStuintToStint(chk, handleErr, 256, 64)
-    chkStuintToStint(chk, handleErr, 256, 128)
-    chkStuintToStint(chk, handleErr, 256, 256)
-    chkStuintToStint(chk, handleErr, 256, 512)
+    chkStuintToStint(128, 64)
+    chkStuintToStint(128, 128)
+    chkStuintToStint(128, 256)
+    chkStuintToStint(128, 512)
 
-    chkStuintToStint(chk, handleErr, 512, 64)
-    chkStuintToStint(chk, handleErr, 512, 128)
-    chkStuintToStint(chk, handleErr, 512, 256)
-    chkStuintToStint(chk, handleErr, 512, 512)
+    chkStuintToStint(256, 64)
+    chkStuintToStint(256, 128)
+    chkStuintToStint(256, 256)
+    chkStuintToStint(256, 512)
 
-static:
-  testConversion(ctCheck, ctTest, ctExpect)
+    chkStuintToStint(512, 64)
+    chkStuintToStint(512, 128)
+    chkStuintToStint(512, 256)
+    chkStuintToStint(512, 512)
 
-proc main() =
-  # Nim GC protests we are using too much global variables
-  # so put it in a proc
-  suite "Testing conversion between big integers":
-    testConversion(check, test, expect)
+# static:
+#   testConversion(ctCheck, ctTest, ctExpect)
 
-main()
+# proc main() =
+#   # Nim GC protests we are using too much global variables
+#   # so put it in a proc
+#   suite "Testing conversion between big integers":
+#     testConversion(check, test, expect)
+
+# main()

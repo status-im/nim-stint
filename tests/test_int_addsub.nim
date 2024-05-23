@@ -7,160 +7,149 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, test_helpers
+import ../stint, unittest2
 
-template chkAddition(chk, a, b, c, bits: untyped) =
+template checkAddition(a, b, c, bits: untyped) =
   block:
     let x = stint(a, bits)
     let y = stint(b, bits)
-    chk x + y == stint(c, bits)
+    check x + y == stint(c, bits)
 
-template chkInplaceAddition(chk, a, b, c, bits: untyped) =
+template checkInplaceAddition(a, b, c, bits: untyped) =
   block:
     var x = stint(a, bits)
     x += stint(b, bits)
-    chk x == stint(c, bits)
+    check x == stint(c, bits)
 
-template chkSubstraction(chk, a, b, c, bits: untyped) =
+template checkSubstraction(a, b, c, bits: untyped) =
   block:
     let x = stint(a, bits)
     let y = stint(b, bits)
-    chk x - y == stint(c, bits)
+    check x - y == stint(c, bits)
 
-template chkInplaceSubstraction(chk, a, b, c, bits: untyped) =
+template checkInplaceSubstraction(a, b, c, bits: untyped) =
   block:
     var x = stint(a, bits)
     x -= stint(b, bits)
-    chk x == stint(c, bits)
+    check x == stint(c, bits)
 
-template chkNegation(chk, a, b, bits: untyped) =
-  chk -stint(a, bits) == stint(b, bits)
+template checkNegation(a, b, bits: untyped) =
+  check -stint(a, bits) == stint(b, bits)
 
-template chkAbs(chk, a, b, bits: untyped) =
-  chk stint(a, bits).abs() == stint(b, bits)
+template checkAbs(a, b, bits: untyped) =
+  check stint(a, bits).abs() == stint(b, bits)
 
-template testAddSub(chk, tst: untyped) =
-  tst "addition":
-    chkAddition(chk, 0'i8, 0'i8, 0'i8, 128)
-    chkAddition(chk, high(int8) - 17'i8, 17'i8, high(int8), 128)
-    chkAddition(chk, low(int8) + 17'i8, 17'i8, low(int8) + 34'i8, 128)
-    chkAddition(chk, high(int16) - 17'i16, 17'i16, high(int16), 128)
-    chkAddition(chk, low(int16) + 17'i16, 17'i16, low(int16) + 34'i16, 128)
-    chkAddition(chk, high(int32) - 17'i32, 17'i32, high(int32), 128)
-    chkAddition(chk, low(int32) + 17'i32, 17'i32, low(int32) + 34'i32, 128)
-    chkAddition(chk, high(int64) - 17'i64, 17'i64, high(int64), 128)
-    chkAddition(chk, low(int64) + 17'i64, 17'i64, low(int64) + 34'i64, 128)
+suite "Wider signed int addsub coverage":
+  test "addition":
+    checkAddition(0'i8, 0'i8, 0'i8, 128)
+    checkAddition(high(int8) - 17'i8, 17'i8, high(int8), 128)
+    checkAddition(low(int8) + 17'i8, 17'i8, low(int8) + 34'i8, 128)
+    checkAddition(high(int16) - 17'i16, 17'i16, high(int16), 128)
+    checkAddition(low(int16) + 17'i16, 17'i16, low(int16) + 34'i16, 128)
+    checkAddition(high(int32) - 17'i32, 17'i32, high(int32), 128)
+    checkAddition(low(int32) + 17'i32, 17'i32, low(int32) + 34'i32, 128)
+    checkAddition(high(int64) - 17'i64, 17'i64, high(int64), 128)
+    checkAddition(low(int64) + 17'i64, 17'i64, low(int64) + 34'i64, 128)
 
-  tst "inplace addition":
-    chkInplaceAddition(chk, 0'i8, 0'i8, 0'i8, 128)
-    chkInplaceAddition(chk, high(int8) - 17'i8, 17'i8, high(int8), 128)
-    chkInplaceAddition(chk, low(int8) + 17'i8, 17'i8, low(int8) + 34'i8, 128)
-    chkInplaceAddition(chk, high(int16) - 17'i16, 17'i16, high(int16), 128)
-    chkInplaceAddition(chk, low(int16) + 17'i16, 17'i16, low(int16) + 34'i16, 128)
-    chkInplaceAddition(chk, high(int32) - 17'i32, 17'i32, high(int32), 128)
-    chkInplaceAddition(chk, low(int32) + 17'i32, 17'i32, low(int32) + 34'i32, 128)
-    chkInplaceAddition(chk, high(int64) - 17'i64, 17'i64, high(int64), 128)
-    chkInplaceAddition(chk, low(int64) + 17'i64, 17'i64, low(int64) + 34'i64, 128)
+  test "inplace addition":
+    checkInplaceAddition(0'i8, 0'i8, 0'i8, 128)
+    checkInplaceAddition(high(int8) - 17'i8, 17'i8, high(int8), 128)
+    checkInplaceAddition(low(int8) + 17'i8, 17'i8, low(int8) + 34'i8, 128)
+    checkInplaceAddition(high(int16) - 17'i16, 17'i16, high(int16), 128)
+    checkInplaceAddition(low(int16) + 17'i16, 17'i16, low(int16) + 34'i16, 128)
+    checkInplaceAddition(high(int32) - 17'i32, 17'i32, high(int32), 128)
+    checkInplaceAddition(low(int32) + 17'i32, 17'i32, low(int32) + 34'i32, 128)
+    checkInplaceAddition(high(int64) - 17'i64, 17'i64, high(int64), 128)
+    checkInplaceAddition(low(int64) + 17'i64, 17'i64, low(int64) + 34'i64, 128)
 
-  tst "substraction":
-    chkSubstraction(chk, 0'i8, 0'i8, 0'i8, 128)
-    chkSubstraction(chk, high(int8) - 17'i8, 17'i8, high(int8) - 34'i8, 128)
-    chkSubstraction(chk, -high(int8), -high(int8), 0'i8, 128)
-    chkSubstraction(chk, high(int16) - 17'i16, 17'i16, high(int16) - 34'i16, 128)
-    chkSubstraction(chk, -high(int16), -high(int16), 0'i16, 128)
-    chkSubstraction(chk, high(int32) - 17'i32, 17'i32, high(int32) - 34'i32, 128)
-    chkSubstraction(chk, -high(int32), -high(int32), 0'i32, 128)
-    chkSubstraction(chk, high(int64) - 17'i64, 17'i64, high(int64) - 34'i64, 128)
-    chkSubstraction(chk, -high(int64), -high(int64), 0'i64, 128)
+  test "substraction":
+    checkSubstraction(0'i8, 0'i8, 0'i8, 128)
+    checkSubstraction(high(int8) - 17'i8, 17'i8, high(int8) - 34'i8, 128)
+    checkSubstraction(-high(int8), -high(int8), 0'i8, 128)
+    checkSubstraction(high(int16) - 17'i16, 17'i16, high(int16) - 34'i16, 128)
+    checkSubstraction(-high(int16), -high(int16), 0'i16, 128)
+    checkSubstraction(high(int32) - 17'i32, 17'i32, high(int32) - 34'i32, 128)
+    checkSubstraction(-high(int32), -high(int32), 0'i32, 128)
+    checkSubstraction(high(int64) - 17'i64, 17'i64, high(int64) - 34'i64, 128)
+    checkSubstraction(-high(int64), -high(int64), 0'i64, 128)
 
-  tst "inplace substraction":
-    chkInplaceSubstraction(chk, 0'i8, 0'i8, 0'i8, 128)
-    chkInplaceSubstraction(chk, high(int8) - 17'i8, 17'i8, high(int8) - 34'i8, 128)
-    chkInplaceSubstraction(chk, -high(int8), -high(int8), 0'i8, 128)
-    chkInplaceSubstraction(chk, high(int16) - 17'i16, 17'i16, high(int16) - 34'i16, 128)
-    chkInplaceSubstraction(chk, -high(int16), -high(int16), 0'i16, 128)
-    chkInplaceSubstraction(chk, high(int32) - 17'i32, 17'i32, high(int32) - 34'i32, 128)
-    chkInplaceSubstraction(chk, -high(int32), -high(int32), 0'i32, 128)
-    chkInplaceSubstraction(chk, high(int64) - 17'i64, 17'i64, high(int64) - 34'i64, 128)
-    chkInplaceSubstraction(chk, -high(int64), -high(int64), 0'i64, 128)
+  test "inplace substraction":
+    checkInplaceSubstraction(0'i8, 0'i8, 0'i8, 128)
+    checkInplaceSubstraction(high(int8) - 17'i8, 17'i8, high(int8) - 34'i8, 128)
+    checkInplaceSubstraction(-high(int8), -high(int8), 0'i8, 128)
+    checkInplaceSubstraction(high(int16) - 17'i16, 17'i16, high(int16) - 34'i16, 128)
+    checkInplaceSubstraction(-high(int16), -high(int16), 0'i16, 128)
+    checkInplaceSubstraction(high(int32) - 17'i32, 17'i32, high(int32) - 34'i32, 128)
+    checkInplaceSubstraction(-high(int32), -high(int32), 0'i32, 128)
+    checkInplaceSubstraction(high(int64) - 17'i64, 17'i64, high(int64) - 34'i64, 128)
+    checkInplaceSubstraction(-high(int64), -high(int64), 0'i64, 128)
 
-  tst "negation":
-    chkNegation(chk, 0, 0, 128)
-    chkNegation(chk, 128, -128, 128)
-    chkNegation(chk, 127, -127, 128)
-    chkNegation(chk, 32768, -32768, 128)
-    chkNegation(chk, 32767, -32767, 128)
-    chkNegation(chk, 2147483648, -2147483648, 128)
-    chkNegation(chk, 2147483647, -2147483647, 128)
+  test "negation":
+    checkNegation(0, 0, 128)
+    checkNegation(128, -128, 128)
+    checkNegation(127, -127, 128)
+    checkNegation(32768, -32768, 128)
+    checkNegation(32767, -32767, 128)
+    checkNegation(2147483648, -2147483648, 128)
+    checkNegation(2147483647, -2147483647, 128)
 
     let x = int64.high.i128
-    chk -x == -9223372036854775807'i64.i128
+    check -x == -9223372036854775807'i64.i128
 
     let y = int64.low.i128
     let z = int64.high.i128 + 1.i128
-    chk -y == z
+    check -y == z
 
-  tst "absolute integer":
-    chkAbs(chk, 0, 0, 128)
-    chkAbs(chk, -127, 127, 128)
-    chkAbs(chk, -32767, 32767, 128)
-    chkAbs(chk, -1, 1, 128)
-    chkAbs(chk, 1, 1, 128)
-    chkAbs(chk, 127, 127, 128)
-    chkAbs(chk, 32767, 32767, 128)
-    chkAbs(chk, -2147483647, 2147483647, 128)
-    chkAbs(chk, 2147483647, 2147483647, 128)
-    chkAbs(chk, -9223372036854775807, 9223372036854775807, 128)
-    chkAbs(chk, 9223372036854775807, 9223372036854775807, 128)
+  test "absolute integer":
+    checkAbs(0, 0, 128)
+    checkAbs(-127, 127, 128)
+    checkAbs(-32767, 32767, 128)
+    checkAbs(-1, 1, 128)
+    checkAbs(1, 1, 128)
+    checkAbs(127, 127, 128)
+    checkAbs(32767, 32767, 128)
+    checkAbs(-2147483647, 2147483647, 128)
+    checkAbs(2147483647, 2147483647, 128)
+    checkAbs(-9223372036854775807, 9223372036854775807, 128)
+    checkAbs(9223372036854775807, 9223372036854775807, 128)
 
-static:
-  testAddSub(ctCheck, ctTest)
+suite "Testing signed addition implementation":
+  test "In-place addition gives expected result":
 
-proc main() =
-  # Nim GC protests we are using too much global variables
-  # so put it in a proc
-  suite "Wider signed int addsub coverage":
-    testAddSub(check, test)
+    var a = 20182018.stint(256)
+    let b = 20172017.stint(256)
 
-  suite "Testing signed addition implementation":
-    test "In-place addition gives expected result":
+    a += b
 
-      var a = 20182018.stint(256)
-      let b = 20172017.stint(256)
+    check a == (20182018'i64 + 20172017'i64).i256
 
-      a += b
+  test "Addition gives expected result":
 
-      check a == (20182018'i64 + 20172017'i64).i256
+    let a = 20182018.stint(256)
+    let b = 20172017.stint(256)
 
-    test "Addition gives expected result":
+    check a+b == (20182018'i64 + 20172017'i64).i256
 
-      let a = 20182018.stint(256)
-      let b = 20172017.stint(256)
+  test "When the low half overflows, it is properly carried":
+    # uint8 (low half) overflow at 255
+    let a = 100.stint(256)
+    let b = 100.stint(256)
 
-      check a+b == (20182018'i64 + 20172017'i64).i256
+    check a+b == 200.i256
 
-    test "When the low half overflows, it is properly carried":
-      # uint8 (low half) overflow at 255
-      let a = 100.stint(256)
-      let b = 100.stint(256)
+suite "Testing signed substraction implementation":
+  test "In-place substraction gives expected result":
 
-      check a+b == 200.i256
+    var a = 20182018.stint(256)
+    let b = 20172017.stint(256)
 
-  suite "Testing signed substraction implementation":
-    test "In-place substraction gives expected result":
+    a -= b
 
-      var a = 20182018.stint(256)
-      let b = 20172017.stint(256)
+    check a == (20182018'i64 - 20172017'i64).i256
 
-      a -= b
+  test "Substraction gives expected result":
 
-      check a == (20182018'i64 - 20172017'i64).i256
+    let a = 20182018.stint(256)
+    let b = 20172017.stint(256)
 
-    test "Substraction gives expected result":
-
-      let a = 20182018.stint(256)
-      let b = 20172017.stint(256)
-
-      check: a-b == (20182018'i64 - 20172017'i64).i256
-
-main()
+    check: a-b == (20182018'i64 - 20172017'i64).i256

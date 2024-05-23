@@ -7,194 +7,188 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, test_helpers
+import ../stint, unittest2
 
-template chkAddition(chk, a, b, c, bits: untyped) =
+template chkAddition(a, b, c, bits: untyped) =
   block:
     let x = stuint(a, bits)
     let y = stuint(b, bits)
-    chk x + y == stuint(c, bits)
+    check x + y == stuint(c, bits)
 
-template chkInplaceAddition(chk, a, b, c, bits: untyped) =
+template chkInplaceAddition(a, b, c, bits: untyped) =
   block:
     var x = stuint(a, bits)
     x += stuint(b, bits)
-    chk x == stuint(c, bits)
+    check x == stuint(c, bits)
 
-template chkSubstraction(chk, a, b, c, bits: untyped) =
+template chkSubstraction(a, b, c, bits: untyped) =
   block:
     let x = stuint(a, bits)
     let y = stuint(b, bits)
-    chk x - y == stuint(c, bits)
+    check x - y == stuint(c, bits)
 
-template chkInplaceSubstraction(chk, a, b, c, bits: untyped) =
+template chkInplaceSubstraction(a, b, c, bits: untyped) =
   block:
     var x = stuint(a, bits)
     x -= stuint(b, bits)
-    chk x == stuint(c, bits)
-
-template testAddSub(chk, tst: untyped) =
-  tst "addition":
-    #[chkAddition(chk, 0'u8, 0'u8, 0'u8, 8)
-    chkAddition(chk, high(uint8) - 17'u8, 17'u8, high(uint8), 8)
-    chkAddition(chk, low(uint8), 17'u8, low(uint8) + 17'u8, 8)
-
-    chkAddition(chk, 0'u8, 0'u8, 0'u8, 16)
-    chkAddition(chk, high(uint8) - 17'u8, 17'u8, high(uint8), 16)
-    chkAddition(chk, low(uint8), 17'u8, low(uint8) + 17'u8, 16)
-    chkAddition(chk, high(uint16) - 17'u16, 17'u16, high(uint16), 16)
-    chkAddition(chk, low(uint16), 17'u16, low(uint16) + 17'u16, 16)
-
-    chkAddition(chk, 0'u8, 0'u8, 0'u8, 32)
-    chkAddition(chk, high(uint8) - 17'u8, 17'u8, high(uint8), 32)
-    chkAddition(chk, low(uint8), 17'u8, low(uint8) + 17'u8, 32)
-    chkAddition(chk, high(uint16) - 17'u16, 17'u16, high(uint16), 32)
-    chkAddition(chk, low(uint16), 17'u16, low(uint16) + 17'u16, 32)
-    chkAddition(chk, high(uint32) - 17'u32, 17'u32, high(uint32), 32)
-    chkAddition(chk, low(uint32), 17'u32, low(uint32) + 17'u32, 32)
-
-    chkAddition(chk, 0'u8, 0'u8, 0'u8, 64)
-    chkAddition(chk, high(uint8) - 17'u8, 17'u8, high(uint8), 64)
-    chkAddition(chk, low(uint8), 17'u8, low(uint8) + 17'u8, 64)
-    chkAddition(chk, high(uint16) - 17'u16, 17'u16, high(uint16), 64)
-    chkAddition(chk, low(uint16), 17'u16, low(uint16) + 17'u16, 64)
-    chkAddition(chk, high(uint32) - 17'u32, 17'u32, high(uint32), 64)
-    chkAddition(chk, low(uint32), 17'u32, low(uint32) + 17'u32, 64)
-    chkAddition(chk, high(uint64) - 17'u64, 17'u64, high(uint64), 64)
-    chkAddition(chk, low(uint64), 17'u64, low(uint64) + 17'u64, 64)]#
-
-    chkAddition(chk, 0'u8, 0'u8, 0'u8, 128)
-    chkAddition(chk, high(uint8) - 17'u8, 17'u8, high(uint8), 128)
-    chkAddition(chk, low(uint8), 17'u8, low(uint8) + 17'u8, 128)
-    chkAddition(chk, high(uint16) - 17'u16, 17'u16, high(uint16), 128)
-    chkAddition(chk, low(uint16), 17'u16, low(uint16) + 17'u16, 128)
-    chkAddition(chk, high(uint32) - 17'u32, 17'u32, high(uint32), 128)
-    chkAddition(chk, low(uint32), 17'u32, low(uint32) + 17'u32, 128)
-    chkAddition(chk, high(uint64) - 17'u64, 17'u64, high(uint64), 128)
-    chkAddition(chk, low(uint64), 17'u64, low(uint64) + 17'u64, 128)
-
-  tst "inplace addition":
-    #[chkInplaceAddition(chk, 0'u8, 0'u8, 0'u8, 8)
-    chkInplaceAddition(chk, high(uint8) - 17'u8, 17'u8, high(uint8), 8)
-    chkInplaceAddition(chk, low(uint8) + 17'u8, 17'u8, low(uint8) + 34'u8, 8)
-
-    chkInplaceAddition(chk, 0'u8, 0'u8, 0'u8, 16)
-    chkInplaceAddition(chk, high(uint8) - 17'u8, 17'u8, high(uint8), 16)
-    chkInplaceAddition(chk, low(uint8) + 17'u8, 17'u8, low(uint8) + 34'u8, 16)
-    chkInplaceAddition(chk, high(uint16) - 17'u16, 17'u16, high(uint16), 16)
-    chkInplaceAddition(chk, low(uint16) + 17'u16, 17'u16, low(uint16) + 34'u16, 16)
-
-    chkInplaceAddition(chk, 0'u8, 0'u8, 0'u8, 32)
-    chkInplaceAddition(chk, high(uint8) - 17'u8, 17'u8, high(uint8), 32)
-    chkInplaceAddition(chk, low(uint8) + 17'u8, 17'u8, low(uint8) + 34'u8, 32)
-    chkInplaceAddition(chk, high(uint16) - 17'u16, 17'u16, high(uint16), 32)
-    chkInplaceAddition(chk, low(uint16) + 17'u16, 17'u16, low(uint16) + 34'u16, 32)
-    chkInplaceAddition(chk, high(uint32) - 17'u32, 17'u32, high(uint32), 32)
-    chkInplaceAddition(chk, low(uint32) + 17'u32, 17'u32, low(uint32) + 34'u32, 32)
-
-    chkInplaceAddition(chk, 0'u8, 0'u8, 0'u8, 64)
-    chkInplaceAddition(chk, high(uint8) - 17'u8, 17'u8, high(uint8), 64)
-    chkInplaceAddition(chk, low(uint8) + 17'u8, 17'u8, low(uint8) + 34'u8, 64)
-    chkInplaceAddition(chk, high(uint16) - 17'u16, 17'u16, high(uint16), 64)
-    chkInplaceAddition(chk, low(uint16) + 17'u16, 17'u16, low(uint16) + 34'u16, 64)
-    chkInplaceAddition(chk, high(uint32) - 17'u32, 17'u32, high(uint32), 64)
-    chkInplaceAddition(chk, low(uint32) + 17'u32, 17'u32, low(uint32) + 34'u32, 64)
-    chkInplaceAddition(chk, high(uint64) - 17'u64, 17'u64, high(uint64), 64)
-    chkInplaceAddition(chk, low(uint64) + 17'u64, 17'u64, low(uint64) + 34'u64, 64)]#
-
-    chkInplaceAddition(chk, 0'u8, 0'u8, 0'u8, 128)
-    chkInplaceAddition(chk, high(uint8) - 17'u8, 17'u8, high(uint8), 128)
-    chkInplaceAddition(chk, low(uint8) + 17'u8, 17'u8, low(uint8) + 34'u8, 128)
-    chkInplaceAddition(chk, high(uint16) - 17'u16, 17'u16, high(uint16), 128)
-    chkInplaceAddition(chk, low(uint16) + 17'u16, 17'u16, low(uint16) + 34'u16, 128)
-    chkInplaceAddition(chk, high(uint32) - 17'u32, 17'u32, high(uint32), 128)
-    chkInplaceAddition(chk, low(uint32) + 17'u32, 17'u32, low(uint32) + 34'u32, 128)
-    chkInplaceAddition(chk, high(uint64) - 17'u64, 17'u64, high(uint64), 128)
-    chkInplaceAddition(chk, low(uint64) + 17'u64, 17'u64, low(uint64) + 34'u64, 128)
-
-  tst "substraction":
-    #[chkSubstraction(chk, 0'u8, 0'u8, 0'u8, 8)
-    chkSubstraction(chk, high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 8)
-    chkSubstraction(chk, low(uint8) + 17'u8, 17'u8, low(uint8), 8)
-
-    chkSubstraction(chk, 0'u8, 0'u8, 0'u8, 16)
-    chkSubstraction(chk, high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 16)
-    chkSubstraction(chk, low(uint8) + 17'u8, 17'u8, low(uint8), 16)
-    chkSubstraction(chk, high(uint16) - 17'u16, 17'u16, high(uint16) - 34'u16, 16)
-    chkSubstraction(chk, low(uint16) + 17'u16, 17'u16, low(uint16), 16)
-
-    chkSubstraction(chk, 0'u8, 0'u8, 0'u8, 32)
-    chkSubstraction(chk, high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 32)
-    chkSubstraction(chk, low(uint8) + 17'u8, 17'u8, low(uint8), 32)
-    chkSubstraction(chk, high(uint16) - 17'u16, 17'u16, high(uint16) - 34'u16, 32)
-    chkSubstraction(chk, low(uint16) + 17'u16, 17'u16, low(uint16), 32)
-    chkSubstraction(chk, high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 32)
-    chkSubstraction(chk, low(uint32) + 17'u32, 17'u32, low(uint32), 32)
-
-    chkSubstraction(chk, 0'u8, 0'u8, 0'u8, 64)
-    chkSubstraction(chk, high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 64)
-    chkSubstraction(chk, low(uint8) + 17'u8, 17'u8, low(uint8), 64)
-    chkSubstraction(chk, high(uint16) - 17'u16, 17'u16, high(uint16) - 34'u16, 64)
-    chkSubstraction(chk, low(uint16) + 17'u16, 17'u16, low(uint16), 64)
-    chkSubstraction(chk, high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 64)
-    chkSubstraction(chk, low(uint32) + 17'u32, 17'u32, low(uint32), 64)
-    chkSubstraction(chk, high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 64)
-    chkSubstraction(chk, low(uint64) + 17'u64, 17'u64, low(uint64), 64)]#
-
-    chkSubstraction(chk, 0'u8, 0'u8, 0'u8, 128)
-    chkSubstraction(chk, high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 128)
-    chkSubstraction(chk, high(uint8), high(uint8), 0'u8, 128)
-    chkSubstraction(chk, high(uint16) - 17'u16, 17'u16, high(uint16) - 34'u16, 128)
-    chkSubstraction(chk, high(uint16), high(uint16), 0'u16, 128)
-    chkSubstraction(chk, high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 128)
-    chkSubstraction(chk, high(uint32), high(uint32), 0'u32, 128)
-    chkSubstraction(chk, high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 128)
-    chkSubstraction(chk, high(uint64), high(uint64), 0'u64, 128)
-
-  tst "inplace substraction":
-    #[chkInplaceSubstraction(chk, 0'u8, 0'u8, 0'u8, 8)
-    chkInplaceSubstraction(chk, high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 8)
-    chkInplaceSubstraction(chk, low(uint8) + 17'u8, 17'u8, low(uint8), 8)
-
-    chkInplaceSubstraction(chk, 0'u8, 0'u8, 0'u8, 16)
-    chkInplaceSubstraction(chk, high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 16)
-    chkInplaceSubstraction(chk, low(uint8) + 17'u8, 17'u8, low(uint8), 16)
-    chkInplaceSubstraction(chk, high(uint16) - 17'u16, 17'u16, high(uint16) - 34'u16, 16)
-    chkInplaceSubstraction(chk, low(uint16) + 17'u16, 17'u16, low(uint16), 16)
-
-    chkInplaceSubstraction(chk, 0'u8, 0'u8, 0'u8, 32)
-    chkInplaceSubstraction(chk, high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 32)
-    chkInplaceSubstraction(chk, low(uint8) + 17'u8, 17'u8, low(uint8), 32)
-    chkInplaceSubstraction(chk, high(uint16) - 17'u16, 17'u16, high(uint16) - 34'u16, 32)
-    chkInplaceSubstraction(chk, low(uint16) + 17'u16, 17'u16, low(uint16), 32)
-    chkInplaceSubstraction(chk, high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 32)
-    chkInplaceSubstraction(chk, low(uint32) + 17'u32, 17'u32, low(uint32), 32)
-
-    chkInplaceSubstraction(chk, 0'u8, 0'u8, 0'u8, 64)
-    chkInplaceSubstraction(chk, high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 64)
-    chkInplaceSubstraction(chk, low(uint8) + 17'u8, 17'u8, low(uint8), 64)
-    chkInplaceSubstraction(chk, high(uint16) - 17'u16, 17'u16, high(uint16) - 34'u16, 64)
-    chkInplaceSubstraction(chk, low(uint16) + 17'u16, 17'u16, low(uint16), 64)
-    chkInplaceSubstraction(chk, high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 64)
-    chkInplaceSubstraction(chk, low(uint32) + 17'u32, 17'u32, low(uint32), 64)
-    chkInplaceSubstraction(chk, high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 64)
-    chkInplaceSubstraction(chk, low(uint64) + 17'u64, 17'u64, low(uint64), 64)]#
-
-    chkInplaceSubstraction(chk, 0'u8, 0'u8, 0'u8, 128)
-    chkInplaceSubstraction(chk, high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 128)
-    chkInplaceSubstraction(chk, high(uint8), high(uint8), 0'u8, 128)
-    chkInplaceSubstraction(chk, high(uint16) - 17'u16, 17'u16, high(uint16) - 34'u16, 128)
-    chkInplaceSubstraction(chk, high(uint16), high(uint16), 0'u16, 128)
-    chkInplaceSubstraction(chk, high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 128)
-    chkInplaceSubstraction(chk, high(uint32), high(uint32), 0'u32, 128)
-    chkInplaceSubstraction(chk, high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 128)
-    chkInplaceSubstraction(chk, high(uint64), high(uint64), 0'u64, 128)
-
-static:
-  testAddSub(ctCheck, ctTest)
+    check x == stuint(c, bits)
 
 suite "Wider unsigned int addsub coverage":
-  testAddSub(check, test)
+  test "addition":
+    #[chkAddition(0'u8, 0'u8, 0'u8, 8)
+    chkAddition(high(uint8) - 17'u8, 17'u8, high(uint8), 8)
+    chkAddition(low(uint8), 17'u8, low(uint8) + 17'u8, 8)
+
+    chkAddition(0'u8, 0'u8, 0'u8, 16)
+    chkAddition(high(uint8) - 17'u8, 17'u8, high(uint8), 16)
+    chkAddition(low(uint8), 17'u8, low(uint8) + 17'u8, 16)
+    chkAddition(high(uint16) - 17'u16, 17'u16, high(uint16), 16)
+    chkAddition(low(uint16), 17'u16, low(uint16) + 17'u16, 16)
+
+    chkAddition(0'u8, 0'u8, 0'u8, 32)
+    chkAddition(high(uint8) - 17'u8, 17'u8, high(uint8), 32)
+    chkAddition(low(uint8), 17'u8, low(uint8) + 17'u8, 32)
+    chkAddition(high(uint16) - 17'u16, 17'u16, high(uint16), 32)
+    chkAddition(low(uint16), 17'u16, low(uint16) + 17'u16, 32)
+    chkAddition(high(uint32) - 17'u32, 17'u32, high(uint32), 32)
+    chkAddition(low(uint32), 17'u32, low(uint32) + 17'u32, 32)
+
+    chkAddition(0'u8, 0'u8, 0'u8, 64)
+    chkAddition(high(uint8) - 17'u8, 17'u8, high(uint8), 64)
+    chkAddition(low(uint8), 17'u8, low(uint8) + 17'u8, 64)
+    chkAddition(high(uint16) - 17'u16, 17'u16, high(uint16), 64)
+    chkAddition(low(uint16), 17'u16, low(uint16) + 17'u16, 64)
+    chkAddition(high(uint32) - 17'u32, 17'u32, high(uint32), 64)
+    chkAddition(low(uint32), 17'u32, low(uint32) + 17'u32, 64)
+    chkAddition(high(uint64) - 17'u64, 17'u64, high(uint64), 64)
+    chkAddition(low(uint64), 17'u64, low(uint64) + 17'u64, 64)]#
+
+    chkAddition(0'u8, 0'u8, 0'u8, 128)
+    chkAddition(high(uint8) - 17'u8, 17'u8, high(uint8), 128)
+    chkAddition(low(uint8), 17'u8, low(uint8) + 17'u8, 128)
+    chkAddition(high(uint16) - 17'u16, 17'u16, high(uint16), 128)
+    chkAddition(low(uint16), 17'u16, low(uint16) + 17'u16, 128)
+    chkAddition(high(uint32) - 17'u32, 17'u32, high(uint32), 128)
+    chkAddition(low(uint32), 17'u32, low(uint32) + 17'u32, 128)
+    chkAddition(high(uint64) - 17'u64, 17'u64, high(uint64), 128)
+    chkAddition(low(uint64), 17'u64, low(uint64) + 17'u64, 128)
+
+  test "inplace addition":
+    #[chkInplaceAddition(0'u8, 0'u8, 0'u8, 8)
+    chkInplaceAddition(high(uint8) - 17'u8, 17'u8, high(uint8), 8)
+    chkInplaceAddition(low(uint8) + 17'u8, 17'u8, low(uint8) + 34'u8, 8)
+
+    chkInplaceAddition(0'u8, 0'u8, 0'u8, 16)
+    chkInplaceAddition(high(uint8) - 17'u8, 17'u8, high(uint8), 16)
+    chkInplaceAddition(low(uint8) + 17'u8, 17'u8, low(uint8) + 34'u8, 16)
+    chkInplaceAddition(high(uint16) - 17'u16, 17'u16, high(uint16), 16)
+    chkInplaceAddition(low(uint16) + 17'u16, 17'u16, low(uint16) + 34'u16, 16)
+
+    chkInplaceAddition(0'u8, 0'u8, 0'u8, 32)
+    chkInplaceAddition(high(uint8) - 17'u8, 17'u8, high(uint8), 32)
+    chkInplaceAddition(low(uint8) + 17'u8, 17'u8, low(uint8) + 34'u8, 32)
+    chkInplaceAddition(high(uint16) - 17'u16, 17'u16, high(uint16), 32)
+    chkInplaceAddition(low(uint16) + 17'u16, 17'u16, low(uint16) + 34'u16, 32)
+    chkInplaceAddition(high(uint32) - 17'u32, 17'u32, high(uint32), 32)
+    chkInplaceAddition(low(uint32) + 17'u32, 17'u32, low(uint32) + 34'u32, 32)
+
+    chkInplaceAddition(0'u8, 0'u8, 0'u8, 64)
+    chkInplaceAddition(high(uint8) - 17'u8, 17'u8, high(uint8), 64)
+    chkInplaceAddition(low(uint8) + 17'u8, 17'u8, low(uint8) + 34'u8, 64)
+    chkInplaceAddition(high(uint16) - 17'u16, 17'u16, high(uint16), 64)
+    chkInplaceAddition(low(uint16) + 17'u16, 17'u16, low(uint16) + 34'u16, 64)
+    chkInplaceAddition(high(uint32) - 17'u32, 17'u32, high(uint32), 64)
+    chkInplaceAddition(low(uint32) + 17'u32, 17'u32, low(uint32) + 34'u32, 64)
+    chkInplaceAddition(high(uint64) - 17'u64, 17'u64, high(uint64), 64)
+    chkInplaceAddition(low(uint64) + 17'u64, 17'u64, low(uint64) + 34'u64, 64)]#
+
+    chkInplaceAddition(0'u8, 0'u8, 0'u8, 128)
+    chkInplaceAddition(high(uint8) - 17'u8, 17'u8, high(uint8), 128)
+    chkInplaceAddition(low(uint8) + 17'u8, 17'u8, low(uint8) + 34'u8, 128)
+    chkInplaceAddition(high(uint16) - 17'u16, 17'u16, high(uint16), 128)
+    chkInplaceAddition(low(uint16) + 17'u16, 17'u16, low(uint16) + 34'u16, 128)
+    chkInplaceAddition(high(uint32) - 17'u32, 17'u32, high(uint32), 128)
+    chkInplaceAddition(low(uint32) + 17'u32, 17'u32, low(uint32) + 34'u32, 128)
+    chkInplaceAddition(high(uint64) - 17'u64, 17'u64, high(uint64), 128)
+    chkInplaceAddition(low(uint64) + 17'u64, 17'u64, low(uint64) + 34'u64, 128)
+
+  test "substraction":
+    #[chkSubstraction(0'u8, 0'u8, 0'u8, 8)
+    chkSubstraction(high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 8)
+    chkSubstraction(low(uint8) + 17'u8, 17'u8, low(uint8), 8)
+
+    chkSubstraction(0'u8, 0'u8, 0'u8, 16)
+    chkSubstraction(high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 16)
+    chkSubstraction(low(uint8) + 17'u8, 17'u8, low(uint8), 16)
+    chkSubstraction(high(uint16) - 17'u16, 17'u16, high(uint16) - 34'u16, 16)
+    chkSubstraction(low(uint16) + 17'u16, 17'u16, low(uint16), 16)
+
+    chkSubstraction(0'u8, 0'u8, 0'u8, 32)
+    chkSubstraction(high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 32)
+    chkSubstraction(low(uint8) + 17'u8, 17'u8, low(uint8), 32)
+    chkSubstraction(high(uint16) - 17'u16, 17'u16, high(uint16) - 34'u16, 32)
+    chkSubstraction(low(uint16) + 17'u16, 17'u16, low(uint16), 32)
+    chkSubstraction(high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 32)
+    chkSubstraction(low(uint32) + 17'u32, 17'u32, low(uint32), 32)
+
+    chkSubstraction(0'u8, 0'u8, 0'u8, 64)
+    chkSubstraction(high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 64)
+    chkSubstraction(low(uint8) + 17'u8, 17'u8, low(uint8), 64)
+    chkSubstraction(high(uint16) - 17'u16, 17'u16, high(uint16) - 34'u16, 64)
+    chkSubstraction(low(uint16) + 17'u16, 17'u16, low(uint16), 64)
+    chkSubstraction(high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 64)
+    chkSubstraction(low(uint32) + 17'u32, 17'u32, low(uint32), 64)
+    chkSubstraction(high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 64)
+    chkSubstraction(low(uint64) + 17'u64, 17'u64, low(uint64), 64)]#
+
+    chkSubstraction(0'u8, 0'u8, 0'u8, 128)
+    chkSubstraction(high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 128)
+    chkSubstraction(high(uint8), high(uint8), 0'u8, 128)
+    chkSubstraction(high(uint16) - 17'u16, 17'u16, high(uint16) - 34'u16, 128)
+    chkSubstraction(high(uint16), high(uint16), 0'u16, 128)
+    chkSubstraction(high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 128)
+    chkSubstraction(high(uint32), high(uint32), 0'u32, 128)
+    chkSubstraction(high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 128)
+    chkSubstraction(high(uint64), high(uint64), 0'u64, 128)
+
+  test "inplace substraction":
+    #[chkInplaceSubstraction(0'u8, 0'u8, 0'u8, 8)
+    chkInplaceSubstraction(high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 8)
+    chkInplaceSubstraction(low(uint8) + 17'u8, 17'u8, low(uint8), 8)
+
+    chkInplaceSubstraction(0'u8, 0'u8, 0'u8, 16)
+    chkInplaceSubstraction(high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 16)
+    chkInplaceSubstraction(low(uint8) + 17'u8, 17'u8, low(uint8), 16)
+    chkInplaceSubstraction(high(uint16) - 17'u16, 17'u16, high(uint16) - 34'u16, 16)
+    chkInplaceSubstraction(low(uint16) + 17'u16, 17'u16, low(uint16), 16)
+
+    chkInplaceSubstraction(0'u8, 0'u8, 0'u8, 32)
+    chkInplaceSubstraction(high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 32)
+    chkInplaceSubstraction(low(uint8) + 17'u8, 17'u8, low(uint8), 32)
+    chkInplaceSubstraction(high(uint16) - 17'u16, 17'u16, high(uint16) - 34'u16, 32)
+    chkInplaceSubstraction(low(uint16) + 17'u16, 17'u16, low(uint16), 32)
+    chkInplaceSubstraction(high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 32)
+    chkInplaceSubstraction(low(uint32) + 17'u32, 17'u32, low(uint32), 32)
+
+    chkInplaceSubstraction(0'u8, 0'u8, 0'u8, 64)
+    chkInplaceSubstraction(high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 64)
+    chkInplaceSubstraction(low(uint8) + 17'u8, 17'u8, low(uint8), 64)
+    chkInplaceSubstraction(high(uint16) - 17'u16, 17'u16, high(uint16) - 34'u16, 64)
+    chkInplaceSubstraction(low(uint16) + 17'u16, 17'u16, low(uint16), 64)
+    chkInplaceSubstraction(high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 64)
+    chkInplaceSubstraction(low(uint32) + 17'u32, 17'u32, low(uint32), 64)
+    chkInplaceSubstraction(high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 64)
+    chkInplaceSubstraction(low(uint64) + 17'u64, 17'u64, low(uint64), 64)]#
+
+    chkInplaceSubstraction(0'u8, 0'u8, 0'u8, 128)
+    chkInplaceSubstraction(high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 128)
+    chkInplaceSubstraction(high(uint8), high(uint8), 0'u8, 128)
+    chkInplaceSubstraction(high(uint16) - 17'u16, 17'u16, high(uint16) - 34'u16, 128)
+    chkInplaceSubstraction(high(uint16), high(uint16), 0'u16, 128)
+    chkInplaceSubstraction(high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 128)
+    chkInplaceSubstraction(high(uint32), high(uint32), 0'u32, 128)
+    chkInplaceSubstraction(high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 128)
+    chkInplaceSubstraction(high(uint64), high(uint64), 0'u64, 128)
 
 #[
 suite "Testing unsigned int addition implementation":

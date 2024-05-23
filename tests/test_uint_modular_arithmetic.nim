@@ -7,60 +7,54 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, test_helpers
+import ../stint, unittest2
 
-template chkAddMod(chk: untyped, a, b, m, c: string, bits: int) =
-  chk addmod(fromHex(StUint[bits], a), fromHex(StUint[bits], b),  fromHex(StUint[bits], m)) == fromHex(StUint[bits], c)
+template chkAddMod(a, b, m, c: string, bits: int) =
+  check addmod(fromHex(StUint[bits], a), fromHex(StUint[bits], b),  fromHex(StUint[bits], m)) == fromHex(StUint[bits], c)
 
-template chkSubMod(chk: untyped, a, b, m, c: string, bits: int) =
-  chk submod(fromHex(StUint[bits], a), fromHex(StUint[bits], b),  fromHex(StUint[bits], m)) == fromHex(StUint[bits], c)
+template chkSubMod(a, b, m, c: string, bits: int) =
+  check submod(fromHex(StUint[bits], a), fromHex(StUint[bits], b),  fromHex(StUint[bits], m)) == fromHex(StUint[bits], c)
 
-template chkMulMod(chk: untyped, a, b, m, c: string, bits: int) =
-  chk mulmod(fromHex(StUint[bits], a), fromHex(StUint[bits], b),  fromHex(StUint[bits], m)) == fromHex(StUint[bits], c)
+template chkMulMod(a, b, m, c: string, bits: int) =
+  check mulmod(fromHex(StUint[bits], a), fromHex(StUint[bits], b),  fromHex(StUint[bits], m)) == fromHex(StUint[bits], c)
 
-template chkPowMod(chk: untyped, a, b, m, c: string, bits: int) =
-  chk powmod(fromHex(StUint[bits], a), fromHex(StUint[bits], b),  fromHex(StUint[bits], m)) == fromHex(StUint[bits], c)
-
-template testModArith(chk, tst: untyped) =
-  tst "addmod":
-    chkAddMod(chk, "F", "F", "7", "2", 128)
-    chkAddMod(chk, "AAAA", "AA", "F", "0", 128)
-    chkAddMod(chk, "BBBB", "AAAA", "9", "3", 128)
-    chkAddMod(chk, "BBBBBBBB", "AAAAAAAA", "9", "6", 128)
-    chkAddMod(chk, "BBBBBBBBBBBBBBBB", "AAAAAAAAAAAAAAAA", "9", "3", 128)
-    chkAddMod(chk, "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "9", "6", 128)
-
-  tst "submod":
-    chkSubMod(chk, "C", "3", "C", "9", 128)
-    chkSubMod(chk, "1", "3", "C", "A", 128)
-    chkSubMod(chk, "1", "FFFF", "C", "A", 128)
-    chkSubMod(chk, "1", "FFFFFFFF", "C", "A", 128)
-    chkSubMod(chk, "1", "FFFFFFFFFFFFFFFF", "C", "A", 128)
-    chkSubMod(chk, "1", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "C", "A", 128)
-
-  tst "mulmod":
-    chkMulMod(chk, "C", "3", "C", "0", 128)
-    chkMulMod(chk, "1", "3", "C", "3", 128)
-    chkMulMod(chk, "1", "FFFF", "C", "3", 128)
-    chkMulMod(chk, "1", "FFFFFFFF", "C", "3", 128)
-    chkMulMod(chk, "1", "FFFFFFFFFFFFFFFF", "C", "3", 128)
-    chkMulMod(chk, "1", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "C", "3", 128)
-
-  tst "powmod":
-    chkPowMod(chk, "C", "3", "C", "0", 128)
-    chkPowMod(chk, "1", "3", "C", "1", 128)
-    chkPowMod(chk, "1", "FF", "C", "1", 128)
-    chkPowMod(chk, "FF", "3", "C", "3", 128)
-    chkPowMod(chk, "FFFF", "3", "C", "3", 128)
-    chkPowMod(chk, "FFFFFFFF", "3", "C", "3", 128)
-    chkPowMod(chk, "FFFFFFFFFFFFFFFF", "3", "C", "3", 128)
-    chkPowMod(chk, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "3", "C", "3", 128)
-
-static:
-  testModArith(ctCheck, ctTest)
+template chkPowMod(a, b, m, c: string, bits: int) =
+  check powmod(fromHex(StUint[bits], a), fromHex(StUint[bits], b),  fromHex(StUint[bits], m)) == fromHex(StUint[bits], c)
 
 suite "Wider unsigned Modular arithmetic coverage":
-  testModArith(check, test)
+  test "addmod":
+    chkAddMod("F", "F", "7", "2", 128)
+    chkAddMod("AAAA", "AA", "F", "0", 128)
+    chkAddMod("BBBB", "AAAA", "9", "3", 128)
+    chkAddMod("BBBBBBBB", "AAAAAAAA", "9", "6", 128)
+    chkAddMod("BBBBBBBBBBBBBBBB", "AAAAAAAAAAAAAAAA", "9", "3", 128)
+    chkAddMod("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", "9", "6", 128)
+
+  test "submod":
+    chkSubMod("C", "3", "C", "9", 128)
+    chkSubMod("1", "3", "C", "A", 128)
+    chkSubMod("1", "FFFF", "C", "A", 128)
+    chkSubMod("1", "FFFFFFFF", "C", "A", 128)
+    chkSubMod("1", "FFFFFFFFFFFFFFFF", "C", "A", 128)
+    chkSubMod("1", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "C", "A", 128)
+
+  test "mulmod":
+    chkMulMod("C", "3", "C", "0", 128)
+    chkMulMod("1", "3", "C", "3", 128)
+    chkMulMod("1", "FFFF", "C", "3", 128)
+    chkMulMod("1", "FFFFFFFF", "C", "3", 128)
+    chkMulMod("1", "FFFFFFFFFFFFFFFF", "C", "3", 128)
+    chkMulMod("1", "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "C", "3", 128)
+
+  test "powmod":
+    chkPowMod("C", "3", "C", "0", 128)
+    chkPowMod("1", "3", "C", "1", 128)
+    chkPowMod("1", "FF", "C", "1", 128)
+    chkPowMod("FF", "3", "C", "3", 128)
+    chkPowMod("FFFF", "3", "C", "3", 128)
+    chkPowMod("FFFFFFFF", "3", "C", "3", 128)
+    chkPowMod("FFFFFFFFFFFFFFFF", "3", "C", "3", 128)
+    chkPowMod("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF", "3", "C", "3", 128)
 
 suite "Modular arithmetic":
   test "Modular addition":

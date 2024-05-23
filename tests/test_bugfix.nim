@@ -6,15 +6,15 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest
+import ../stint, unittest2
 
 suite "various bugfix":
   test "skipPrefixes bug":
     let x = "0b1010101".parse(UInt128, 2)
     let z = "0bcdef12345".parse(UInt128, 16)
-    
+
     check x == 0b1010101.u128
     check z == 0x0bcdef12345.u128
-    
+
     expect(AssertionDefect):
       discard "0bcdef12345".parse(UInt128, 10)
