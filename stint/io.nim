@@ -35,10 +35,8 @@ template wordType*(_: type SomeBigInteger): type =
   Word
 
 template hash*(num: StUint|StInt): Hash =
-  # TODO:
-  # `hashData` is not particularly efficient.
-  # Explore better hashing solutions in nim-stew.
-  hashData(unsafeAddr num, sizeof num)
+  mixin limbs
+  hash(num.limbs)
 
 {.pop.}
 
