@@ -14,21 +14,31 @@ jobs:
         target:
           - os: linux
             cpu: amd64
+          - os: linux-gcc-14 # This is to use ubuntu 24 and install gcc 14. Should be removed when ubuntu-latest is 26.04
+            cpu: amd64
           - os: linux
             cpu: i386
           - os: macos
             cpu: amd64
+          - os: macos
+            cpu: arm64
           - os: windows
             cpu: amd64
-          #- os: windows
-            #cpu: i386
-        branch: [version-1-6, version-2-0, devel]
+        branch: [version-2-0, version-2-2, devel]
         include:
           - target:
               os: linux
             builder: ubuntu-latest
           - target:
+              os: linux-gcc-14 # This is to use ubuntu 24 and install gcc 14. Should be removed when ubuntu-latest is 26.04
+            builder: ubuntu-24.04
+          - target:
               os: macos
+              cpu: amd64
+            builder: macos-13
+          - target:
+              os: macos
+              cpu: arm64
             builder: macos-latest
           - target:
               os: windows
@@ -45,7 +55,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set GCC 10 as default compiler (Linux)
-        if: runner.os == 'Linux' && matrix.target.cpu != 'i386'
+        if: runner.os == 'Linux' && matrix.target.cpu != 'i386' && matrix.target.os != 'linux-gcc-14'
         run: |
           sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-10 100 \
             --slave /usr/bin/g++ g++ /usr/bin/g++-10 \
@@ -125,6 +135,8 @@ jobs:
         run: |
           if [[ '${{ matrix.target.cpu }}' == 'amd64' ]]; then
             PLATFORM=x64
+          elif [[ '${{ matrix.target.cpu }}' == 'arm64' ]]; then
+            PLATFORM=arm64
           else
             PLATFORM=x86
           fi
@@ -156,6 +168,15 @@ jobs:
             bash build_nim.sh nim csources dist/nimble NimBinaries
           echo '${{ github.workspace }}/nim/bin' >> $GITHUB_PATH
 
+      - name: Use gcc 14
+        # Should be removed when ubuntu-latest is 26.04
+        if : ${{ matrix.target.os == 'linux-gcc-14' }}
+        run: |
+          # Add GCC-14 to alternatives
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 14
+          # Set GCC-14 as the default
+          sudo update-alternatives --set gcc /usr/bin/gcc-14
+
       - name: Run tests
         run: |
           if [[ "${{ matrix.target.os }}" == "windows" ]]; then
@@ -164,6 +185,7 @@ jobs:
           fi
           nim --version
           nimble --version
+          gcc --version
           nimble install -y --depsOnly
           env TEST_LANG="c" nimble test
           # run test against intx
