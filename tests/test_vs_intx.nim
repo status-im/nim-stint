@@ -9,7 +9,7 @@
 
 import
   std/[times, random],
-  unittest,
+  unittest2,
   ./intx/intx_compat,
   ../stint,
   ../helpers/prng_unsafe

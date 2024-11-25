@@ -7,188 +7,182 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, test_helpers
+import ../stint, unittest2
 
-template chkLT(chk: untyped, a, b: string, bits: int) =
-  chk fromHex(StUint[bits], a) < fromHex(StUint[bits], b)
+template chkLT(a, b: string, bits: int) =
+  check fromHex(StUint[bits], a) < fromHex(StUint[bits], b)
 
-template chkNotLT(chk: untyped, a, b: string, bits: int) =
-  chk (not(fromHex(StUint[bits], b) < fromHex(StUint[bits], a)))
+template chkNotLT(a, b: string, bits: int) =
+  check (not(fromHex(StUint[bits], b) < fromHex(StUint[bits], a)))
 
-template chkLTE(chk: untyped, a, b: string, bits: int) =
-  chk fromHex(StUint[bits], a) <= fromHex(StUint[bits], b)
+template chkLTE(a, b: string, bits: int) =
+  check fromHex(StUint[bits], a) <= fromHex(StUint[bits], b)
 
-template chkNotLTE(chk: untyped, a, b: string, bits: int) =
-  chk (not(fromHex(StUint[bits], b) <= fromHex(StUint[bits], a)))
+template chkNotLTE(a, b: string, bits: int) =
+  check (not(fromHex(StUint[bits], b) <= fromHex(StUint[bits], a)))
 
-template chkEQ(chk: untyped, a, b: string, bits: int) =
-  chk fromHex(StUint[bits], a) == fromHex(StUint[bits], b)
+template chkEQ(a, b: string, bits: int) =
+  check fromHex(StUint[bits], a) == fromHex(StUint[bits], b)
 
-template chkNotEQ(chk: untyped, a, b: string, bits: int) =
-  chk (not(fromHex(StUint[bits], a) == fromHex(StUint[bits], b)))
+template chkNotEQ(a, b: string, bits: int) =
+  check (not(fromHex(StUint[bits], a) == fromHex(StUint[bits], b)))
 
-template chkIsZero(chk: untyped, a: string, bits: int) =
-  chk fromHex(StUint[bits], a).isZero()
+template chkIsZero(a: string, bits: int) =
+  check fromHex(StUint[bits], a).isZero()
 
-template chkNotIsZero(chk: untyped, a: string, bits: int) =
-  chk (not fromHex(StUint[bits], a).isZero())
+template chkNotIsZero(a: string, bits: int) =
+  check (not fromHex(StUint[bits], a).isZero())
 
-template chkIsOdd(chk: untyped, a: string, bits: int) =
-  chk fromHex(StUint[bits], a).isOdd()
+template chkIsOdd(a: string, bits: int) =
+  check fromHex(StUint[bits], a).isOdd()
 
-template chkNotIsOdd(chk: untyped, a: string, bits: int) =
-  chk (not fromHex(StUint[bits], a).isOdd())
-
-template testComparison(chk, tst: untyped) =
-  tst "operator `LT`":
-    chkLT(chk, "0", "F", 64)
-    chkLT(chk, "F", "FF", 64)
-    chkLT(chk, "FF", "FFF", 64)
-    chkLT(chk, "FFFF", "FFFFF", 64)
-    chkLT(chk, "FFFFF", "FFFFFFFF", 64)
-
-    chkLT(chk, "0", "F", 128)
-    chkLT(chk, "F", "FF", 128)
-    chkLT(chk, "FF", "FFF", 128)
-    chkLT(chk, "FFFF", "FFFFF", 128)
-    chkLT(chk, "FFFFF", "FFFFFFFF", 128)
-    chkLT(chk, "FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
-
-  tst "operator not `LT`":
-    chkNotLT(chk, "0", "F", 64)
-    chkNotLT(chk, "F", "FF", 64)
-    chkNotLT(chk, "FF", "FFF", 64)
-    chkNotLT(chk, "FFFF", "FFFFF", 64)
-    chkNotLT(chk, "FFFFF", "FFFFFFFF", 64)
-
-    chkNotLT(chk, "0", "F", 128)
-    chkNotLT(chk, "F", "FF", 128)
-    chkNotLT(chk, "FF", "FFF", 128)
-    chkNotLT(chk, "FFFF", "FFFFF", 128)
-    chkNotLT(chk, "FFFFF", "FFFFFFFF", 128)
-    chkNotLT(chk, "FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
-
-  tst "operator `LTE`":
-    chkLTE(chk, "0", "F", 64)
-    chkLTE(chk, "F", "FF", 64)
-    chkLTE(chk, "FF", "FFF", 64)
-    chkLTE(chk, "FFFF", "FFFFF", 64)
-    chkLTE(chk, "FFFFF", "FFFFFFFF", 64)
-    chkLTE(chk, "FFFFFFFF", "FFFFFFFF", 64)
-
-    chkLTE(chk, "0", "F", 128)
-    chkLTE(chk, "F", "FF", 128)
-    chkLTE(chk, "FF", "FFF", 128)
-    chkLTE(chk, "FFFF", "FFFFF", 128)
-    chkLTE(chk, "FFFFF", "FFFFFFFF", 128)
-    chkLTE(chk, "FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
-    chkLTE(chk, "FFFFFFFFFFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
-
-  tst "operator not `LTE`":
-    chkNotLTE(chk, "0", "F", 64)
-    chkNotLTE(chk, "F", "FF", 64)
-    chkNotLTE(chk, "FF", "FFF", 64)
-    chkNotLTE(chk, "FFFF", "FFFFF", 64)
-    chkNotLTE(chk, "FFFFF", "FFFFFFFF", 64)
-
-    chkNotLTE(chk, "0", "F", 128)
-    chkNotLTE(chk, "F", "FF", 128)
-    chkNotLTE(chk, "FF", "FFF", 128)
-    chkNotLTE(chk, "FFFF", "FFFFF", 128)
-    chkNotLTE(chk, "FFFFF", "FFFFFFFF", 128)
-    chkNotLTE(chk, "FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
-
-  tst "operator `EQ`":
-    chkEQ(chk, "0", "0", 64)
-    chkEQ(chk, "F", "F", 64)
-    chkEQ(chk, "FF", "FF", 64)
-    chkEQ(chk, "FFFF", "FFFF", 64)
-    chkEQ(chk, "FFFFF", "FFFFF", 64)
-    chkEQ(chk, "FFFFFFFF", "FFFFFFFF", 64)
-
-    chkEQ(chk, "0", "0", 128)
-    chkEQ(chk, "F", "F", 128)
-    chkEQ(chk, "FF", "FF", 128)
-    chkEQ(chk, "FFFF", "FFFF", 128)
-    chkEQ(chk, "FFFFF", "FFFFF", 128)
-    chkEQ(chk, "FFFFFFFFFFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
-
-  tst "operator not `EQ`":
-    chkNotEQ(chk, "0", "F", 64)
-    chkNotEQ(chk, "F", "FF", 64)
-    chkNotEQ(chk, "FF", "FFF", 64)
-    chkNotEQ(chk, "FFFF", "FFFFF", 64)
-    chkNotEQ(chk, "FFFFF", "FFFFFFFF", 64)
-
-    chkNotEQ(chk, "0", "F", 128)
-    chkNotEQ(chk, "F", "FF", 128)
-    chkNotEQ(chk, "FF", "FFF", 128)
-    chkNotEQ(chk, "FFFF", "FFFFF", 128)
-    chkNotEQ(chk, "FFFFF", "FFFFFFFF", 128)
-    chkNotEQ(chk, "FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
-
-  tst "operator `isZero`":
-    chkIsZero(chk, "0", 64)
-    chkIsZero(chk, "0", 128)
-    chkIsZero(chk, "0", 256)
-
-  tst "operator not `isZero`":
-    chkNotIsZero(chk, "4", 64)
-    chkNotIsZero(chk, "5", 128)
-    chkNotIsZero(chk, "6", 256)
-
-  tst "operator `isOdd`":
-    chkIsOdd(chk, "1", 64)
-    chkIsOdd(chk, "1", 128)
-    chkIsOdd(chk, "1", 256)
-
-    chkIsOdd(chk, "FFFFFF", 64)
-    chkIsOdd(chk, "FFFFFFFFFFFFFFF", 128)
-    chkIsOdd(chk, "FFFFFFFFFFFFFFFFFF", 256)
-
-  tst "operator not `isOdd`":
-    chkNotIsOdd(chk, "0", 64)
-    chkNotIsOdd(chk, "0", 128)
-    chkNotIsOdd(chk, "0", 256)
-
-    chkNotIsOdd(chk, "4", 64)
-    chkNotIsOdd(chk, "4", 128)
-    chkNotIsOdd(chk, "4", 256)
-
-    chkNotIsOdd(chk, "FFFFFA", 64)
-    chkNotIsOdd(chk, "FFFFFFFFFFFFFFA", 128)
-    chkNotIsOdd(chk, "FFFFFFFFFFFFFFFFFA", 256)
-
-  tst "operator `isEven`":
-    chkNotIsOdd(chk, "0", 64)
-    chkNotIsOdd(chk, "0", 128)
-    chkNotIsOdd(chk, "0", 256)
-
-    chkNotIsOdd(chk, "4", 64)
-    chkNotIsOdd(chk, "4", 128)
-    chkNotIsOdd(chk, "4", 256)
-
-    chkNotIsOdd(chk, "FFFFFA", 64)
-    chkNotIsOdd(chk, "FFFFFFFFFFFFFFA", 128)
-    chkNotIsOdd(chk, "FFFFFFFFFFFFFFFFFA", 256)
-
-  tst "operator not `isEven`":
-    chkIsOdd(chk, "1", 64)
-    chkIsOdd(chk, "1", 128)
-    chkIsOdd(chk, "1", 256)
-
-    chkIsOdd(chk, "FFFFFF", 64)
-    chkIsOdd(chk, "FFFFFFFFFFFFFFF", 128)
-    chkIsOdd(chk, "FFFFFFFFFFFFFFFFFF", 256)
-
-static:
-  testComparison(ctCheck, ctTest)
+template chkNotIsOdd(a: string, bits: int) =
+  check (not fromHex(StUint[bits], a).isOdd())
 
 suite "Wider unsigned int comparison coverage":
-  testComparison(check, test)
+  test "operator `LT`":
+    chkLT("0", "F", 64)
+    chkLT("F", "FF", 64)
+    chkLT("FF", "FFF", 64)
+    chkLT("FFFF", "FFFFF", 64)
+    chkLT("FFFFF", "FFFFFFFF", 64)
+
+    chkLT("0", "F", 128)
+    chkLT("F", "FF", 128)
+    chkLT("FF", "FFF", 128)
+    chkLT("FFFF", "FFFFF", 128)
+    chkLT("FFFFF", "FFFFFFFF", 128)
+    chkLT("FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
+
+  test "operator not `LT`":
+    chkNotLT("0", "F", 64)
+    chkNotLT("F", "FF", 64)
+    chkNotLT("FF", "FFF", 64)
+    chkNotLT("FFFF", "FFFFF", 64)
+    chkNotLT("FFFFF", "FFFFFFFF", 64)
+
+    chkNotLT("0", "F", 128)
+    chkNotLT("F", "FF", 128)
+    chkNotLT("FF", "FFF", 128)
+    chkNotLT("FFFF", "FFFFF", 128)
+    chkNotLT("FFFFF", "FFFFFFFF", 128)
+    chkNotLT("FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
+
+  test "operator `LTE`":
+    chkLTE("0", "F", 64)
+    chkLTE("F", "FF", 64)
+    chkLTE("FF", "FFF", 64)
+    chkLTE("FFFF", "FFFFF", 64)
+    chkLTE("FFFFF", "FFFFFFFF", 64)
+    chkLTE("FFFFFFFF", "FFFFFFFF", 64)
+
+    chkLTE("0", "F", 128)
+    chkLTE("F", "FF", 128)
+    chkLTE("FF", "FFF", 128)
+    chkLTE("FFFF", "FFFFF", 128)
+    chkLTE("FFFFF", "FFFFFFFF", 128)
+    chkLTE("FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
+    chkLTE("FFFFFFFFFFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
+
+  test "operator not `LTE`":
+    chkNotLTE("0", "F", 64)
+    chkNotLTE("F", "FF", 64)
+    chkNotLTE("FF", "FFF", 64)
+    chkNotLTE("FFFF", "FFFFF", 64)
+    chkNotLTE("FFFFF", "FFFFFFFF", 64)
+
+    chkNotLTE("0", "F", 128)
+    chkNotLTE("F", "FF", 128)
+    chkNotLTE("FF", "FFF", 128)
+    chkNotLTE("FFFF", "FFFFF", 128)
+    chkNotLTE("FFFFF", "FFFFFFFF", 128)
+    chkNotLTE("FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
+
+  test "operator `EQ`":
+    chkEQ("0", "0", 64)
+    chkEQ("F", "F", 64)
+    chkEQ("FF", "FF", 64)
+    chkEQ("FFFF", "FFFF", 64)
+    chkEQ("FFFFF", "FFFFF", 64)
+    chkEQ("FFFFFFFF", "FFFFFFFF", 64)
+
+    chkEQ("0", "0", 128)
+    chkEQ("F", "F", 128)
+    chkEQ("FF", "FF", 128)
+    chkEQ("FFFF", "FFFF", 128)
+    chkEQ("FFFFF", "FFFFF", 128)
+    chkEQ("FFFFFFFFFFFFFFFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
+
+  test "operator not `EQ`":
+    chkNotEQ("0", "F", 64)
+    chkNotEQ("F", "FF", 64)
+    chkNotEQ("FF", "FFF", 64)
+    chkNotEQ("FFFF", "FFFFF", 64)
+    chkNotEQ("FFFFF", "FFFFFFFF", 64)
+
+    chkNotEQ("0", "F", 128)
+    chkNotEQ("F", "FF", 128)
+    chkNotEQ("FF", "FFF", 128)
+    chkNotEQ("FFFF", "FFFFF", 128)
+    chkNotEQ("FFFFF", "FFFFFFFF", 128)
+    chkNotEQ("FFFFFFFFFFF", "FFFFFFFFFFFFFFFFFFFFFFFF", 128)
+
+  test "operator `isZero`":
+    chkIsZero("0", 64)
+    chkIsZero("0", 128)
+    chkIsZero("0", 256)
+
+  test "operator not `isZero`":
+    chkNotIsZero("4", 64)
+    chkNotIsZero("5", 128)
+    chkNotIsZero("6", 256)
+
+  test "operator `isOdd`":
+    chkIsOdd("1", 64)
+    chkIsOdd("1", 128)
+    chkIsOdd("1", 256)
+
+    chkIsOdd("FFFFFF", 64)
+    chkIsOdd("FFFFFFFFFFFFFFF", 128)
+    chkIsOdd("FFFFFFFFFFFFFFFFFF", 256)
+
+  test "operator not `isOdd`":
+    chkNotIsOdd("0", 64)
+    chkNotIsOdd("0", 128)
+    chkNotIsOdd("0", 256)
+
+    chkNotIsOdd("4", 64)
+    chkNotIsOdd("4", 128)
+    chkNotIsOdd("4", 256)
+
+    chkNotIsOdd("FFFFFA", 64)
+    chkNotIsOdd("FFFFFFFFFFFFFFA", 128)
+    chkNotIsOdd("FFFFFFFFFFFFFFFFFA", 256)
+
+  test "operator `isEven`":
+    chkNotIsOdd("0", 64)
+    chkNotIsOdd("0", 128)
+    chkNotIsOdd("0", 256)
+
+    chkNotIsOdd("4", 64)
+    chkNotIsOdd("4", 128)
+    chkNotIsOdd("4", 256)
+
+    chkNotIsOdd("FFFFFA", 64)
+    chkNotIsOdd("FFFFFFFFFFFFFFA", 128)
+    chkNotIsOdd("FFFFFFFFFFFFFFFFFA", 256)
+
+  test "operator not `isEven`":
+    chkIsOdd("1", 64)
+    chkIsOdd("1", 128)
+    chkIsOdd("1", 256)
+
+    chkIsOdd("FFFFFF", 64)
+    chkIsOdd("FFFFFFFFFFFFFFF", 128)
+    chkIsOdd("FFFFFFFFFFFFFFFFFF", 256)
 
 suite "Testing unsigned int comparison operators":
-  let
+  const
     a = 10.stuint(64)
     b = 15.stuint(64)
     c = 150'u64
@@ -201,7 +195,7 @@ suite "Testing unsigned int comparison operators":
       a < b
       not (a + b < b)
       not (a + a + a < b + b)
-      not (a * b < cast[StUint[64]](c))
+      not (a * b < c.stuint(64))
       e < d
       d < f
 
@@ -210,7 +204,7 @@ suite "Testing unsigned int comparison operators":
       a <= b
       not (a + b <= b)
       a + a + a <= b + b
-      a * b <= cast[StUint[64]](c)
+      a * b <= c.stuint(64)
       e <= d
       d <= f
 
@@ -219,7 +213,7 @@ suite "Testing unsigned int comparison operators":
       b > a
       not (b > a + b)
       not (b + b > a + a + a)
-      not (cast[StUint[64]](c) > a * b)
+      not (c.stuint(64) > a * b)
       d > e
       f > d
 
@@ -228,7 +222,7 @@ suite "Testing unsigned int comparison operators":
       b >= a
       not (b >= a + b)
       b + b >= a + a + a
-      cast[StUint[64]](c) >= a * b
+      c.stuint(64) >= a * b
       d >= e
       f >= d
 

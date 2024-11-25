@@ -9,10 +9,11 @@
 
 import
   # Standard library
-  std/[unittest, times],
+  std/times,
   # Internal
   ../stint,
   # Test utilities
+  unittest2,
   ../helpers/prng_unsafe
 
 const Iters = 50000
@@ -35,7 +36,7 @@ proc test_divmod(bits: static int, iters: int, gen: RandomGen) =
       doAssert b.isZero()
 
 template test(bits: static int) =
-  test "(q, r) = divmod(a, b) <=> a = q*b + r (" & $bits & " bits)":
+  runtimeTest "(q, r) = divmod(a, b) <=> a = q*b + r (" & $bits & " bits)":
     test_divmod(bits, Iters, Uniform)
     test_divmod(bits, Iters, HighHammingWeight)
     test_divmod(bits, Iters, Long01Sequence)

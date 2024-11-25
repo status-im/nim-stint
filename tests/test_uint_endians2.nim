@@ -7,43 +7,38 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import ../stint, unittest, stew/byteutils, test_helpers
+import ../stint, unittest2, stew/byteutils
 
-template chkToBytesLE(chk: untyped, bits: int, hex: string) =
+template chkToBytesLE(bits: int, hex: string) =
   let x = fromHex(StUint[bits], hex)
-  chk toBytes(x, littleEndian).toHex() == x.dumpHex(littleEndian)
+  check toBytes(x, littleEndian).toHex() == x.dumpHex(littleEndian)
 
-template chkToBytesBE(chk: untyped, bits: int, hex: string) =
+template chkToBytesBE(bits: int, hex: string) =
   let x = fromHex(StUint[bits], hex)
-  chk toBytes(x, bigEndian).toHex() == x.dumpHex(bigEndian)
+  check toBytes(x, bigEndian).toHex() == x.dumpHex(bigEndian)
 
-
-template chkFromBytesBE(chk: untyped, bits: int, hex: string) =
+template chkFromBytesBE(bits: int, hex: string) =
   let x = fromHex(StUint[bits], hex)
   let z = fromBytesBE(StUint[bits], toByteArrayBE(x))
-  chk z == x
+  check z == x
 
-template chkFromBytesLE(chk: untyped, bits: int, hex: string) =
+template chkFromBytesLE(bits: int, hex: string) =
   let x = fromHex(StUint[bits], hex)
   let z = fromBytesLE(StUint[bits], toByteArrayLE(x))
-  chk z == x
+  check z == x
 
-template chkEndians(chkFunc, tst, name: untyped) =
-  tst astToStr(name).substr(3):
-    name(chkFunc, 64, "abcdef1234567890")
-    name(chkFunc, 128, "abcdef1234567890abcdef1234567890")
-    name(chkFunc, 256, "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890")
-
-template testEndians(chkFunc, tst: untyped) =
-  chkEndians(chkFunc, tst, chkToBytesLE)
-  chkEndians(chkFunc, tst, chkToBytesBE)
-  chkEndians(chkFunc, tst, chkFromBytesLE)
-  chkEndians(chkFunc, tst, chkFromBytesBE)
-
-static:
-  testEndians(ctCheck, ctTest)
+template chkEndians(name: untyped) =
+  test astToStr(name).substr(3):
+    name(64, "abcdef1234567890")
+    name(128, "abcdef1234567890abcdef1234567890")
+    name(256, "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890")
 
 suite "Testing endians":
+  chkEndians(chkToBytesLE)
+  chkEndians(chkToBytesBE)
+  chkEndians(chkFromBytesLE)
+  chkEndians(chkFromBytesBE)
+
   test "Endians give sane results":
 
     check:
@@ -58,5 +53,3 @@ suite "Testing endians":
 
       1.u128 == UInt128.fromBytesLE(
         [1'u8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-
-  testEndians(check, test)

@@ -35,7 +35,7 @@ template wordType*(_: type SomeBigInteger): type =
   Word
 
 template hash*(num: StUint|StInt): Hash =
-  mixin limbs
+  mixin hash, limbs
   hash(num.limbs)
 
 {.pop.}
