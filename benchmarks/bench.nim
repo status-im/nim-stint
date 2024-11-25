@@ -23,8 +23,8 @@ let a = [123'u64, 123'u64, 123'u64, 123'u64]
 let m = [456'u64, 456'u64, 456'u64, 45'u64]
 
 proc add_stint(a, m: array[4, uint64]) =
-  let aU256 = cast[Stuint[256]](a)
-  let mU256 = cast[Stuint[256]](m)
+  let aU256 = cast[StUint[256]](a)
+  let mU256 = cast[StUint[256]](m)
 
   bench "Add (stint)":
     var foo = aU256
@@ -33,8 +33,8 @@ proc add_stint(a, m: array[4, uint64]) =
       foo += aU256
 
 proc mul_stint(a, m: array[4, uint64]) =
-  let aU256 = cast[Stuint[256]](a)
-  let mU256 = cast[Stuint[256]](m)
+  let aU256 = cast[StUint[256]](a)
+  let mU256 = cast[StUint[256]](m)
 
   bench "Mul (stint)":
     var foo = aU256
@@ -42,17 +42,28 @@ proc mul_stint(a, m: array[4, uint64]) =
       foo += (foo * foo)
 
 proc mod_stint(a, m: array[4, uint64]) =
-  let aU256 = cast[Stuint[256]](a)
-  let mU256 = cast[Stuint[256]](m)
+  let aU256 = cast[StUint[256]](a)
+  let mU256 = cast[StUint[256]](m)
 
   bench "Mod (stint)":
     var foo = aU256
     for i in 0 ..< 100_000_000:
       foo += (foo * foo) mod mU256
 
-add_stint(a, m)
-mul_stint(a, m)
-mod_stint(a, m)
+proc mulmod_stint(a, m: array[4, uint64]) =
+  let aU256 = cast[StUint[256]](a)
+  let mU256 = cast[StUint[256]](m)
+
+  bench "Modmul (stint)":
+    var foo = aU256
+    for i in 0 ..< 100_000_000:
+      foo += mulmod(aU256, aU256, mU256)
+
+# add_stint(a, m)
+# mul_stint(a, m)
+# mod_stint(a, m)
+
+mulmod_stint(a, m)
 
 when defined(bench_ttmath):
   # need C++

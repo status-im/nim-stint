@@ -22,8 +22,9 @@ func addmod_internal(a, b, m: StUint): StUint {.inline.}=
   let b_from_m = m - b
 
   if a >= b_from_m:
-    return a - b_from_m
-  return m - b_from_m + a
+    a - b_from_m
+  else:
+    m - b_from_m + a
 
 func submod_internal(a, b, m: StUint): StUint {.inline.}=
   ## Modular substraction
@@ -34,53 +35,9 @@ func submod_internal(a, b, m: StUint): StUint {.inline.}=
 
   # We don't do a_m - b_m directly to avoid underflows
   if a >= b:
-    return a - b
-  return m - b + a
-
-
-func doublemod_internal(a, m: StUint): StUint {.inline.}=
-  ## Double a modulo m. Assume a < m
-  ## Internal proc - used in mulmod
-
-  doAssert a < m
-
-  result = a
-  if a >= m - a:
-    result -= m
-  result += a
-
-func mulmod_internal(a, b, m: StUint): StUint {.inline.}=
-  ## Does (a * b) mod m. Assume a < m and b < m
-  ## Internal proc - used in powmod
-
-  doAssert a < m
-  doAssert b < m
-
-  var (a, b) = (a, b)
-
-  if b > a:
-    swap(a, b)
-
-  while not b.isZero:
-    if b.isOdd:
-      result = result.addmod_internal(a, m)
-    a = doublemod_internal(a, m)
-    b = b shr 1
-
-func powmod_internal(a, b, m: StUint): StUint {.inline.}=
-  ## Compute ``(a ^ b) mod m``, assume a < m
-  ## Internal proc
-
-  doAssert a < m
-
-  var (a, b) = (a, b)
-  result = one(type a)
-
-  while not b.isZero:
-    if b.isOdd:
-      result = result.mulmod_internal(a, m)
-    b = b shr 1
-    a = mulmod_internal(a, a, m)
+    a - b
+  else:
+    m - b + a
 
 func addmod*(a, b, m: StUint): StUint =
   ## Modular addition
@@ -90,7 +47,7 @@ func addmod*(a, b, m: StUint): StUint =
   let b_m = if b < m: b
             else: b mod m
 
-  result = addmod_internal(a_m, b_m, m)
+  addmod_internal(a_m, b_m, m)
 
 func submod*(a, b, m: StUint): StUint =
   ## Modular substraction
@@ -100,24 +57,29 @@ func submod*(a, b, m: StUint): StUint =
   let b_m = if b < m: b
             else: b mod m
 
-  result = submod_internal(a_m, b_m, m)
+  submod_internal(a_m, b_m, m)
 
 func mulmod*(a, b, m: StUint): StUint =
   ## Modular multiplication
 
-  let a_m = if a < m: a
-            else: a mod m
-  let b_m = if b < m: b
-            else: b mod m
+  let
+    ax = a.stuint(a.bits * 2)
+    bx = b.stuint(b.bits * 2)
+    mx = m.stuint(m.bits * 2)
+    px = ax * bx
 
-  result = mulmod_internal(a_m, b_m, m)
+  divmod(px, mx).rem.stuint(a.bits)
 
 func powmod*(a, b, m: StUint): StUint =
   ## Modular exponentiation
 
-  let a_m = if a < m: a
-            else: a mod m
+  var (a, b) = (a, b)
+  result = one(type a)
 
-  result = powmod_internal(a_m, b, m)
+  while not b.isZero:
+    if b.isOdd:
+      result = result.mulmod(a, m)
+    b = b shr 1
+    a = mulmod(a, a, m)
 
 {.pop.}
