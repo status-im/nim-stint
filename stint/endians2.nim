@@ -7,12 +7,19 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-import stew/[assign2, endians2, staticfor], private/datatypes
+import stew/[endians2, staticfor], private/datatypes
 
 {.push raises: [], noinit, gcsafe, inline.}
 
 # Serialization
 # ------------------------------------------------------------------------------------------
+
+template copyBytes(tgt, src, tstart, sstart, n: untyped) =
+  when nimvm:
+    for i in 0..<n:
+      tgt[tstart + i] = src[sstart + i]
+  else:
+    moveMem(addr tgt[tstart], unsafeAddr src[sstart], n)
 
 template toBytesCopy(src: StUint) =
   # Copy src to result maintaining native byte order
@@ -20,16 +27,13 @@ template toBytesCopy(src: StUint) =
   staticFor i, 0 ..< words:
     let limb = src.limbs[i].toBytes()
     const pos = i * sizeof(Word)
-    assign(result.toOpenArray(pos, pos + sizeof(Word) - 1), limb)
+    copyBytes(result, limb, pos, 0, sizeof(Word))
 
   const leftover = result.len - (words * sizeof(Word))
   when leftover > 0:
     # Handle partial limb when bits don't line up with word size
     let limb = src.limbs[^1].toBytes()
-    assign(
-      result.toOpenArray(result.len - leftover, result.len - 1),
-      limb.toOpenArray(0, leftover - 1),
-    )
+    copyBytes(result, limb, result.len - leftover, 0, leftover)
 
 template toBytesSwap(src: StUint) =
   # Copy src to result swapping both limb and byte order
@@ -37,15 +41,12 @@ template toBytesSwap(src: StUint) =
   staticFor i, 0 ..< words:
     let limb = swapBytes(src.limbs[i]).toBytes()
     const pos = result.len - (i + 1) * sizeof(Word)
-    assign(result.toOpenArray(pos, pos + sizeof(Word) - 1), limb)
+    copyBytes(result, limb, pos, 0, sizeof(Word))
 
   const leftover = result.len - (words * sizeof(Word))
   when leftover > 0:
     let limb = swapBytes(src.limbs[^1]).toBytes()
-    assign(
-      result.toOpenArray(0, leftover - 1),
-      limb.toOpenArray(limb.len - leftover, limb.len - 1),
-    )
+    copyBytes(result, limb, 0, limb.len - leftover, leftover)
 
 func toBytesLE*[bits: static int](src: StUint[bits]): array[bits div 8, byte] =
   ## Encode `src` to a byte array using little-endian byte order
