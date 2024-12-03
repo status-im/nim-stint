@@ -11,8 +11,11 @@ import
   # Standard library
   std/[typetraits, algorithm, hashes],
   # Internal
+  stew/staticfor,
   ./private/datatypes,
   ./uintops, ./endians2
+
+export endians2
 
 from stew/byteutils import toHex
 
@@ -37,6 +40,10 @@ template wordType*(_: type SomeBigInteger): type =
 template hash*(num: StUint|StInt): Hash =
   mixin hash, limbs
   hash(num.limbs)
+
+func swap*(a, b: var (StUint|StInt)) =
+  staticFor i, 0..<a.len:
+    swap(a.limbs[i], b.limbs[i])
 
 {.pop.}
 
@@ -385,9 +392,9 @@ func readUintBE*[bits: static[int]](ba: openArray[byte]): StUint[bits] {.noinit,
   ##   - a big-endian openArray of size (bits div 8) at least
   ## Returns:
   ##   - A unsigned integer of the same size with `bits` bits
-  result = (typeof result).fromBytesBE(ba)
+  (typeof result).fromBytesBE(ba)
 
-func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte] {.noinit, inline.}=
+func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte] {.noinit, inline, deprecated: "endians2.toBytesBE".}=
   ## Convert a Uint[bits] to to a big-endian array of bits div 8 bytes
   ## Input:
   ##   - an unsigned integer
@@ -395,11 +402,11 @@ func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte]
   ##   - a big-endian array of the same size
   result = n.toBytesBE()
 
-func fromBytesBE*(T: type StUint, ba: openArray[byte]): T {.noinit, inline.}=
-  result = readUintBE[T.bits](ba)
+template fromBytesBE*(T: type StUint, ba: openArray[byte]): T {.deprecated: "endians2.fromBytesBE".}=
+  endians2.fromBytesBE(T, ba)
 
 template initFromBytesBE*(x: var StUint, ba: openArray[byte]) =
-  x = fromBytesBE(type x, ba)
+  x = endians2.fromBytesBE(type x, ba)
 
 func readUintLE*[bits: static[int]](ba: openArray[byte]): StUint[bits] {.noinit, inline.}=
   ## Convert a lettle-endian array of (bits div 8) Bytes to an UInt[bits] (in native host endianness)
@@ -409,16 +416,16 @@ func readUintLE*[bits: static[int]](ba: openArray[byte]): StUint[bits] {.noinit,
   ##   - A unsigned integer of the same size with `bits` bits
   result = (typeof result).fromBytesLE(ba)
 
-func toByteArrayLE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte] {.noinit, inline.}=
+template toByteArrayLE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte] {.deprecated: "endians2.toBytesLE".} =
   ## Convert a Uint[bits] to to a little-endian array of bits div 8 bytes
   ## Input:
   ##   - an unsigned integer
   ## Returns:
   ##   - a little-endian array of the same size
-  result = n.toBytesLE()
+  n.toBytesLE()
 
-func fromBytesLE*(T: type StUint, ba: openArray[byte]): T {.noinit, inline.}=
-  result = readUintLE[T.bits](ba)
+func fromBytesLE*(T: type StUint, ba: openArray[byte]): T {.deprecated: "endians2.fromBytesLE".} =
+  endians2.fromBytesLE(T, ba)
 
 template initFromBytesLE*(x: var StUint, ba: openArray[byte]) =
   x = fromBytesLE(type x, ba)
@@ -447,7 +454,7 @@ func readIntLE*[bits: static[int]](ba: openArray[byte]): StInt[bits] {.noinit, i
   ##   - A signed integer of the same size with `bits` bits
   result.impl = (typeof result.impl).fromBytesLE(ba)
 
-func toByteArrayLE*[bits: static[int]](n: StInt[bits]): array[bits div 8, byte] {.noinit, inline.}=
+template toByteArrayLE*[bits: static[int]](n: StInt[bits]): array[bits div 8, byte] {.deprecated: "endians2.toBytesLE".} =
   ## Convert a Int[bits] to to a little-endian array of bits div 8 bytes
   ## Input:
   ##   - an signed integer
@@ -455,17 +462,17 @@ func toByteArrayLE*[bits: static[int]](n: StInt[bits]): array[bits div 8, byte] 
   ##   - a little-endian array of the same size
   result = n.impl.toBytesLE()
 
-func fromBytesLE*(T: type StInt, ba: openArray[byte]): T {.noinit, inline.}=
-  result = readIntLE[T.bits](ba)
+template fromBytesLE*(T: type StInt, ba: openArray[byte]): T {.deprecated: "endians2.fromBytesLE".} =
+  endians2.fromBytesLE(T, ba)
 
 template initFromBytesLE*(x: var StInt, ba: openArray[byte]) =
   x = fromBytesLE(type x, ba)
 
-template toBytesLE*[bits: static[int]](n: StInt[bits]): array[bits div 8, byte] =
-  result = n.impl.toBytesLE()
+template toBytesLE*[bits: static[int]](n: StInt[bits]): array[bits div 8, byte] {.deprecated: "endians2.toBytesLE".} =
+  endians2.toBytesLE(n)
 
-template toBytesBE*[bits: static[int]](n: StInt[bits]): array[bits div 8, byte] =
-  result = n.impl.toBytesBE()
+template toBytesBE*[bits: static[int]](n: StInt[bits]): array[bits div 8, byte] {.deprecated: "endians2.toBytesBE".} =
+  endians2.toBytesBE(n)
 
 {.pop.}
 

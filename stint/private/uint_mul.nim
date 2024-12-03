@@ -8,6 +8,7 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 import
+  stew/staticfor,
   ./datatypes,
   ./primitives/extended_precision
 
@@ -28,10 +29,10 @@ func prod*[rLen, aLen, bLen: static int](r: var Limbs[rLen], a: Limbs[aLen], b: 
   var t, u, v = Word(0)
   var z: typeof(r) # zero-init, ensure on stack and removes in-place problems
 
-  staticFor i, 0, min(a.len+b.len, r.len):
+  staticFor i, 0..<min(a.len+b.len, r.len):
     const ib = min(b.len-1, i)
     const ia = i - ib
-    staticFor j, 0, min(a.len - ia, ib+1):
+    staticFor j, 0..<min(a.len - ia, ib+1):
       mulAcc(t, u, v, a[ia+j], b[ib-j])
 
     z[i] = v
@@ -70,10 +71,10 @@ func prod_high_words*[rLen, aLen, bLen: static int](
   # but not the ones before (we accumulate in 3 words (t, u, v))
   const w = lowestWordIndex - 2
 
-  staticFor i, max(0, w), min(a.len+b.len, r.len+lowestWordIndex):
+  staticFor i, max(0, w)..<min(a.len+b.len, r.len+lowestWordIndex):
     const ib = min(b.len-1, i)
     const ia = i - ib
-    staticFor j, 0, min(a.len - ia, ib+1):
+    staticFor j, 0..<min(a.len - ia, ib+1):
       mulAcc(t, u, v, a[ia+j], b[ib-j])
 
     when i >= lowestWordIndex:

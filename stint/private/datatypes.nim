@@ -135,7 +135,7 @@ proc replaceNodes(ast: NimNode, what: NimNode, by: NimNode): NimNode =
       return rTree
   result = inspect(ast)
 
-macro staticFor*(idx: untyped{nkIdent}, start, stopEx: static int, body: untyped): untyped =
+macro staticFor*(idx: untyped{nkIdent}, start, stopEx: static int, body: untyped): untyped {.deprecated: "stew/staticfor".} =
   ## staticFor [min inclusive, max exclusive)
   result = newStmtList()
   for i in start ..< stopEx:

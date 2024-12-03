@@ -96,15 +96,15 @@ template chkRoundtripBE(str: string, bits: int) =
     const data = toByteArray(str)
     var x: StUint[bits]
     initFromBytesBE(x, data)
-    let y = toByteArrayBE(x)
+    let y = toBytesBE(x)
     check y == data
 
 template chkCTvsRT(num: untyped, bits: int) =
   block:
     let x = stuint(num, bits)
-    let y = toByteArrayBE(x)
+    let y = toBytesBE(x)
     const xx = stuint(num, bits)
-    const yy = toByteArrayBE(xx)
+    const yy = toBytesBE(xx)
     check y == yy
 
 template chkDumpHexStuint(BE, LE: string, bits: int) =
@@ -707,7 +707,7 @@ suite "Testing input and output procedures":
     chkRoundTripStint("-170141183460469231731687303715884105727", 128, 10)
     chkRoundTripStint("-170141183460469231731687303715884105728", 128, 10)
 
-  test "roundtrip initFromBytesBE and toByteArrayBE":
+  test "roundtrip initFromBytesBE and toBytesBE":
     chkRoundtripBE("xyzwabcd", 64)
     chkRoundtripBE("xyzwabcd12345678", 128)
     chkRoundtripBE("xyzwabcd12345678kilimanjarohello", 256)
@@ -724,7 +724,7 @@ suite "Testing input and output procedures":
 
     chkDumpHexStint("abcdef0012345678abcdef1122334455", "5544332211efcdab7856341200efcdab", 128)
 
-  test "toByteArrayBE CT vs RT":
+  test "toBytesBE CT vs RT":
     chkCTvsRT(0xab'u64, 64)
     chkCTvsRT(0xabcd'u64, 64)
     chkCTvsRT(0xabcdef12'u64, 64)
@@ -974,14 +974,14 @@ suite "Testing conversion functions: Hex, Bytes, Endianness using secp256k1 curv
     for i in 2 .. 25:
       f = f * i.stuint(256)
       let
-        bytes = f.toByteArrayBE
+        bytes = f.toBytesBE
         nonZeroBytes = significantBytesBE(bytes)
         fRestored = UInt256.fromBytesBE(bytes.toOpenArray(bytes.len - nonZeroBytes,
                                                           bytes.len - 1))
       check f == fRestored
 
   test "uint256 -> big-endian array -> hex":
-    check: SECPK1_N.toByteArrayBE == SECPK1_N_BYTES
+    check: SECPK1_N.toBytesBE == SECPK1_N_BYTES
 
   # This is a sample of signatures generated with a known-good implementation of the ECDSA
   # algorithm, which we use to test our ECC backends. If necessary, it can be generated from scratch

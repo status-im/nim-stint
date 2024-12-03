@@ -10,11 +10,11 @@ import
   # Standard library
   std/[unittest2, times, strutils],
   # Third-party
-  gmp, stew/byteutils,
+  gmp, stew/[byteutils, staticfor],
   # Internal
   ../stint,
   # Test utilities
-  ../helpers/[prng_unsafe, staticfor]
+  ../helpers/[prng_unsafe]
 
 const
   Iters = 1000
@@ -191,7 +191,7 @@ template testMultiplication(bits: static int) =
     test_mul(bits, Iters, Long01Sequence)
 
 suite "Randomized arithmetic tests vs GMP":
-  staticFor i, 0, Bitwidths.len:
+  staticFor i, 0..<Bitwidths.len:
     testAddition(Bitwidths[i])
     testSubstraction(Bitwidths[i])
     testMultiplication(Bitwidths[i])
