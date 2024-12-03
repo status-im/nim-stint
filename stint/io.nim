@@ -394,6 +394,14 @@ func readUintBE*[bits: static[int]](ba: openArray[byte]): StUint[bits] {.noinit,
   ##   - A unsigned integer of the same size with `bits` bits
   (typeof result).fromBytesBE(ba)
 
+func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte] {.noinit, inline, deprecated: "endians2.toBytesBE".}=
+  ## Convert a Uint[bits] to to a big-endian array of bits div 8 bytes
+  ## Input:
+  ##   - an unsigned integer
+  ## Returns:
+  ##   - a big-endian array of the same size
+  result = n.toBytesBE()
+
 template initFromBytesBE*(x: var StUint, ba: openArray[byte]) =
   x = endians2.fromBytesBE(type x, ba)
 
