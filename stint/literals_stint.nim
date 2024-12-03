@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018 Status Research & Development GmbH
+# Copyright 2018-2024 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -21,10 +21,16 @@ macro make_mixed_types_ops(op: untyped, ResultTy: untyped, sign: static[Signedne
   result = newStmtList()
 
   # Workaround for int{lit} in quote do block
-  let intLit = nnkCurlyExpr.newTree(
-    newIdentNode("int"),
-    newIdentNode("lit")
-  )
+  let
+    intLit = nnkCurlyExpr.newTree(
+      newIdentNode("SomeSignedInt"),
+      newIdentNode("lit")
+    )
+
+    uintLit = nnkCurlyExpr.newTree(
+      newIdentNode("SomeUnsignedInt"),
+      newIdentNode("lit")
+    )
 
   if sign != IntOnly:
     let ResultTy =  if not isInputType: ResultTy
@@ -34,12 +40,12 @@ macro make_mixed_types_ops(op: untyped, ResultTy: untyped, sign: static[Signedne
                     )
 
     result.add quote do:
-      proc `op`*[bits: static[int]](a: StUint[bits], b: `intLit`): `ResultTy` {.inline.}=
+      proc `op`*[bits: static[int]](a: StUint[bits], b: `uintLit`): `ResultTy` {.inline.}=
         `op`(a, b.stuint(bits))
 
     if switchInputs:
       result.add quote do:
-        proc `op`*[bits: static[int]](a: `intLit`, b: StUint[bits]): `ResultTy` {.inline.}=
+        proc `op`*[bits: static[int]](a: `uintLit`, b: StUint[bits]): `ResultTy` {.inline.}=
           `op`(a.stuint(bits), b)
 
   if sign != UintOnly:
