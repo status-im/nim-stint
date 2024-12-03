@@ -384,7 +384,7 @@ func dumpHex*(a: StInt or StUint, order: static[Endianness] = bigEndian): string
 # --------------------------------------------------------
 {.push raises: [], inline, noinit, gcsafe.}
 
-export fromBytes, toBytes, toBytesLE, toBytesBE
+export fromBytes, toBytes, fromBytesLE, toBytesLE, fromBytesBE, toBytesBE
 
 func readUintBE*[bits: static[int]](ba: openArray[byte]): StUint[bits] {.noinit, inline.}=
   ## Convert a big-endian array of (bits div 8) Bytes to an UInt[bits] (in native host endianness)
@@ -393,17 +393,6 @@ func readUintBE*[bits: static[int]](ba: openArray[byte]): StUint[bits] {.noinit,
   ## Returns:
   ##   - A unsigned integer of the same size with `bits` bits
   (typeof result).fromBytesBE(ba)
-
-func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte] {.noinit, inline, deprecated: "endians2.toBytesBE".}=
-  ## Convert a Uint[bits] to to a big-endian array of bits div 8 bytes
-  ## Input:
-  ##   - an unsigned integer
-  ## Returns:
-  ##   - a big-endian array of the same size
-  result = n.toBytesBE()
-
-template fromBytesBE*(T: type StUint, ba: openArray[byte]): T {.deprecated: "endians2.fromBytesBE".}=
-  endians2.fromBytesBE(T, ba)
 
 template initFromBytesBE*(x: var StUint, ba: openArray[byte]) =
   x = endians2.fromBytesBE(type x, ba)
@@ -424,9 +413,6 @@ template toByteArrayLE*[bits: static[int]](n: StUint[bits]): array[bits div 8, b
   ##   - a little-endian array of the same size
   n.toBytesLE()
 
-func fromBytesLE*(T: type StUint, ba: openArray[byte]): T {.deprecated: "endians2.fromBytesLE".} =
-  endians2.fromBytesLE(T, ba)
-
 template initFromBytesLE*(x: var StUint, ba: openArray[byte]) =
   x = fromBytesLE(type x, ba)
 
@@ -439,9 +425,6 @@ func readIntBE*[bits: static[int]](ba: openArray[byte]): StInt[bits] {.noinit, i
   ## Returns:
   ##   - A signed integer of the same size with `bits` bits
   result.impl = (typeof result.impl).fromBytesBE(ba)
-
-func fromBytesBE*(T: type StInt, ba: openArray[byte]): T {.noinit, inline.}=
-  result = readIntBE[T.bits](ba)
 
 template initFromBytesBE*(x: var StInt, ba: openArray[byte]) =
   x = fromBytesBE(type x, ba)
@@ -462,17 +445,8 @@ template toByteArrayLE*[bits: static[int]](n: StInt[bits]): array[bits div 8, by
   ##   - a little-endian array of the same size
   result = n.impl.toBytesLE()
 
-template fromBytesLE*(T: type StInt, ba: openArray[byte]): T {.deprecated: "endians2.fromBytesLE".} =
-  endians2.fromBytesLE(T, ba)
-
 template initFromBytesLE*(x: var StInt, ba: openArray[byte]) =
   x = fromBytesLE(type x, ba)
-
-template toBytesLE*[bits: static[int]](n: StInt[bits]): array[bits div 8, byte] {.deprecated: "endians2.toBytesLE".} =
-  endians2.toBytesLE(n)
-
-template toBytesBE*[bits: static[int]](n: StInt[bits]): array[bits div 8, byte] {.deprecated: "endians2.toBytesBE".} =
-  endians2.toBytesBE(n)
 
 {.pop.}
 
