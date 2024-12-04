@@ -1,7 +1,7 @@
 mode = ScriptMode.Verbose
 
 packageName   = "stint"
-version       = "2.0.0"
+version       = "0.8.0"
 author        = "Status Research & Development GmbH"
 description   = "Efficient stack-based multiprecision int in Nim"
 license       = "Apache License 2.0 or MIT"
@@ -10,7 +10,7 @@ skipDirs      = @["tests", "benchmarks"]
 
 # TODO test only requirements don't work: https://github.com/nim-lang/nimble/issues/482
 requires "nim >= 1.6.12",
-         "stew",
+         "stew >= 0.2.0",
          "unittest2 >= 0.2.3"
 
 let nimc = getEnv("NIMC", "nim") # Which nim compiler to use
