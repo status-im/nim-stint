@@ -288,10 +288,10 @@ func toBytes*[bits: static int](
 func fromBytesBE*[bits: static int](
     T: typedesc[StInt[bits]], x: openArray[byte]
 ): T {.raises: [], noinit, gcsafe, inline.} =
-  fromBytesBE(type result.impl, x)
+  result.impl = fromBytesBE(type result.impl, x)
 
 func fromBytesLE*[bits: static int](T: typedesc[StInt[bits]], x: openArray[byte]): T =
-  fromBytesLE(type result.impl, x)
+  result.impl = fromBytesLE(type result.impl, x)
 
 func fromBytes*[bits: static int](
     T: typedesc[StInt[bits]], x: openArray[byte], srcEndian: Endianness
@@ -299,4 +299,4 @@ func fromBytes*[bits: static int](
   ## TODO Unlike the corresponding function in stew/endians that defaults to
   ##      native endian, this function used to default to big endian - the
   ##      default has been removed to avoid confusion and runtime surprises
-  fromBytes(type result.impl, x, srcEndian)
+  result.impl = fromBytes(type result.impl, x, srcEndian)
