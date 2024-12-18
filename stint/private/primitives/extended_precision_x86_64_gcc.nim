@@ -41,7 +41,7 @@ func div2n1n_128*(q, r: var uint64, n_hi, n_lo, d: uint64) {.inline.}=
   # 2. don't forget to dereference the var hidden pointer
   # 3. -
   # 4. no clobbered registers beside explicitly used RAX and RDX
-  when defined(cpp):
+  when defined(cpp) or defined(nimHasAsmSemSymbol):
     asm """
       divq %[divisor]
       :"=a" (`q`), "=d" (`r`)
