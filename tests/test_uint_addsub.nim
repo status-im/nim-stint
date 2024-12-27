@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018-2023 Status Research & Development GmbH
+# Copyright 2018-2024 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -35,7 +35,7 @@ template chkInplaceSubstraction(a, b, c, bits: untyped) =
 
 suite "Wider unsigned int addsub coverage":
   test "addition":
-    #[chkAddition(0'u8, 0'u8, 0'u8, 8)
+    chkAddition(0'u8, 0'u8, 0'u8, 8)
     chkAddition(high(uint8) - 17'u8, 17'u8, high(uint8), 8)
     chkAddition(low(uint8), 17'u8, low(uint8) + 17'u8, 8)
 
@@ -61,7 +61,7 @@ suite "Wider unsigned int addsub coverage":
     chkAddition(high(uint32) - 17'u32, 17'u32, high(uint32), 64)
     chkAddition(low(uint32), 17'u32, low(uint32) + 17'u32, 64)
     chkAddition(high(uint64) - 17'u64, 17'u64, high(uint64), 64)
-    chkAddition(low(uint64), 17'u64, low(uint64) + 17'u64, 64)]#
+    chkAddition(low(uint64), 17'u64, low(uint64) + 17'u64, 64)
 
     chkAddition(0'u8, 0'u8, 0'u8, 128)
     chkAddition(high(uint8) - 17'u8, 17'u8, high(uint8), 128)
@@ -74,7 +74,7 @@ suite "Wider unsigned int addsub coverage":
     chkAddition(low(uint64), 17'u64, low(uint64) + 17'u64, 128)
 
   test "inplace addition":
-    #[chkInplaceAddition(0'u8, 0'u8, 0'u8, 8)
+    chkInplaceAddition(0'u8, 0'u8, 0'u8, 8)
     chkInplaceAddition(high(uint8) - 17'u8, 17'u8, high(uint8), 8)
     chkInplaceAddition(low(uint8) + 17'u8, 17'u8, low(uint8) + 34'u8, 8)
 
@@ -100,7 +100,7 @@ suite "Wider unsigned int addsub coverage":
     chkInplaceAddition(high(uint32) - 17'u32, 17'u32, high(uint32), 64)
     chkInplaceAddition(low(uint32) + 17'u32, 17'u32, low(uint32) + 34'u32, 64)
     chkInplaceAddition(high(uint64) - 17'u64, 17'u64, high(uint64), 64)
-    chkInplaceAddition(low(uint64) + 17'u64, 17'u64, low(uint64) + 34'u64, 64)]#
+    chkInplaceAddition(low(uint64) + 17'u64, 17'u64, low(uint64) + 34'u64, 64)
 
     chkInplaceAddition(0'u8, 0'u8, 0'u8, 128)
     chkInplaceAddition(high(uint8) - 17'u8, 17'u8, high(uint8), 128)
@@ -113,7 +113,7 @@ suite "Wider unsigned int addsub coverage":
     chkInplaceAddition(low(uint64) + 17'u64, 17'u64, low(uint64) + 34'u64, 128)
 
   test "substraction":
-    #[chkSubstraction(0'u8, 0'u8, 0'u8, 8)
+    chkSubstraction(0'u8, 0'u8, 0'u8, 8)
     chkSubstraction(high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 8)
     chkSubstraction(low(uint8) + 17'u8, 17'u8, low(uint8), 8)
 
@@ -139,7 +139,7 @@ suite "Wider unsigned int addsub coverage":
     chkSubstraction(high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 64)
     chkSubstraction(low(uint32) + 17'u32, 17'u32, low(uint32), 64)
     chkSubstraction(high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 64)
-    chkSubstraction(low(uint64) + 17'u64, 17'u64, low(uint64), 64)]#
+    chkSubstraction(low(uint64) + 17'u64, 17'u64, low(uint64), 64)
 
     chkSubstraction(0'u8, 0'u8, 0'u8, 128)
     chkSubstraction(high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 128)
@@ -152,7 +152,7 @@ suite "Wider unsigned int addsub coverage":
     chkSubstraction(high(uint64), high(uint64), 0'u64, 128)
 
   test "inplace substraction":
-    #[chkInplaceSubstraction(0'u8, 0'u8, 0'u8, 8)
+    chkInplaceSubstraction(0'u8, 0'u8, 0'u8, 8)
     chkInplaceSubstraction(high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 8)
     chkInplaceSubstraction(low(uint8) + 17'u8, 17'u8, low(uint8), 8)
 
@@ -178,7 +178,7 @@ suite "Wider unsigned int addsub coverage":
     chkInplaceSubstraction(high(uint32) - 17'u32, 17'u32, high(uint32) - 34'u32, 64)
     chkInplaceSubstraction(low(uint32) + 17'u32, 17'u32, low(uint32), 64)
     chkInplaceSubstraction(high(uint64) - 17'u64, 17'u64, high(uint64) - 34'u64, 64)
-    chkInplaceSubstraction(low(uint64) + 17'u64, 17'u64, low(uint64), 64)]#
+    chkInplaceSubstraction(low(uint64) + 17'u64, 17'u64, low(uint64), 64)
 
     chkInplaceSubstraction(0'u8, 0'u8, 0'u8, 128)
     chkInplaceSubstraction(high(uint8) - 17'u8, 17'u8, high(uint8) - 34'u8, 128)
