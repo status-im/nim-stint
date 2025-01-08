@@ -1,7 +1,7 @@
 mode = ScriptMode.Verbose
 
 packageName   = "stint"
-version       = "0.8.0"
+version       = "0.8.1"
 author        = "Status Research & Development GmbH"
 description   = "Efficient stack-based multiprecision int in Nim"
 license       = "Apache License 2.0 or MIT"
