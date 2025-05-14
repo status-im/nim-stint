@@ -8,21 +8,18 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 func getRadix(s: static string): uint8 {.compileTime.} =
-  if s.len <= 2:
-    return 10
+  # maybe have prefix
+  if s.len >= 2 and s[0] == '0':
+    if s[1] == 'b':
+      return 2
 
-  # maybe have prefix have prefix
-  if s[0] != '0':
-    return 10
+    if s[1] == 'o':
+      return 8
 
-  if s[1] == 'b':
-    return 2
+    if s[1] == 'x':
+      return 16
 
-  if s[1] == 'o':
-    return 8
-
-  if s[1] == 'x':
-    return 16
+  10
 
 func stripPrefix(s: string): string {.compileTime.} =
   if s.len < 2 or s[0] != '0':
