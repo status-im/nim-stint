@@ -8,16 +8,16 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 func getRadix(s: static string): uint8 {.compileTime.} =
-  # maybe have prefix
-  if s.len >= 2 and s[0] == '0':
-    if s[1] == 'b':
-      return 2
+  when s.len >= 2:  # Nim < 2.2: When using `if`: `Error: index 1 not in 0`
+    if s[0] == '0':
+      if s[1] == 'b':
+        return 2
 
-    if s[1] == 'o':
-      return 8
+      if s[1] == 'o':
+        return 8
 
-    if s[1] == 'x':
-      return 16
+      if s[1] == 'x':
+        return 16
 
   10
 
