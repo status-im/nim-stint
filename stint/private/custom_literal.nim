@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018-2023 Status Research & Development GmbH
+# Copyright 2018-2025 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -25,7 +25,7 @@ func getRadix(s: static string): uint8 {.compileTime.} =
     return 16
 
 func stripPrefix(s: string): string {.compileTime.} =
-  if s[0] != '0':
+  if s.len < 2 or s[0] != '0':
     return s
   if s[1] in {'b', 'o', 'x'}:
     return s[2 .. ^1]
