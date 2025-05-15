@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018-2023 Status Research & Development GmbH
+# Copyright 2018-2025 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -8,24 +8,21 @@
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
 func getRadix(s: static string): uint8 {.compileTime.} =
-  if s.len <= 2:
-    return 10
+  when s.len >= 2:  # Nim < 2.2: When using `if`: `Error: index 1 not in 0`
+    if s[0] == '0':
+      if s[1] == 'b':
+        return 2
 
-  # maybe have prefix have prefix
-  if s[0] != '0':
-    return 10
+      if s[1] == 'o':
+        return 8
 
-  if s[1] == 'b':
-    return 2
+      if s[1] == 'x':
+        return 16
 
-  if s[1] == 'o':
-    return 8
-
-  if s[1] == 'x':
-    return 16
+  10
 
 func stripPrefix(s: string): string {.compileTime.} =
-  if s[0] != '0':
+  if s.len < 2 or s[0] != '0':
     return s
   if s[1] in {'b', 'o', 'x'}:
     return s[2 .. ^1]

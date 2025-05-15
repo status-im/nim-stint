@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018 Status Research & Development GmbH
+# Copyright 2018-2025 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -77,8 +77,8 @@ make_mixed_types_ops(`xor`, InputType, BothSigned, switchInputs = true)
 
 # Specialization / fast path for comparison to zero
 # Note system.nim has templates to transform > and >= into <= and <
-template mtoIsZero*{a == 0}(a: StUint or StInt): bool = a.isZero
-template mtoIsZero*{0 == a}(a: StUint or StInt): bool = a.isZero
+template mtoIsZeroL*{a == 0}(a: StUint or StInt): bool = a.isZero
+template mtoIsZeroR*{0 == a}(a: StUint or StInt): bool = a.isZero
 
 template mtoIsNeg*{a < 0}(a: StInt): bool = a.isNegative
 template mtoIsNegOrZero*{a <= 0}(a: StInt): bool = a.isZero or a.isNegative

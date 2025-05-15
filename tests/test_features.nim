@@ -1,4 +1,5 @@
-# Copyright 2023 Status Research & Development GmbH
+# Stint
+# Copyright 2023-2025 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -20,6 +21,7 @@ suite "new features":
       b = 0xabcdef0123456'u256
       c = -100'i128
       d = -50000'i256
+      e = 0'u256
 
     let
       x = 0b111100011'u128
@@ -32,6 +34,7 @@ suite "new features":
       b == 0xabcdef0123456.u256
       c == -100.i128
       d == -50000.i256
+      e == 0'u256
       x == 0b111100011.u128
       y == 0o777766666.u256
       z == UInt256.fromHex("0x1122334455667788991011121314151617181920aabbccddeeffb1b2b3b4b500")
