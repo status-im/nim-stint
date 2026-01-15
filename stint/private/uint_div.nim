@@ -129,7 +129,7 @@ func shlAddMod(a: var openArray[Word], c: Word,
                M: openArray[Word], mBits: int): Word {.inline.} =
   ## Fused modular left-shift + add
   if mBits <= WordBitWidth:
-    # Intops narrowingDiv handles normalization internally.
+    # intops' narrowingDiv handles normalization internally.
     # We pass the raw accumulator (a[0]), the new limb (c), and the modulus (M[0]).
     # It calculates: (a[0] * 2^64 + c) div M[0]
     # And returns the correct quotient and remainder.
