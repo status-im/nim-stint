@@ -10,6 +10,7 @@
 import
   # Status lib
   stew/bitops2,
+  intops/ops/division,
   # Internal
   ./datatypes,
   ./uint_bitwise,
@@ -125,42 +126,18 @@ func shlAddMod_multi(a: var openArray[Word], c: Word,
   return q
 
 func shlAddMod(a: var openArray[Word], c: Word,
-               M: openArray[Word], mBits: int): Word {.inline.}=
+               M: openArray[Word], mBits: int): Word {.inline.} =
   ## Fused modular left-shift + add
-  ## Shift input `a` by a word and add `c` modulo `M`
-  ##
-  ## With a word W = 2^WordBitWidth and a modulus M
-  ## Does a <- a * W + c (mod M)
-  ## and returns q = (a * W + c ) / M
-  ##
-  ## The modulus `M` most-significant bit at `mBits` MUST be set.
   if mBits <= WordBitWidth:
-    # If M fits in a single limb
-
-    # We normalize M with clz so that the MSB is set
-    # And normalize (a * 2^64 + c) by R as well to maintain the result
-    # This ensures that (a0, a1)/p0 fits in a limb.
-    let R = mBits and (WordBitWidth - 1)
-
-    # (hi, lo) = a * 2^64 + c
-    if R == 0:
-      # We can delegate this R == 0 case to the
-      # shlAddMod_multi, with the same result.
-      # But isn't it faster to handle it here?
-      var q, r: Word
-      div2n1n(q, r, a[0], c, M[0])
-      a[0] = r
-      return q
-    else:
-      let clz = WordBitWidth-R
-      let hi = (a[0] shl clz) or (c shr R)
-      let lo = c shl clz
-      let m0 = M[0] shl clz
-
-      var q, r: Word
-      div2n1n(q, r, hi, lo, m0)
-      a[0] = r shr clz
-      return q
+    # Intops narrowingDiv handles normalization internally.
+    # We pass the raw accumulator (a[0]), the new limb (c), and the modulus (M[0]).
+    # It calculates: (a[0] * 2^64 + c) div M[0]
+    # And returns the correct quotient and remainder.
+    
+    let (q, r) = narrowingDiv(a[0], c, M[0])
+    
+    a[0] = r
+    return q
   else:
     return shlAddMod_multi(a, c, M, mBits)
 
