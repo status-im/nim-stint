@@ -10,7 +10,7 @@
 import
   # Status lib
   stew/bitops2,
-  intops/ops/division,
+  intops/ops/[add, sub, muladd, division],
   # Internal
   ./datatypes,
   ./uint_bitwise,
@@ -67,8 +67,7 @@ func shlAddMod_multi(a: var openArray[Word], c: Word,
     q = 0
     return q
   else:
-    var r: Word
-    div2n1n(q, r, a0, a1, m0)           # else instead of being of by 0, 1 or 2
+    (q, _) = narrowingDiv(a0, a1, m0)   # else instead of being of by 0, 1 or 2
     q -= 1                              # we return q-1 to be off by -1, 0 or 1
 
   # Now substract a*2^64 - q*m
@@ -77,14 +76,15 @@ func shlAddMod_multi(a: var openArray[Word], c: Word,
 
   for i in 0 ..< M.len:
     var qm_lo: Word
-    block:                              # q*m
-      # q * p + carry (doubleword) carry from previous limb
-      muladd1(carry, qm_lo, q, M[i], carry)
+    # q*m
+    # q * p + carry (doubleword) carry from previous limb
+    (carry, qm_lo) = wideningMulAdd(q, M[i], carry)
 
-    block:                              # a*2^64 - q*m
-      var borrow: Borrow
-      subB(borrow, a[i], a[i], qm_lo, Borrow(0))
-      carry += Word(borrow) # Adjust if borrow
+    # a*2^64 - q*m
+    var borrow: bool
+    (a[i], borrow) = borrowingSub(a[i], qm_lo, false)
+
+    carry += Word(borrow) # Adjust if borrow
 
     if a[i] != M[i]:
       overM = a[i] > M[i]
@@ -94,14 +94,14 @@ func shlAddMod_multi(a: var openArray[Word], c: Word,
   # if carry < q or carry == q and overM we must do "a -= M"
   # if carry > hi (negative result) we must do "a += M"
   if carry > hi:
-    var c = Carry(0)
+    var c = false
     for i in 0 ..< a.len:
-      addC(c, a[i], a[i], M[i], c)
+      (a[i], c) = carryingAdd(a[i], M[i], c)
     q -= 1
   elif overM or (carry < hi):
-    var b = Borrow(0)
+    var b = false
     for i in 0 ..< a.len:
-      subB(b, a[i], a[i], M[i], b)
+      (a[i], b) = borrowingSub(a[i], M[i], b)
     q += 1
 
   return q
