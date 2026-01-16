@@ -21,29 +21,10 @@ import
 
 func shortDiv*(a: var Limbs, k: Word): Word =
   ## Divide `a` by k in-place and return the remainder
-  result = Word(0)
 
-  let clz = leadingZeros(k)
-  let normK = k shl clz
-
-  for i in countdown(a.len-1, 0):
-    # dividend = 2^64 * remainder + a[i]
-    var hi = result
-    var lo = a[i]
-    if hi == 0:
-      if lo < k:
-        a[i] = 0
-      elif lo == k:
-        a[i] = 1
-        result = 0
-      continue
-    # Normalize, shifting the remainder by clz(k) cannot overflow.
-    hi = (hi shl clz) or (lo shr (WordBitWidth - clz))
-    lo = lo shl clz
-    div2n1n(a[i], result, hi, lo, normK)
-    # Undo normalization
-    result = result shr clz
-
+  for i in countdown(a.high, 0):
+    (a[i], result) = narrowingDiv(result, a[i], k)
+   
 func shlAddMod_multi(a: var openArray[Word], c: Word,
                      M: openArray[Word], mBits: int): Word =
   ## Fused modular left-shift + add
@@ -128,6 +109,7 @@ func shlAddMod_multi(a: var openArray[Word], c: Word,
 func shlAddMod(a: var openArray[Word], c: Word,
                M: openArray[Word], mBits: int): Word {.inline.} =
   ## Fused modular left-shift + add
+
   if mBits <= WordBitWidth:
     # intops' narrowingDiv handles normalization internally.
     # We pass the raw accumulator (a[0]), the new limb (c), and the modulus (M[0]).
