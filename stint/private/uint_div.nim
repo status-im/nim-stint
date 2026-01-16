@@ -9,12 +9,9 @@
 
 import
   # Status lib
-  stew/bitops2,
   intops/ops/[add, sub, muladd, division],
   # Internal
-  ./datatypes,
-  ./uint_bitwise,
-  ./primitives/[addcarry_subborrow, extended_precision]
+  ./datatypes
 
 # Division
 # --------------------------------------------------------
