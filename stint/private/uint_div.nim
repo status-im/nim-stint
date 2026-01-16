@@ -64,7 +64,8 @@ func shlAddMod_multi(a: var openArray[Word], c: Word,
     q = 0
     return q
   else:
-    (q, _) = narrowingDiv(a0, a1, m0)   # else instead of being of by 0, 1 or 2
+    var r: Word
+    (q, r) = narrowingDiv(a0, a1, m0)   # else instead of being of by 0, 1 or 2
     q -= 1                              # we return q-1 to be off by -1, 0 or 1
 
   # Now substract a*2^64 - q*m
