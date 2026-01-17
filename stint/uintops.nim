@@ -15,8 +15,8 @@ import
   ./private/uint_addsub,
   ./private/uint_mul,
   ./private/uint_div,
-  ./private/primitives/addcarry_subborrow,
-  stew/bitops2
+  stew/bitops2,
+  intops/ops/sub
 
 export StUint
 
@@ -82,10 +82,10 @@ func `==`*(a, b: StUint): bool {.inline.} =
 func `<`*(a, b: StUint): bool {.inline.} =
   ## Unsigned `less than` comparison
   var diff: Word
-  var borrow: Borrow
+  var borrow: bool
   for i in 0 ..< a.limbs.len:
-    subB(borrow, diff, a[i], b[i], borrow)
-  return bool(borrow)
+    (diff, borrow) = borrowingSub(a[i], b[i], borrow)
+  return borrow
 
 func `<=`*(a, b: StUint): bool {.inline.} =
   ## Unsigned `less or equal` comparison
