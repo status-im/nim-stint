@@ -56,3 +56,13 @@ task test, "Run all tests":
   if lang == "c":
     build "--cpu:amd64 -c -d:unittest2Static", "tests/all_tests"
     build "--cpu:wasm32 -c -d:unittest2Static", "tests/all_tests"
+
+task book, "Generate book":
+  exec "mdbook build book -d docs"
+
+task apidocs, "Generate API docs":
+  exec "nimble doc --outdir:docs/apidocs --project --index:on --git.url:https://github.com/status-im/nim-stint stint.nim"
+
+task docs, "Generate docs":
+  exec "nimble book"
+  exec "nimble apidocs"
