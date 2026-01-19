@@ -7,3 +7,10 @@
 nimcache/
 build/
 nimble.paths
+
+dprint.json
+*.html
+*.idx
+*.log
+htmldocs
+docs
