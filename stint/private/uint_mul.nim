@@ -18,7 +18,7 @@ import
 
 func prod*[rLen, aLen, bLen: static int](r: var Limbs[rLen], a: Limbs[aLen], b: Limbs[bLen]) =
   ## Multi-precision multiplication
-  ## r <- a*b
+  ## r <- a * b
   ##
   ## `a`, `b`, `r` can have a different number of limbs
   ## if `r`.limbs.len < a.limbs.len + b.limbs.len
@@ -47,7 +47,7 @@ func prod_high_words*[rLen, aLen, bLen: static int](
        a: Limbs[aLen], b: Limbs[bLen],
        lowestWordIndex: static int) =
   ## Multi-precision multiplication keeping only high words
-  ## r <- a*b >> (2^WordBitWidth)^lowestWordIndex
+  ## r <- a * b >> (2^WordBitWidth)^lowestWordIndex
   ##
   ## `a`, `b`, `r` can have a different number of limbs
   ## if `r`.limbs.len < a.limbs.len + b.limbs.len - lowestWordIndex
