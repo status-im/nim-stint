@@ -249,7 +249,7 @@ func readDecChar(c: char): int8 {.inline.}=
 func parse*[bits: static[int]](input: string,
                                T: typedesc[StUint[bits]],
                                radix: static[uint8] = 10): T =
-  ## Parse a string and store the result in a `Stint[bits] <private/datatypes.html#StInt>`_ or  `StUint[bits] <private/datatypes.html#StUint>`_.
+  ## Parse a string and store the result in a `StInt[bits] <private/datatypes.html#StInt>`_ or  `StUint[bits] <private/datatypes.html#StUint>`_.
 
   static: doAssert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
@@ -272,7 +272,7 @@ func parse*[bits: static[int]](input: string,
 func parse*[bits: static[int]](input: string,
                                T: typedesc[StInt[bits]],
                                radix: static[uint8] = 10): T =
-  ## Parse a string and store the result in a `Stint[bits]`_ or `StUint[bits]`_.
+  ## Parse a string and store the result in a `StInt[bits]`_ or `StUint[bits]`_.
 
   static: doAssert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
@@ -318,7 +318,7 @@ func hexToUint*[bits: static[int]](hexString: string): StUint[bits] {.inline.} =
   parse(hexString, type result, radix = 16)
 
 func toString*[bits: static[int]](num: StUint[bits], radix: static[uint8] = 10): string =
-  ## Convert a Stint or StUint to string.
+  ## Convert a StInt or StUint to string.
   ## In case of negative numbers:
   ##   - they are prefixed with "-" for base 10.
   ##   - if not base 10, they are returned raw in two-complement form.
@@ -344,7 +344,7 @@ func toString*[bits: static[int]](num: StUint[bits], radix: static[uint8] = 10):
   reverse(result)
 
 func toString*[bits: static[int]](num: StInt[bits], radix: static[uint8] = 10): string =
-  ## Convert a Stint or StUint to string.
+  ## Convert a StInt or StUint to string.
   ## In case of negative numbers:
   ##   - they are prefixed with "-" for base 10.
   ##   - if not base 10, they are returned raw in two-complement form.
@@ -468,6 +468,6 @@ func customLiteral*(T: type SomeBigInteger, s: static string): T =
   const radix = getRadix(s)
   type TT = T
   when isOverflow(TT, s, radix):
-    {.error: "Stint custom literal overlow detected" .}
+    {.error: "StInt custom literal overlow detected" .}
 
   parse(s, T, radix)
