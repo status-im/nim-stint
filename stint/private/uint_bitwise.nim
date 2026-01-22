@@ -19,23 +19,23 @@ import
 
 func bitnot*(r: var StUint, a: StUint) =
   ## Bitwise complement of unsigned integer a
-  ## i.e. flips all bits of the input
+  ## i.e. flips all bits of the input.
   for i in 0 ..< r.limbs.len:
     r[i] = not a[i]
   r.clearExtraBitsOverMSB()
 
 func bitor*(r: var StUint, a, b: StUint) =
-  ## `Bitwise or` of numbers a and b
+  ## `Bitwise or` of numbers a and b.
   for i in 0 ..< r.limbs.len:
     r[i] = a[i] or b[i]
 
 func bitand*(r: var StUint, a, b: StUint) =
-  ## `Bitwise and` of numbers a and b
+  ## `Bitwise and` of numbers a and b.
   for i in 0 ..< r.limbs.len:
     r[i] = a[i] and b[i]
 
 func bitxor*(r: var StUint, a, b: StUint) =
-  ## `Bitwise xor` of numbers x and y
+  ## `Bitwise xor` of numbers x and y.
   for i in 0 ..< r.limbs.len:
     r[i] = a[i] xor b[i]
   r.clearExtraBitsOverMSB()

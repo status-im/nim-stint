@@ -17,13 +17,14 @@ import
 {.push raises: [], gcsafe.}
 
 func prod*[rLen, aLen, bLen: static int](r: var Limbs[rLen], a: Limbs[aLen], b: Limbs[bLen]) =
-  ## Multi-precision multiplication
-  ## r <- a * b
+  ## Multi-precision multiplication:
+  ## `r <- a * b`.
   ##
-  ## `a`, `b`, `r` can have a different number of limbs
-  ## if `r`.limbs.len < a.limbs.len + b.limbs.len
-  ## The result will be truncated, i.e. it will be
-  ## a * b (mod (2^WordBitwidth)^r.limbs.len)
+  ## `a`, `b`, `r` can have a different number of limbs.
+  ##
+  ## If `r.limbs.len < a.limbs.len + b.limbs.len`,
+  ## the result will be truncated, i.e. it will be
+  ## `a * b (mod (2^WordBitwidth)^r.limbs.len)`.
 
   # We use Product Scanning / Comba multiplication
   var t, u, v = Word(0)
@@ -46,13 +47,14 @@ func prod_high_words*[rLen, aLen, bLen: static int](
        r: var Limbs[rLen],
        a: Limbs[aLen], b: Limbs[bLen],
        lowestWordIndex: static int) =
-  ## Multi-precision multiplication keeping only high words
-  ## r <- a * b >> (2^WordBitWidth)^lowestWordIndex
+  ## Multi-precision multiplication keeping only high words:
+  ## `r <- a * b >> (2^WordBitWidth)^lowestWordIndex`.
   ##
-  ## `a`, `b`, `r` can have a different number of limbs
-  ## if `r`.limbs.len < a.limbs.len + b.limbs.len - lowestWordIndex
-  ## The result will be truncated, i.e. it will be
-  ## a * b >> (2^WordBitWidth)^lowestWordIndex (mod (2^WordBitwidth)^r.limbs.len)
+  ## `a`, `b`, `r` can have a different number of limbs.
+  ##
+  ## If `r.limbs.len < a.limbs.len + b.limbs.len - lowestWordIndex`,
+  ## the result will be truncated, i.e. it will be
+  ## `a * b >> (2^WordBitWidth)^lowestWordIndex (mod (2^WordBitwidth)^r.limbs.len)`.
   #
   # This is useful for
   # - Barret reduction
