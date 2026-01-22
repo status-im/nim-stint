@@ -72,11 +72,11 @@ func `-`*(a: StInt): StInt =
 {.push raises: [], inline, noinit, gcsafe.}
 
 func setZero*(a: var StInt) =
-  ## Set ``a`` to 0.
+  ## Set `a` to 0.
   a.impl.setZero
 
 func setOne*(a: var StInt) =
-  ## Set ``a`` to 1.
+  ## Set `a` to 1.
   a.impl.setOne
 
 func zero*[bits: static[int]](T: typedesc[StInt[bits]]): T =
@@ -248,8 +248,8 @@ func isOdd(x: Natural): bool =
   bool(x and 1)
 
 func pow*(a: StInt, e: Natural): StInt =
-  ## Compute ``a`` to the power of ``e``,
-  ## ``e`` must be non-negative.
+  ## Compute `a` to the power of `e`,
+  ## `e` must be non-negative.
   if a.isNegative:
     let base = a.neg
     result.impl = base.impl.pow(e)
@@ -259,8 +259,8 @@ func pow*(a: StInt, e: Natural): StInt =
     result.impl = a.impl.pow(e)
 
 func pow*[aBits, eBits](a: StInt[aBits], e: StInt[eBits]): StInt[aBits] =
-  ## Compute ``x`` to the power of ``y``,
-  ## ``x`` must be non-negative.
+  ## Compute `x` to the power of `y`,
+  ## `x` must be non-negative.
   doAssert e.isNegative.not, "exponent must be non-negative"
 
   if a.isNegative:

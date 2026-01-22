@@ -25,12 +25,12 @@ export StUint
 {.push raises: [], inline, noinit, gcsafe.}
 
 func setZero*(a: var StUint) =
-  ## Set ``a`` to 0
+  ## Set `a` to 0
   for i in 0 ..< a.limbs.len:
     a.limbs[i] = 0
 
 func setSmallInt(a: var StUint, k: Word) =
-  ## Set ``a`` to k
+  ## Set `a` to k
   a.limbs[0] = k
   for i in 1 ..< a.limbs.len:
     a.limbs[i] = 0
@@ -214,8 +214,8 @@ func `*`*(a, b: StUint): StUint =
 {.push raises: [], noinit, gcsafe.}
 
 func pow*(a: StUint, e: Natural): StUint =
-  ## Compute ``a`` to the power of ``e``,
-  ## ``e`` must be non-negative
+  ## Compute `a` to the power of `e`,
+  ## `e` must be non-negative
 
   # Implementation uses exponentiation by squaring
   # See Nim math module: https://github.com/nim-lang/Nim/blob/4ed24aa3eb78ba4ff55aac3008ec3c2427776e50/lib/pure/math.nim#L429
@@ -233,8 +233,8 @@ func pow*(a: StUint, e: Natural): StUint =
     a = a * a
 
 func pow*[aBits, eBits](a: StUint[aBits], e: StUint[eBits]): StUint[aBits] =
-  ## Compute ``x`` to the power of ``y``,
-  ## ``x`` must be non-negative
+  ## Compute `x` to the power of `y`,
+  ## `x` must be non-negative
   # Implementation uses exponentiation by squaring
   # See Nim math module: https://github.com/nim-lang/Nim/blob/4ed24aa3eb78ba4ff55aac3008ec3c2427776e50/lib/pure/math.nim#L429
   # And Eli Bendersky's blog: https://eli.thegreenplace.net/2009/03/21/efficient-integer-exponentiation-algorithms

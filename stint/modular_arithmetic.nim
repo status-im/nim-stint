@@ -12,8 +12,9 @@ import ./uintops, private/datatypes
 {.push raises: [], gcsafe.}
 
 func addmod_internal(a, b, m: StUint): StUint {.inline.}=
-  ## Modular addition
-  ## ⚠⚠ Assume a < m and b < m
+  ## Modular addition.
+  ##
+  ## ⚠⚠ Assume a < m and b < m.
 
   doAssert a < m
   doAssert b < m
@@ -27,8 +28,9 @@ func addmod_internal(a, b, m: StUint): StUint {.inline.}=
     m - b_from_m + a
 
 func submod_internal(a, b, m: StUint): StUint {.inline.}=
-  ## Modular substraction
-  ## ⚠⚠ Assume a < m and b < m
+  ## Modular substraction.
+  ##
+  ## ⚠⚠ Assume a < m and b < m.
 
   doAssert a < m
   doAssert b < m
@@ -40,7 +42,7 @@ func submod_internal(a, b, m: StUint): StUint {.inline.}=
     m - b + a
 
 func addmod*(a, b, m: StUint): StUint =
-  ## Modular addition
+  ## Modular addition.
 
   let a_m = if a < m: a
             else: a mod m
@@ -50,7 +52,7 @@ func addmod*(a, b, m: StUint): StUint =
   addmod_internal(a_m, b_m, m)
 
 func submod*(a, b, m: StUint): StUint =
-  ## Modular substraction
+  ## Modular substraction.
 
   let a_m = if a < m: a
             else: a mod m
@@ -60,7 +62,7 @@ func submod*(a, b, m: StUint): StUint =
   submod_internal(a_m, b_m, m)
 
 func mulmod*(a, b, m: StUint): StUint =
-  ## Modular multiplication
+  ## Modular multiplication.
 
   let
     ax = a.stuint(a.bits * 2)
@@ -71,7 +73,7 @@ func mulmod*(a, b, m: StUint): StUint =
   divmod(px, mx).rem.stuint(a.bits)
 
 func powmod*(a, b, m: StUint): StUint =
-  ## Modular exponentiation
+  ## Modular exponentiation.
 
   var (a, b) = (a, b)
   result = one(type a)
