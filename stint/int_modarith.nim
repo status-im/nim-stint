@@ -15,7 +15,7 @@ import
 {.push raises: [], noinit, gcsafe.}
 
 func addmod*(a, b, m: StInt): StInt =
-  ## Modular addition
+  ## Modular addition.
   let mt = m.abs
   if mt.isOne:
     result.setZero
@@ -31,7 +31,7 @@ func addmod*(a, b, m: StInt): StInt =
     result = result mod mt
 
 func submod*(a, b, m: StInt): StInt =
-  ## Modular substraction
+  ## Modular substraction.
   let mt = m.abs
   if mt.isOne:
     result.setZero
@@ -47,7 +47,7 @@ func submod*(a, b, m: StInt): StInt =
     result = result mod mt
 
 func mulmod*(a, b, m: StInt): StInt =
-  ## Modular multiplication
+  ## Modular multiplication.
 
   let mAbs = m.abs
   if (a.isNegative and b.isPositive) or
@@ -65,7 +65,7 @@ func mulmod*(a, b, m: StInt): StInt =
     result.impl = mulmod(xAbs.impl, yAbs.impl, mAbs.impl)
 
 func powmod*(base, exp, m: StInt): StInt {.raises: [ValueError].} =
-  ## Modular exponentiation
+  ## Modular exponentiation.
 
   if exp.isNegative:
     raise newException(ValueError, "exponent must not be negative")
