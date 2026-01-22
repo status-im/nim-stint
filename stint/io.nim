@@ -406,7 +406,7 @@ template initFromBytesBE*(x: var StUint, ba: openArray[byte]) =
   x = endians2.fromBytesBE(type x, ba)
 
 func readUintLE*[bits: static[int]](ba: openArray[byte]): StUint[bits] {.noinit, inline.}=
-  ## Convert a lettle-endian array of (bits div 8) Bytes to an `StUint[bits]`_ (in native host endianness)
+  ## Convert a little-endian array of (bits div 8) Bytes to an `StUint[bits]`_ (in native host endianness)
   ## Input:
   ##   - a little-endian openArray of size (bits div 8) at least
   ## Returns:
