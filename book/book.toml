@@ -14,5 +14,3 @@ renderer = ["html"]
 
 [output.html]
 git-repository-url = "https://github.com/status-im/nim-stint/"
-git-branch = "develop"
-additional-css = ["open-in.css"]
