@@ -1,5 +1,5 @@
 [book]
-title = "intops"
+title = "stint"
 authors = ["Constantine Molchanov"]
 language = "en"
 
@@ -13,6 +13,6 @@ command = "mdbook-open-on-gh"
 renderer = ["html"]
 
 [output.html]
-git-repository-url = "https://github.com/vacp2p/nim-intops/"
+git-repository-url = "https://github.com/status-im/nim-stint/"
 git-branch = "develop"
 additional-css = ["open-in.css"]
