@@ -17,32 +17,40 @@ import
 
 export StInt
 
-const
-  signMask = 1.Word shl (WordBitWidth - 1)
-  clearSignMask = not signMask
-
 # Signedness
 # --------------------------------------------------------
 {.push raises: [], inline, noinit, gcsafe.}
 
-func sign*(a: StInt): int =
+func signMask(T: type StInt): Word {.compileTime.} =
+  let position = T.bits - (T.bits.wordsRequired-1) * WordBitWidth - 1
+  Word(1) shl position
+
+func clearSignMask(T: type StInt): Word {.compileTime.} =
+  not signMask(T)
+
+func sign*[T: StInt](a: T): int =
   ## get the sign of `a`
   ## either -1, 0, or 1
+  const mask = signMask(T)
   if a.impl.isZero: return 0
-  if a.limbs[^1] < signMask: 1
+  if a.limbs[^1] < mask: 1
   else: -1
 
-func isNegative*(a: StInt): bool =
-  a.limbs[^1] >= signMask
+func isNegative*[T: StInt](a: T): bool =
+  const mask = signMask(T)
+  a.limbs[^1] >= mask
 
-func isPositive*(a: StInt): bool =
-  a.limbs[^1] < signMask
+func isPositive*[T: StInt](a: T): bool =
+  const mask = signMask(T)
+  a.limbs[^1] < mask
 
-func clearMSB(a: var StInt) =
-  a.limbs[^1] = a.limbs[^1] and clearSignMask
+func clearMSB[T: StInt](a: var T) =
+  const mask = clearSignMask(T)
+  a.limbs[^1] = a.limbs[^1] and mask
 
-func setMSB(a: var StInt) =
-  a.limbs[^1] = a.limbs[^1] or signMask
+func setMSB[T: StInt](a: var T) =
+  const mask = signMask(T)
+  a.limbs[^1] = a.limbs[^1] or mask
 
 func negate*(a: var StInt) =
   ## two complement negation
@@ -94,6 +102,7 @@ func high*[bits](_: typedesc[StInt[bits]]): StInt[bits] =
   # so we only have to unset the most significant bit.
   for i in 0 ..< result.limbs.len:
     result[i] = high(Word)
+  result.clearExtraBitsOverMSB()
   result.clearMSB
 
 func low*[bits](_: typedesc[StInt[bits]]): StInt[bits] =
