@@ -9,6 +9,7 @@
 
 import
   # Status lib
+  stew/staticfor,
   intops/ops/[add, sub, muladd, division],
   # Internal
   ./datatypes
@@ -19,8 +20,8 @@ import
 func shortDiv*(a: var Limbs, k: Word): Word =
   ## Divide `a` by k in-place and return the remainder
 
-  for i in countdown(a.high, 0):
-    (a[i], result) = narrowingDiv(result, a[i], k)
+  staticFor(i, 1..a.len):
+    (a[^i], result) = narrowingDiv(result, a[^i], k)
    
 func shlAddMod_multi(a: var openArray[Word], c: Word,
                      M: openArray[Word], mBits: int): Word =
