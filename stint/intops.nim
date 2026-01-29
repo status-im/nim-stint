@@ -21,35 +21,35 @@ export StInt
 # --------------------------------------------------------
 {.push raises: [], inline, noinit, gcsafe.}
 
-func signMask(T: type StInt): Word {.compileTime.} =
+func signMask(T: typedesc[StInt]): Word {.compileTime.} =
   let position = T.bits - (T.bits.wordsRequired-1) * WordBitWidth - 1
   Word(1) shl position
 
-func clearSignMask(T: type StInt): Word {.compileTime.} =
+func clearSignMask(T: typedesc[StInt]): Word {.compileTime.} =
   not signMask(T)
 
-func sign*[T: StInt](a: T): int =
+func sign*(a: StInt): int =
   ## get the sign of `a`
   ## either -1, 0, or 1
-  const mask = signMask(T)
+  const mask = signMask(typeof(a))
   if a.impl.isZero: return 0
   if a.limbs[^1] < mask: 1
   else: -1
 
-func isNegative*[T: StInt](a: T): bool =
-  const mask = signMask(T)
+func isNegative*(a: StInt): bool =
+  const mask = signMask(typeof(a))
   a.limbs[^1] >= mask
 
-func isPositive*[T: StInt](a: T): bool =
-  const mask = signMask(T)
+func isPositive*(a: StInt): bool =
+  const mask = signMask(typeof(a))
   a.limbs[^1] < mask
 
-func clearMSB[T: StInt](a: var T) =
-  const mask = clearSignMask(T)
+func clearMSB(a: var StInt) =
+  const mask = clearSignMask(typeof(a))
   a.limbs[^1] = a.limbs[^1] and mask
 
-func setMSB[T: StInt](a: var T) =
-  const mask = signMask(T)
+func setMSB(a: var StInt) =
+  const mask = signMask(typeof(a))
   a.limbs[^1] = a.limbs[^1] or mask
 
 func negate*(a: var StInt) =
