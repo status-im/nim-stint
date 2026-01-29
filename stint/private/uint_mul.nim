@@ -9,8 +9,8 @@
 
 import
   stew/staticfor,
-  ./datatypes,
-  ./primitives/extended_precision
+  intops/ops/composite,
+  ./datatypes
 
 # Multiplication
 # --------------------------------------------------------
@@ -33,7 +33,7 @@ func prod*[rLen, aLen, bLen: static int](r: var Limbs[rLen], a: Limbs[aLen], b: 
     const ib = min(b.len-1, i)
     const ia = i - ib
     staticFor j, 0..<min(a.len - ia, ib+1):
-      mulAcc(t, u, v, a[ia+j], b[ib-j])
+      (t, u, v) = mulAcc(t, u, v, a[ia+j], b[ib-j])
 
     z[i] = v
     v = u
@@ -75,7 +75,7 @@ func prod_high_words*[rLen, aLen, bLen: static int](
     const ib = min(b.len-1, i)
     const ia = i - ib
     staticFor j, 0..<min(a.len - ia, ib+1):
-      mulAcc(t, u, v, a[ia+j], b[ib-j])
+      (t, u, v) = mulAcc(t, u, v, a[ia+j], b[ib-j])
 
     when i >= lowestWordIndex:
       z[i-lowestWordIndex] = v
