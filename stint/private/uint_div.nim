@@ -129,8 +129,9 @@ func divRem*(
   let (bBits, bLen) = usedBitsAndWords(b)
   let rLen = bLen
 
-  if unlikely(bBits == 0):
-    raise newException(DivByZeroDefect, "You attempted to divide by zero")
+  when compileOption("overflowChecks"):
+    if unlikely(bBits == 0):
+      raise newException(DivByZeroDefect, "You attempted to divide by zero")
 
   if aBits < bBits:
     # if a uses less bits than b,
