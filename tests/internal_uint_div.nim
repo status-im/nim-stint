@@ -55,7 +55,7 @@ suite "implementation of internal division procecures":
       n0 = uint32 1717253765
       d = uint32 2659025738
 
-    div2n1n(q, r, n1, n0, d)
+    (q, r) = narrowingDiv(n1, n0, d)
 
     check:
       q == 376
