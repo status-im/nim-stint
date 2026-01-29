@@ -84,7 +84,7 @@ template len*(a: StUint): int =
 
 {.push raises: [], inline, noinit, gcsafe.}
 
-template clearExtraBitsOverMSB*(a: var StUint) =
+template clearExtraBitsOverMSB*(a: var StUint | StInt) =
   ## A Stuint is stored in an array of 32 of 64-bit word
   ## If we do bit manipulation at the word level,
   ## for example a 8-bit stuint stored in a 64-bit word
