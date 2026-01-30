@@ -49,6 +49,7 @@ func one*[bits: static[int]](T: typedesc[StUint[bits]]): T {.inline.} =
 func high*[bits](_: typedesc[StUint[bits]]): StUint[bits] {.inline.} =
   for i in 0 ..< result.limbs.len:
     result[i] = high(Word)
+  result.clearExtraBitsOverMSB()
 
 func low*[bits](_: typedesc[StUint[bits]]): StUint[bits] {.inline.} =
   result.setZero
