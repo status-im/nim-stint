@@ -9,21 +9,22 @@
 
 import
   stew/staticfor,
-  ./datatypes,
-  ./primitives/extended_precision
+  intops/ops/composite,
+  ./datatypes
 
 # Multiplication
 # --------------------------------------------------------
 {.push raises: [], gcsafe.}
 
 func prod*[rLen, aLen, bLen: static int](r: var Limbs[rLen], a: Limbs[aLen], b: Limbs[bLen]) =
-  ## Multi-precision multiplication
-  ## r <- a*b
+  ## Multi-precision multiplication:
+  ## `r <- a * b`.
   ##
-  ## `a`, `b`, `r` can have a different number of limbs
-  ## if `r`.limbs.len < a.limbs.len + b.limbs.len
-  ## The result will be truncated, i.e. it will be
-  ## a * b (mod (2^WordBitwidth)^r.limbs.len)
+  ## `a`, `b`, `r` can have a different number of limbs.
+  ##
+  ## If `r.limbs.len < a.limbs.len + b.limbs.len`,
+  ## the result will be truncated, i.e. it will be
+  ## `a * b (mod (2^WordBitwidth)^r.limbs.len)`.
 
   # We use Product Scanning / Comba multiplication
   var t, u, v = Word(0)
@@ -33,7 +34,7 @@ func prod*[rLen, aLen, bLen: static int](r: var Limbs[rLen], a: Limbs[aLen], b: 
     const ib = min(b.len-1, i)
     const ia = i - ib
     staticFor j, 0..<min(a.len - ia, ib+1):
-      mulAcc(t, u, v, a[ia+j], b[ib-j])
+      (t, u, v) = mulAcc(t, u, v, a[ia+j], b[ib-j])
 
     z[i] = v
     v = u
@@ -46,13 +47,14 @@ func prod_high_words*[rLen, aLen, bLen: static int](
        r: var Limbs[rLen],
        a: Limbs[aLen], b: Limbs[bLen],
        lowestWordIndex: static int) =
-  ## Multi-precision multiplication keeping only high words
-  ## r <- a*b >> (2^WordBitWidth)^lowestWordIndex
+  ## Multi-precision multiplication keeping only high words:
+  ## `r <- a * b >> (2^WordBitWidth)^lowestWordIndex`.
   ##
-  ## `a`, `b`, `r` can have a different number of limbs
-  ## if `r`.limbs.len < a.limbs.len + b.limbs.len - lowestWordIndex
-  ## The result will be truncated, i.e. it will be
-  ## a * b >> (2^WordBitWidth)^lowestWordIndex (mod (2^WordBitwidth)^r.limbs.len)
+  ## `a`, `b`, `r` can have a different number of limbs.
+  ##
+  ## If `r.limbs.len < a.limbs.len + b.limbs.len - lowestWordIndex`,
+  ## the result will be truncated, i.e. it will be
+  ## `a * b >> (2^WordBitWidth)^lowestWordIndex (mod (2^WordBitwidth)^r.limbs.len)`.
   #
   # This is useful for
   # - Barret reduction
@@ -75,7 +77,7 @@ func prod_high_words*[rLen, aLen, bLen: static int](
     const ib = min(b.len-1, i)
     const ia = i - ib
     staticFor j, 0..<min(a.len - ia, ib+1):
-      mulAcc(t, u, v, a[ia+j], b[ib-j])
+      (t, u, v) = mulAcc(t, u, v, a[ia+j], b[ib-j])
 
     when i >= lowestWordIndex:
       z[i-lowestWordIndex] = v

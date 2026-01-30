@@ -7,7 +7,7 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
-## This file provides syntactic sugar to work with literals
+## This file provides syntactic sugar to work with literals.
 
 import ./intops, ./uintops, macros
 

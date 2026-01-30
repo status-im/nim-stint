@@ -11,6 +11,7 @@ skipDirs      = @["tests", "benchmarks"]
 # TODO test only requirements don't work: https://github.com/nim-lang/nimble/issues/482
 requires "nim >= 1.6.12",
          "stew >= 0.2.0",
+         "intops >= 1.0.6",
          "unittest2 >= 0.2.3"
 
 let nimc = getEnv("NIMC", "nim") # Which nim compiler to use
@@ -55,3 +56,13 @@ task test, "Run all tests":
   if lang == "c":
     build "--cpu:amd64 -c -d:unittest2Static", "tests/all_tests"
     build "--cpu:wasm32 -c -d:unittest2Static", "tests/all_tests"
+
+task book, "Generate book":
+  exec "mdbook build book -d docs"
+
+task apidocs, "Generate API docs":
+  exec "nimble doc --outdir:docs/apidocs --project --index:on --git.url:https://github.com/status-im/nim-stint stint.nim"
+
+task docs, "Generate docs":
+  exec "nimble book"
+  exec "nimble apidocs"

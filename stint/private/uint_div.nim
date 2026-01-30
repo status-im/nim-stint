@@ -9,50 +9,30 @@
 
 import
   # Status lib
-  stew/bitops2,
+  intops/ops/[add, sub, muladd, division],
   # Internal
-  ./datatypes,
-  ./uint_bitwise,
-  ./primitives/[addcarry_subborrow, extended_precision]
+  ./datatypes
 
 # Division
 # --------------------------------------------------------
 
 func shortDiv*(a: var Limbs, k: Word): Word =
-  ## Divide `a` by k in-place and return the remainder
-  result = Word(0)
+  ## Divide `a` by k in-place and return the remainder.
 
-  let clz = leadingZeros(k)
-  let normK = k shl clz
-
-  for i in countdown(a.len-1, 0):
-    # dividend = 2^64 * remainder + a[i]
-    var hi = result
-    var lo = a[i]
-    if hi == 0:
-      if lo < k:
-        a[i] = 0
-      elif lo == k:
-        a[i] = 1
-        result = 0
-      continue
-    # Normalize, shifting the remainder by clz(k) cannot overflow.
-    hi = (hi shl clz) or (lo shr (WordBitWidth - clz))
-    lo = lo shl clz
-    div2n1n(a[i], result, hi, lo, normK)
-    # Undo normalization
-    result = result shr clz
-
+  for i in countdown(a.high, 0):
+    (a[i], result) = narrowingDiv(result, a[i], k)
+   
 func shlAddMod_multi(a: var openArray[Word], c: Word,
                      M: openArray[Word], mBits: int): Word =
-  ## Fused modular left-shift + add
+  ## Fused modular left-shift + add.
+  ##
   ## Shift input `a` by a word and add `c` modulo `M`
   ##
   ## Specialized for M being a multi-precision integer.
   ##
-  ## With a word W = 2^WordBitWidth and a modulus M
-  ## Does a <- a * W + c (mod M)
-  ## and returns q = (a * W + c ) / M
+  ## With a word `W = 2^WordBitWidth` and a modulus M
+  ## does `a <- a * W + c (mod M)`
+  ## and returns `q = (a * W + c ) / M`.
   ##
   ## The modulus `M` most-significant bit at `mBits` MUST be set.
 
@@ -86,7 +66,7 @@ func shlAddMod_multi(a: var openArray[Word], c: Word,
     return q
   else:
     var r: Word
-    div2n1n(q, r, a0, a1, m0)           # else instead of being of by 0, 1 or 2
+    (q, r) = narrowingDiv(a0, a1, m0)   # else instead of being of by 0, 1 or 2
     q -= 1                              # we return q-1 to be off by -1, 0 or 1
 
   # Now substract a*2^64 - q*m
@@ -95,14 +75,15 @@ func shlAddMod_multi(a: var openArray[Word], c: Word,
 
   for i in 0 ..< M.len:
     var qm_lo: Word
-    block:                              # q*m
-      # q * p + carry (doubleword) carry from previous limb
-      muladd1(carry, qm_lo, q, M[i], carry)
+    # q*m
+    # q * p + carry (doubleword) carry from previous limb
+    (carry, qm_lo) = wideningMulAdd(q, M[i], carry)
 
-    block:                              # a*2^64 - q*m
-      var borrow: Borrow
-      subB(borrow, a[i], a[i], qm_lo, Borrow(0))
-      carry += Word(borrow) # Adjust if borrow
+    # a*2^64 - q*m
+    var borrow: bool
+    (a[i], borrow) = borrowingSub(a[i], qm_lo, false)
+
+    carry += Word(borrow) # Adjust if borrow
 
     if a[i] != M[i]:
       overM = a[i] > M[i]
@@ -112,55 +93,32 @@ func shlAddMod_multi(a: var openArray[Word], c: Word,
   # if carry < q or carry == q and overM we must do "a -= M"
   # if carry > hi (negative result) we must do "a += M"
   if carry > hi:
-    var c = Carry(0)
+    var c = false
     for i in 0 ..< a.len:
-      addC(c, a[i], a[i], M[i], c)
+      (a[i], c) = carryingAdd(a[i], M[i], c)
     q -= 1
   elif overM or (carry < hi):
-    var b = Borrow(0)
+    var b = false
     for i in 0 ..< a.len:
-      subB(b, a[i], a[i], M[i], b)
+      (a[i], b) = borrowingSub(a[i], M[i], b)
     q += 1
 
   return q
 
 func shlAddMod(a: var openArray[Word], c: Word,
-               M: openArray[Word], mBits: int): Word {.inline.}=
-  ## Fused modular left-shift + add
-  ## Shift input `a` by a word and add `c` modulo `M`
-  ##
-  ## With a word W = 2^WordBitWidth and a modulus M
-  ## Does a <- a * W + c (mod M)
-  ## and returns q = (a * W + c ) / M
-  ##
-  ## The modulus `M` most-significant bit at `mBits` MUST be set.
+               M: openArray[Word], mBits: int): Word {.inline.} =
+  ## Fused modular left-shift + add.
+
   if mBits <= WordBitWidth:
-    # If M fits in a single limb
-
-    # We normalize M with clz so that the MSB is set
-    # And normalize (a * 2^64 + c) by R as well to maintain the result
-    # This ensures that (a0, a1)/p0 fits in a limb.
-    let R = mBits and (WordBitWidth - 1)
-
-    # (hi, lo) = a * 2^64 + c
-    if R == 0:
-      # We can delegate this R == 0 case to the
-      # shlAddMod_multi, with the same result.
-      # But isn't it faster to handle it here?
-      var q, r: Word
-      div2n1n(q, r, a[0], c, M[0])
-      a[0] = r
-      return q
-    else:
-      let clz = WordBitWidth-R
-      let hi = (a[0] shl clz) or (c shr R)
-      let lo = c shl clz
-      let m0 = M[0] shl clz
-
-      var q, r: Word
-      div2n1n(q, r, hi, lo, m0)
-      a[0] = r shr clz
-      return q
+    # intops' narrowingDiv handles normalization internally.
+    # We pass the raw accumulator (a[0]), the new limb (c), and the modulus (M[0]).
+    # It calculates: (a[0] * 2^64 + c) div M[0]
+    # And returns the correct quotient and remainder.
+    
+    let (q, r) = narrowingDiv(a[0], c, M[0])
+    
+    a[0] = r
+    return q
   else:
     return shlAddMod_multi(a, c, M, mBits)
 
