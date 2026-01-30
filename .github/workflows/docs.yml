@@ -8,29 +8,12 @@ on:
 
 jobs:
   docs:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup cargo-binstall
-        uses: cargo-bins/cargo-binstall@main
-
-      - name: Install mdBook and preprocessors
-        run: cargo binstall \
-          mdbook@0.5.2 \
-          mdbook-open-on-gh@3.0.0 \
-          mdbook-toc@0.15.3 \
-          mdbook-admonish@1.20.0
-
-      - name: Setup Nim
-        uses: jiro4989/setup-nim-action@v2
-
-      - name: Build docs
-        run: nimble docs
-
-      - name: Deploy docs
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
+    uses: status-im/nimbus-common-workflow/.github/workflows/docs.yml@main
+    with:
+      mdbook-version: "0.5.2"
+      mdbook-preprocessors: >-
+        [
+          "mdbook-open-on-gh@3.0.0",
+          "mdbook-toc@0.15.3",
+          "mdbook-admonish@1.20.0"
+        ]
