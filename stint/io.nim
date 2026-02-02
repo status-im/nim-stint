@@ -89,7 +89,9 @@ func to*(a: SomeUnsignedInt, T: typedesc[StUint]): T =
 func truncate*(num: StUint, T: typedesc[SomeInteger]): T {.inline.}=
   ## Extract the int, uint, int8-int64 or uint8-uint64 portion of a multi-precision integer.
   ## Note that int and uint are 32-bit on 32-bit platform.
-  ## For unsigned result type, result is modulo 2^(sizeof T in bit)
+  ##
+  ## For unsigned result type, result is modulo `2^(sizeof T in bit)`.
+  ##
   ## For signed result type, result is undefined if input does not fit in the target type.
   when T is SomeSignedInt and sizeof(T) <= sizeof(Word):
     result = T(num.leastSignificantWord() and Word(T.high))
@@ -101,7 +103,9 @@ func truncate*(num: StUint, T: typedesc[SomeInteger]): T {.inline.}=
 func truncate*(num: StInt, T: typedesc[SomeInteger]): T {.inline.}=
   ## Extract the int, uint, int8-int64 or uint8-uint64 portion of a multi-precision integer.
   ## Note that int and uint are 32-bit on 32-bit platform.
-  ## For unsigned result type, result is modulo 2^(sizeof T in bit)
+  ##
+  ## For unsigned result type, result is modulo `2^(sizeof T in bit)`.
+  ##
   ## For signed result type, result is undefined if input does not fit in the target type.
   let n = num.abs
   when sizeof(T) > sizeof(Word):
@@ -128,9 +132,11 @@ func truncate*(num: StInt, T: typedesc[SomeInteger]): T {.inline.}=
       result = result or (T(num.limbs[1]) shl WordBitWidth)
 
 func stuint*(a: StUint, bits: static[int]): StUint[bits] {.inline.} =
-  ## unsigned int to unsigned int conversion
-  ## smaller to bigger bits conversion will have the same value
-  ## bigger to smaller bits conversion, the result is truncated
+  ## Unsigned int to unsigned int conversion.
+  ##
+  ## Smaller to bigger bits conversion will have the same value.
+  ##
+  ## Bigger to smaller bits conversion, the result is truncated.
   when bits <= a.bits:
     for i in 0 ..< result.len:
       result[i] = a[i]
@@ -139,8 +145,9 @@ func stuint*(a: StUint, bits: static[int]): StUint[bits] {.inline.} =
       result[i] = a[i]
 
 func stuint*(a: StInt, bits: static[int]): StUint[bits] {.inline.} =
-  ## signed int to unsigned int conversion
-  ## bigger to smaller bits conversion, the result is truncated
+  ## Signed int to unsigned int conversion.
+  ##
+  ## Bigger to smaller bits conversion, the result is truncated.
   if a.isNegative:
     raise newException(OverflowDefect, "Cannot convert negative number to unsigned int")
   stuint(a.impl, bits)
@@ -153,8 +160,9 @@ func smallToBig(a: StInt, bits: static[int]): StInt[bits] =
     result.impl = stuint(a.impl, bits)
 
 func stint*(a: StInt, bits: static[int]): StInt[bits] =
-  ## signed int to signed int conversion
-  ## will raise exception if input does not fit into destination
+  ## Signed int to signed int conversion.
+  ##
+  ## Will raise exception if input does not fit into destination.
   when a.bits < bits:
     if a.isNegative:
       result.impl = stuint(a.neg.impl, bits)
@@ -181,8 +189,9 @@ func stint*(a: StInt, bits: static[int]): StInt[bits] =
     result = a
 
 func stint*(a: StUint, bits: static[int]): StInt[bits] {.inline.} =
-  ## signed int to unsigned int conversion
-  ## will raise exception if input does not fit into destination
+  ## Signed int to unsigned int conversion.
+  ##
+  ## Will raise exception if input does not fit into destination.
 
   const dmax = stuint((type result).high, a.bits)
   if a > dmax: raise newException(RangeDefect, "value out of range")
@@ -195,7 +204,7 @@ func stint*(a: StUint, bits: static[int]): StInt[bits] {.inline.} =
 {.push gcsafe.}
 
 func readHexChar(c: char): int8 {.inline.}=
-  ## Converts an hex char to an int
+  ## Converts an hex char to an int.
   case c
   of '0'..'9': result = int8 ord(c) - ord('0')
   of 'a'..'f': result = int8 ord(c) - ord('a') + 10
@@ -206,7 +215,7 @@ func readHexChar(c: char): int8 {.inline.}=
 
 func skipPrefixes(current_idx: var int, str: string, radix: range[2..16]) {.inline.} =
   ## Returns the index of the first meaningful char in `hexStr` by skipping
-  ## "0x" prefix
+  ## "0x" prefix.
 
   if str.len < 2:
     return
@@ -238,7 +247,7 @@ func nextNonBlank(current_idx: var int, s: string) {.inline.} =
     inc current_idx
 
 func readDecChar(c: char): int8 {.inline.}=
-  ## Converts a decimal char to an int
+  ## Converts a decimal char to an int.
   # specialization without branching for base <= 10.
   case c
   of '0'..'9':
@@ -249,7 +258,7 @@ func readDecChar(c: char): int8 {.inline.}=
 func parse*[bits: static[int]](input: string,
                                T: typedesc[StUint[bits]],
                                radix: static[uint8] = 10): T =
-  ## Parse a string and store the result in a Stint[bits] or StUint[bits].
+  ## Parse a string and store the result in a `StInt[bits] <private/datatypes.html#StInt>`_ or  `StUint[bits] <private/datatypes.html#StUint>`_.
 
   static: doAssert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
@@ -272,7 +281,7 @@ func parse*[bits: static[int]](input: string,
 func parse*[bits: static[int]](input: string,
                                T: typedesc[StInt[bits]],
                                radix: static[uint8] = 10): T =
-  ## Parse a string and store the result in a Stint[bits] or StUint[bits].
+  ## Parse a string and store the result in a `StInt[bits]`_ or `StUint[bits]`_.
 
   static: doAssert (radix >= 2) and radix <= 16, "Only base from 2..16 are supported"
   # TODO: use static[range[2 .. 16]], not supported at the moment (2018-04-26)
@@ -307,18 +316,19 @@ func parse*[bits: static[int]](input: string,
     result.negate
 
 func fromHex*(T: typedesc[StUint|StInt], s: string): T {.inline.} =
-  ## Convert an hex string to the corresponding unsigned integer
+  ## Convert an hex string to the corresponding unsigned integer.
   parse(s, type result, radix = 16)
 
 func fromDecimal*(T: typedesc[StUint|StInt], s: string): T {.inline.} =
   parse(s, type result, radix = 10)
 
 func hexToUint*[bits: static[int]](hexString: string): StUint[bits] {.inline.} =
-  ## Convert an hex string to the corresponding unsigned integer
+  ## Convert an hex string to the corresponding unsigned integer.
   parse(hexString, type result, radix = 16)
 
 func toString*[bits: static[int]](num: StUint[bits], radix: static[uint8] = 10): string =
-  ## Convert a Stint or StUint to string.
+  ## Convert a StInt or StUint to string.
+  ##
   ## In case of negative numbers:
   ##   - they are prefixed with "-" for base 10.
   ##   - if not base 10, they are returned raw in two-complement form.
@@ -344,7 +354,8 @@ func toString*[bits: static[int]](num: StUint[bits], radix: static[uint8] = 10):
   reverse(result)
 
 func toString*[bits: static[int]](num: StInt[bits], radix: static[uint8] = 10): string =
-  ## Convert a Stint or StUint to string.
+  ## Convert a StInt or StUint to string.
+  ##
   ## In case of negative numbers:
   ##   - they are prefixed with "-" for base 10.
   ##   - if not base 10, they are returned raw in two-complement form.
@@ -360,11 +371,13 @@ func `$`*(num: StInt or StUint): string {.inline.}=
 func toHex*[bits: static[int]](num: StInt[bits] or StUint[bits]): string {.inline.}=
   ## Convert to a hex string.
   ## Output is considered a big-endian base 16 string.
-  ## Leading zeros are stripped. Use dumpHex instead if you need the in-memory representation
+  ##
+  ## Leading zeros are stripped. Use dumpHex instead if you need the in-memory representation.
   toString(num, 16)
 
 func dumpHex*(a: StInt or StUint, order: static[Endianness] = bigEndian): string =
   ## Stringify an int to hex.
+  ##
   ## Note. Leading zeros are not removed. Use toString(n, base = 16)/toHex instead.
   ##
   ## You can specify bigEndian or littleEndian order.
@@ -387,17 +400,21 @@ func dumpHex*(a: StInt or StUint, order: static[Endianness] = bigEndian): string
 export fromBytes, toBytes, fromBytesLE, toBytesLE, fromBytesBE, toBytesBE
 
 func readUintBE*[bits: static[int]](ba: openArray[byte]): StUint[bits] {.noinit, inline.}=
-  ## Convert a big-endian array of (bits div 8) Bytes to an UInt[bits] (in native host endianness)
+  ## Convert a big-endian array of (bits div 8) Bytes to an `StUint[bits]`_ (in native host endianness).
+  ##
   ## Input:
   ##   - a big-endian openArray of size (bits div 8) at least
+  ##
   ## Returns:
   ##   - A unsigned integer of the same size with `bits` bits
   (typeof result).fromBytesBE(ba)
 
 func toByteArrayBE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte] {.noinit, inline, deprecated: "endians2.toBytesBE".}=
-  ## Convert a Uint[bits] to to a big-endian array of bits div 8 bytes
+  ## Convert a `StUint[bits]`_ to to a big-endian array of bits div 8 bytes.
+  ##
   ## Input:
   ##   - an unsigned integer
+  ##
   ## Returns:
   ##   - a big-endian array of the same size
   result = n.toBytesBE()
@@ -406,17 +423,21 @@ template initFromBytesBE*(x: var StUint, ba: openArray[byte]) =
   x = endians2.fromBytesBE(type x, ba)
 
 func readUintLE*[bits: static[int]](ba: openArray[byte]): StUint[bits] {.noinit, inline.}=
-  ## Convert a lettle-endian array of (bits div 8) Bytes to an UInt[bits] (in native host endianness)
+  ## Convert a little-endian array of (bits div 8) Bytes to an `StUint[bits]`_ (in native host endianness).
+  ##
   ## Input:
   ##   - a little-endian openArray of size (bits div 8) at least
+  ##
   ## Returns:
   ##   - A unsigned integer of the same size with `bits` bits
   result = (typeof result).fromBytesLE(ba)
 
 template toByteArrayLE*[bits: static[int]](n: StUint[bits]): array[bits div 8, byte] {.deprecated: "endians2.toBytesLE".} =
-  ## Convert a Uint[bits] to to a little-endian array of bits div 8 bytes
+  ## Convert a `StUint[bits]`_ to to a little-endian array of bits div 8 bytes.
+  ##
   ## Input:
   ##   - an unsigned integer
+  ##
   ## Returns:
   ##   - a little-endian array of the same size
   n.toBytesLE()
@@ -427,9 +448,11 @@ template initFromBytesLE*(x: var StUint, ba: openArray[byte]) =
 #---------------Byte Serialization of Signed Integer ---------------------------
 
 func readIntBE*[bits: static[int]](ba: openArray[byte]): StInt[bits] {.noinit, inline.}=
-  ## Convert a big-endian array of (bits div 8) Bytes to an Int[bits] (in native host endianness)
+  ## Convert a big-endian array of (bits div 8) Bytes to an `StInt[bits]`_ (in native host endianness).
+  ##
   ## Input:
   ##   - a big-endian openArray of size (bits div 8) at least
+  ##
   ## Returns:
   ##   - A signed integer of the same size with `bits` bits
   result.impl = (typeof result.impl).fromBytesBE(ba)
@@ -438,17 +461,21 @@ template initFromBytesBE*(x: var StInt, ba: openArray[byte]) =
   x = fromBytesBE(type x, ba)
 
 func readIntLE*[bits: static[int]](ba: openArray[byte]): StInt[bits] {.noinit, inline.}=
-  ## Convert a lettle-endian array of (bits div 8) Bytes to an Int[bits] (in native host endianness)
+  ## Convert a lettle-endian array of (bits div 8) Bytes to an `StInt[bits]`_ (in native host endianness).
+  ##
   ## Input:
   ##   - a little-endian openArray of size (bits div 8) at least
+  ##
   ## Returns:
   ##   - A signed integer of the same size with `bits` bits
   result.impl = (typeof result.impl).fromBytesLE(ba)
 
 template toByteArrayLE*[bits: static[int]](n: StInt[bits]): array[bits div 8, byte] {.deprecated: "endians2.toBytesLE".} =
-  ## Convert a Int[bits] to to a little-endian array of bits div 8 bytes
+  ## Convert a `StInt[bits]`_ to to a little-endian array of bits div 8 bytes.
+  ##
   ## Input:
   ##   - an signed integer
+  ##
   ## Returns:
   ##   - a little-endian array of the same size
   result = n.impl.toBytesLE()
@@ -468,6 +495,6 @@ func customLiteral*(T: type SomeBigInteger, s: static string): T =
   const radix = getRadix(s)
   type TT = T
   when isOverflow(TT, s, radix):
-    {.error: "Stint custom literal overlow detected" .}
+    {.error: "StInt custom literal overlow detected" .}
 
   parse(s, T, radix)

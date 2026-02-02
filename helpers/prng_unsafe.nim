@@ -77,11 +77,11 @@ func next(rng: var RngState): uint64 =
 # ------------------------------------------------------------
 
 proc clearMask[T: SomeInteger](v: T, mask: T): T {.inline.} =
-  ## Returns ``v``, with all the ``1`` bits from ``mask`` set to 0
+  ## Returns `v`, with all the `1` bits from `mask` set to 0
   v and not mask
 
 proc clearBit*[T: SomeInteger](v: T, bit: T): T {.inline.} =
-  ## Returns ``v``, with the bit at position ``bit`` set to 0
+  ## Returns `v`, with the bit at position `bit` set to 0
   v.clearMask(1.T shl bit)
 
 # Integer ranges
