@@ -14,7 +14,7 @@ requires "stint"
 
 ## Usage
 
-stint allows you to construct multi-precision integers from native interegs, strings, and raw bytes and work with them the same way you would with Nim's stock integers, i.e. use all the familiar arithmetic and bit operations (+, -, shl, shr, etc.).
+stint allows you to construct multi-precision integers from native integers, strings, and raw bytes and work with them the same way you would with Nim's stock integers, i.e. use all the familiar arithmetic and bit operations (+, -, shl, shr, etc.).
 
 Integers in stint are represented with `StInt[bits]` and `StUint[bits]` types for `bits`-sized signed and unsigned integers respectively.
 
