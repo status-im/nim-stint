@@ -1,0 +1,10 @@
+nimTitle	uint_addsub	stint/private/uint_addsub.html	module stint/private/uint_addsub		0
+nim	sum	stint/private/uint_addsub.html#sum,StUint,StUint,StUint	proc sum(r: var StUint; a, b: StUint)		20
+nim	`+=`	stint/private/uint_addsub.html#+=,StUint,StUint	proc `+=`(a: var StUint; b: StUint)		27
+nim	diff	stint/private/uint_addsub.html#diff,StUint,StUint,StUint	proc diff(r: var StUint; a, b: StUint)		31
+nim	`-=`	stint/private/uint_addsub.html#-=,StUint,StUint	proc `-=`(a: var StUint; b: StUint)		38
+nim	inc	stint/private/uint_addsub.html#inc,StUint,Word	proc inc(a: var StUint; w: Word = 1)		42
+nim	sum	stint/private/uint_addsub.html#sum,StUint,StUint,SomeUnsignedInt	proc sum(r: var StUint; a: StUint; b: SomeUnsignedInt)		49
+nim	`+=`	stint/private/uint_addsub.html#+=,StUint,SomeUnsignedInt	proc `+=`(a: var StUint; b: SomeUnsignedInt)		55
+nimgrp	sum	stint/private/uint_addsub.html#sum-procs-all	proc		20
+nimgrp	+=	stint/private/uint_addsub.html#+=-procs-all	proc		27

@@ -1,0 +1,5 @@
+nimTitle	int_modarith	stint/int_modarith.html	module stint/int_modarith		0
+nim	addmod	stint/int_modarith.html#addmod,StInt,StInt,StInt	proc addmod(a, b, m: StInt): StInt		17
+nim	submod	stint/int_modarith.html#submod,StInt,StInt,StInt	proc submod(a, b, m: StInt): StInt		33
+nim	mulmod	stint/int_modarith.html#mulmod,StInt,StInt,StInt	proc mulmod(a, b, m: StInt): StInt		49
+nim	powmod	stint/int_modarith.html#powmod,StInt,StInt,StInt	proc powmod(base, exp, m: StInt): StInt		67

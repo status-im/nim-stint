@@ -1,0 +1,21 @@
+nimTitle	stint	stint.html	module stint		0
+nim	Int128	stint.html#Int128	type Int128		14
+nim	Int256	stint.html#Int256	type Int256		15
+nim	UInt128	stint.html#UInt128	type UInt128		16
+nim	UInt256	stint.html#UInt256	type UInt256		17
+nim	u128	stint.html#u128,SomeInteger	proc u128(n: SomeInteger): UInt128		19
+nim	u128	stint.html#u128,string	proc u128(s: string): UInt128		20
+nim	u256	stint.html#u256,SomeInteger	proc u256(n: SomeInteger): UInt256		22
+nim	u256	stint.html#u256,string	proc u256(s: string): UInt256		23
+nim	i128	stint.html#i128,SomeInteger	proc i128(n: SomeInteger): Int128		25
+nim	i128	stint.html#i128,string	proc i128(s: string): Int128		26
+nim	i256	stint.html#i256,SomeInteger	proc i256(n: SomeInteger): Int256		28
+nim	i256	stint.html#i256,string	proc i256(s: string): Int256		29
+nim	`'i128`	stint.html#'i128,staticstring	proc `'i128`(s: static string): Int128		35
+nim	`'i256`	stint.html#'i256,staticstring	proc `'i256`(s: static string): Int256		38
+nim	`'u128`	stint.html#'u128,staticstring	proc `'u128`(s: static string): UInt128		41
+nim	`'u256`	stint.html#'u256,staticstring	proc `'u256`(s: static string): UInt256		44
+nimgrp	u256	stint.html#u256-procs-all	proc		22
+nimgrp	i128	stint.html#i128-procs-all	proc		25
+nimgrp	u128	stint.html#u128-procs-all	proc		19
+nimgrp	i256	stint.html#i256-procs-all	proc		28

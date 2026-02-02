@@ -1,0 +1,67 @@
+nimTitle	literals_stint	stint/literals_stint.html	module stint/literals_stint		0
+nim	`+`	stint/literals_stint.html#+,,	proc `+`[bits: static[int]](a`gensym2: StUint[bits]; b`gensym2: int{lit}): StUint[\n    bits]		36
+nim	`+`	stint/literals_stint.html#+,,_2	proc `+`[bits: static[int]](a`gensym3: int{lit}; b`gensym3: StUint[bits]): StUint[\n    bits]		41
+nim	`+`	stint/literals_stint.html#+,,_3	proc `+`[bits: static[int]](a`gensym4: StInt[bits]; b`gensym4: int{lit}): StInt[bits]		52
+nim	`+`	stint/literals_stint.html#+,,_4	proc `+`[bits: static[int]](a`gensym5: int{lit}; b`gensym5: StInt[bits]): StInt[bits]		61
+nim	`+=`	stint/literals_stint.html#+=,,	proc `+=`[bits: static[int]](a`gensym6: StUint[bits]; b`gensym6: int{lit}): StUint[\n    bits]		36
+nim	`+=`	stint/literals_stint.html#+=,,_2	proc `+=`[bits: static[int]](a`gensym7: StInt[bits]; b`gensym7: int{lit}): StInt[bits]		62
+nim	`-`	stint/literals_stint.html#-,,	proc `-`[bits: static[int]](a`gensym8: StUint[bits]; b`gensym8: int{lit}): StUint[\n    bits]		36
+nim	`-`	stint/literals_stint.html#-,,_2	proc `-`[bits: static[int]](a`gensym9: int{lit}; b`gensym9: StUint[bits]): StUint[\n    bits]		41
+nim	`-`	stint/literals_stint.html#-,,_3	proc `-`[bits: static[int]](a`gensym10: StInt[bits]; b`gensym10: int{lit}): StInt[\n    bits]		52
+nim	`-`	stint/literals_stint.html#-,,_4	proc `-`[bits: static[int]](a`gensym11: int{lit}; b`gensym11: StInt[bits]): StInt[\n    bits]		63
+nim	`-=`	stint/literals_stint.html#-=,,	proc `-=`[bits: static[int]](a`gensym12: StUint[bits]; b`gensym12: int{lit}): StUint[\n    bits]		36
+nim	`-=`	stint/literals_stint.html#-=,,_2	proc `-=`[bits: static[int]](a`gensym13: StInt[bits]; b`gensym13: int{lit}): StInt[\n    bits]		64
+nim	`*`	stint/literals_stint.html#*,,	proc `*`[bits: static[int]](a`gensym14: StUint[bits]; b`gensym14: int{lit}): StUint[\n    bits]		36
+nim	`*`	stint/literals_stint.html#*,,_2	proc `*`[bits: static[int]](a`gensym15: int{lit}; b`gensym15: StUint[bits]): StUint[\n    bits]		41
+nim	`*`	stint/literals_stint.html#*,,_3	proc `*`[bits: static[int]](a`gensym16: StInt[bits]; b`gensym16: int{lit}): StInt[\n    bits]		52
+nim	`*`	stint/literals_stint.html#*,,_4	proc `*`[bits: static[int]](a`gensym17: int{lit}; b`gensym17: StInt[bits]): StInt[\n    bits]		65
+nim	`div`	stint/literals_stint.html#div,,	proc `div`[bits: static[int]](a`gensym18: StUint[bits]; b`gensym18: int{lit}): StUint[\n    bits]		36
+nim	`div`	stint/literals_stint.html#div,,_2	proc `div`[bits: static[int]](a`gensym19: StInt[bits]; b`gensym19: int{lit}): StInt[\n    bits]		66
+nim	`mod`	stint/literals_stint.html#mod,,	proc `mod`[bits: static[int]](a`gensym20: StUint[bits]; b`gensym20: int{lit}): StUint[\n    bits]		36
+nim	`mod`	stint/literals_stint.html#mod,,_2	proc `mod`[bits: static[int]](a`gensym21: StInt[bits]; b`gensym21: int{lit}): StInt[\n    bits]		67
+nim	divmod	stint/literals_stint.html#divmod,,	proc divmod[bits: static[int]](a`gensym22: StUint[bits]; b`gensym22: int{lit}): StUint[\n    bits]		36
+nim	divmod	stint/literals_stint.html#divmod,,_2	proc divmod[bits: static[int]](a`gensym23: StInt[bits]; b`gensym23: int{lit}): StInt[\n    bits]		68
+nim	`<`	stint/literals_stint.html#<,,	proc `<`[bits: static[int]](a`gensym24: StUint[bits]; b`gensym24: int{lit}): bool		36
+nim	`<`	stint/literals_stint.html#<,,_2	proc `<`[bits: static[int]](a`gensym25: int{lit}; b`gensym25: StUint[bits]): bool		41
+nim	`<`	stint/literals_stint.html#<,,_3	proc `<`[bits: static[int]](a`gensym26: StInt[bits]; b`gensym26: int{lit}): bool		52
+nim	`<`	stint/literals_stint.html#<,,_4	proc `<`[bits: static[int]](a`gensym27: int{lit}; b`gensym27: StInt[bits]): bool		70
+nim	`<=`	stint/literals_stint.html#<=,,	proc `<=`[bits: static[int]](a`gensym28: StUint[bits]; b`gensym28: int{lit}): bool		36
+nim	`<=`	stint/literals_stint.html#<=,,_2	proc `<=`[bits: static[int]](a`gensym29: int{lit}; b`gensym29: StUint[bits]): bool		41
+nim	`<=`	stint/literals_stint.html#<=,,_3	proc `<=`[bits: static[int]](a`gensym30: StInt[bits]; b`gensym30: int{lit}): bool		52
+nim	`<=`	stint/literals_stint.html#<=,,_4	proc `<=`[bits: static[int]](a`gensym31: int{lit}; b`gensym31: StInt[bits]): bool		71
+nim	`==`	stint/literals_stint.html#==,,	proc `==`[bits: static[int]](a`gensym32: StUint[bits]; b`gensym32: int{lit}): bool		36
+nim	`==`	stint/literals_stint.html#==,,_2	proc `==`[bits: static[int]](a`gensym33: int{lit}; b`gensym33: StUint[bits]): bool		41
+nim	`==`	stint/literals_stint.html#==,,_3	proc `==`[bits: static[int]](a`gensym34: StInt[bits]; b`gensym34: int{lit}): bool		52
+nim	`==`	stint/literals_stint.html#==,,_4	proc `==`[bits: static[int]](a`gensym35: int{lit}; b`gensym35: StInt[bits]): bool		72
+nim	`or`	stint/literals_stint.html#or,,	proc `or`[bits: static[int]](a`gensym36: StUint[bits]; b`gensym36: int{lit}): StUint[\n    bits]		36
+nim	`or`	stint/literals_stint.html#or,,_2	proc `or`[bits: static[int]](a`gensym37: int{lit}; b`gensym37: StUint[bits]): StUint[\n    bits]		41
+nim	`or`	stint/literals_stint.html#or,,_3	proc `or`[bits: static[int]](a`gensym38: StInt[bits]; b`gensym38: int{lit}): StInt[\n    bits]		52
+nim	`or`	stint/literals_stint.html#or,,_4	proc `or`[bits: static[int]](a`gensym39: int{lit}; b`gensym39: StInt[bits]): StInt[\n    bits]		74
+nim	`and`	stint/literals_stint.html#and,,	proc `and`[bits: static[int]](a`gensym40: StUint[bits]; b`gensym40: int{lit}): StUint[\n    bits]		36
+nim	`and`	stint/literals_stint.html#and,,_2	proc `and`[bits: static[int]](a`gensym41: int{lit}; b`gensym41: StUint[bits]): StUint[\n    bits]		41
+nim	`and`	stint/literals_stint.html#and,,_3	proc `and`[bits: static[int]](a`gensym42: StInt[bits]; b`gensym42: int{lit}): StInt[\n    bits]		52
+nim	`and`	stint/literals_stint.html#and,,_4	proc `and`[bits: static[int]](a`gensym43: int{lit}; b`gensym43: StInt[bits]): StInt[\n    bits]		75
+nim	`xor`	stint/literals_stint.html#xor,,	proc `xor`[bits: static[int]](a`gensym44: StUint[bits]; b`gensym44: int{lit}): StUint[\n    bits]		36
+nim	`xor`	stint/literals_stint.html#xor,,_2	proc `xor`[bits: static[int]](a`gensym45: int{lit}; b`gensym45: StUint[bits]): StUint[\n    bits]		41
+nim	`xor`	stint/literals_stint.html#xor,,_3	proc `xor`[bits: static[int]](a`gensym46: StInt[bits]; b`gensym46: int{lit}): StInt[\n    bits]		52
+nim	`xor`	stint/literals_stint.html#xor,,_4	proc `xor`[bits: static[int]](a`gensym47: int{lit}; b`gensym47: StInt[bits]): StInt[\n    bits]		76
+nim	mtoIsZeroL	stint/literals_stint.html#mtoIsZeroL.t	template mtoIsZeroL{\n  a == 0\n}(a: StUint or StInt): bool		80
+nim	mtoIsZeroR	stint/literals_stint.html#mtoIsZeroR.t	template mtoIsZeroR{\n  0 == a\n}(a: StUint or StInt): bool		81
+nim	mtoIsNeg	stint/literals_stint.html#mtoIsNeg.t,StInt	template mtoIsNeg{\n  a < 0\n}(a: StInt): bool		83
+nim	mtoIsNegOrZero	stint/literals_stint.html#mtoIsNegOrZero.t,StInt	template mtoIsNegOrZero{\n  a <= 0\n}(a: StInt): bool		84
+nim	mtoIsPos	stint/literals_stint.html#mtoIsPos.t,StInt	template mtoIsPos{\n  0 < a\n}(a: StInt): bool		86
+nim	mtoIsPosOrZero	stint/literals_stint.html#mtoIsPosOrZero.t,StInt	template mtoIsPosOrZero{\n  0 <= a\n}(a: StInt): bool		87
+nimgrp	xor	stint/literals_stint.html#xor-procs-all	proc		36
+nimgrp	==	stint/literals_stint.html#==-procs-all	proc		36
+nimgrp	+	stint/literals_stint.html#+-procs-all	proc		36
+nimgrp	-	stint/literals_stint.html#--procs-all	proc		36
+nimgrp	and	stint/literals_stint.html#and-procs-all	proc		36
+nimgrp	-=	stint/literals_stint.html#-=-procs-all	proc		36
+nimgrp	*	stint/literals_stint.html#*-procs-all	proc		36
+nimgrp	div	stint/literals_stint.html#div-procs-all	proc		36
+nimgrp	<=	stint/literals_stint.html#<=-procs-all	proc		36
+nimgrp	<	stint/literals_stint.html#<-procs-all	proc		36
+nimgrp	mod	stint/literals_stint.html#mod-procs-all	proc		36
+nimgrp	or	stint/literals_stint.html#or-procs-all	proc		36
+nimgrp	+=	stint/literals_stint.html#+=-procs-all	proc		36
+nimgrp	divmod	stint/literals_stint.html#divmod-procs-all	proc		36

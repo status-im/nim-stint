@@ -1,0 +1,28 @@
+nimTitle	datatypes	stint/private/datatypes.html	module stint/private/datatypes		0
+nim	Word	stint/private/datatypes.html#Word	type Word		16
+nim	SignedWord	stint/private/datatypes.html#SignedWord	type SignedWord		17
+nim	WordBitWidth	stint/private/datatypes.html#WordBitWidth	const WordBitWidth		23
+nim	wordsRequired	stint/private/datatypes.html#wordsRequired,int	proc wordsRequired(bits: int): int		25
+nim	Limbs	stint/private/datatypes.html#Limbs	type Limbs		31
+nim	StUint	stint/private/datatypes.html#StUint	object StUint		34
+nim	StInt	stint/private/datatypes.html#StInt	object StInt		41
+nim	Carry	stint/private/datatypes.html#Carry	type Carry		47
+nim	Borrow	stint/private/datatypes.html#Borrow	type Borrow		48
+nim	SomeBigInteger	stint/private/datatypes.html#SomeBigInteger	type SomeBigInteger		50
+nim	GCC_Compatible	stint/private/datatypes.html#GCC_Compatible	const GCC_Compatible		52
+nim	X86	stint/private/datatypes.html#X86	const X86		53
+nim	uint128	stint/private/datatypes.html#uint128	object uint128		57
+nim	limbs	stint/private/datatypes.html#limbs.t,StInt	template limbs(a: StInt): untyped		63
+nim	`[]`	stint/private/datatypes.html#[].t,StInt,	template `[]`(a: StInt; i: SomeInteger or BackwardsIndex): Word		66
+nim	`[]=`	stint/private/datatypes.html#[]=.t,StInt,,Word	template `[]=`(a: var StInt; i: SomeInteger or BackwardsIndex; val: Word)		69
+nim	`[]`	stint/private/datatypes.html#[].t,StUint,	template `[]`(a: StUint; i: SomeInteger or BackwardsIndex): Word		72
+nim	`[]=`	stint/private/datatypes.html#[]=.t,StUint,,Word	template `[]=`(a: var StUint; i: SomeInteger or BackwardsIndex; val: Word)		75
+nim	len	stint/private/datatypes.html#len.t,StInt	template len(a: StInt): int		78
+nim	len	stint/private/datatypes.html#len.t,StUint	template len(a: StUint): int		81
+nim	clearExtraBitsOverMSB	stint/private/datatypes.html#clearExtraBitsOverMSB.t	template clearExtraBitsOverMSB(a: var StUint | StInt)		89
+nim	usedBitsAndWords	stint/private/datatypes.html#usedBitsAndWords,openArray[Word]	proc usedBitsAndWords(a: openArray[Word]): tuple[bits, words: int]		100
+nim	staticFor	stint/private/datatypes.html#staticFor.m,,staticint,staticint,untyped	macro staticFor(idx: untyped{nkIdent}; start, stopEx: static int; body: untyped): untyped		142
+nim	copyWords	stint/private/datatypes.html#copyWords,openArray[Word],int,openArray[Word],int,int	proc copyWords(a: var openArray[Word]; startA: int; b: openArray[Word]; startB: int;\n          numWords: int)		155
+nimgrp	[]=	stint/private/datatypes.html#[]=-templates-all	template		69
+nimgrp	[]	stint/private/datatypes.html#[]-templates-all	template		66
+nimgrp	len	stint/private/datatypes.html#len-templates-all	template		78

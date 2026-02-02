@@ -1,0 +1,10 @@
+nimTitle	uint_bitwise	stint/private/uint_bitwise.html	module stint/private/uint_bitwise		0
+nim	bitnot	stint/private/uint_bitwise.html#bitnot,StUint,StUint	proc bitnot(r: var StUint; a: StUint)		20
+nim	bitor	stint/private/uint_bitwise.html#bitor,StUint,StUint,StUint	proc bitor(r: var StUint; a, b: StUint)		27
+nim	bitand	stint/private/uint_bitwise.html#bitand,StUint,StUint,StUint	proc bitand(r: var StUint; a, b: StUint)		32
+nim	bitxor	stint/private/uint_bitwise.html#bitxor,StUint,StUint,StUint	proc bitxor(r: var StUint; a, b: StUint)		37
+nim	countOnes	stint/private/uint_bitwise.html#countOnes,StUint	proc countOnes(a: StUint): int		43
+nim	parity	stint/private/uint_bitwise.html#parity,StUint	proc parity(a: StUint): int		48
+nim	leadingZeros	stint/private/uint_bitwise.html#leadingZeros,StUint	proc leadingZeros(a: StUint): int		53
+nim	trailingZeros	stint/private/uint_bitwise.html#trailingZeros,StUint	proc trailingZeros(a: StUint): int		69
+nim	firstOne	stint/private/uint_bitwise.html#firstOne,StUint	proc firstOne(a: StUint): int		81

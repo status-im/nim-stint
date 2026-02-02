@@ -1,0 +1,48 @@
+nimTitle	io	stint/io.html	module stint/io		0
+nim	leastSignificantWord	stint/io.html#leastSignificantWord.t,SomeBigInteger	template leastSignificantWord(a: SomeBigInteger): Word		26
+nim	mostSignificantWord	stint/io.html#mostSignificantWord.t,SomeBigInteger	template mostSignificantWord(a: SomeBigInteger): Word		30
+nim	signedWordType	stint/io.html#signedWordType.t,typeSomeBigInteger	template signedWordType(_: type SomeBigInteger): type		34
+nim	wordType	stint/io.html#wordType.t,typeSomeBigInteger	template wordType(_: type SomeBigInteger): type		37
+nim	hash	stint/io.html#hash.t	template hash(num: StUint | StInt): Hash		40
+nim	swap	stint/io.html#swap,,	proc swap(a, b: var (StUint | StInt))		44
+nim	stuint	stint/io.html#stuint,T,static[int]	proc stuint[T: SomeInteger](n: T; bits: static[int]): StUint[bits]		54
+nim	stint	stint/io.html#stint,T,static[int]	proc stint[T: SomeInteger](n: T; bits: static[int]): StInt[bits]		62
+nim	to	stint/io.html#to,SomeInteger,typedesc[StInt]	proc to(a: SomeInteger; T: typedesc[StInt]): T:type		77
+nim	to	stint/io.html#to,SomeUnsignedInt,typedesc[StUint]	proc to(a: SomeUnsignedInt; T: typedesc[StUint]): T:type		80
+nim	truncate	stint/io.html#truncate,StUint,typedesc[SomeInteger]	proc truncate(num: StUint; T: typedesc[SomeInteger]): T:type		89
+nim	truncate	stint/io.html#truncate,StInt,typedesc[SomeInteger]	proc truncate(num: StInt; T: typedesc[SomeInteger]): T:type		103
+nim	stuint	stint/io.html#stuint,StUint,static[int]	proc stuint(a: StUint; bits: static[int]): StUint[bits]		134
+nim	stuint	stint/io.html#stuint,StInt,static[int]	proc stuint(a: StInt; bits: static[int]): StUint[bits]		147
+nim	stint	stint/io.html#stint,StInt,static[int]	proc stint(a: StInt; bits: static[int]): StInt[bits]		162
+nim	stint	stint/io.html#stint,StUint,static[int]	proc stint(a: StUint; bits: static[int]): StInt[bits]		191
+nim	parse	stint/io.html#parse,string,typedesc[StUint[bits]],static[uint8]	proc parse[bits: static[int]](input: string; T: typedesc[StUint[bits]];\n                         radix: static[uint8] = 10): T:type		258
+nim	parse	stint/io.html#parse,string,typedesc[StInt[bits]],static[uint8]	proc parse[bits: static[int]](input: string; T: typedesc[StInt[bits]];\n                         radix: static[uint8] = 10): T:type		281
+nim	fromHex	stint/io.html#fromHex,typedesc[],string	proc fromHex(T: typedesc[StUint | StInt]; s: string): T:type		318
+nim	fromDecimal	stint/io.html#fromDecimal,typedesc[],string	proc fromDecimal(T: typedesc[StUint | StInt]; s: string): T:type		322
+nim	hexToUint	stint/io.html#hexToUint,string	proc hexToUint[bits: static[int]](hexString: string): StUint[bits]		325
+nim	toString	stint/io.html#toString,StUint[bits],static[uint8]	proc toString[bits: static[int]](num: StUint[bits]; radix: static[uint8] = 10): string		329
+nim	toString	stint/io.html#toString,StInt[bits],static[uint8]	proc toString[bits: static[int]](num: StInt[bits]; radix: static[uint8] = 10): string		356
+nim	`$`	stint/io.html#$	proc `$`(num: StInt or StUint): string		368
+nim	toHex	stint/io.html#toHex	proc toHex[bits: static[int]](num: StInt[bits] or StUint[bits]): string		371
+nim	dumpHex	stint/io.html#dumpHex,,static[Endianness]	proc dumpHex(a: StInt or StUint; order: static[Endianness] = bigEndian): string		378
+nim	readUintBE	stint/io.html#readUintBE,openArray[byte]	proc readUintBE[bits: static[int]](ba: openArray[byte]): StUint[bits]		402
+nim	toByteArrayBE	stint/io.html#toByteArrayBE,StUint[bits]	proc toByteArrayBE[bits: static[int]](n: StUint[bits]): array[bits div 8, byte]		412
+nim	initFromBytesBE	stint/io.html#initFromBytesBE.t,StUint,openArray[byte]	template initFromBytesBE(x: var StUint; ba: openArray[byte])		422
+nim	readUintLE	stint/io.html#readUintLE,openArray[byte]	proc readUintLE[bits: static[int]](ba: openArray[byte]): StUint[bits]		425
+nim	toByteArrayLE	stint/io.html#toByteArrayLE.t,StUint[bits]	template toByteArrayLE[bits: static[int]](n: StUint[bits]): array[bits div 8, byte]		435
+nim	initFromBytesLE	stint/io.html#initFromBytesLE.t,StUint,openArray[byte]	template initFromBytesLE(x: var StUint; ba: openArray[byte])		445
+nim	readIntBE	stint/io.html#readIntBE,openArray[byte]	proc readIntBE[bits: static[int]](ba: openArray[byte]): StInt[bits]		450
+nim	initFromBytesBE	stint/io.html#initFromBytesBE.t,StInt,openArray[byte]	template initFromBytesBE(x: var StInt; ba: openArray[byte])		460
+nim	readIntLE	stint/io.html#readIntLE,openArray[byte]	proc readIntLE[bits: static[int]](ba: openArray[byte]): StInt[bits]		463
+nim	toByteArrayLE	stint/io.html#toByteArrayLE.t,StInt[bits]	template toByteArrayLE[bits: static[int]](n: StInt[bits]): array[bits div 8, byte]		473
+nim	initFromBytesLE	stint/io.html#initFromBytesLE.t,StInt,openArray[byte]	template initFromBytesLE(x: var StInt; ba: openArray[byte])		483
+nim	customLiteral	stint/io.html#customLiteral,typeSomeBigInteger,staticstring	proc customLiteral(T: type SomeBigInteger; s: static string): T:type		491
+nimgrp	parse	stint/io.html#parse-procs-all	proc		258
+nimgrp	stint	stint/io.html#stint-procs-all	proc		62
+nimgrp	tostring	stint/io.html#toString-procs-all	proc		329
+nimgrp	truncate	stint/io.html#truncate-procs-all	proc		89
+nimgrp	to	stint/io.html#to-procs-all	proc		77
+nimgrp	stuint	stint/io.html#stuint-procs-all	proc		54
+nimgrp	initfrombytesle	stint/io.html#initFromBytesLE-templates-all	template		445
+nimgrp	tobytearrayle	stint/io.html#toByteArrayLE-templates-all	template		435
+nimgrp	initfrombytesbe	stint/io.html#initFromBytesBE-templates-all	template		422

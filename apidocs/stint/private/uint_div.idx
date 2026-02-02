@@ -1,0 +1,3 @@
+nimTitle	uint_div	stint/private/uint_div.html	module stint/private/uint_div		0
+nim	shortDiv	stint/private/uint_div.html#shortDiv,Limbs,Word	proc shortDiv(a: var Limbs; k: Word): Word		19
+nim	divRem	stint/private/uint_div.html#divRem,openArray[Word],openArray[Word],openArray[Word],openArray[Word]	proc divRem(q, r: var openArray[Word]; a, b: openArray[Word])		125

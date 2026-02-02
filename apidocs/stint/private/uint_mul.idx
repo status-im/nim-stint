@@ -1,0 +1,3 @@
+nimTitle	uint_mul	stint/private/uint_mul.html	module stint/private/uint_mul		0
+nim	prod	stint/private/uint_mul.html#prod,Limbs[rLen],Limbs[aLen],Limbs[bLen]	proc prod[rLen, aLen, bLen: static int](r: var Limbs[rLen]; a: Limbs[aLen];\n                                   b: Limbs[bLen])		19
+nim	prod_high_words	stint/private/uint_mul.html#prod_high_words,Limbs[rLen],Limbs[aLen],Limbs[bLen],staticint	proc prod_high_words[rLen, aLen, bLen: static int](r: var Limbs[rLen];\n    a: Limbs[aLen]; b: Limbs[bLen]; lowestWordIndex: static int)		46

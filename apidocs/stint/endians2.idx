@@ -1,0 +1,22 @@
+nimTitle	endians2	stint/endians2.html	module stint/endians2		0
+nim	toBytesLE	stint/endians2.html#toBytesLE,StUint[bits]	proc toBytesLE[bits: static int](src: StUint[bits]): array[bits div 8, byte]		51
+nim	toBytesBE	stint/endians2.html#toBytesBE,StUint[bits]	proc toBytesBE[bits: static int](src: StUint[bits]): array[bits div 8, byte]		58
+nim	toBytes	stint/endians2.html#toBytes,StUint[bits],Endianness	proc toBytes[bits: static int](x: StUint[bits]; endian: Endianness): array[\n    bits div 8, byte]		65
+nim	fromBytesBE	stint/endians2.html#fromBytesBE,typedesc[StUint[bits]],openArray[byte]	proc fromBytesBE[bits: static int](T: typedesc[StUint[bits]]; src: openArray[byte]): T:type		197
+nim	fromBytesBE	stint/endians2.html#fromBytesBE,typedesc[StUint[bits]],array[,byte]	proc fromBytesBE[bits: static int](T: typedesc[StUint[bits]];\n                              src: array[bits div 8, byte]): T:type		211
+nim	fromBytesLE	stint/endians2.html#fromBytesLE,typedesc[StUint[bits]],openArray[byte]	proc fromBytesLE[bits: static int](T: typedesc[StUint[bits]]; src: openArray[byte]): T:type		225
+nim	fromBytesLE	stint/endians2.html#fromBytesLE,typedesc[StUint[bits]],array[,byte]	proc fromBytesLE[bits: static int](T: typedesc[StUint[bits]];\n                              src: array[bits div 8, byte]): T:type		240
+nim	fromBytes	stint/endians2.html#fromBytes,typedesc[StUint[bits]],openArray[byte],Endianness	proc fromBytes[bits: static int](T: typedesc[StUint[bits]]; src: openArray[byte];\n                            srcEndian: Endianness): T:type		248
+nim	fromBytes	stint/endians2.html#fromBytes,typedesc[StUint[bits]],array[,byte],Endianness	proc fromBytes[bits: static int](T: typedesc[StUint[bits]];\n                            src: array[bits div 8, byte]; srcEndian: Endianness): T:type		262
+nim	toBytesLE	stint/endians2.html#toBytesLE,StInt[bits]	proc toBytesLE[bits: static int](src: StInt[bits]): array[bits div 8, byte]		280
+nim	toBytesBE	stint/endians2.html#toBytesBE,StInt[bits]	proc toBytesBE[bits: static int](src: StInt[bits]): array[bits div 8, byte]		283
+nim	toBytes	stint/endians2.html#toBytes,StInt[bits],Endianness	proc toBytes[bits: static int](x: StInt[bits]; endian: Endianness): array[bits div 8,\n    byte]		286
+nim	fromBytesBE	stint/endians2.html#fromBytesBE,typedesc[StInt[bits]],openArray[byte]	proc fromBytesBE[bits: static int](T: typedesc[StInt[bits]]; x: openArray[byte]): T:type		294
+nim	fromBytesLE	stint/endians2.html#fromBytesLE,typedesc[StInt[bits]],openArray[byte]	proc fromBytesLE[bits: static int](T: typedesc[StInt[bits]]; x: openArray[byte]): T:type		299
+nim	fromBytes	stint/endians2.html#fromBytes,typedesc[StInt[bits]],openArray[byte],Endianness	proc fromBytes[bits: static int](T: typedesc[StInt[bits]]; x: openArray[byte];\n                            srcEndian: Endianness): T:type		302
+nimgrp	tobytesbe	stint/endians2.html#toBytesBE-procs-all	proc		58
+nimgrp	tobytes	stint/endians2.html#toBytes-procs-all	proc		65
+nimgrp	frombytes	stint/endians2.html#fromBytes-procs-all	proc		248
+nimgrp	tobytesle	stint/endians2.html#toBytesLE-procs-all	proc		51
+nimgrp	frombytesbe	stint/endians2.html#fromBytesBE-procs-all	proc		197
+nimgrp	frombytesle	stint/endians2.html#fromBytesLE-procs-all	proc		225

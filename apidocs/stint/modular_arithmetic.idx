@@ -1,0 +1,5 @@
+nimTitle	modular_arithmetic	stint/modular_arithmetic.html	module stint/modular_arithmetic		0
+nim	addmod	stint/modular_arithmetic.html#addmod,StUint,StUint,StUint	proc addmod(a, b, m: StUint): StUint		44
+nim	submod	stint/modular_arithmetic.html#submod,StUint,StUint,StUint	proc submod(a, b, m: StUint): StUint		54
+nim	mulmod	stint/modular_arithmetic.html#mulmod,StUint,StUint,StUint	proc mulmod(a, b, m: StUint): StUint		64
+nim	powmod	stint/modular_arithmetic.html#powmod,StUint,StUint,StUint	proc powmod(a, b, m: StUint): StUint		75

@@ -1,0 +1,34 @@
+nimTitle	uintops	stint/uintops.html	module stint/uintops		0
+nim	setZero	stint/uintops.html#setZero,StUint	proc setZero(a: var StUint)		27
+nim	setOne	stint/uintops.html#setOne,StUint	proc setOne(a: var StUint)		38
+nim	zero	stint/uintops.html#zero,typedesc[StUint[bits]]	proc zero[bits: static[int]](T: typedesc[StUint[bits]]): T:type		41
+nim	one	stint/uintops.html#one,typedesc[StUint[bits]]	proc one[bits: static[int]](T: typedesc[StUint[bits]]): T:type		45
+nim	high	stint/uintops.html#high,typedesc[StUint[bits]]	proc high[bits](_: typedesc[StUint[bits]]): StUint[bits]		49
+nim	low	stint/uintops.html#low,typedesc[StUint[bits]]	proc low[bits](_: typedesc[StUint[bits]]): StUint[bits]		54
+nim	isZero	stint/uintops.html#isZero,StUint	proc isZero(a: StUint): bool		62
+nim	isOne	stint/uintops.html#isOne,StUint	proc isOne(a: StUint): bool		68
+nim	`==`	stint/uintops.html#==,StUint,StUint	proc `==`(a, b: StUint): bool		76
+nim	`<`	stint/uintops.html#<,StUint,StUint	proc `<`(a, b: StUint): bool		83
+nim	`<=`	stint/uintops.html#<=,StUint,StUint	proc `<=`(a, b: StUint): bool		91
+nim	isOdd	stint/uintops.html#isOdd,StUint	proc isOdd(a: StUint): bool		95
+nim	isEven	stint/uintops.html#isEven,StUint	proc isEven(a: StUint): bool		100
+nim	`not`	stint/uintops.html#not,StUint	proc `not`(a: StUint): StUint		110
+nim	`or`	stint/uintops.html#or,StUint,StUint	proc `or`(a, b: StUint): StUint		115
+nim	`and`	stint/uintops.html#and,StUint,StUint	proc `and`(a, b: StUint): StUint		119
+nim	`xor`	stint/uintops.html#xor,StUint,StUint	proc `xor`(a, b: StUint): StUint		123
+nim	`shr`	stint/uintops.html#shr,StUint,Natural	proc `shr`(a: StUint; k: Natural): StUint		138
+nim	`shl`	stint/uintops.html#shl,StUint,Natural	proc `shl`(a: StUint; k: Natural): StUint		142
+nim	setBit	stint/uintops.html#setBit,StUint,Natural	proc setBit(a: var StUint; k: Natural)		146
+nim	clearBit	stint/uintops.html#clearBit,StUint,Natural	proc clearBit(a: var StUint; k: Natural)		153
+nim	getBit	stint/uintops.html#getBit,StUint,Natural	proc getBit(a: StUint; k: Natural): bool		160
+nim	`+`	stint/uintops.html#+,StUint,StUint	proc `+`(a, b: StUint): StUint		173
+nim	`-`	stint/uintops.html#-,StUint,StUint	proc `-`(a, b: StUint): StUint		179
+nim	`+`	stint/uintops.html#+,StUint,SomeUnsignedInt	proc `+`(a: StUint; b: SomeUnsignedInt): StUint		187
+nim	`*`	stint/uintops.html#*,StUint,StUint	proc `*`(a, b: StUint): StUint		205
+nim	pow	stint/uintops.html#pow,StUint,Natural	proc pow(a: StUint; e: Natural): StUint		217
+nim	pow	stint/uintops.html#pow,StUint[aBits],StUint[eBits]	proc pow[aBits, eBits](a: StUint[aBits]; e: StUint[eBits]): StUint[aBits]		236
+nim	`div`	stint/uintops.html#div,StUint,StUint	proc `div`(x, y: StUint): StUint		260
+nim	`mod`	stint/uintops.html#mod,StUint,StUint	proc `mod`(x, y: StUint): StUint		265
+nim	divmod	stint/uintops.html#divmod,StUint,StUint	proc divmod(x, y: StUint): tuple[quot, rem: StUint]		270
+nimgrp	+	stint/uintops.html#+-procs-all	proc		173
+nimgrp	pow	stint/uintops.html#pow-procs-all	proc		217

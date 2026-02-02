@@ -1,0 +1,9 @@
+nimTitle	uint_shift	stint/private/uint_shift.html	module stint/private/uint_shift		0
+nim	shrSmall	stint/private/uint_shift.html#shrSmall,Limbs,Limbs,SomeInteger	proc shrSmall(r: var Limbs; a: Limbs; k: SomeInteger)		20
+nim	shrLarge	stint/private/uint_shift.html#shrLarge,Limbs,Limbs,SomeInteger,SomeInteger	proc shrLarge(r: var Limbs; a: Limbs; w, shift: SomeInteger)		32
+nim	shrWords	stint/private/uint_shift.html#shrWords,Limbs,Limbs,SomeInteger	proc shrWords(r: var Limbs; a: Limbs; w: SomeInteger)		42
+nim	shlSmall	stint/private/uint_shift.html#shlSmall,Limbs,Limbs,SomeInteger	proc shlSmall(r: var Limbs; a: Limbs; k: SomeInteger)		49
+nim	shlLarge	stint/private/uint_shift.html#shlLarge,Limbs,Limbs,SomeInteger,SomeInteger	proc shlLarge(r: var Limbs; a: Limbs; w, shift: SomeInteger)		57
+nim	shlWords	stint/private/uint_shift.html#shlWords,Limbs,Limbs,SomeInteger	proc shlWords(r: var Limbs; a: Limbs; w: SomeInteger)		67
+nim	shiftRight	stint/private/uint_shift.html#shiftRight,StUint,StUint,SomeInteger	proc shiftRight(r: var StUint; a: StUint; k: SomeInteger)		77
+nim	shiftLeft	stint/private/uint_shift.html#shiftLeft,StUint,StUint,SomeInteger	proc shiftLeft(r: var StUint; a: StUint; k: SomeInteger)		96
