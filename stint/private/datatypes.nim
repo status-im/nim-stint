@@ -42,9 +42,6 @@ type
     ## Signed, in two complement format
     impl*: StUint[bits]
 
-  Carry* = uint8  # distinct range[0'u8 .. 1]
-  Borrow* = uint8 # distinct range[0'u8 .. 1]
-
   SomeBigInteger*[bits: static[int]] = StUint[bits] | StInt[bits]
 
 const GCC_Compatible* = defined(gcc) or defined(clang) or defined(llvm_gcc)
