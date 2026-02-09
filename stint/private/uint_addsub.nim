@@ -18,25 +18,25 @@ import
 {.push raises: [], inline, noinit, gcsafe.}
 
 func sum*(r: var StUint, a, b: StUint) =
-  ## Addition for multi-precision unsigned int
+  ## Addition for multi-precision unsigned int.
   var carry = false
   for i in 0 ..< r.limbs.len:
     (r[i], carry) = carryingAdd(a[i], b[i], carry)
   r.clearExtraBitsOverMSB()
 
 func `+=`*(a: var StUint, b: StUint) =
-  ## In-place addition for multi-precision unsigned int
+  ## In-place addition for multi-precision unsigned int.
   a.sum(a, b)
 
 func diff*(r: var StUint, a, b: StUint) =
-  ## Substraction for multi-precision unsigned int
+  ## Substraction for multi-precision unsigned int.
   var borrow = false
   for i in 0 ..< r.limbs.len:
     (r[i], borrow) = borrowingSub(a[i], b[i], borrow)
   r.clearExtraBitsOverMSB()
 
 func `-=`*(a: var StUint, b: StUint) =
-  ## In-place substraction for multi-precision unsigned int
+  ## In-place substraction for multi-precision unsigned int.
   a.diff(a, b)
 
 func inc*(a: var StUint, w: Word = 1) =
@@ -48,11 +48,11 @@ func inc*(a: var StUint, w: Word = 1) =
 
 func sum*(r: var StUint, a: StUint, b: SomeUnsignedInt) =
   ## Addition for multi-precision unsigned int
-  ## with an unsigned integer
+  ## with an unsigned integer.
   r = a
   r.inc(Word(b))
 
 func `+=`*(a: var StUint, b: SomeUnsignedInt) =
   ## In-place addition for multi-precision unsigned int
-  ## with an unsigned integer
+  ## with an unsigned integer.
   a.inc(Word(b))

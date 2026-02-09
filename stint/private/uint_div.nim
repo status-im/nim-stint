@@ -17,21 +17,22 @@ import
 # --------------------------------------------------------
 
 func shortDiv*(a: var Limbs, k: Word): Word =
-  ## Divide `a` by k in-place and return the remainder
+  ## Divide `a` by k in-place and return the remainder.
 
   for i in countdown(a.high, 0):
     (a[i], result) = narrowingDiv(result, a[i], k)
    
 func shlAddMod_multi(a: var openArray[Word], c: Word,
                      M: openArray[Word], mBits: int): Word =
-  ## Fused modular left-shift + add
+  ## Fused modular left-shift + add.
+  ##
   ## Shift input `a` by a word and add `c` modulo `M`
   ##
   ## Specialized for M being a multi-precision integer.
   ##
-  ## With a word W = 2^WordBitWidth and a modulus M
-  ## Does a <- a * W + c (mod M)
-  ## and returns q = (a * W + c ) / M
+  ## With a word `W = 2^WordBitWidth` and a modulus M
+  ## does `a <- a * W + c (mod M)`
+  ## and returns `q = (a * W + c ) / M`.
   ##
   ## The modulus `M` most-significant bit at `mBits` MUST be set.
 
@@ -106,7 +107,7 @@ func shlAddMod_multi(a: var openArray[Word], c: Word,
 
 func shlAddMod(a: var openArray[Word], c: Word,
                M: openArray[Word], mBits: int): Word {.inline.} =
-  ## Fused modular left-shift + add
+  ## Fused modular left-shift + add.
 
   if mBits <= WordBitWidth:
     # intops' narrowingDiv handles normalization internally.

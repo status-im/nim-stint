@@ -49,14 +49,14 @@ template toBytesSwap(src: StUint) =
     copyBytes(result, limb, 0, limb.len - leftover, leftover)
 
 func toBytesLE*[bits: static int](src: StUint[bits]): array[bits div 8, byte] =
-  ## Encode `src` to a byte array using little-endian byte order
+  ## Encode `src` to a byte array using little-endian byte order.
   when cpuEndian == littleEndian:
     toBytesCopy(src)
   else:
     toBytesSwap(src)
 
 func toBytesBE*[bits: static int](src: StUint[bits]): array[bits div 8, byte] =
-  ## Encode `src` to a byte array using big-endian byte order
+  ## Encode `src` to a byte array using big-endian byte order.
   when cpuEndian == littleEndian:
     toBytesSwap(src)
   else:
@@ -65,10 +65,11 @@ func toBytesBE*[bits: static int](src: StUint[bits]): array[bits div 8, byte] =
 func toBytes*[bits: static int](
     x: StUint[bits], endian: Endianness
 ): array[bits div 8, byte] =
-  ## Encode `src` to a byte array using the given byte order
+  ## Encode `src` to a byte array using the given byte order.
+  ##
   ## TODO Unlike the corresponding function in stew/endians that defaults to
   ##      native endian, this function used to default to big endian - the
-  ##      default has been removed to avoid confusion and runtime surprises
+  ##      default has been removed to avoid confusion and runtime surprises.
   if endian == littleEndian:
     x.toBytesLE()
   else:
@@ -198,9 +199,10 @@ func fromBytesBE*[bits: static int](
 ): T =
   ## Read big endian bytes and convert to an integer. At runtime, src must contain
   ## at least sizeof(T) bytes.
+  ##
   ## TODO Contrary to docs and the corresponding stew/endians2 function, src is
   ##      actually padded when short - this may change in the future to match
-  ##      stew where it panics instead
+  ##      stew where it panics instead.
   when cpuEndian == littleEndian:
     fromBytesSwap(src)
   else:
@@ -211,9 +213,10 @@ func fromBytesBE*[bits: static int](
 ): T =
   ## Read big endian bytes and convert to an integer. At runtime, src must contain
   ## at least sizeof(T) bytes.
+  ##
   ## TODO Contrary to docs and the corresponding stew/endians2 function, src is
   ##      actually padded when short - this may change in the future to match
-  ##      stew where it panics instead
+  ##      stew where it panics instead.
   when cpuEndian == littleEndian:
     fromBytesSwapUnrolled(src)
   else:
@@ -224,9 +227,10 @@ func fromBytesLE*[bits: static int](
 ): T =
   ## Read little endian bytes and convert to an integer. At runtime, src must
   ## contain at least sizeof(T) bytes.
+  ##
   ## TODO Contrary to docs and the corresponding stew/endians2 function, src is
   ##      actually padded when short - this may change in the future to match
-  ##      stew where it panics instead
+  ##      stew where it panics instead.
 
   when cpuEndian == littleEndian:
     fromBytesCopy(src)
@@ -245,10 +249,11 @@ func fromBytes*[bits: static int](
     T: typedesc[StUint[bits]], src: openArray[byte], srcEndian: Endianness
 ): T =
   ## Read an source bytearray with the specified endianness and
-  ## convert it to an integer
+  ## convert it to an integer.
+  ##
   ## TODO Unlike the corresponding function in stew/endians that defaults to
   ##      native endian, this function used to default to big endian - the
-  ##      default has been removed to avoid confusion and runtime surprises
+  ##      default has been removed to avoid confusion and runtime surprises.
   if srcEndian == littleEndian:
     fromBytesLE(T, src)
   else:
@@ -258,10 +263,11 @@ func fromBytes*[bits: static int](
     T: typedesc[StUint[bits]], src: array[bits div 8, byte], srcEndian: Endianness
 ): T =
   ## Read an source bytearray with the specified endianness and
-  ## convert it to an integer
+  ## convert it to an integer.
+  ##
   ## TODO Unlike the corresponding function in stew/endians that defaults to
   ##      native endian, this function used to default to big endian - the
-  ##      default has been removed to avoid confusion and runtime surprises
+  ##      default has been removed to avoid confusion and runtime surprises.
   if srcEndian == littleEndian:
     fromBytesLE(T, src)
   else:
@@ -282,7 +288,7 @@ func toBytes*[bits: static int](
 ): array[bits div 8, byte] =
   ## TODO Unlike the corresponding function in stew/endians that defaults to
   ##      native endian, this function used to default to big endian - the
-  ##      default has been removed to avoid confusion and runtime surprises
+  ##      default has been removed to avoid confusion and runtime surprises.
   toBytes(x.impl, endian)
 
 func fromBytesBE*[bits: static int](
@@ -298,5 +304,5 @@ func fromBytes*[bits: static int](
 ): T =
   ## TODO Unlike the corresponding function in stew/endians that defaults to
   ##      native endian, this function used to default to big endian - the
-  ##      default has been removed to avoid confusion and runtime surprises
+  ##      default has been removed to avoid confusion and runtime surprises.
   result.impl = fromBytes(type result.impl, x, srcEndian)
