@@ -60,7 +60,7 @@ func low*[bits](_: typedesc[StUint[bits]]): StUint[bits] {.inline.} =
 {.push raises: [], inline, noinit, gcsafe.}
 
 func isZero*(a: StUint): bool =
-  smartFor(i, 0 ..< a.limbs.len):
+  for i in 0 ..< a.limbs.len:
     if a[i] != 0:
       return false
   return true
@@ -68,14 +68,14 @@ func isZero*(a: StUint): bool =
 func isOne*(a: StUint): bool =
   if a.limbs[0] != 1:
     return false
-  smartFor(i, 1 ..< a.limbs.len):
+  for i in 1 ..< a.limbs.len:
     if a.limbs[i] != 0:
       return false
   return true
 
 func `==`*(a, b: StUint): bool {.inline.} =
   ## Unsigned `equal` comparison.
-  smartFor(i, 0 ..< a.limbs.len):
+  for i in 0 ..< a.limbs.len:
     if a[i] != b[i]:
       return false
   return true
