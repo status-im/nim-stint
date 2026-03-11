@@ -149,13 +149,15 @@ const
   staticForMaxBitSize = 128
   staticForMaxIterCount = staticForMaxBitSize div WordBitWidth
 
-template smartFor*(idx: untyped{nkIdent}, slice: static Slice[int], body: untyped): untyped =
+template smartFor*(idx: untyped{nkIdent}, slice: static HSlice, body: untyped): untyped =
   when len(slice) <= staticForMaxIterCount:
     staticFor(idx, slice):
       body
   else:
-    for idx in slice:
-      body
+    for i in slice.a .. slice.b:
+      block:
+        let idx {.inject.} = i
+        body
 
 # Copy
 # --------------------------------------------------------
