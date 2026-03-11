@@ -26,13 +26,13 @@ export StUint
 
 func setZero*(a: var StUint) =
   ## Set `a` to 0.
-  smartFor(i, 0 ..< a.limbs.len):
+  for i in 0 ..< a.limbs.len:
     a.limbs[i] = 0
 
 func setSmallInt(a: var StUint, k: Word) =
   ## Set `a` to k.
   a.limbs[0] = k
-  smartFor(i, 1 ..< a.limbs.len):
+  for i in 1 ..< a.limbs.len:
     a.limbs[i] = 0
 
 func setOne*(a: var StUint) =
@@ -47,7 +47,7 @@ func one*[bits: static[int]](T: typedesc[StUint[bits]]): T {.inline.} =
   result.setOne()
 
 func high*[bits](_: typedesc[StUint[bits]]): StUint[bits] {.inline.} =
-  smartFor(i, 0 ..< result.limbs.len):
+  for i in 0 ..< result.limbs.len:
     result[i] = high(Word)
   result.clearExtraBitsOverMSB()
 
@@ -60,7 +60,7 @@ func low*[bits](_: typedesc[StUint[bits]]): StUint[bits] {.inline.} =
 {.push raises: [], inline, noinit, gcsafe.}
 
 func isZero*(a: StUint): bool =
-  smartFor(i, 0 ..< a.limbs.len):
+  for i in 0 ..< a.limbs.len:
     if a[i] != 0:
       return false
   return true
@@ -68,14 +68,14 @@ func isZero*(a: StUint): bool =
 func isOne*(a: StUint): bool =
   if a.limbs[0] != 1:
     return false
-  smartFor(i, 1 ..< a.limbs.len):
+  for i in 1 ..< a.limbs.len:
     if a.limbs[i] != 0:
       return false
   return true
 
 func `==`*(a, b: StUint): bool {.inline.} =
   ## Unsigned `equal` comparison.
-  smartFor(i, 0 ..< a.limbs.len):
+  for i in 0 ..< a.limbs.len:
     if a[i] != b[i]:
       return false
   return true
@@ -84,7 +84,7 @@ func `<`*(a, b: StUint): bool {.inline.} =
   ## Unsigned `less than` comparison.
   var diff: Word
   var borrow: bool
-  smartFor(i, 0 ..< a.limbs.len):
+  for i in 0 ..< a.limbs.len:
     (diff, borrow) = borrowingSub(a[i], b[i], borrow)
   return borrow
 

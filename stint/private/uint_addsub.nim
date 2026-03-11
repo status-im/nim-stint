@@ -10,7 +10,6 @@
 import
   # Status Lib
   intops/ops/[add, sub],
-  stew/staticfor,
   # Internal
   ./datatypes
 
@@ -21,7 +20,7 @@ import
 func sum*(r: var StUint, a, b: StUint) =
   ## Addition for multi-precision unsigned int.
   var carry = false
-  smartFor(i, 0 ..< r.limbs.len):
+  for i in 0 ..< r.limbs.len:
     (r[i], carry) = carryingAdd(a[i], b[i], carry)
   r.clearExtraBitsOverMSB()
 
@@ -32,7 +31,7 @@ func `+=`*(a: var StUint, b: StUint) =
 func diff*(r: var StUint, a, b: StUint) =
   ## Substraction for multi-precision unsigned int.
   var borrow = false
-  smartFor(i, 0 ..< r.limbs.len):
+  for i in 0 ..< r.limbs.len:
     (r[i], borrow) = borrowingSub(a[i], b[i], borrow)
   r.clearExtraBitsOverMSB()
 
@@ -43,7 +42,7 @@ func `-=`*(a: var StUint, b: StUint) =
 func inc*(a: var StUint, w: Word = 1) =
   var carry = false
   (a.limbs[0], carry) = carryingAdd(a.limbs[0], w, carry)
-  smartFor(i, 0 ..< a.limbs.len):
+  for i in 1 ..< a.limbs.len:
     (a.limbs[i], carry) = carryingAdd(a.limbs[i], 0, carry)
   a.clearExtraBitsOverMSB()
 
