@@ -146,7 +146,7 @@ macro staticFor*(idx: untyped{nkIdent}, start, stopEx: static int, body: untyped
     )
 
 const
-  staticForMaxBitSize = 128
+  staticForMaxBitSize = 4096
   staticForMaxIterCount = staticForMaxBitSize div WordBitWidth
 
 template smartFor*(idx: untyped{nkIdent}, slice: static HSlice, body: untyped): untyped =
