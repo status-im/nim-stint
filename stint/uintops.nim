@@ -85,7 +85,7 @@ func `<`*(a, b: StUint): bool {.inline.} =
   var diff: Word
   var borrow: bool
   for i in 0 ..< a.limbs.len:
-    (diff, borrow) = borrowingSub(a[i], b[i], borrow)
+    borrow = getBorrow(a[i], b[i], borrow)
   return borrow
 
 func `<=`*(a, b: StUint): bool {.inline.} =
