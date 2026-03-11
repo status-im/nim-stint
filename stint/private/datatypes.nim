@@ -9,7 +9,8 @@
 
 import
   # Status lib
-  stew/[bitops2, staticfor]
+  stew/[bitops2, staticfor],
+  std/macros
 
 when sizeof(int) == 8 and not defined(Stint32):
   type
@@ -115,8 +116,6 @@ func usedBitsAndWords*(a: openArray[Word]): tuple[bits, words: int] =
 # Iterations
 # --------------------------------------------------------
 
-import std/macros
-
 proc replaceNodes(ast: NimNode, what: NimNode, by: NimNode): NimNode =
   # Replace "what" ident node by "by"
   proc inspect(node: NimNode): NimNode =
@@ -149,15 +148,30 @@ const
   staticForMaxBitSize = 4096
   staticForMaxIterCount = staticForMaxBitSize div WordBitWidth
 
-template smartFor*(idx: untyped{nkIdent}, slice: static HSlice, body: untyped): untyped =
-  when len(slice) <= staticForMaxIterCount:
-    staticFor(idx, slice):
-      body
-  else:
-    for i in slice.a .. slice.b:
-      block:
-        let idx {.inject.} = i
-        body
+macro smartFor*(idx: untyped, slice: untyped, body: untyped): untyped =
+  result = newStmtList()
+  
+  let 
+    staticForSym = bindSym("staticFor")
+    maxIterCountSym = bindSym("staticForMaxIterCount")
+  
+  result.add quote do:
+    when compiles(static(`slice`)):
+      const s = `slice`
+      when len(s) <= `maxIterCountSym`:
+        `staticForSym`(`idx`, s):
+          `body`
+      else:
+        for i in s.a .. s.b:
+          block:
+            let `idx` {.inject.} = i
+            `body`
+    else:
+      let s = `slice`
+      for i in s.a .. s.b:
+        block:
+          let `idx` {.inject.} = i
+          `body`
 
 # Copy
 # --------------------------------------------------------
@@ -169,7 +183,7 @@ func copyWords*(
        numWords: int) =
   ## Copy a slice of B into A. This properly deals
   ## with overlaps when A and B are slices of the same buffer.
-  for i in countdown(numWords-1, 0):
-    a[startA+i] = b[startB+i]
+  smartFor(i, 0 ..< numWords):
+    a[startA + (numWords - 1 - i)] = b[startB + (numWords - 1 - i)]
 
 {.pop.}
