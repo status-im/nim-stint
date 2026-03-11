@@ -9,7 +9,7 @@
 
 import
   # Status lib
-  stew/bitops2
+  stew/[bitops2, staticfor]
 
 when sizeof(int) == 8 and not defined(Stint32):
   type
@@ -144,6 +144,18 @@ macro staticFor*(idx: untyped{nkIdent}, start, stopEx: static int, body: untyped
       ident("unrolledIter_" & $idx & $i),
       body.replaceNodes(idx, newLit i)
     )
+
+const
+  staticForMaxBitSize = 128
+  staticForMaxIterCount = staticForMaxBitSize div WordBitWidth
+
+template smartFor*(idx: untyped{nkIdent}, slice: static Slice[int], body: untyped): untyped =
+  when len(slice) <= staticForMaxIterCount:
+    staticFor(idx, slice):
+      body
+  else:
+    for idx in slice:
+      body
 
 # Copy
 # --------------------------------------------------------
