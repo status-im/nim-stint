@@ -32,14 +32,15 @@ func i256*(s: string): Int256 {.inline.} = s.parse(Int256)
 # or 1234567890'i256, and the number will be passed as string to the
 # constructor
 
-func `'i128`*(s: static string): Int128 {.inline.} = 
-  customLiteral(Int128, s)
-
-func `'i256`*(s: static string): Int256 {.inline.} = 
-  customLiteral(Int256, s)
-  
-func `'u128`*(s: static string): UInt128 {.inline.} = 
-  customLiteral(UInt128, s)
-
-func `'u256`*(s: static string): UInt256 {.inline.} = 
-  customLiteral(UInt256, s)
+func `'i128`*(s: static string): Int128 {.inline.} =
+  const v = customLiteral(Int128, s)
+  v
+func `'i256`*(s: static string): Int256 {.inline.} =
+  const v = customLiteral(Int256, s)
+  v
+func `'u128`*(s: static string): UInt128 {.inline.} =
+  const v = customLiteral(UInt128, s)
+  v
+func `'u256`*(s: static string): UInt256 {.inline.} =
+  const v = customLiteral(UInt256, s)
+  v

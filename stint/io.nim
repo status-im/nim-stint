@@ -488,7 +488,7 @@ template initFromBytesLE*(x: var StInt, ba: openArray[byte]) =
 include
   ./private/custom_literal
 
-func customLiteral*(T: type SomeBigInteger, s: static string): T {.compileTime.} =
+func customLiteral*(T: type SomeBigInteger, s: static string): T =
   when s.len == 0:
     doAssert(false, "customLiteral cannot accept param with zero length")
 
