@@ -26,13 +26,13 @@ export StUint
 
 func setZero*(a: var StUint) =
   ## Set `a` to 0.
-  for i in 0 ..< a.limbs.len:
+  smartFor(i, 0 ..< a.limbs.len):
     a.limbs[i] = 0
 
 func setSmallInt(a: var StUint, k: Word) =
   ## Set `a` to k.
   a.limbs[0] = k
-  for i in 1 ..< a.limbs.len:
+  smartFor(i, 1 ..< a.limbs.len):
     a.limbs[i] = 0
 
 func setOne*(a: var StUint) =
@@ -47,7 +47,7 @@ func one*[bits: static[int]](T: typedesc[StUint[bits]]): T {.inline.} =
   result.setOne()
 
 func high*[bits](_: typedesc[StUint[bits]]): StUint[bits] {.inline.} =
-  for i in 0 ..< result.limbs.len:
+  smartFor(i, 0 ..< result.limbs.len):
     result[i] = high(Word)
   result.clearExtraBitsOverMSB()
 
@@ -84,7 +84,7 @@ func `<`*(a, b: StUint): bool {.inline.} =
   ## Unsigned `less than` comparison.
   var diff: Word
   var borrow: bool
-  for i in 0 ..< a.limbs.len:
+  smartFor(i, 0 ..< a.limbs.len):
     (diff, borrow) = borrowingSub(a[i], b[i], borrow)
   return borrow
 
