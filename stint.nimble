@@ -11,7 +11,7 @@ skipDirs      = @["tests", "benchmarks"]
 # TODO test only requirements don't work: https://github.com/nim-lang/nimble/issues/482
 requires "nim >= 1.6.12",
          "stew >= 0.2.0",
-         "https://github.com/vacp2p/nim-intops#feature/get_carry_get_borrow",
+         "intops >= 1.0.8",
          "unittest2 >= 0.2.3"
 
 let nimc = getEnv("NIMC", "nim") # Which nim compiler to use
