@@ -50,25 +50,19 @@ jobs:
           sudo dpkg --add-architecture i386
           sudo apt-get update -qq
           sudo DEBIAN_FRONTEND='noninteractive' apt-get install \
-            --no-install-recommends -yq gcc-10-multilib g++-10-multilib binutils-multiarch \
+            --no-install-recommends -yq gcc-10-multilib g++-10-multilib \
             libssl-dev:i386 linux-libc-dev:i386
           mkdir -p external/bin
           cat << EOF > external/bin/gcc
           #!/bin/bash
           exec $(which gcc-10) -m32 "\$@"
           EOF
-          cat << EOF > external/bin/ld
-          #!/bin/bash
-          exec $(which ld) -m elf_i386 "\$@"
-          EOF
           cat << EOF > external/bin/g++
           #!/bin/bash
           exec $(which g++-10) -m32 "\$@"
           EOF
-          chmod 755 external/bin/gcc external/bin/ld external/bin/g++
+          chmod 755 external/bin/gcc external/bin/g++
           echo '${{ github.workspace }}/external/bin' >> $GITHUB_PATH
-          echo "COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/10:/usr/lib/gcc/x86_64-linux-gnu/10/32" >> $GITHUB_ENV
-          echo "LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/10/32:/usr/lib/i386-linux-gnu" >> $GITHUB_ENV
 
       - name: Restore llvm-mingw (Windows) from cache
         if: runner.os == 'Windows'
