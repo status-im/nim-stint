@@ -67,6 +67,8 @@ jobs:
           EOF
           chmod 755 external/bin/gcc external/bin/ld external/bin/g++
           echo '${{ github.workspace }}/external/bin' >> $GITHUB_PATH
+          echo "COMPILER_PATH=/usr/lib/gcc/x86_64-linux-gnu/10:/usr/lib/gcc/x86_64-linux-gnu/10/32" >> $GITHUB_ENV
+          echo "LIBRARY_PATH=/usr/lib/gcc/x86_64-linux-gnu/10/32:/usr/lib/i386-linux-gnu" >> $GITHUB_ENV
 
       - name: Restore llvm-mingw (Windows) from cache
         if: runner.os == 'Windows'
