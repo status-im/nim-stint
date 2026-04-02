@@ -51,7 +51,6 @@ jobs:
           sudo apt-get update -qq
           sudo DEBIAN_FRONTEND='noninteractive' apt-get install \
             --no-install-recommends -yq gcc-10-multilib g++-10-multilib \
-            gcc-10-plugin-dev \
             libssl-dev:i386 linux-libc-dev:i386
           mkdir -p external/bin
           cat << EOF > external/bin/gcc
