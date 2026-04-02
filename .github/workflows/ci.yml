@@ -57,11 +57,15 @@ jobs:
           #!/bin/bash
           exec $(which gcc-10) -m32 "\$@"
           EOF
+          cat << EOF > external/bin/ld
+          #!/bin/bash
+          exec $(which ld) -m elf_i386 "\$@"
+          EOF
           cat << EOF > external/bin/g++
           #!/bin/bash
           exec $(which g++-10) -m32 "\$@"
           EOF
-          chmod 755 external/bin/gcc external/bin/g++
+          chmod 755 external/bin/gcc external/bin/ld external/bin/g++
           echo '${{ github.workspace }}/external/bin' >> $GITHUB_PATH
 
       - name: Restore llvm-mingw (Windows) from cache
