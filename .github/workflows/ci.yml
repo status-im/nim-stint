@@ -50,16 +50,16 @@ jobs:
           sudo dpkg --add-architecture i386
           sudo apt-get update -qq
           sudo DEBIAN_FRONTEND='noninteractive' apt-get install \
-            --no-install-recommends -yq gcc-14-multilib g++-14-multilib \
+            --no-install-recommends -yq gcc-12-multilib g++-12-multilib \
             libssl-dev:i386 linux-libc-dev:i386
           mkdir -p external/bin
           cat << EOF > external/bin/gcc
           #!/bin/bash
-          exec $(which gcc-14) -m32 "\$@"
+          exec $(which gcc-12) -m32 "\$@"
           EOF
           cat << EOF > external/bin/g++
           #!/bin/bash
-          exec $(which g++-14) -m32 "\$@"
+          exec $(which g++-12) -m32 "\$@"
           EOF
           chmod 755 external/bin/gcc external/bin/g++
           echo '${{ github.workspace }}/external/bin' >> $GITHUB_PATH
@@ -145,7 +145,7 @@ jobs:
         run: |
           curl -O -L -s -S https://raw.githubusercontent.com/status-im/nimbus-build-system/master/scripts/build_nim.sh
           env MAKE="${MAKE_CMD} -j${ncpu}" ARCH_OVERRIDE=${PLATFORM} NIM_COMMIT=${{ matrix.branch }} \
-            QUICK_AND_DIRTY_COMPILER=1 QUICK_AND_DIRTY_NIMBLE=1 CC=gcc-14 \
+            QUICK_AND_DIRTY_COMPILER=1 QUICK_AND_DIRTY_NIMBLE=1 CC=gcc \
             bash build_nim.sh nim csources dist/nimble NimBinaries
           echo '${{ github.workspace }}/nim/bin' >> $GITHUB_PATH
 
