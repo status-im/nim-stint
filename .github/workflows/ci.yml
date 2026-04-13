@@ -50,16 +50,16 @@ jobs:
           sudo dpkg --add-architecture i386
           sudo apt-get update -qq
           sudo DEBIAN_FRONTEND='noninteractive' apt-get install \
-            --no-install-recommends -yq gcc-10-multilib g++-10-multilib \
+            --no-install-recommends -yq gcc-12-multilib g++-12-multilib \
             libssl-dev:i386 linux-libc-dev:i386
           mkdir -p external/bin
           cat << EOF > external/bin/gcc
           #!/bin/bash
-          exec $(which gcc-10) -m32 "\$@"
+          exec $(which gcc-12) -m32 "\$@"
           EOF
           cat << EOF > external/bin/g++
           #!/bin/bash
-          exec $(which g++-10) -m32 "\$@"
+          exec $(which g++-12) -m32 "\$@"
           EOF
           chmod 755 external/bin/gcc external/bin/g++
           echo '${{ github.workspace }}/external/bin' >> $GITHUB_PATH
