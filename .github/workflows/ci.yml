@@ -22,7 +22,7 @@ jobs:
             cpu: amd64
           #- os: windows
             #cpu: i386
-        branch: [version-1-6, version-2-0, devel]
+        branch: [version-1-6, version-2-0, version-2-2, devel]
         include:
           - target:
               os: linux
@@ -42,7 +42,7 @@ jobs:
     runs-on: ${{ matrix.builder }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install build dependencies (Linux i386)
         if: runner.os == 'Linux' && matrix.target.cpu == 'i386'
@@ -67,7 +67,7 @@ jobs:
       - name: Restore llvm-mingw (Windows) from cache
         if: runner.os == 'Windows'
         id: windows-mingw-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: external/mingw-${{ matrix.target.cpu }}
           key: 'mingw-llvm-17-${{ matrix.target.cpu }}'
@@ -93,7 +93,7 @@ jobs:
       - name: Restore Nim DLLs dependencies (Windows) from cache
         if: runner.os == 'Windows'
         id: windows-dlls-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: external/dlls
           key: 'dlls'
