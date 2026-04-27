@@ -16,13 +16,16 @@
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAA3XAAAN1wFCKJt4AAAAB3RJTUUH4QQQEwksSS9ZWwAAAk1JREFUWMPtll2ITVEUx39nn/O7Y5qR8f05wtCUUr6ZIS++8pEnkZInPImneaCQ5METNdOkeFBKUhMPRIkHKfEuUZSUlGlKPN2TrgfncpvmnntnmlEyq1Z7t89/rf9a6+y99oZxGZf/XeIq61EdtgKXgdXA0xrYAvBjOIF1AI9zvjcC74BSpndrJPkBWDScTF8Aa4E3wDlgHbASaANmVqlcCnwHvgDvgVfAJ+AikAAvgfVZwLnSVZHZaOuKoQi3ZOMi4NkYkpe1p4J7A8BpYAD49hfIy/oqG0+hLomiKP2L5L+1ubn5115S+3OAn4EnwBlgMzCjyt6ZAnQCJ4A7wOs88iRJHvw50HoujuPBoCKwHWiosy8MdfZnAdcHk8dxXFJ3VQbQlCTJvRBCGdRbD4M6uc5glpY3eAihpN5S5w12diSEcCCEcKUO4ljdr15T76ur1FDDLIQQ3qv71EdDOe3Kxj3leRXyk+pxdWnFWod6Wt2bY3de3aSuUHcPBVimHs7mK9WrmeOF6lR1o9qnzskh2ar2qm1qizpfXaPeVGdlmGN5pb09qMxz1Xb1kLqgzn1RyH7JUXW52lr5e/Kqi9qpto7V1atuUzfnARrV7jEib1T76gG2qxdGmXyiekkt1GswPTtek0aBfJp6YySGBfWg2tPQ0FAYgf1stUfdmdcjarbYJEniKIq6gY/Aw+zWHAC+p2labGpqiorFYgGYCEzN7oQdQClN07O1/EfDyGgC0ALMBdYAi4FyK+4H3gLPsxfR1zRNi+NP7nH5J+QntnXe5B5mpfQAAAAASUVORK5CYII=">
 
 <!-- CSS -->
-<link rel="stylesheet" type="text/css" href="../../nimdoc.out.css?v=2.2.8">
+<link rel="stylesheet" type="text/css" href="../../nimdoc.out.css?v=2.2.10">
 
 <!-- JS -->
-<script type="text/javascript" src="../../dochack.js?v=2.2.8"></script>
+<script type="text/javascript" src="../../dochack.js?v=2.2.10"></script>
 </head>
 <body>
   <div class="document" id="documentId">
+    <input type="checkbox" id="nav-toggle" hidden>
+    <label for="nav-toggle" id="nav-burger">&#9776;</label>
+    <label for="nav-toggle" id="nav-overlay"></label>
     <div class="container">
       <h1 class="title">stint/private/datatypes</h1>
       <div class="row">
@@ -159,7 +162,7 @@
   <h1><a class="toc-backref" href="#7">Types</a></h1>
   <dl class="item">
     <div id="Limbs">
-  <dt><pre><a href="datatypes.html#Limbs"><span class="Identifier">Limbs</span></a><span class="Other">[</span><span class="Identifier">N</span><span class="Other">]</span> <span class="Other">=</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">N</span><span class="Other">,</span> <a href="datatypes.html#Word"><span class="Identifier">Word</span></a><span class="Other">]</span></pre></dt>
+  <dt><pre><a href="#Limbs"><span class="Identifier">Limbs</span></a><span class="Other">[</span><span class="Identifier">N</span><span class="Other">]</span> <span class="Other">=</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">N</span><span class="Other">,</span> <a href="#Word"><span class="Identifier">Word</span></a><span class="Other">]</span></pre></dt>
   <dd>
     
     Limbs type.
@@ -169,7 +172,7 @@
   </dd>
 </div>
 <div id="SignedWord">
-  <dt><pre><a href="datatypes.html#SignedWord"><span class="Identifier">SignedWord</span></a> <span class="Other">=</span> <span class="Identifier">int64</span></pre></dt>
+  <dt><pre><a href="#SignedWord"><span class="Identifier">SignedWord</span></a> <span class="Other">=</span> <span class="Identifier">int64</span></pre></dt>
   <dd>
     
     
@@ -179,7 +182,7 @@
   </dd>
 </div>
 <div id="SomeBigInteger">
-  <dt><pre><a href="datatypes.html#SomeBigInteger"><span class="Identifier">SomeBigInteger</span></a><span class="Other">[</span><span class="Identifier">bits</span><span class="Other">]</span> <span class="Other">=</span> <a href="datatypes.html#StUint"><span class="Identifier">StUint</span></a><span class="Other">[</span><span class="Identifier">bits</span><span class="Other">]</span> <span class="Operator">|</span> <a href="datatypes.html#StInt"><span class="Identifier">StInt</span></a><span class="Other">[</span><span class="Identifier">bits</span><span class="Other">]</span></pre></dt>
+  <dt><pre><a href="#SomeBigInteger"><span class="Identifier">SomeBigInteger</span></a><span class="Other">[</span><span class="Identifier">bits</span><span class="Other">]</span> <span class="Other">=</span> <a href="#StUint"><span class="Identifier">StUint</span></a><span class="Other">[</span><span class="Identifier">bits</span><span class="Other">]</span> <span class="Operator">|</span> <a href="#StInt"><span class="Identifier">StInt</span></a><span class="Other">[</span><span class="Identifier">bits</span><span class="Other">]</span></pre></dt>
   <dd>
     
     
@@ -189,8 +192,8 @@
   </dd>
 </div>
 <div id="StInt">
-  <dt><pre><a href="datatypes.html#StInt"><span class="Identifier">StInt</span></a><span class="Other">[</span><span class="Identifier">bits</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">object</span>
-  <span class="Identifier">impl</span><span class="Operator">*</span><span class="Other">:</span> <a href="datatypes.html#StUint"><span class="Identifier">StUint</span></a><span class="Other">[</span><span class="Identifier">bits</span><span class="Other">]</span></pre></dt>
+  <dt><pre><a href="#StInt"><span class="Identifier">StInt</span></a><span class="Other">[</span><span class="Identifier">bits</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">object</span>
+  <span class="Identifier">impl</span><span class="Operator">*</span><span class="Other">:</span> <a href="#StUint"><span class="Identifier">StUint</span></a><span class="Other">[</span><span class="Identifier">bits</span><span class="Other">]</span></pre></dt>
   <dd>
     
     <p>Stack-based integer.</p>
@@ -202,8 +205,8 @@
   </dd>
 </div>
 <div id="StUint">
-  <dt><pre><a href="datatypes.html#StUint"><span class="Identifier">StUint</span></a><span class="Other">[</span><span class="Identifier">bits</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">object</span>
-  <span class="Identifier">limbs</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">bits</span><span class="Other">.</span><span class="Identifier">wordsRequired</span><span class="Other">,</span> <a href="datatypes.html#Word"><span class="Identifier">Word</span></a><span class="Other">]</span></pre></dt>
+  <dt><pre><a href="#StUint"><span class="Identifier">StUint</span></a><span class="Other">[</span><span class="Identifier">bits</span><span class="Other">]</span> <span class="Other">=</span> <span class="Keyword">object</span>
+  <span class="Identifier">limbs</span><span class="Operator">*</span><span class="Other">:</span> <span class="Identifier">array</span><span class="Other">[</span><span class="Identifier">bits</span><span class="Other">.</span><span class="Identifier">wordsRequired</span><span class="Other">,</span> <a href="#Word"><span class="Identifier">Word</span></a><span class="Other">]</span></pre></dt>
   <dd>
     
     <p>Stack-based integer.</p>
@@ -215,7 +218,7 @@
   </dd>
 </div>
 <div id="uint128">
-  <dt><pre><a href="datatypes.html#uint128"><span class="Identifier">uint128</span></a> {.<span class="Identifier">importc</span><span class="Other">:</span> <span class="StringLit">&quot;unsigned __int128&quot;</span><span class="Other">,</span> <span class="Identifier">nodecl</span>.} <span class="Other">=</span> <span class="Keyword">object</span></pre></dt>
+  <dt><pre><a href="#uint128"><span class="Identifier">uint128</span></a> {.<span class="Identifier">importc</span><span class="Other">:</span> <span class="StringLit">&quot;unsigned __int128&quot;</span><span class="Other">,</span> <span class="Identifier">nodecl</span>.} <span class="Other">=</span> <span class="Keyword">object</span></pre></dt>
   <dd>
     
     
@@ -225,7 +228,7 @@
   </dd>
 </div>
 <div id="Word">
-  <dt><pre><a href="datatypes.html#Word"><span class="Identifier">Word</span></a> <span class="Other">=</span> <span class="Identifier">uint64</span></pre></dt>
+  <dt><pre><a href="#Word"><span class="Identifier">Word</span></a> <span class="Other">=</span> <span class="Identifier">uint64</span></pre></dt>
   <dd>
     
     
@@ -241,7 +244,7 @@
   <h1><a class="toc-backref" href="#10">Consts</a></h1>
   <dl class="item">
     <div id="GCC_Compatible">
-  <dt><pre><a href="datatypes.html#GCC_Compatible"><span class="Identifier">GCC_Compatible</span></a> <span class="Other">=</span> <span class="DecNumber">true</span></pre></dt>
+  <dt><pre><a href="#GCC_Compatible"><span class="Identifier">GCC_Compatible</span></a> <span class="Other">=</span> <span class="DecNumber">true</span></pre></dt>
   <dd>
     
     
@@ -251,7 +254,7 @@
   </dd>
 </div>
 <div id="WordBitWidth">
-  <dt><pre><a href="datatypes.html#WordBitWidth"><span class="Identifier">WordBitWidth</span></a> <span class="Other">=</span> <span class="DecNumber">64</span></pre></dt>
+  <dt><pre><a href="#WordBitWidth"><span class="Identifier">WordBitWidth</span></a> <span class="Other">=</span> <span class="DecNumber">64</span></pre></dt>
   <dd>
     
     
@@ -261,7 +264,7 @@
   </dd>
 </div>
 <div id="X86">
-  <dt><pre><a href="datatypes.html#X86"><span class="Identifier">X86</span></a> <span class="Other">=</span> <span class="DecNumber">true</span></pre></dt>
+  <dt><pre><a href="#X86"><span class="Identifier">X86</span></a> <span class="Other">=</span> <span class="DecNumber">true</span></pre></dt>
   <dd>
     
     
@@ -278,7 +281,7 @@
   <dl class="item">
     <div id="copyWords-procs-all">
   <div id="copyWords,openArray[Word],int,openArray[Word],int,int">
-  <dt><pre><span class="Keyword">func</span> <a href="#copyWords%2CopenArray%5BWord%5D%2Cint%2CopenArray%5BWord%5D%2Cint%2Cint"><span class="Identifier">copyWords</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">openArray</span><span class="Other">[</span><a href="datatypes.html#Word"><span class="Identifier">Word</span></a><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">startA</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span> <span class="Identifier">b</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><a href="datatypes.html#Word"><span class="Identifier">Word</span></a><span class="Other">]</span><span class="Other">;</span>
+  <dt><pre><span class="Keyword">func</span> <a href="#copyWords%2CopenArray%5BWord%5D%2Cint%2CopenArray%5BWord%5D%2Cint%2Cint"><span class="Identifier">copyWords</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <span class="Keyword">var</span> <span class="Identifier">openArray</span><span class="Other">[</span><a href="#Word"><span class="Identifier">Word</span></a><span class="Other">]</span><span class="Other">;</span> <span class="Identifier">startA</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span> <span class="Identifier">b</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><a href="#Word"><span class="Identifier">Word</span></a><span class="Other">]</span><span class="Other">;</span>
                <span class="Identifier">startB</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">;</span> <span class="Identifier">numWords</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">)</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> </span><span class="Identifier">inline</span><span class="Other">,</span> <span class="Identifier">noinit</span><span class="Other">,</span> <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">gcsafe</span><span class="Other">,</span>
     <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
@@ -293,7 +296,7 @@
 </div>
 <div id="usedBitsAndWords-procs-all">
   <div id="usedBitsAndWords,openArray[Word]">
-  <dt><pre><span class="Keyword">func</span> <a href="#usedBitsAndWords%2CopenArray%5BWord%5D"><span class="Identifier">usedBitsAndWords</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><a href="datatypes.html#Word"><span class="Identifier">Word</span></a><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">bits</span><span class="Other">,</span> <span class="Identifier">words</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">]</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
+  <dt><pre><span class="Keyword">func</span> <a href="#usedBitsAndWords%2CopenArray%5BWord%5D"><span class="Identifier">usedBitsAndWords</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <span class="Identifier">openArray</span><span class="Other">[</span><a href="#Word"><span class="Identifier">Word</span></a><span class="Other">]</span><span class="Other">)</span><span class="Other">:</span> <span class="Keyword">tuple</span><span class="Other">[</span><span class="Identifier">bits</span><span class="Other">,</span> <span class="Identifier">words</span><span class="Other">:</span> <span class="Identifier">int</span><span class="Other">]</span> {.<span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">raises</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span>
     </span><span class="Identifier">inline</span><span class="Other">,</span> <span class="Identifier">noinit</span><span class="Other">,</span> <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">gcsafe</span><span class="Other">,</span> <span class="Identifier">tags</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span><span class="Other">,</span> <span class="Identifier">forbids</span><span class="Other">:</span> <span class="Other">[</span><span class="Other">]</span></span>.}</pre></dt>
   <dd>
     
@@ -329,7 +332,7 @@
   <dl class="item">
     <div id="staticFor-macros-all">
   <div id="staticFor.m,,staticint,staticint,untyped">
-  <dt><pre><span class="Keyword">macro</span> <a href="#staticFor.m%2C%2Cstaticint%2Cstaticint%2Cuntyped"><span class="Identifier">staticFor</span></a><span class="Other">(</span><span class="Identifier">idx</span><span class="Other">:</span> <span class="Identifier">untyped</span><span class="Other">{</span><span class="Identifier">nkIdent</span><span class="Other">}</span><span class="Other">;</span> <span class="Identifier">start</span><span class="Other">,</span> <span class="Identifier">stopEx</span><span class="Other">:</span> <span class="Identifier">static</span> <span class="Identifier">int</span><span class="Other">;</span> <span class="Identifier">body</span><span class="Other">:</span> <span class="Identifier">untyped</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">untyped</span> {.
+  <dt><pre><span class="Keyword">macro</span> <a href="#staticFor.m%2C%2Cstaticint%2Cstaticint%2Cuntyped"><span class="Identifier">staticFor</span></a><span class="Other">(</span><span class="Identifier">idx</span><span class="Other">:</span> <span class="Identifier">untyped</span><span class="Other">{</span><span class="Identifier">nkIdent</span><span class="Other">}</span><span class="Other">;</span> <span class="Identifier">start</span><span class="Other">,</span> <span class="Identifier">stopEx</span><span class="Other">:</span> <span class="Keyword">static</span> <span class="Identifier">int</span><span class="Other">;</span> <span class="Identifier">body</span><span class="Other">:</span> <span class="Identifier">untyped</span><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">untyped</span> {.
     <span><span class="Other pragmadots">...</span></span><span class="pragmawrap"><span class="Identifier">deprecated</span><span class="Other">:</span> <span class="StringLit">&quot;stew/staticfor&quot;</span></span>.}</pre></dt>
   <dd>
     <div class="deprecation-message">
@@ -352,7 +355,7 @@
   <dl class="item">
     <div id="[]-templates-all">
   <div id="[].t,StInt,">
-  <dt><pre><span class="Keyword">template</span> <a href="#%5B%5D.t%2CStInt%2C"><span class="Identifier">`[]`</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <a href="datatypes.html#StInt"><span class="Identifier">StInt</span></a><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">SomeInteger</span> <span class="Keyword">or</span> <span class="Identifier">BackwardsIndex</span><span class="Other">)</span><span class="Other">:</span> <a href="datatypes.html#Word"><span class="Identifier">Word</span></a></pre></dt>
+  <dt><pre><span class="Keyword">template</span> <a href="#%5B%5D.t%2CStInt%2C"><span class="Identifier">`[]`</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <a href="#StInt"><span class="Identifier">StInt</span></a><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">SomeInteger</span> <span class="Keyword">or</span> <span class="Identifier">BackwardsIndex</span><span class="Other">)</span><span class="Other">:</span> <a href="#Word"><span class="Identifier">Word</span></a></pre></dt>
   <dd>
     
     
@@ -362,7 +365,7 @@
   </dd>
 </div>
 <div id="[].t,StUint,">
-  <dt><pre><span class="Keyword">template</span> <a href="#%5B%5D.t%2CStUint%2C"><span class="Identifier">`[]`</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <a href="datatypes.html#StUint"><span class="Identifier">StUint</span></a><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">SomeInteger</span> <span class="Keyword">or</span> <span class="Identifier">BackwardsIndex</span><span class="Other">)</span><span class="Other">:</span> <a href="datatypes.html#Word"><span class="Identifier">Word</span></a></pre></dt>
+  <dt><pre><span class="Keyword">template</span> <a href="#%5B%5D.t%2CStUint%2C"><span class="Identifier">`[]`</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <a href="#StUint"><span class="Identifier">StUint</span></a><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">SomeInteger</span> <span class="Keyword">or</span> <span class="Identifier">BackwardsIndex</span><span class="Other">)</span><span class="Other">:</span> <a href="#Word"><span class="Identifier">Word</span></a></pre></dt>
   <dd>
     
     
@@ -375,7 +378,7 @@
 </div>
 <div id="[]=-templates-all">
   <div id="[]=.t,StInt,,Word">
-  <dt><pre><span class="Keyword">template</span> <a href="#%5B%5D%3D.t%2CStInt%2C%2CWord"><span class="Identifier">`[]=`</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="datatypes.html#StInt"><span class="Identifier">StInt</span></a><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">SomeInteger</span> <span class="Keyword">or</span> <span class="Identifier">BackwardsIndex</span><span class="Other">;</span> <span class="Identifier">val</span><span class="Other">:</span> <a href="datatypes.html#Word"><span class="Identifier">Word</span></a><span class="Other">)</span></pre></dt>
+  <dt><pre><span class="Keyword">template</span> <a href="#%5B%5D%3D.t%2CStInt%2C%2CWord"><span class="Identifier">`[]=`</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#StInt"><span class="Identifier">StInt</span></a><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">SomeInteger</span> <span class="Keyword">or</span> <span class="Identifier">BackwardsIndex</span><span class="Other">;</span> <span class="Identifier">val</span><span class="Other">:</span> <a href="#Word"><span class="Identifier">Word</span></a><span class="Other">)</span></pre></dt>
   <dd>
     
     
@@ -385,7 +388,7 @@
   </dd>
 </div>
 <div id="[]=.t,StUint,,Word">
-  <dt><pre><span class="Keyword">template</span> <a href="#%5B%5D%3D.t%2CStUint%2C%2CWord"><span class="Identifier">`[]=`</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="datatypes.html#StUint"><span class="Identifier">StUint</span></a><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">SomeInteger</span> <span class="Keyword">or</span> <span class="Identifier">BackwardsIndex</span><span class="Other">;</span> <span class="Identifier">val</span><span class="Other">:</span> <a href="datatypes.html#Word"><span class="Identifier">Word</span></a><span class="Other">)</span></pre></dt>
+  <dt><pre><span class="Keyword">template</span> <a href="#%5B%5D%3D.t%2CStUint%2C%2CWord"><span class="Identifier">`[]=`</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#StUint"><span class="Identifier">StUint</span></a><span class="Other">;</span> <span class="Identifier">i</span><span class="Other">:</span> <span class="Identifier">SomeInteger</span> <span class="Keyword">or</span> <span class="Identifier">BackwardsIndex</span><span class="Other">;</span> <span class="Identifier">val</span><span class="Other">:</span> <a href="#Word"><span class="Identifier">Word</span></a><span class="Other">)</span></pre></dt>
   <dd>
     
     
@@ -398,7 +401,7 @@
 </div>
 <div id="clearExtraBitsOverMSB-templates-all">
   <div id="clearExtraBitsOverMSB.t">
-  <dt><pre><span class="Keyword">template</span> <a href="#clearExtraBitsOverMSB.t"><span class="Identifier">clearExtraBitsOverMSB</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="datatypes.html#StUint"><span class="Identifier">StUint</span></a> <span class="Operator">|</span> <a href="datatypes.html#StInt"><span class="Identifier">StInt</span></a><span class="Other">)</span> {..}</pre></dt>
+  <dt><pre><span class="Keyword">template</span> <a href="#clearExtraBitsOverMSB.t"><span class="Identifier">clearExtraBitsOverMSB</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <span class="Keyword">var</span> <a href="#StUint"><span class="Identifier">StUint</span></a> <span class="Operator">|</span> <a href="#StInt"><span class="Identifier">StInt</span></a><span class="Other">)</span> {..}</pre></dt>
   <dd>
     
     <p>A StUint is stored in an array of 32 of 64-bit word.</p>
@@ -413,7 +416,7 @@
 </div>
 <div id="len-templates-all">
   <div id="len.t,StInt">
-  <dt><pre><span class="Keyword">template</span> <a href="#len.t%2CStInt"><span class="Identifier">len</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <a href="datatypes.html#StInt"><span class="Identifier">StInt</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span></pre></dt>
+  <dt><pre><span class="Keyword">template</span> <a href="#len.t%2CStInt"><span class="Identifier">len</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <a href="#StInt"><span class="Identifier">StInt</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span></pre></dt>
   <dd>
     
     
@@ -423,7 +426,7 @@
   </dd>
 </div>
 <div id="len.t,StUint">
-  <dt><pre><span class="Keyword">template</span> <a href="#len.t%2CStUint"><span class="Identifier">len</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <a href="datatypes.html#StUint"><span class="Identifier">StUint</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span></pre></dt>
+  <dt><pre><span class="Keyword">template</span> <a href="#len.t%2CStUint"><span class="Identifier">len</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <a href="#StUint"><span class="Identifier">StUint</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">int</span></pre></dt>
   <dd>
     
     
@@ -436,7 +439,7 @@
 </div>
 <div id="limbs-templates-all">
   <div id="limbs.t,StInt">
-  <dt><pre><span class="Keyword">template</span> <a href="#limbs.t%2CStInt"><span class="Identifier">limbs</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <a href="datatypes.html#StInt"><span class="Identifier">StInt</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">untyped</span></pre></dt>
+  <dt><pre><span class="Keyword">template</span> <a href="#limbs.t%2CStInt"><span class="Identifier">limbs</span></a><span class="Other">(</span><span class="Identifier">a</span><span class="Other">:</span> <a href="#StInt"><span class="Identifier">StInt</span></a><span class="Other">)</span><span class="Other">:</span> <span class="Identifier">untyped</span></pre></dt>
   <dd>
     
     
@@ -457,7 +460,7 @@
       <div class="twelve-columns footer">
         <span class="nim-sprite"></span>
         <br>
-        <small style="color: var(--hint);">Made with Nim. Generated: 2026-04-22 10:53:59 UTC</small>
+        <small style="color: var(--hint);">Made with Nim. Generated: 2026-04-27 07:30:50 UTC</small>
       </div>
     </div>
   </div>
