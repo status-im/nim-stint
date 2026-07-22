@@ -44,12 +44,25 @@ func submod_internal(a, b, m: StUint): StUint {.inline.}=
 func addmod*(a, b, m: StUint): StUint =
   ## Modular addition.
 
-  let a_m = if a < m: a
-            else: a mod m
-  let b_m = if b < m: b
-            else: b mod m
-
-  addmod_internal(a_m, b_m, m)
+  let s = a + b
+  if s >= a:
+    if s < m:
+      s
+    else:
+      s mod m
+  else:
+    if s < m:
+      let d = s - m
+      if d < m:
+        d
+      else:
+        d mod m
+    else:
+      let t = zero(typeof m) - m
+      addmod_internal(
+        s mod m,
+        (if t < m: t else: t mod m),
+        m)
 
 func submod*(a, b, m: StUint): StUint =
   ## Modular substraction.
