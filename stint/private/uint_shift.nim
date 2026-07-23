@@ -35,15 +35,15 @@ func shrLarge*(r: var Limbs, a: Limbs, w, shift: SomeInteger) =
   if w > Limbs.len:
     return
 
-  smartFor(i, w ..< a.len - 1):
+  for i in w ..< a.len - 1:
     r[i - w] = (a[i] shr shift) or (a[i + 1] shl (WordBitWidth - shift))
   r[^(1 + w)] = a[^1] shr shift
 
 func shrWords*(r: var Limbs, a: Limbs, w: SomeInteger) =
   ## Shift right by `w` word.
-  smartFor(i, 0 ..< Limbs.len - w):
+  for i in 0 ..< Limbs.len - w:
     r[i] = a[i + w]
-  smartFor(i, Limbs.len - w ..< Limbs.len):
+  for i in Limbs.len - w ..< Limbs.len:
     r[i] = 0
 
 func shlSmall*(r: var Limbs, a: Limbs, k: SomeInteger) =
@@ -61,14 +61,14 @@ func shlLarge*(r: var Limbs, a: Limbs, w, shift: SomeInteger) =
     return
 
   r[w] = a[0] shl shift
-  smartFor(i, 1 + w ..< r.len):
+  for i in 1 + w ..< r.len:
     r[i] = (a[i - w] shl shift) or (a[i - w - 1] shr (WordBitWidth - shift))
 
 func shlWords*(r: var Limbs, a: Limbs, w: SomeInteger) =
   ## Shift left by w word.
-  smartFor(i, 0 ..< w):
+  for i in 0 ..< w:
     r[i] = 0
-  smartFor(i, 0 ..< Limbs.len - w):
+  for i in 0 ..< Limbs.len - w:
     r[i + w] = a[i]
 
 # Wrappers

@@ -183,7 +183,7 @@ func copyWords*(
        numWords: int) =
   ## Copy a slice of B into A. This properly deals
   ## with overlaps when A and B are slices of the same buffer.
-  smartFor(i, 0 ..< numWords):
+  for i in 0 ..< numWords:
     a[startA + (numWords - 1 - i)] = b[startB + (numWords - 1 - i)]
 
 {.pop.}

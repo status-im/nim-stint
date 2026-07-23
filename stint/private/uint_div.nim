@@ -19,7 +19,7 @@ import
 func shortDiv*(a: var Limbs, k: Word): Word =
   ## Divide `a` by k in-place and return the remainder.
 
-  smartFor(i, 1 ..< a.len + 1):
+  for i in 1 ..< a.len + 1:
     (a[^i], result) = narrowingDiv(result, a[^i], k)
    
 func shlAddMod_multi(a: var openArray[Word], c: Word,
