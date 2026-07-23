@@ -82,10 +82,9 @@ func `==`*(a, b: StUint): bool {.inline.} =
 
 func `<`*(a, b: StUint): bool {.inline.} =
   ## Unsigned `less than` comparison.
-  var diff: Word
   var borrow: bool
   smartFor(i, 0 ..< a.limbs.len):
-    (diff, borrow) = borrowingSub(a[i], b[i], borrow)
+    borrow = sub.borrow(a[i], b[i], borrow)
   return borrow
 
 func `<=`*(a, b: StUint): bool {.inline.} =

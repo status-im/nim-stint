@@ -11,7 +11,7 @@ skipDirs      = @["tests", "benchmarks"]
 # TODO test only requirements don't work: https://github.com/nim-lang/nimble/issues/482
 requires "nim >= 1.6.12",
          "stew >= 0.2.0",
-         "intops >= 1.0.7",
+         "intops >= 1.0.8",
          "unittest2 >= 0.2.3"
 
 let nimc = getEnv("NIMC", "nim") # Which nim compiler to use
@@ -19,11 +19,11 @@ let lang = getEnv("NIMLANG", "c") # Which backend (c/cpp/js)
 let flags = getEnv("NIMFLAGS", "") # Extra flags for the compiler
 let verbose = getEnv("V", "") notin ["", "0"]
 
-from os import quoteShell
+from std/os import quoteShell
 
 let cfg =
   " --styleCheck:usages --styleCheck:error" &
-  (if verbose: "" else: " --verbosity:0 --hints:off") &
+  (if verbose: "" else: " --verbosity:0") &
   " --skipParentCfg --skipUserCfg --outdir:build " &
   quoteShell("--nimcache:build/nimcache/$projectName")
 
