@@ -41,38 +41,35 @@ func submod_internal(a, b, m: StUint): StUint {.inline.}=
   else:
     m - b + a
 
+template reduce(x, m: StUint): StUint =
+  # `x` and `m` multiply evaluated; bind expressions to a `let`.
+  if x < m: x else: x mod m
+
 func addmod*(a, b, m: StUint): StUint =
   ## Modular addition.
 
   let s = a + b
   if s >= a:
-    if s < m:
-      s
-    else:
-      s mod m
+    reduce(s, m)
   else:
     if s < m:
       let d = s - m
-      if d < m:
-        d
-      else:
-        d mod m
+      reduce(d, m)
     else:
       let t = zero(typeof m) - m
-      addmod_internal(
-        s mod m,
-        (if t < m: t else: t mod m),
-        m)
+      addmod_internal(s mod m, reduce(t, m), m)
 
 func submod*(a, b, m: StUint): StUint =
   ## Modular substraction.
 
-  let a_m = if a < m: a
-            else: a mod m
-  let b_m = if b < m: b
-            else: b mod m
-
-  submod_internal(a_m, b_m, m)
+  if a >= b:
+    let d = a - b
+    reduce(d, m)
+  else:
+    let u = b - a
+    let r = reduce(u, m)
+    if r.isZero: r
+    else: m - r
 
 func mulmod*(a, b, m: StUint): StUint =
   ## Modular multiplication.
