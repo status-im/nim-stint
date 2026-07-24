@@ -83,7 +83,7 @@ func `==`*(a, b: StUint): bool {.inline.} =
 func `<`*(a, b: StUint): bool {.inline.} =
   ## Unsigned `less than` comparison.
   var borrow: bool
-  smartFor(i, 0 ..< a.limbs.len):
+  for i in 0 ..< a.limbs.len:
     borrow = sub.borrow(a[i], b[i], borrow)
   return borrow
 
