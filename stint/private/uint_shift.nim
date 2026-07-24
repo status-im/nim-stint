@@ -25,7 +25,7 @@ func shrSmall*(r: var Limbs, a: Limbs, k: SomeInteger) =
   #       instead of a[i-1] and a[i]
   #       is probably easier to parallelize for the compiler
   #       (antidependence WAR vs loop-carried dependence RAW)
-  for i in 0 ..< a.len - 1:
+  smartFor(i, 0 ..< a.len - 1):
     r[i] = (a[i] shr k) or (a[i + 1] shl (WordBitWidth - k))
   r[^1] = a[^1] shr k
 
@@ -51,7 +51,7 @@ func shlSmall*(r: var Limbs, a: Limbs, k: SomeInteger) =
   ##
   ## `k` MUST be less than the base word size (2^32 or 2^64).
   r[0] = a[0] shl k
-  for i in 1 ..< a.len:
+  smartFor(i, 1 ..< a.len):
     r[i] = (a[i] shl k) or (a[i - 1] shr (WordBitWidth - k))
 
 func shlLarge*(r: var Limbs, a: Limbs, w, shift: SomeInteger) =

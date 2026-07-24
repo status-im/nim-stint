@@ -20,34 +20,34 @@ import
 func bitnot*(r: var StUint, a: StUint) =
   ## Bitwise complement of unsigned integer a
   ## i.e. flips all bits of the input.
-  for i in 0 ..< r.limbs.len:
+  smartFor(i, 0 ..< r.limbs.len):
     r[i] = not a[i]
   r.clearExtraBitsOverMSB()
 
 func bitor*(r: var StUint, a, b: StUint) =
   ## `Bitwise or` of numbers a and b.
-  for i in 0 ..< r.limbs.len:
+  smartFor(i, 0 ..< r.limbs.len):
     r[i] = a[i] or b[i]
 
 func bitand*(r: var StUint, a, b: StUint) =
   ## `Bitwise and` of numbers a and b.
-  for i in 0 ..< r.limbs.len:
+  smartFor(i, 0 ..< r.limbs.len):
     r[i] = a[i] and b[i]
 
 func bitxor*(r: var StUint, a, b: StUint) =
   ## `Bitwise xor` of numbers x and y.
-  for i in 0 ..< r.limbs.len:
+  smartFor(i, 0 ..< r.limbs.len):
     r[i] = a[i] xor b[i]
   r.clearExtraBitsOverMSB()
 
 func countOnes*(a: StUint): int =
   result = 0
-  for i in 0 ..< a.limbs.len:
+  smartFor(i, 0 ..< a.limbs.len):
     result += countOnes(a[i])
 
 func parity*(a: StUint): int =
   result = parity(a.limbs[0])
-  for i in 1 ..< a.limbs.len:
+  smartFor(i, 1 ..< a.limbs.len):
     result = result xor parity(a.limbs[i])
 
 func leadingZeros*(a: StUint): int =
@@ -56,7 +56,7 @@ func leadingZeros*(a: StUint): int =
   # Adjust when we use only part of the word size
   var extraBits = WordBitWidth * a.limbs.len - a.bits
 
-  for i in countdown(a.limbs.len-1, 0):
+  for i in countdown(a.limbs.high, 0):
     let zeroCount = a.limbs[i].leadingZeros()
     if extraBits > 0:
       result += zeroCount - min(extraBits, WordBitWidth)
