@@ -1,3 +1,5 @@
 nimTitle	uint_div	stint/private/uint_div.html	module stint/private/uint_div		0
-nim	shortDiv	stint/private/uint_div.html#shortDiv,Limbs,Word	proc shortDiv(a: var Limbs; k: Word): Word		19
-nim	divRem	stint/private/uint_div.html#divRem,openArray[Word],openArray[Word],openArray[Word],openArray[Word]	proc divRem(q, r: var openArray[Word]; a, b: openArray[Word])		125
+nim	shortDiv	stint/private/uint_div.html#shortDiv,Limbs,Word	proc shortDiv(a: var Limbs; k: Word): Word		23
+nim	divRem	stint/private/uint_div.html#divRem,openArray[Word],openArray[Word],openArray[Word],openArray[Word]	proc divRem(q, r: var openArray[Word]; a, b: openArray[Word])		147
+nim	divRem	stint/private/uint_div.html#divRem,array[qLen,Word],array[rLen,Word],array[aLen,Word],array[bLen,Word]	proc divRem[qLen, rLen, aLen, bLen: static int](q: var array[qLen, Word];\n    r: var array[rLen, Word]; a: array[aLen, Word]; b: array[bLen, Word])		237
+nimgrp	divrem	stint/private/uint_div.html#divRem-procs-all	proc		147
