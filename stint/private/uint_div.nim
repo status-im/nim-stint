@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018-2023 Status Research & Development GmbH
+# Copyright 2018-2026 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -7,11 +7,15 @@
 #
 # at your option. This file may not be copied, modified, or distributed except according to those terms.
 
+{.push raises: [], gcsafe.}
+
 import
   # Status lib
   intops/ops/[add, sub, muladd, division],
   # Internal
   ./datatypes
+
+from stew/staticfor import staticFor
 
 # Division
 # --------------------------------------------------------
@@ -22,8 +26,27 @@ func shortDiv*(a: var Limbs, k: Word): Word =
   for i in 1 ..< a.len + 1:
     (a[^i], result) = narrowingDiv(result, a[^i], k)
    
-func shlAddMod_multi(a: var openArray[Word], c: Word,
-                     M: openArray[Word], mBits: int): Word =
+template eachIndex(i: untyped, x: openArray[Word] | array, body: untyped) =
+  when compiles(static(x.len)):
+    staticFor i, 0 ..< x.len:
+      body
+  else:
+    for i in 0 ..< x.len:
+      body
+
+template shiftWordsUp(a: var (openArray[Word] | array)) =
+  ## In-place shift of `a` one word towards the most significant end.
+  ## Words are copied in descending order because source and
+  ## destination overlap.
+  when compiles(static(a.len)):
+    const L = a.len
+    staticFor i, 0 ..< L - 1:
+      a[L - 1 - i] = a[L - 2 - i]
+  else:
+    copyWords(a, 1, a, 0, a.len - 1)
+
+template shlAddModImpl(a: var (openArray[Word] | array), c: Word,
+                       M: openArray[Word] | array, mBits: int): Word =
   ## Fused modular left-shift + add.
   ##
   ## Shift input `a` by a word and add `c` modulo `M`
@@ -34,23 +57,22 @@ func shlAddMod_multi(a: var openArray[Word], c: Word,
   ## does `a <- a * W + c (mod M)`
   ## and returns `q = (a * W + c ) / M`.
   ##
-  ## The modulus `M` most-significant bit at `mBits` MUST be set.
-
-                                        # Assuming 64-bit words
+  ## The modulus `M` most-significant bit at `mBits` MUST be set, and
+  ## `a` and `M` must use at least 2 words.
   let hi = a[^1]                        # Save the high word to detect carries
-  let R = mBits and (WordBitWidth - 1)  # R = mBits mod 64
+  let R = mBits and (WordBitWidth - 1)  # R = mBits mod WordBitWidth
 
   var a0, a1, m0: Word
-  if R == 0:                            # If the number of mBits is a multiple of 64
+  if R == 0:                            # If the number of mBits is a multiple of the word size
     a0 = a[^1]                          #
-    copyWords(a, 1, a, 0, a.len-1)      # we can just shift words
+    shiftWordsUp(a)                     # we can just shift words
     a[0] = c                            # and replace the first one by c
     a1 = a[^1]
     m0 = M[^1]
   else:                                 # Else: need to deal with partial word shifts at the edge.
     let clz = WordBitWidth-R
     a0 = (a[^1] shl clz) or (a[^2] shr R)
-    copyWords(a, 1, a, 0, a.len-1)
+    shiftWordsUp(a)
     a[0] = c
     a1 = (a[^1] shl clz) or (a[^2] shr R)
     m0 = (M[^1] shl clz) or (M[^2] shr R)
@@ -63,47 +85,47 @@ func shlAddMod_multi(a: var openArray[Word], c: Word,
     q = high(Word)                      # quotient = MaxWord (0b1111...1111)
   elif a0 == 0 and a1 < m0:             # elif q == 0, true quotient = 0
     q = 0
-    return q
   else:
     var r: Word
     (q, r) = narrowingDiv(a0, a1, m0)   # else instead of being of by 0, 1 or 2
     q -= 1                              # we return q-1 to be off by -1, 0 or 1
 
-  # Now substract a*2^64 - q*m
-  var carry = Word(0)
-  var overM = true                      # Track if quotient greater than the modulus
+  if not (a0 == 0 and a1 < m0):         # nothing to subtract from when q == 0
+    # Now subtract a*2^64 - q*m
+    var carry = Word(0)
+    var overM = true                    # Track if quotient greater than the modulus
 
-  for i in 0 ..< M.len:
-    var qm_lo: Word
-    # q*m
-    # q * p + carry (doubleword) carry from previous limb
-    (carry, qm_lo) = wideningMulAdd(q, M[i], carry)
+    eachIndex(i, M):
+      var qm_lo: Word
+      # q*m
+      # q * p + carry (doubleword) carry from previous limb
+      (carry, qm_lo) = wideningMulAdd(q, M[i], carry)
 
-    # a*2^64 - q*m
-    var borrow: bool
-    (a[i], borrow) = borrowingSub(a[i], qm_lo, false)
+      # a*2^64 - q*m
+      var borrow: bool
+      (a[i], borrow) = borrowingSub(a[i], qm_lo, false)
 
-    carry += Word(borrow) # Adjust if borrow
+      carry += Word(borrow) # Adjust if borrow
 
-    if a[i] != M[i]:
-      overM = a[i] > M[i]
+      if a[i] != M[i]:
+        overM = a[i] > M[i]
 
-  # Fix quotient, the true quotient is either q-1, q or q+1
-  #
-  # if carry < q or carry == q and overM we must do "a -= M"
-  # if carry > hi (negative result) we must do "a += M"
-  if carry > hi:
-    var c = false
-    for i in 0 ..< a.len:
-      (a[i], c) = carryingAdd(a[i], M[i], c)
-    q -= 1
-  elif overM or (carry < hi):
-    var b = false
-    for i in 0 ..< a.len:
-      (a[i], b) = borrowingSub(a[i], M[i], b)
-    q += 1
+    # Fix quotient, the true quotient is either q-1, q or q+1
+    #
+    # if carry < q or carry == q and overM we must do "a -= M"
+    # if carry > hi (negative result) we must do "a += M"
+    if carry > hi:
+      var cc = false
+      eachIndex(i, a):
+        (a[i], cc) = carryingAdd(a[i], M[i], cc)
+      q -= 1
+    elif overM or (carry < hi):
+      var bb = false
+      eachIndex(i, a):
+        (a[i], bb) = borrowingSub(a[i], M[i], bb)
+      q += 1
 
-  return q
+  q
 
 func shlAddMod(a: var openArray[Word], c: Word,
                M: openArray[Word], mBits: int): Word {.inline.} =
@@ -120,7 +142,7 @@ func shlAddMod(a: var openArray[Word], c: Word,
     a[0] = r
     return q
   else:
-    return shlAddMod_multi(a, c, M, mBits)
+    return shlAddModImpl(a, c, M, mBits)
 
 func divRem*(
        q, r: var openArray[Word],
@@ -178,6 +200,75 @@ func divRem*(
       q[i] = 0
     for i in rLen ..< r.len:
       r[i] = 0
+
+func divRemStaticImpl[N: static int; qLen, rLen, aLen, bLen: static int](
+       q: var array[qLen, Word],
+       r: var array[rLen, Word],
+       a: array[aLen, Word],
+       b: array[bLen, Word],
+       aWords, bBits: int) =
+  ## divRem for a divisor using exactly N words (top word non-zero),
+  ## with aWords >= N (i.e. the aBits >= bBits case).
+  var m {.noinit.}: array[N, Word]
+  staticFor i, 0 ..< N:
+    m[i] = b[i]
+
+  var rr: array[N, Word]
+  let aOffset = aWords - N
+  staticFor i, 0 ..< N-1:
+    rr[i] = a[aOffset+1+i]
+
+  for i in countdown(aOffset, 0):
+    when N == 1:
+      let (qq, rem) = narrowingDiv(rr[0], a[i], m[0])
+      rr[0] = rem
+      q[i] = qq
+    else:
+      q[i] = shlAddModImpl(rr, a[i], m, bBits)
+
+  staticFor i, 0 ..< rLen:
+    when i < N:
+      r[i] = rr[i]
+    else:
+      r[i] = 0
+  for i in aOffset+1 ..< qLen:
+    q[i] = 0
+
+func divRem*[qLen, rLen, aLen, bLen: static int](
+       q: var array[qLen, Word],
+       r: var array[rLen, Word],
+       a: array[aLen, Word],
+       b: array[bLen, Word]) =
+  when nimvm:
+    divRem(
+      q.toOpenArray(0, qLen-1), r.toOpenArray(0, rLen-1),
+      a.toOpenArray(0, aLen-1), b.toOpenArray(0, bLen-1))
+  else:
+    when bLen * WordBitWidth > 512:
+      divRem(
+        q.toOpenArray(0, qLen-1), r.toOpenArray(0, rLen-1),
+        a.toOpenArray(0, aLen-1), b.toOpenArray(0, bLen-1))
+    else:
+      let (aBits, aWords) = usedBitsAndWords(a)
+      let (bBits, bWords) = usedBitsAndWords(b)
+
+      when compileOption("overflowChecks"):
+        if unlikely(bBits == 0):
+          raise newException(DivByZeroDefect, "You attempted to divide by zero")
+
+      if aBits < bBits:
+        # a < b, so q = 0 and r = a
+        staticFor i, 0 ..< rLen:
+          r[i] = when i < aLen: a[i] else: 0
+        staticFor i, 0 ..< qLen:
+          q[i] = 0
+      else:
+        block dispatch:
+          staticFor N, 1 .. bLen:
+            if bWords == N:
+              divRemStaticImpl[N, qLen, rLen, aLen, bLen](
+                q, r, a, b, aWords, bBits)
+              break dispatch
 
 # ######################################################################
 # Division implementations
