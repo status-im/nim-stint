@@ -9,7 +9,7 @@ skipDirs      = @["tests", "benchmarks"]
 ### Dependencies
 
 # TODO test only requirements don't work: https://github.com/nim-lang/nimble/issues/482
-requires "nim >= 1.6.12",
+requires "nim >= 2.0.16",
          "stew >= 0.2.0",
          "intops >= 1.0.8",
          "unittest2 >= 0.2.3"
@@ -27,14 +27,12 @@ let cfg =
   " --skipParentCfg --skipUserCfg --outdir:build " &
   quoteShell("--nimcache:build/nimcache/$projectName")
 
-
 proc build(args, path: string) =
   exec nimc & " " & lang & " " & cfg & " " & flags & " " & args & " " & path
 
 proc run(args, path: string) =
-  build args & " -r", path
-  if (NimMajor, NimMinor) > (1, 6):
-    build args & " --mm:refc -r", path
+  build args & " --mm:orc -r", path
+  build args & " --mm:refc -r", path
 
 proc test(path: string) =
   for config in ["", "-d:stintNoIntrinsics"]:
