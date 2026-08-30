@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018 Status Research & Development GmbH
+# Copyright 2018-2026 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -19,7 +19,7 @@ template copyBytes(tgt, src, tstart, sstart, n: untyped) =
     for i in 0..<n:
       tgt[tstart + i] = src[sstart + i]
   else:
-    moveMem(addr tgt[tstart], unsafeAddr src[sstart], n)
+    moveMem(addr tgt[tstart], addr src[sstart], n)
 
 template toBytesCopy(src: StUint) =
   # Copy src to result maintaining native byte order
