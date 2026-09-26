@@ -38,7 +38,7 @@ proc test(path: string) =
   for config in ["", "-d:stintNoIntrinsics"]:
     for mode in ["-d:debug", "-d:release"]:
       # Compile-time tests are done separately to speed up full testing
-      run(config & " " & mode & " -d:unittest2Static=false", path)
+      run(config & " " & mode & " --skipParentCfg:off -d:unittest2Static=false", path)
 
 task test_internal, "Run tests for internal procs":
   test "tests/internal"
