@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2018-2025 Status Research & Development GmbH
+# Copyright 2018-2026 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -34,12 +34,12 @@ macro make_mixed_types_ops(op: untyped, ResultTy: untyped, sign: static[Signedne
                     )
 
     result.add quote do:
-      proc `op`*[bits: static[int]](a: StUint[bits], b: `intLit`): `ResultTy` {.inline.}=
+      func `op`*[bits: static[int]](a: StUint[bits], b: `intLit`): `ResultTy` {.inline.}=
         `op`(a, b.stuint(bits))
 
     if switchInputs:
       result.add quote do:
-        proc `op`*[bits: static[int]](a: `intLit`, b: StUint[bits]): `ResultTy` {.inline.}=
+        func `op`*[bits: static[int]](a: `intLit`, b: StUint[bits]): `ResultTy` {.inline.}=
           `op`(a.stuint(bits), b)
 
   if sign != UintOnly:
@@ -50,13 +50,13 @@ macro make_mixed_types_ops(op: untyped, ResultTy: untyped, sign: static[Signedne
                     )
 
     result.add quote do:
-      proc `op`*[bits: static[int]](a: StInt[bits], b: `intLit`): `ResultTy` {.inline.}=
-        `op`(a, b.stuint(bits))
+      func `op`*[bits: static[int]](a: StInt[bits], b: `intLit`): `ResultTy` {.inline.}=
+        `op`(a, b.stint(bits))
 
     if switchInputs:
       result.add quote do:
-        proc `op`*[bits: static[int]](a: `intLit`, b: StInt[bits]): `ResultTy` {.inline.}=
-          `op`(a.stuint(bits), b)
+        func `op`*[bits: static[int]](a: `intLit`, b: StInt[bits]): `ResultTy` {.inline.}=
+          `op`(a.stint(bits), b)
 
 make_mixed_types_ops(`+`, InputType, BothSigned, switchInputs = true)
 make_mixed_types_ops(`+=`, InputType, BothSigned, switchInputs = false)
