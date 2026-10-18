@@ -1,5 +1,5 @@
 # Stint
-# Copyright 2023-2025 Status Research & Development GmbH
+# Copyright 2023-2026 Status Research & Development GmbH
 # Licensed under either of
 #
 #  * Apache License, version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
@@ -55,3 +55,27 @@ suite "new features":
       const
         w = 1122334455667788991011121314151617181920'u128
       doAssert(false)
+
+  test "signed int literal operands":
+    check:
+      5.i256 + 3 == 8.i256
+      3 + 5.i256 == 8.i256
+      5.i256 + -3 == 2.i256
+      5.i256 - 3 == 2.i256
+      3 - 5.i256 == -2.i256
+      5.i256 * -3 == -15.i256
+      -3 * 5.i256 == -15.i256
+      -7.i256 div 2 == -3.i256
+      -7.i256 mod 2 == -1.i256
+      -5.i256 < 3
+      not (3 < -5.i256)
+      -5.i256 <= -5
+      -5 <= -5.i256
+      -5.i256 == -5
+      -5 == -5.i256
+      (5.i256 or 2) == 7.i256
+      (2 or 5.i256) == 7.i256
+      (-6.i256 and 3) == 2.i256
+      (3 and -6.i256) == 2.i256
+      (5.i256 xor 3) == 6.i256
+      (3 xor 5.i256) == 6.i256
